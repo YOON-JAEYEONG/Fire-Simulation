@@ -3,8 +3,8 @@
 
 #include "SmokeAwareNPC.h"
 
-#include "YUFSBinaryManager.h"
-#include "YUFSHeterogeneousVolume.h"
+#include "Fire/YUFSBinaryManager.h"
+#include "Fire/YUFSHeterogeneousVolume.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -12,6 +12,7 @@ ASmokeAwareNPC::ASmokeAwareNPC()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	SetActorTickInterval(1.0f);
 
 }
 
