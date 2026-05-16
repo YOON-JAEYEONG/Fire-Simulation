@@ -63,6 +63,8 @@ struct YUFS_API FYUFSNPCObservation
 	float StressLevel;
 	UPROPERTY()
 	int32 MillingActionCount;
+	UPROPERTY()
+	float SmokeExposureAccumulated; // 누적 연기 흡입량 [0,1] — 행동불능 결정 변수
 
 	TArray<float> ToFloatArray() const;
 };

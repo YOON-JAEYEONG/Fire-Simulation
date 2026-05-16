@@ -142,7 +142,7 @@ void UYUFSNPCDebugComponent::DrawDebugOverlay(const FYUFSNPCObservation& Obs)
 	{
 		DrawDebugString(
 			GetWorld(),
-			ActorLocation + FVector(0.f, 0.f, TextHeightOffset),
+			FVector(0.f, 0.f, TextHeightOffset),
 			BuildStateText(Obs),
 			OwnerActor,
 			RiskColor,
@@ -154,7 +154,7 @@ void UYUFSNPCDebugComponent::DrawDebugOverlay(const FYUFSNPCObservation& Obs)
 	{
 		DrawDebugString(
 			GetWorld(),
-			ActorLocation + FVector(0.f, 0.f, ObservationTextHeightOffset),
+			FVector(0.f, 0.f, ObservationTextHeightOffset),
 			BuildObservationText(Obs),
 			OwnerActor,
 			FColor::White,

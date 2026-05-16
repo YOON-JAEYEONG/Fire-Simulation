@@ -49,4 +49,21 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	float EmergencyOverrideMultiplier = 2.0f;
+
+	// ── 행동 불능 (Incapacitation) ─────────────────────────────────────
+	// 연기 흡입량 누적 속도 (단위: /초, 1.0 이면 100초에 완전 행동불능)
+	UPROPERTY(EditAnywhere, Category="Incapacitation")
+	float SmokeExposureAccumRate = 0.008f;
+
+	// 행동불능 전 '기어가기' 단계 진입 임계값 [0,1]
+	UPROPERTY(EditAnywhere, Category="Incapacitation")
+	float CrawlThreshold = 0.60f;
+
+	// 완전 행동불능(쓰러짐) 임계값 [0,1]
+	UPROPERTY(EditAnywhere, Category="Incapacitation")
+	float IncapacitationThreshold = 0.90f;
+
+	// 기어갈 때 이동 속도 (cm/s)
+	UPROPERTY(EditAnywhere, Category="Incapacitation")
+	float CrawlSpeed = 80.f;
 };

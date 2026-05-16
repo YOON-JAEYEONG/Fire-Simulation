@@ -17,6 +17,7 @@
 #include "Level/YUFSLevelDataManager.h"
 #include "Navigation/YUFSSmokeAwareNavigator.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
+#include "Simulation/YUFSSimulationController.h"
 #include "Social/YUFSSocialInfluenceComponent.h"
 
 AYUFSEvacuationNPC::AYUFSEvacuationNPC()
@@ -71,6 +72,13 @@ void AYUFSEvacuationNPC::BeginPlay()
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It)
 	{
 		LevelDataMgr = *It;
+		break;
+	}
+
+	// 시뮬레이션 컨트롤러에 자동 등록
+	for (TActorIterator<AYUFSSimulationController> It(GetWorld()); It; ++It)
+	{
+		(*It)->RegisterNPC(this);
 		break;
 	}
 
@@ -148,6 +156,23 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 			break;
 		}
 
+		// 행동불능 상태: 단계별 이동속도 조정
+		if (BehaviorSM && BehaviorSM->Config)
+		{
+			const float Exposure = BehaviorSM->GetSmokeExposure();
+			if (BehaviorSM->IsIncapacitated())
+			{
+				// 완전 행동불능: 완전히 멈춰서 넣어짔 (MaxWalkSpeed = 0 으로 하면 충돌 연산 문제 발생 가능성)
+				TargetSpeed = 0.f;
+				if (Navigator) Navigator->ClearPath();
+			}
+			else if (Exposure >= BehaviorSM->Config->CrawlThreshold)
+			{
+				// 기어가기 단계: 이동속도를 CrawlSpeed로 강제 축소
+				TargetSpeed = FMath::Min(TargetSpeed, BehaviorSM->Config->CrawlSpeed);
+			}
+		}
+
 		GetCharacterMovement()->MaxWalkSpeed = TargetSpeed;
 
 		if (bIsMovingAction)
@@ -196,7 +221,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 			*ActionName,
 			*Navigator->GetCurrentDestination().ToString(),
 			*SafeExit.ToString());
-		GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow, DebugStr);
+		//GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow, DebugStr);
 	}
 }
 
@@ -268,6 +293,7 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 	Out.CurrentState = BehaviorSM->GetCurrentState();
 	Out.RiskPerception = BehaviorSM->GetRiskPerception();
 	Out.StressLevel = PerceptionComp->GetRiskLevel();
+	Out.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
 	Out.StaffGuidedExitLocation = StaffGuidedExitLocation;
 	Out.bAlarmSounding = bAlarmSounding;
 	Out.bReceivedPreRecordedMsg = bReceivedPreRecordedMsg;

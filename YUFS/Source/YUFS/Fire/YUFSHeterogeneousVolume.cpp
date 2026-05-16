@@ -1,37 +1,85 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "YUFSHeterogeneousVolume.h"
 
-// Sets default values
 AYUFSHeterogeneousVolume::AYUFSHeterogeneousVolume()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	
 	HeterogeneousVolumeComponent = CreateDefaultSubobject<UHeterogeneousVolumeComponent>(TEXT("YUFSHeterogeneousVolumeComponent"));
-	HeterogeneousVolumeComponent->EndFrame = 0.0f;
+	// 생성자에서는 재생하지 않음 — SimulationController가 제어
+	HeterogeneousVolumeComponent->EndFrame = 0.f;
 	HeterogeneousVolumeComponent->bPlaying = false;
 }
 
-// Called when the game starts or when spawned
 void AYUFSHeterogeneousVolume::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	HeterogeneousVolumeComponent->Frame = 0.0f;
-	HeterogeneousVolumeComponent->FrameRate = 8.0f;
-	HeterogeneousVolumeComponent->EndFrame = 8000;
-	HeterogeneousVolumeComponent->bPlaying = true;
-	
+
+	// 설정 값으로 컴포넌트 초기화 (재생은 하지 않음)
+	if (HeterogeneousVolumeComponent)
+	{
+		HeterogeneousVolumeComponent->Frame = 0.f;
+		HeterogeneousVolumeComponent->FrameRate = PlaybackFrameRate;
+		HeterogeneousVolumeComponent->EndFrame = TotalFrameCount;
+		HeterogeneousVolumeComponent->bPlaying = false;
+
+		// 에디터 테스트용: bAutoPlayOnBeginPlay가 true이면 즉시 재생
+		if (bAutoPlayOnBeginPlay)
+		{
+			HeterogeneousVolumeComponent->bPlaying = true;
+			UE_LOG(LogTemp, Warning, TEXT("[YUFSFire] Auto-play enabled. Fire starts immediately."));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Standby. Waiting for SimulationController to call StartFire()."));
+		}
+	}
 }
 
-// Called every frame
 void AYUFSHeterogeneousVolume::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
 
+// ─────────────────────────────────────────────────────────────────────────────
+// 제어 API
+// ─────────────────────────────────────────────────────────────────────────────
+
+void AYUFSHeterogeneousVolume::StartFire()
+{
+	if (!HeterogeneousVolumeComponent) return;
+
+	HeterogeneousVolumeComponent->Frame = 0.f;
+	HeterogeneousVolumeComponent->bPlaying = true;
+	UE_LOG(LogTemp, Warning, TEXT("[YUFSFire] 🔥 Fire STARTED. Frame reset to 0."));
+}
+
+void AYUFSHeterogeneousVolume::PauseFire()
+{
+	if (!HeterogeneousVolumeComponent) return;
+
+	HeterogeneousVolumeComponent->bPlaying = false;
+	UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Fire PAUSED at frame %.0f."),
+		HeterogeneousVolumeComponent->Frame);
+}
+
+void AYUFSHeterogeneousVolume::ResumeFire()
+{
+	if (!HeterogeneousVolumeComponent) return;
+
+	HeterogeneousVolumeComponent->bPlaying = true;
+	UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Fire RESUMED from frame %.0f."),
+		HeterogeneousVolumeComponent->Frame);
+}
+
+void AYUFSHeterogeneousVolume::ResetFire()
+{
+	if (!HeterogeneousVolumeComponent) return;
+
+	HeterogeneousVolumeComponent->Frame = 0.f;
+	HeterogeneousVolumeComponent->bPlaying = false;
+	UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Fire RESET to frame 0."));
 }
 
 int32 AYUFSHeterogeneousVolume::GetFrame() const
@@ -40,7 +88,11 @@ int32 AYUFSHeterogeneousVolume::GetFrame() const
 	{
 		return static_cast<int32>(HeterogeneousVolumeComponent->Frame);
 	}
-	UE_LOG(LogTemp, Error, TEXT("HeterogeneousVolumeComponent가 비어있습니다!"));
+	UE_LOG(LogTemp, Error, TEXT("[YUFSFire] HeterogeneousVolumeComponent가 비어있습니다!"));
 	return 0;
 }
 
+bool AYUFSHeterogeneousVolume::IsPlaying() const
+{
+	return HeterogeneousVolumeComponent && HeterogeneousVolumeComponent->bPlaying;
+}

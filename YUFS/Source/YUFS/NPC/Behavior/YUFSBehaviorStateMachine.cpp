@@ -32,6 +32,7 @@ void UYUFSBehaviorStateMachine::TickStateMachine(float DeltaTime, const FYUFSNPC
 	StateTimer += DeltaTime;
 
 	AccumulateRiskPerception(Obs, DeltaTime);
+	AccumulateSmokeExposure(Obs, DeltaTime);
 	TryTransition(Obs);
 
 	if (PrevState != CurrentState)
@@ -99,6 +100,16 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& Obs)
 	if (!Config)
 	{
 		return;
+	}
+
+	// 행동불능 전이 조건: 뒤에 아무 상태에서든 누적 흡입량이 임계값 초과 시 즉시 Incapacitated
+	if (CurrentState != EYUFSBehaviorState::Incapacitated && Config)
+	{
+		if (SmokeExposureAccumulated >= Config->IncapacitationThreshold)
+		{
+			CurrentState = EYUFSBehaviorState::Incapacitated;
+			return;
+		}
 	}
 
 	if (CheckEmergencyOverride(Obs))
@@ -169,6 +180,24 @@ bool UYUFSBehaviorStateMachine::CheckEmergencyOverride(const FYUFSNPCObservation
 	}
 
 	return Obs.SmokeDensityAtSelf > (Config->SmokeAwarenessThreshold * Config->EmergencyOverrideMultiplier);
+}
+
+void UYUFSBehaviorStateMachine::AccumulateSmokeExposure(const FYUFSNPCObservation& Obs, float DeltaTime)
+{
+	if (!Config) return;
+
+	// 연기가 있을 때만 누적. 연기 농도에 비례하여 더 빠르게 누적.
+	if (Obs.SmokeDensityAtSelf > 0.f)
+	{
+		const float ExposureRate = Config->SmokeExposureAccumRate * Obs.SmokeDensityAtSelf;
+		SmokeExposureAccumulated = FMath::Clamp(SmokeExposureAccumulated + ExposureRate * DeltaTime, 0.f, 1.f);
+	}
+	// 연기가 없는 곳에서는 아주 쳌쳌 히복 (신선한 공기 찼는 중)
+	else
+	{
+		const float RecoveryRate = Config->SmokeExposureAccumRate * 0.1f;
+		SmokeExposureAccumulated = FMath::Clamp(SmokeExposureAccumulated - RecoveryRate * DeltaTime, 0.f, 1.f);
+	}
 }
 
 void UYUFSBehaviorStateMachine::OnAlarmReceived()

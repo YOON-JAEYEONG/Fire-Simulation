@@ -29,6 +29,14 @@
 				"Win64",
 				"Linux"
 			]
+		},
+		{
+			"Name": "MLAdapter",
+			"Enabled": true
+		},
+		{
+			"Name": "LearningAgents",
+			"Enabled": true
 		}
 	]
 }
