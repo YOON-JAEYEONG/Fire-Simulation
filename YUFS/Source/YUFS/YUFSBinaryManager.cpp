@@ -36,7 +36,7 @@ void AYUFSBinaryManager::BeginPlay()
 	LoadedFramesCount.Reset();
 	LoadChunkAsync(0, ChunkSize);
     
-	GetWorld()->GetTimerManager().SetTimer(DebugTimerHandle, this, &AYUFSBinaryManager::PlayDebugAnimation, 0.1f, true);
+	//GetWorld()->GetTimerManager().SetTimer(DebugTimerHandle, this, &AYUFSBinaryManager::PlayDebugAnimation, 0.1f, true);
 	
 }
 
@@ -98,9 +98,18 @@ void AYUFSBinaryManager::PlayDebugAnimation()
 bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutDensity)
 {
 	OutDensity = 0;
-	
+	//UE_LOG(LogTemp, Warning, TEXT("Frame Check | FrameIndex=%d, TotalFrames=%d, LoadedFrames=%d"),
+	//	FrameIndex,
+	//	TotalFrames,
+	//	LoadedFramesCount.GetValue()
+	//);
 	if (FrameIndex < 0 || FrameIndex >= TotalFrames || FrameIndex >= LoadedFramesCount.GetValue()) 
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Frame 범위 오류로 return false | FrameIndex=%d, TotalFrames=%d, LoadedFrames=%d"),
+			FrameIndex,
+			TotalFrames,
+			LoadedFramesCount.GetValue()
+		);
 		return false;
 	}
 
@@ -112,7 +121,7 @@ bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector WorldLocation, int32 
 	int32 BaseIndexY = FMath::FloorToInt(LocalY / VoxelSize);
 	int32 IndexZ = FMath::FloorToInt(LocalZ / VoxelSize);
 	int32 IndexY = (DimY - 1) - BaseIndexY;
-
+	//UE_LOG(LogTemp, Warning, TEXT("IndexX=%d, IndexY=%d, IndexZ=%d"), IndexX, IndexY, IndexZ);
 	if (IndexX >= 0 && IndexX < DimX &&
 		IndexY >= 0 && IndexY < DimY &&
 		IndexZ >= 0 && IndexZ < DimZ)
