@@ -32,10 +32,12 @@ public:
 	EYUFSBehaviorState GetCurrentState() const { return CurrentState; }
 	float GetRiskPerception() const { return RiskPerception; }
 	float GetSmokeExposure() const { return SmokeExposureAccumulated; }
+	bool IsCrawling() const { return CurrentState == EYUFSBehaviorState::Crawling; }
 	bool IsIncapacitated() const { return CurrentState == EYUFSBehaviorState::Incapacitated; }
 
 	// Communication System 이벤트 수신
 	void OnAlarmReceived();
+	void OnPreRecordedMessageReceived();
 	void OnStaffGuidanceReceived();
 	void OnLiveAnnouncementReceived();
 

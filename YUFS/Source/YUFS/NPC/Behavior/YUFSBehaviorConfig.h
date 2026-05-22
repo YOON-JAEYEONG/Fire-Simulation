@@ -17,13 +17,22 @@ class YUFS_API UYUFSBehaviorConfig : public UDataAsset
 public:
 	UPROPERTY(EditAnywhere)
 	float MaxMillingDuration = 30.f;
-	
+
+	// Perceiving 상태 유지 시간 — 이후 Milling으로 전환 (PADM: 단서 인지 후 상황 파악 시작)
+	UPROPERTY(EditAnywhere)
+	float PerceivinDuration = 2.f;
+
 	UPROPERTY(EditAnywhere)
 	float PreparationDuration = 5.f;
+
+	// Helping 상태에서 최대 도움 지속 시간 — 초과 시 Evacuating으로 복귀
+	UPROPERTY(EditAnywhere)
+	float MaxHelpingDuration = 15.f;
 	
 	UPROPERTY(EditAnywhere)
 	float RiskPerceptionThreshold = 0.40f;
 
+	UPROPERTY(EditAnywhere)
 	float RiskAccumSpeed = 0.05f;
 	
 	UPROPERTY(EditAnywhere)

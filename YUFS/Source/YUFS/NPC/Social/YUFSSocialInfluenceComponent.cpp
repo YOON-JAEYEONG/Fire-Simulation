@@ -30,6 +30,7 @@ void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 {
 	NearbyNPCs.Empty();
 	EvacuatingCount = 0;
+	bHasNPCNeedingHelp = false;
 
 	if (!GetWorld() || !GetOwner()) return;
 
@@ -56,13 +57,37 @@ void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 		if (NPC)
 		{
 			NearbyNPCs.Add(NPC);
-			
+
 			UYUFSBehaviorStateMachine* StateMachine = NPC->GetBehaviorStateMachine();
-			if (StateMachine && StateMachine->GetCurrentState() == EYUFSBehaviorState::Evacuating)
+			if (StateMachine)
 			{
-				EvacuatingCount++;
+				const EYUFSBehaviorState State = StateMachine->GetCurrentState();
+
+				// 대피 중 인원 집계 — Crawling도 대피 시도 중이므로 포함
+				if (State == EYUFSBehaviorState::Evacuating || State == EYUFSBehaviorState::Crawling)
+				{
+					EvacuatingCount++;
+				}
+
+				// 실제로 도움이 필요한 NPC 존재 여부 (이타적 행동 진입 조건)
+				if (State == EYUFSBehaviorState::Crawling || State == EYUFSBehaviorState::Incapacitated)
+				{
+					bHasNPCNeedingHelp = true;
+				}
 			}
 		}
+	}
+
+	// 주변 NPC 수가 바뀔 때만 재추첨 — 매 프레임 굴리면 Y/N이 깜빡임
+	const int32 CurrentCount = NearbyNPCs.Num();
+	if (CurrentCount != CachedNearbyNPCCount)
+	{
+		const float ProbabilityToHelp = FMath::Clamp(
+			1.0f - (CurrentCount * 0.1f * BystanderEffectStrength),
+			0.1f,
+			1.0f);
+		bCachedShouldHelpNearbyNPC = FMath::FRand() <= ProbabilityToHelp;
+		CachedNearbyNPCCount = CurrentCount;
 	}
 }
 
@@ -110,10 +135,8 @@ FVector UYUFSSocialInfluenceComponent::GetAverageEvacuationDestination() const
 bool UYUFSSocialInfluenceComponent::ShouldHelpNearbyNPC() const
 {
 	// 방관자 효과(Bystander Effect): 주변에 사람이 많을수록 도와줄 확률 감소
-	float ProbabilityToHelp = 1.0f - (NearbyNPCs.Num() * 0.1f * BystanderEffectStrength);
-	ProbabilityToHelp = FMath::Clamp(ProbabilityToHelp, 0.1f, 1.0f);
-	
-	return FMath::FRand() <= ProbabilityToHelp;
+	// + 실제 도움이 필요한 NPC(Crawling/Incapacitated)가 존재해야 진입 가능
+	return bCachedShouldHelpNearbyNPC && bHasNPCNeedingHelp;
 }
 
 float UYUFSSocialInfluenceComponent::GetGroupSpeedMultiplier() const

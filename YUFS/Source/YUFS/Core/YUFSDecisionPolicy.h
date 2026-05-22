@@ -30,6 +30,8 @@ public:
 	// ── RL 전용 인터페이스 (Rule-Based는 빈 구현) ─────────────────────
 	// 한 스텝이 끝난 후 다음 상태·보상·종료 여부를 전달
 	virtual void OnTransition(
+		const FYUFSNPCObservation& PrevObs,
+		EYUFSAction Action,
 		const FYUFSNPCObservation& NextObs,
 		float Reward,
 		bool bDone) {}

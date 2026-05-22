@@ -43,5 +43,8 @@ public:
 private:
 	TArray<ACharacter*> NearbyNPCs;
 	int32 EvacuatingCount = 0;
+	bool bCachedShouldHelpNearbyNPC = false;
+	bool bHasNPCNeedingHelp = false;   // 실제 도움이 필요한 NPC 존재 여부 (Crawling/Incapacitated)
+	int32 CachedNearbyNPCCount = -1;  // -1: 미초기화, 변화 감지용
 		
 };

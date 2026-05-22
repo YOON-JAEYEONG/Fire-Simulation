@@ -20,12 +20,15 @@ enum class EPolicyType : uint8
 class FYUFSPolicyFactory
 {
 public:
-	static TSharedPtr<IYUFSDecisionPolicy> Create(EPolicyType Type)
+	static TSharedPtr<IYUFSDecisionPolicy> Create(
+		EPolicyType Type,
+		const FString& ModelPath = FString(),
+		const FString& RuntimeName = TEXT("NNERuntimeORTCpu"))
 	{
 		switch (Type)
 		{
 		case EPolicyType::RL:        
-			return MakeShared<FYUFSRLPolicy>();
+			return MakeShared<FYUFSRLPolicy>(ModelPath, RuntimeName);
 		case EPolicyType::RuleBased:
 		default:                     
 			return MakeShared<FYUFSRuleBasedPolicy>();

@@ -42,3 +42,8 @@ void AYUFSEmergencyCommSystem::DispatchStaffGuidance(FVector TargetExit)
 	// 논문: 스태프의 직접 안내는 가장 효과적인 대피 유도 수단임 (OR=0.33) [cite: 1549, 1804]
 	OnEmergencyComm.Broadcast(EYUFSCommType::StaffGuidance, GetActorLocation(), StaffGuidanceRadius, TargetExit);
 }
+
+void AYUFSEmergencyCommSystem::NotifyNPCsInRadius(float Radius, EYUFSCommType CommType, FVector GuidanceTarget)
+{
+	OnEmergencyComm.Broadcast(CommType, GetActorLocation(), Radius, GuidanceTarget);
+}

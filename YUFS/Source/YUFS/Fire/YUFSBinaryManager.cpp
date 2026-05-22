@@ -45,7 +45,10 @@ void AYUFSBinaryManager::BeginPlay()
 
 	HeterogeneousVolume = Cast<AYUFSHeterogeneousVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSHeterogeneousVolume::StaticClass()));
 	
-	GetWorld()->GetTimerManager().SetTimer(DebugTimerHandle, this, &AYUFSBinaryManager::PlayDebugAnimation, 0.1f, true);
+	if (bDrawVoxelDebug)
+	{
+		GetWorld()->GetTimerManager().SetTimer(DebugTimerHandle, this, &AYUFSBinaryManager::PlayDebugAnimation, 0.1f, true);
+	}
 }
 
 void AYUFSBinaryManager::Tick(float DeltaTime)

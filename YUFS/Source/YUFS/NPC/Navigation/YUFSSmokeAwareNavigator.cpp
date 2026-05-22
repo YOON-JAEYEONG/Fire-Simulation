@@ -1,38 +1,39 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
-#include "NavigationSystem.h"
-#include "NavigationPath.h"
+
+#include "Async/Async.h"
 #include "EngineUtils.h"
-#include "Level/YUFSLevelDataManager.h"
+#include "Fire/YUFSBinaryManager.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"
+#include "Level/YUFSLevelDataManager.h"
 #include "NavFilters/NavigationQueryFilter.h"
-#include "Async/Async.h"
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
 
-// Sets default values for this component's properties
 UYUFSSmokeAwareNavigator::UYUFSSmokeAwareNavigator()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
-// Called when the game starts
 void UYUFSSmokeAwareNavigator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// LevelDataManager 캐싱
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It)
 	{
 		LevelDataMgr = *It;
 		break;
 	}
+
+	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
+	{
+		BinaryManager = *It;
+		break;
+	}
 }
 
-
-// Called every frame
 void UYUFSSmokeAwareNavigator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
@@ -42,18 +43,25 @@ void UYUFSSmokeAwareNavigator::TickComponent(float DeltaTime, ELevelTick TickTyp
 
 void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame)
 {
-	if (bIsPathfinding) return;
+	if (bIsPathfinding)
+	{
+		return;
+	}
 
 	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
-	if (!NavSys) return;
+	if (!NavSys)
+	{
+		return;
+	}
 
 	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-	if (!OwnerCharacter) return;
+	if (!OwnerCharacter)
+	{
+		return;
+	}
 
-	// 해당 캐릭터의 에이전트 속성에 맞는 NavData(NavMesh)를 찾습니다.
 	const FNavAgentProperties& AgentProps = OwnerCharacter->GetNavAgentPropertiesRef();
 	ANavigationData* NavData = NavSys->GetNavDataForProps(AgentProps, OwnerCharacter->GetActorLocation());
-	
 	if (!NavData)
 	{
 		NavData = NavSys->GetDefaultNavDataInstance();
@@ -61,26 +69,53 @@ void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame
 
 	if (!NavData)
 	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("[Nav] Failed to find NavData!"));
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("[Nav] Failed to find NavData!"));
+		}
 		return;
 	}
 
-	// 기존에 완벽하게 작동하던 동기식 길찾기(FindPathSync)를 백그라운드 스레드로 분리합니다.
-	// 언리얼의 복잡한 비동기 델리게이트 검증(Result:1)을 피하고 확실한 경로를 얻기 위함입니다.
-	FPathFindingQuery Query(OwnerCharacter, *NavData, OwnerCharacter->GetActorLocation(), Destination, UNavigationQueryFilter::GetQueryFilter(*NavData, OwnerCharacter, nullptr));
+	// 목적지를 NavMesh에 투영 — 실패하면 벽 안쪽으로 경로 탐색하므로 중단
+	FNavLocation ProjectedDestination;
+	if (!NavSys->ProjectPointToNavigation(Destination, ProjectedDestination, FVector(500.f, 500.f, 500.f), &AgentProps, nullptr))
+	{
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
+				FString::Printf(TEXT("[Nav] Destination NavMesh projection failed: %s"), *Destination.ToString()));
+		}
+		return;
+	}
+	Destination = ProjectedDestination.Location;
+
+	// 시작점도 NavMesh에 투영 — NPC가 약간 NavMesh 밖에 있으면 경로가 깨짐
+	FVector StartLocation = OwnerCharacter->GetActorLocation();
+	FNavLocation ProjectedStart;
+	if (NavSys->ProjectPointToNavigation(StartLocation, ProjectedStart, FVector(200.f, 200.f, 400.f), &AgentProps, nullptr))
+	{
+		StartLocation = ProjectedStart.Location;
+	}
+
+	FPathFindingQuery Query(
+		OwnerCharacter,
+		*NavData,
+		StartLocation,
+		Destination,
+		UNavigationQueryFilter::GetQueryFilter(*NavData, OwnerCharacter, UYUFSSmokeNavigationQueryFilter::StaticClass()));
 
 	bIsPathfinding = true;
 	CurrentDestination = Destination;
 
 	TWeakObjectPtr<UYUFSSmokeAwareNavigator> WeakThis(this);
-	
-	// 백그라운드 스레드에서 길찾기 연산 수행 (게임 멈춤 방지)
 	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [WeakThis, NavSys, Query]()
 	{
-		if (!NavSys) return;
-		
+		if (!NavSys)
+		{
+			return;
+		}
+
 		FPathFindingResult PathResult = NavSys->FindPathSync(Query);
-		
 		TArray<FVector> ResultPathPoints;
 		bool bSuccess = false;
 
@@ -93,21 +128,25 @@ void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame
 			}
 		}
 
-		// 연산이 끝나면 메인 게임 스레드로 결과를 넘겨줌
 		AsyncTask(ENamedThreads::GameThread, [WeakThis, bSuccess, ResultPathPoints]()
 		{
 			if (UYUFSSmokeAwareNavigator* NavComp = WeakThis.Get())
 			{
 				NavComp->bIsPathfinding = false;
+				// 경로 탐색 완료 후 연기 패널티 초기화 — 다음 정상 탐색에 영향 없도록
+				UYUFSSmokeNavigationQueryFilter::ResetSmokeCosts();
+
 				if (bSuccess)
 				{
 					NavComp->CurrentPath = ResultPathPoints;
-					// 0번은 현재 위치이므로 1번부터
 					NavComp->CurrentWaypointIndex = NavComp->CurrentPath.Num() > 1 ? 1 : 0;
 				}
 				else
 				{
-					if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("[Nav] Custom Async Path Failed!"));
+					if (GEngine)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("[Nav] Custom Async Path Failed!"));
+					}
 					NavComp->ClearPath();
 				}
 			}
@@ -115,34 +154,41 @@ void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame
 	});
 }
 
-// 기존 OnPathFound 콜백 함수는 이제 사용하지 않으므로 비워둡니다.
 void UYUFSSmokeAwareNavigator::OnPathFound(uint32 PathId, ENavigationQueryResult::Type Result, FNavPathSharedPtr NavPath)
 {
 }
 
 void UYUFSSmokeAwareNavigator::CheckAndReroute(int32 Frame)
 {
-	if (CurrentPath.IsEmpty() || bIsPathfinding) return;
+	if (CurrentPath.IsEmpty() || bIsPathfinding)
+	{
+		return;
+	}
 
-	RerouteTimer += GetWorld()->GetDeltaSeconds();
 	if (RerouteTimer >= RerouteCheckInterval)
 	{
 		RerouteTimer = 0.f;
 
-		// 현재 인덱스부터 끝까지의 남은 경로 추출
 		TArray<FVector> RemainingPath;
-		for (int32 i = CurrentWaypointIndex; i < CurrentPath.Num(); ++i)
+		for (int32 PathIndex = CurrentWaypointIndex; PathIndex < CurrentPath.Num(); ++PathIndex)
 		{
-			RemainingPath.Add(CurrentPath[i]);
+			RemainingPath.Add(CurrentPath[PathIndex]);
 		}
 
-		// 남은 경로의 위험도 재평가 (화재는 실시간으로 번지므로)
-		float DangerScore = LevelDataMgr->GetPathDangerScore(RemainingPath, Frame);
-		
+		const float DangerScore = LevelDataMgr ? LevelDataMgr->GetPathDangerScore(RemainingPath, Frame) : 0.f;
 		if (DangerScore > SmokeBlockThreshold)
 		{
-			// 기존 경로가 연기로 막혔다면 새로운 경로 요청
-			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Orange, FString::Printf(TEXT("[Nav] Rerouting due to Smoke! Danger Score: %f"), DangerScore));
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(
+					-1,
+					0.0f,
+					FColor::Orange,
+					FString::Printf(TEXT("[Nav] Rerouting due to Smoke! Danger Score: %f"), DangerScore));
+			}
+			// 재탐색 전 NavArea_Obstacle 비용을 높여 연기 구역을 우회하도록 유도
+			// (레벨에 NavModifierVolume + NavArea_Obstacle 배치 시 실제 우회 경로 생성)
+			UYUFSSmokeNavigationQueryFilter::UpdateSmokeCosts(BinaryManager, Frame);
 			RequestPathAsync(CurrentDestination, Frame);
 		}
 	}
@@ -161,22 +207,56 @@ FVector UYUFSSmokeAwareNavigator::GetNextWaypoint() const
 	{
 		return CurrentPath[CurrentWaypointIndex];
 	}
-	// 경로가 없으면 현재 위치 유지
-	return GetOwner()->GetActorLocation();
+
+	return GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
+}
+
+FVector UYUFSSmokeAwareNavigator::GetSteeringTarget(FVector ActorLocation, float LookAheadDistance) const
+{
+	if (CurrentPath.IsEmpty() || CurrentWaypointIndex >= CurrentPath.Num())
+	{
+		return ActorLocation;
+	}
+
+	// 현재 웨이포인트까지만 룩어헤드를 허용 — 그 이상 넘어가면 코너를 직선으로 관통하는
+	// 방향벡터가 생겨 벽 돌진 현상이 발생하므로 현재 세그먼트 안으로 클램프
+	FVector NextWaypoint = CurrentPath[CurrentWaypointIndex];
+	NextWaypoint.Z = ActorLocation.Z;
+
+	const float DistToNext = FVector::Dist2D(ActorLocation, NextWaypoint);
+
+	// 웨이포인트가 룩어헤드 거리 안에 있으면 그냥 웨이포인트를 직접 목표로 사용
+	if (DistToNext <= LookAheadDistance || DistToNext <= KINDA_SMALL_NUMBER)
+	{
+		return NextWaypoint;
+	}
+
+	// 웨이포인트까지 충분히 멀면 현재 세그먼트 안에서 룩어헤드 보간
+	const FVector Dir = (NextWaypoint - ActorLocation).GetSafeNormal2D();
+	FVector SteeringTarget = ActorLocation + Dir * LookAheadDistance;
+	SteeringTarget.Z = ActorLocation.Z;
+	return SteeringTarget;
 }
 
 void UYUFSSmokeAwareNavigator::UpdateWaypoint(FVector ActorLocation, float AcceptanceRadius)
 {
-	if (CurrentPath.Num() > 0 && CurrentWaypointIndex < CurrentPath.Num())
+	if (CurrentPath.Num() == 0 || CurrentWaypointIndex >= CurrentPath.Num())
 	{
-		// 2D 평면 거리 기준으로 판단 (Z축은 계단 등에서 오차가 있을 수 있음)
-		FVector CurrentWP = CurrentPath[CurrentWaypointIndex];
-		CurrentWP.Z = ActorLocation.Z; 
-		
-		if (FVector::Distance(ActorLocation, CurrentWP) <= AcceptanceRadius)
+		return;
+	}
+
+	const float AcceptanceRadiusSq = FMath::Square(AcceptanceRadius);
+	while (CurrentWaypointIndex < CurrentPath.Num())
+	{
+		FVector CurrentWaypoint = CurrentPath[CurrentWaypointIndex];
+		CurrentWaypoint.Z = ActorLocation.Z;
+
+		if (FVector::DistSquared2D(ActorLocation, CurrentWaypoint) > AcceptanceRadiusSq)
 		{
-			CurrentWaypointIndex++;
+			break;
 		}
+
+		++CurrentWaypointIndex;
 	}
 }
 
@@ -186,5 +266,6 @@ float UYUFSSmokeAwareNavigator::EvaluatePathCost(const TArray<FVector>& Path, in
 	{
 		return LevelDataMgr->GetPathDangerScore(Path, Frame);
 	}
+
 	return 0.f;
 }

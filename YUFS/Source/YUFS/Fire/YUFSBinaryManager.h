@@ -70,6 +70,10 @@ private:
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");
 	
+	// true로 설정하면 매 100ms마다 복셀 디버그 박스를 월드에 그림 (에디터 전용)
+	UPROPERTY(EditAnywhere, Category="Fire|Debug")
+	bool bDrawVoxelDebug = false;
+
 	int32 DebugStep = 2;
 	uint8 DensityThreshold = 10;
 	uint8 TemperatureThreshold = 10;

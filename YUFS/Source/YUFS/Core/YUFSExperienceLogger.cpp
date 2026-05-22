@@ -1,0 +1,143 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "Core/YUFSExperienceLogger.h"
+
+#include "HAL/CriticalSection.h"
+#include "HAL/FileManager.h"
+#include "Misc/DateTime.h"
+#include "Misc/Paths.h"
+#include "Misc/ScopeLock.h"
+#include "Serialization/Archive.h"
+
+namespace
+{
+FCriticalSection LogMutex;
+TUniquePtr<FArchive> LogArchive;
+FString LogFilePath;
+
+FString FormatFloat(float Value)
+{
+	return FString::SanitizeFloat(Value);
+}
+}
+
+void FYUFSExperienceLogger::LogTransition(
+	const FString& AgentId,
+	int32 RunIndex,
+	int32 StepIndex,
+	int32 SimFrame,
+	float SimTimeSeconds,
+	const FYUFSNPCObservation& State,
+	EYUFSAction Action,
+	float Reward,
+	const FYUFSNPCObservation& NextState,
+	bool bDone,
+	EYUFSTerminalReason TerminalReason)
+{
+	FScopeLock Lock(&LogMutex);
+	if (!EnsureLogFile())
+	{
+		return;
+	}
+
+	const FString Line = FString::Printf(
+		TEXT("%d,%s,%d,%d,%s,%s,%s,%s,%s,%s,%s\n"),
+		RunIndex,
+		*EscapeCsv(AgentId),
+		StepIndex,
+		SimFrame,
+		*FormatFloat(SimTimeSeconds),
+		*EscapeCsv(GetActionName(Action)),
+		*FormatFloat(Reward),
+		bDone ? TEXT("1") : TEXT("0"),
+		*EscapeCsv(GetTerminalReasonName(TerminalReason)),
+		*EscapeCsv(SerializeObservation(State)),
+		*EscapeCsv(SerializeObservation(NextState)));
+
+	WriteLine(Line);
+}
+
+FString FYUFSExperienceLogger::GetLogFilePath()
+{
+	FScopeLock Lock(&LogMutex);
+	EnsureLogFile();
+	return LogFilePath;
+}
+
+bool FYUFSExperienceLogger::EnsureLogFile()
+{
+	if (LogArchive.IsValid())
+	{
+		return true;
+	}
+
+	const FString LogDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("RLTransitions"));
+	IFileManager::Get().MakeDirectory(*LogDirectory, true);
+
+	const FString Timestamp = FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
+	LogFilePath = FPaths::Combine(LogDirectory, FString::Printf(TEXT("yufs_rl_transitions_%s.csv"), *Timestamp));
+
+	LogArchive.Reset(IFileManager::Get().CreateFileWriter(*LogFilePath, FILEWRITE_AllowRead));
+	if (!LogArchive.IsValid())
+	{
+		UE_LOG(LogTemp, Error, TEXT("[YUFS RL] Failed to create transition log: %s"), *LogFilePath);
+		return false;
+	}
+
+	WriteLine(TEXT("run_id,agent_id,step_index,sim_frame,sim_time_seconds,action,reward,done,terminal_reason,state,next_state\n"));
+	UE_LOG(LogTemp, Log, TEXT("[YUFS RL] Writing transition log: %s"), *LogFilePath);
+	return true;
+}
+
+void FYUFSExperienceLogger::WriteLine(const FString& Line)
+{
+	if (!LogArchive.IsValid())
+	{
+		return;
+	}
+
+	FTCHARToUTF8 Converter(*Line);
+	LogArchive->Serialize(reinterpret_cast<void*>(const_cast<ANSICHAR*>(Converter.Get())), Converter.Length());
+	LogArchive->Flush();
+}
+
+FString FYUFSExperienceLogger::SerializeObservation(const FYUFSNPCObservation& Observation)
+{
+	const TArray<float> Values = Observation.ToFloatArray();
+	TArray<FString> Parts;
+	Parts.Reserve(Values.Num());
+
+	for (float Value : Values)
+	{
+		Parts.Add(FormatFloat(Value));
+	}
+
+	return FString::Join(Parts, TEXT(";"));
+}
+
+FString FYUFSExperienceLogger::EscapeCsv(const FString& Value)
+{
+	FString Escaped = Value;
+	Escaped.ReplaceInline(TEXT("\""), TEXT("\"\""));
+	return FString::Printf(TEXT("\"%s\""), *Escaped);
+}
+
+FString FYUFSExperienceLogger::GetActionName(EYUFSAction Action)
+{
+	if (const UEnum* ActionEnum = StaticEnum<EYUFSAction>())
+	{
+		return ActionEnum->GetNameStringByValue(static_cast<int64>(Action));
+	}
+
+	return FString::FromInt(static_cast<int32>(Action));
+}
+
+FString FYUFSExperienceLogger::GetTerminalReasonName(EYUFSTerminalReason TerminalReason)
+{
+	if (const UEnum* TerminalEnum = StaticEnum<EYUFSTerminalReason>())
+	{
+		return TerminalEnum->GetNameStringByValue(static_cast<int64>(TerminalReason));
+	}
+
+	return FString::FromInt(static_cast<int32>(TerminalReason));
+}

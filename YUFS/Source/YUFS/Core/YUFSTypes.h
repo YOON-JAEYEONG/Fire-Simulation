@@ -19,6 +19,7 @@ enum class EYUFSBehaviorState : uint8
 	Evacuating,      // 실제 대피 이동
 	Helping,         // 타인 도움 (Altruistic Behavior)
 	Sheltering,      // 대피처 대기 (Convergence Cluster)
+	Crawling,        // 기어가기 (연기 흡입 누적 CrawlThreshold~IncapacitationThreshold 구간)
 	Incapacitated    // 행동 불능 (연기 흡입 임계값 초과)
 };
 
@@ -37,7 +38,17 @@ enum class EYUFSAction : uint8
 	MoveToShelter,            // 대피처 이동
 	WaitForInfo,              // 정보 대기
 	Cough,                    // 연기 흡입 반응 (애니메이션 트리거용)
-	FollowCrowd               // 군중 휩쓸리기 (Herd Instinct)
+	FollowCrowd,              // 군중 휩쓸리기 (Herd Instinct)
+	Film                      // 촬영 행동 — van der Wal: 경보만 있을 때 56%로 가장 빈번한 지연 행동
+};
+
+UENUM(BlueprintType)
+enum class EYUFSTerminalReason : uint8
+{
+	None,
+	ReachedExit,
+	Incapacitated,
+	TimedOut
 };
 /**
  * 

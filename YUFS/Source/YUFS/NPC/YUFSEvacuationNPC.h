@@ -1,14 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "Communication/YUFSCommTypes.h"
 #include "CoreMinimal.h"
 #include "Core/YUFSObservation.h"
-#include "Decision/YUFSPolicyFactory.h"
+#include "Core/YUFSTypes.h"
 #include "GameFramework/Character.h"
 #include "YUFSEvacuationNPC.generated.h"
 
+class UAnimMontage;
 class AYUFSLevelDataManager;
 class AYUFSBinaryManager;
 class UYUFSSocialInfluenceComponent;
@@ -16,6 +15,8 @@ class UYUFSSmokeAwareNavigator;
 class UYUFSBehaviorStateMachine;
 class UYUFSNPCDebugComponent;
 class UYUFSNPCPerceptionComponent;
+class AYUFSSimulationController;
+class AYUFSBottleneckQueueManager;
 
 UCLASS()
 class YUFS_API AYUFSEvacuationNPC : public ACharacter
@@ -35,13 +36,42 @@ public:
 	UFUNCTION()
 	void OnCommReceived(EYUFSCommType CommType, FVector SourceLocation, float EffectiveRadius, FVector GuidanceTarget);
 
-	UPROPERTY(EditAnywhere, Category="AI")
-	EPolicyType PolicyType = EPolicyType::RuleBased;
+	// ── 에디터 편집 ─────────────────────────────────────────────────────
+	UPROPERTY(EditAnywhere, Category="Animation")
+	UAnimMontage* CoughMontage = nullptr;
 
-	UYUFSBehaviorStateMachine* GetBehaviorStateMachine() const { return BehaviorSM; }
-	UYUFSSmokeAwareNavigator* GetNavigator() const { return Navigator; }
+	UPROPERTY(EditAnywhere, Category="Animation")
+	UAnimMontage* FilmMontage = nullptr;
+
+	UPROPERTY(EditAnywhere, Category="AI|Logging")
+	bool bLogTransitions = true;
+
+	// ── BT Task에서 호출하는 공개 API ──────────────────────────────────
+	// 네비게이션 + 이동 입력을 묶어서 처리 (BT Task → 매 틱 호출)
+	void DriveMovementToward(FVector Target);
+	void SetMovementSpeed(float Speed);
+	int32 GetCurrentSimFramePublic() const { return GetCurrentSimFrame(); }
+
+	// ── 컴포넌트 접근자 ────────────────────────────────────────────────
+	UYUFSBehaviorStateMachine*   GetBehaviorStateMachine() const { return BehaviorSM; }
+	UYUFSSmokeAwareNavigator*    GetNavigator()             const { return Navigator; }
+	UYUFSNPCPerceptionComponent* GetNPCPerceptionComponent()const { return PerceptionComp; }
+	UYUFSSocialInfluenceComponent* GetSocialComponent()     const { return SocialComp; }
+	AYUFSLevelDataManager*       GetLevelDataManager()      const { return LevelDataMgr; }
+	AYUFSBinaryManager*          GetBinaryManager()         const { return BinaryManager; }
+
+	// ── 통신 상태 접근자 ──────────────────────────────────────────────
+	bool    IsAlarmSounding()           const { return bAlarmSounding; }
+	bool    HasReceivedStaffGuidance()  const { return bReceivedStaffGuidance; }
+	bool    HasReceivedPreRecordedMsg() const { return bReceivedPreRecordedMsg; }
+	bool    HasReceivedLiveAnnouncement()const{ return bReceivedLiveAnnouncement; }
+	FVector GetStaffGuidedExitLocation()const { return StaffGuidedExitLocation; }
+	FVector GetSpawnLocation()          const { return SpawnLocation; }
+
 	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
-	EYUFSAction GetLastAction() const { return LastAction; }
+	EYUFSAction GetLastAction() const { return LastBTAction; }
+	void SetLastBTAction(EYUFSAction Action) { LastBTAction = Action; }
+	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -56,21 +86,15 @@ private:
 	UYUFSNPCDebugComponent* DebugComp;
 
 	UPROPERTY(VisibleAnywhere)
-	AYUFSBinaryManager* BinaryManager;
+	AYUFSBinaryManager* BinaryManager = nullptr;
 	UPROPERTY(VisibleAnywhere)
-	AYUFSLevelDataManager* LevelDataMgr;
+	AYUFSLevelDataManager* LevelDataMgr = nullptr;
+	UPROPERTY(VisibleAnywhere)
+	AYUFSSimulationController* SimulationController = nullptr;
+	UPROPERTY(VisibleAnywhere)
+	AYUFSBottleneckQueueManager* BottleneckQueueManager = nullptr;
 
-	TSharedPtr<IYUFSDecisionPolicy> DecisionPolicy;
-
-	FYUFSNPCObservation PrevObservation{};
-	EYUFSAction LastAction = EYUFSAction::Idle;
-
-	int32 GetCurrentSimFrame() const;
-	void BuildObservation(FYUFSNPCObservation& Out) const;
-	void ExecuteAction(EYUFSAction Action);
-	float CalculateCurrentReward(const FYUFSNPCObservation& Obs, EYUFSAction Action) const;
-	void UpdateLookingAround(float DeltaTime);
-
+	// ── 통신 상태 ─────────────────────────────────────────────────────
 	UPROPERTY(VisibleAnywhere)
 	bool bAlarmSounding = false;
 	UPROPERTY()
@@ -82,8 +106,30 @@ private:
 	UPROPERTY()
 	FVector StaffGuidedExitLocation = FVector::ZeroVector;
 
-	float StuckTimer = 0.0f;
-	float LookAroundAnchorYaw = 0.f;
-	float LookAroundElapsedTime = 0.f;
-	bool bWasLookingAroundLastFrame = false;
+	FVector SpawnLocation = FVector::ZeroVector;
+
+	// ── CSV 로깅 ──────────────────────────────────────────────────────
+	FYUFSNPCObservation PrevObservation{};
+	bool bHasPendingTransition = false;
+	int32 TransitionStepIndex = 0;
+	EYUFSAction LastBTAction = EYUFSAction::Idle;
+
+	// ── 스턱 감지 ─────────────────────────────────────────────────────
+	float StuckTimer = 0.f;
+	float PositionStuckTimer = 0.f;
+	FVector LastMovementSampleLocation = FVector::ZeroVector;
+	FVector LastPositionCheckLocation  = FVector::ZeroVector;
+	bool bHasMovementSample = false;
+
+	// ── 내부 함수 ─────────────────────────────────────────────────────
+	int32 GetCurrentSimFrame() const;
+	void BuildObservation(FYUFSNPCObservation& Out) const;
+	void FlushLearningTransition(const FYUFSNPCObservation& NextObs, EYUFSTerminalReason TerminalReason);
+	EYUFSTerminalReason GetCurrentTerminalReason() const;
+	void UpdateStuckDetection(float DeltaTime);
+	float CalculateTransitionReward(
+		const FYUFSNPCObservation& PrevObs,
+		EYUFSAction Action,
+		const FYUFSNPCObservation& NextObs,
+		EYUFSTerminalReason TerminalReason) const;
 };

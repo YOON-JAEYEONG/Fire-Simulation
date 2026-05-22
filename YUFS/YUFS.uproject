@@ -37,6 +37,10 @@
 		{
 			"Name": "LearningAgents",
 			"Enabled": true
+		},
+		{
+			"Name": "NNERuntimeORT",
+			"Enabled": true
 		}
 	]
 }

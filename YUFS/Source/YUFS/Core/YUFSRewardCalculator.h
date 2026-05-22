@@ -20,5 +20,5 @@ public:
 		const FYUFSNPCObservation& PrevObs,
 		EYUFSAction TakenAction,
 		const FYUFSNPCObservation& NextObs,
-		bool bReachedExit);
+		EYUFSTerminalReason TerminalReason);
 };

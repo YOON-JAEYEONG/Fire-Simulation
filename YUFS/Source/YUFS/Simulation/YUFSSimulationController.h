@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Blueprint/UserWidget.h"
 #include "YUFSSimulationController.generated.h"
 
 class AYUFSLevelDataManager;
@@ -84,13 +85,19 @@ public:
 	int32 GetCurrentRunIndex() const { return CurrentRunIndex; }
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
+	bool IsNPCSimulationEnabled() const
+	{
+		return !bIsPaused && CurrentPhase == ESimPhase::FireActive;
+	}
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
 	int32 GetEvacuatedCount() const { return LiveEvacuatedCount; }
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	int32 GetIncapacitatedCount() const { return LiveIncapacitatedCount; }
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
-	int32 GetTotalNPCCount() const { return RegisteredNPCs.Num(); }
+	int32 GetTotalNPCCount() const { return InitialNPCCount > 0 ? InitialNPCCount : RegisteredNPCs.Num(); }
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	TArray<FSimRunResult> GetAllRunResults() const { return AllRunResults; }
@@ -126,6 +133,19 @@ public:
 	UPROPERTY(EditAnywhere, Category="Simulation|Events")
 	float AlarmTriggerOffsetSeconds = 5.f;
 
+	// 사전 녹음 방송 발령 시각 (화재 시작 기준 오프셋, 음수 = 비활성)
+	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	float PreRecordedMsgOffsetSeconds = -1.f;
+
+	// 실시간 안내 방송 발령 시각 (화재 시작 기준 오프셋, 음수 = 비활성)
+	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	float LiveAnnouncementOffsetSeconds = -1.f;
+
+	// 스태프 직접 안내 발령 시각 (화재 시작 기준 오프셋, 음수 = 비활성)
+	// 안내 목적지는 발령 시점의 가장 안전한 출구로 자동 결정
+	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	float StaffGuidanceOffsetSeconds = -1.f;
+
 	// NPC가 이 거리 안에 들어오면 대피 성공으로 판정 (cm)
 	UPROPERTY(EditAnywhere, Category="Simulation|Events")
 	float EvacuationSuccessDistanceCm = 150.f;
@@ -143,10 +163,15 @@ private:
 	float FirePhaseTimer = 0.f;    // FireStartDelay 단계 타이머
 	float BetweenRunTimer = 0.f;   // 회차 사이 대기 타이머
 	bool bAlarmFired = false;
+	bool bPreRecordedMsgFired = false;
+	bool bLiveAnnouncementFired = false;
+	bool bStaffGuidanceFired = false;
 
 	int32 CurrentRunIndex = 0;
+	int32 InitialNPCCount = 0;
 	int32 LiveEvacuatedCount = 0;
 	int32 LiveIncapacitatedCount = 0;
+	float TotalEvacuationTime = 0.f;
 
 	TArray<AYUFSEvacuationNPC*> RegisteredNPCs;
 	TArray<FSimRunResult> AllRunResults;

@@ -1,14 +1,17 @@
 #include "Simulation/YUFSSimulationController.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Simulation/YUFSGameInstance.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "EngineUtils.h"
 #include "Fire/YUFSBinaryManager.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "Simulation/YUFSBottleneckQueueManager.h"
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
@@ -41,13 +44,41 @@ void AYUFSSimulationController::BeginPlay()
 		break;
 	}
 
+	AYUFSBottleneckQueueManager* BottleneckQueueManager = nullptr;
+	for (TActorIterator<AYUFSBottleneckQueueManager> It(GetWorld()); It; ++It)
+	{
+		BottleneckQueueManager = *It;
+		break;
+	}
+	if (!BottleneckQueueManager)
+	{
+		BottleneckQueueManager = GetWorld()->SpawnActor<AYUFSBottleneckQueueManager>();
+	}
+
+
 	// 씬에 이미 배치된 NPC들 자동 수집
 	for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
 	{
 		RegisterNPC(*It);
 	}
+	InitialNPCCount = RegisteredNPCs.Num();
 
 	SpawnHUD();
+
+	// 레벨 리로드 후 배치 실험 복원 — GameInstance에 저장된 회차 상태를 읽어옴
+	if (UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
+	{
+		if (GI->bHasPendingBatchRun)
+		{
+			CurrentRunIndex = GI->PendingRunIndex;
+			TotalRunCount   = GI->PendingTotalRuns;
+			AllRunResults   = GI->AccumulatedResults;
+			GI->ClearBatchState();
+
+			UE_LOG(LogTemp, Log, TEXT("[YUFS] Batch resume: Run %d/%d"), CurrentRunIndex, TotalRunCount);
+			SetPhase(ESimPhase::FireStartDelay);
+		}
+	}
 }
 
 void AYUFSSimulationController::Tick(float DeltaTime)
@@ -86,8 +117,13 @@ void AYUFSSimulationController::StartSimulation()
 	ElapsedSimTime = 0.f;
 	FirePhaseTimer = 0.f;
 	bAlarmFired = false;
+	bPreRecordedMsgFired = false;
+	bLiveAnnouncementFired = false;
+	bStaffGuidanceFired = false;
+	InitialNPCCount = RegisteredNPCs.Num();
 	LiveEvacuatedCount = 0;
 	LiveIncapacitatedCount = 0;
+	TotalEvacuationTime = 0.f;
 	AllRunResults.Empty();
 
 	SetPhase(ESimPhase::FireStartDelay);
@@ -171,8 +207,10 @@ void AYUFSSimulationController::SetPhase(ESimPhase NewPhase)
 
 void AYUFSSimulationController::TickFireActivePhase(float DeltaTime)
 {
-	// 알람 발령 (화재 시작 N초 후)
-	if (!bAlarmFired && ElapsedSimTime >= FireStartDelaySeconds + AlarmTriggerOffsetSeconds)
+	const float FireElapsed = ElapsedSimTime - FireStartDelaySeconds;
+
+	// 알람 발령
+	if (!bAlarmFired && FireElapsed >= AlarmTriggerOffsetSeconds)
 	{
 		if (CommSystem)
 		{
@@ -182,8 +220,52 @@ void AYUFSSimulationController::TickFireActivePhase(float DeltaTime)
 		}
 	}
 
+	// 사전 녹음 방송
+	if (!bPreRecordedMsgFired && PreRecordedMsgOffsetSeconds >= 0.f
+		&& FireElapsed >= PreRecordedMsgOffsetSeconds)
+	{
+		if (CommSystem)
+		{
+			CommSystem->BroadcastPreRecordedMessage(FText::GetEmpty());
+			bPreRecordedMsgFired = true;
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] === PRE-RECORDED MESSAGE BROADCAST ==="));
+		}
+	}
+
+	// 실시간 안내 방송
+	if (!bLiveAnnouncementFired && LiveAnnouncementOffsetSeconds >= 0.f
+		&& FireElapsed >= LiveAnnouncementOffsetSeconds)
+	{
+		if (CommSystem)
+		{
+			CommSystem->BroadcastLiveAnnouncement(FText::GetEmpty());
+			bLiveAnnouncementFired = true;
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] === LIVE ANNOUNCEMENT BROADCAST ==="));
+		}
+	}
+
+	// 스태프 직접 안내 — 발령 시점의 가장 안전한 출구로 목적지 자동 결정
+	if (!bStaffGuidanceFired && StaffGuidanceOffsetSeconds >= 0.f
+		&& FireElapsed >= StaffGuidanceOffsetSeconds)
+	{
+		if (CommSystem && CachedLDM)
+		{
+			const int32 CurrentFrame = BinaryManager ? BinaryManager->GetCurrentFrame() : 0;
+			const FVector SafeExit = CachedLDM->GetNearestSafeExit(
+				CommSystem->GetActorLocation(), true, CurrentFrame);
+			CommSystem->DispatchStaffGuidance(SafeExit);
+			bStaffGuidanceFired = true;
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] === STAFF GUIDANCE DISPATCHED → %s ==="),
+				*SafeExit.ToString());
+		}
+	}
+
 	UpdateLiveCounts();
 	CheckCompletionCondition();
+	if (CurrentPhase == ESimPhase::Completed)
+	{
+		return;
+	}
 
 	// 최대 시뮬레이션 시간 초과 시 강제 종료
 	if (ElapsedSimTime - FireStartDelaySeconds >= MaxSimDurationSeconds)
@@ -215,6 +297,7 @@ void AYUFSSimulationController::UpdateLiveCounts()
 		// 행동불능 카운트 (숨은 상태로 유지)
 		if (SM->GetCurrentState() == EYUFSBehaviorState::Incapacitated)
 		{
+			NPC->NotifyEpisodeFinished(EYUFSTerminalReason::Incapacitated);
 			LiveIncapacitatedCount++;
 			RegisteredNPCs.RemoveAt(i);
 			NPC->SetActorHiddenInGame(true);
@@ -230,7 +313,9 @@ void AYUFSSimulationController::UpdateLiveCounts()
 
 		if (DistToExit < EvacuationSuccessDistanceCm)
 		{
+			NPC->NotifyEpisodeFinished(EYUFSTerminalReason::ReachedExit);
 			LiveEvacuatedCount++;
+			TotalEvacuationTime += ElapsedSimTime;
 			RegisteredNPCs.RemoveAt(i);
 
 			UE_LOG(LogTemp, Log, TEXT("[YUFS] NPC '%s' evacuated successfully. Total: %d"),
@@ -255,18 +340,38 @@ void AYUFSSimulationController::CheckCompletionCondition()
 
 void AYUFSSimulationController::FinalizeRun()
 {
+	if (!RegisteredNPCs.IsEmpty())
+	{
+		for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+		{
+			if (IsValid(NPC))
+			{
+				NPC->NotifyEpisodeFinished(EYUFSTerminalReason::TimedOut);
+				if (UCharacterMovementComponent* MovementComp = NPC->GetCharacterMovement())
+				{
+					MovementComp->StopMovementImmediately();
+					MovementComp->DisableMovement();
+				}
+				NPC->SetActorTickEnabled(false);
+			}
+		}
+	}
+
 	SetPhase(ESimPhase::Completed);
 
 	// 결과 요약 구성
 	FSimRunResult Result;
 	Result.RunIndex = CurrentRunIndex;
-	Result.TotalNPCCount = RegisteredNPCs.Num();
+	Result.TotalNPCCount = FMath::Max(InitialNPCCount, LiveEvacuatedCount + LiveIncapacitatedCount + RegisteredNPCs.Num());
 	Result.EvacuatedCount = LiveEvacuatedCount;
 	Result.IncapacitatedCount = LiveIncapacitatedCount;
 	Result.EvacuationRate = Result.TotalNPCCount > 0
 		? (float)Result.EvacuatedCount / (float)Result.TotalNPCCount
 		: 0.f;
 	Result.SimDurationSeconds = ElapsedSimTime;
+	Result.AverageEvacuationTime = Result.EvacuatedCount > 0
+		? TotalEvacuationTime / static_cast<float>(Result.EvacuatedCount)
+		: 0.f;
 
 	AllRunResults.Add(Result);
 	OnRunCompleted.Broadcast(Result);
@@ -291,16 +396,14 @@ void AYUFSSimulationController::FinalizeRun()
 
 void AYUFSSimulationController::StartNextRun()
 {
-	CurrentRunIndex++;
-	bAlarmFired = false;
-	ElapsedSimTime = 0.f;
-	FirePhaseTimer = 0.f;
-	LiveEvacuatedCount = 0;
-	LiveIncapacitatedCount = 0;
+	// 레벨 리로드 전에 다음 회차 상태를 GameInstance에 보존
+	// OpenLevel 이후 이 액터는 파괴되므로 멤버 변수에 저장해봐야 소용 없음
+	if (UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
+	{
+		GI->SetupNextRun(CurrentRunIndex + 1, TotalRunCount, AllRunResults);
+	}
 
-	// NPC 상태 리셋 (현재 위치 유지, 상태만 초기화)
-	// 완전한 리셋은 레벨 재로드로 처리하는 것이 더 깔끔하나,
-	// 빠른 배치 실험을 위해 레벨 재로드 방식 사용
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 	UGameplayStatics::OpenLevel(GetWorld(), *GetWorld()->GetName());
 }
 
@@ -309,6 +412,10 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 	if (IsValid(NPC) && !RegisteredNPCs.Contains(NPC))
 	{
 		RegisteredNPCs.Add(NPC);
+		if (CurrentPhase == ESimPhase::WaitingToStart)
+		{
+			InitialNPCCount = RegisteredNPCs.Num();
+		}
 	}
 }
 

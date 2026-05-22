@@ -53,29 +53,44 @@ void AYUFSLevelDataManager::CollectLevelActors()
 
 FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const
 {
-	FVector NearestLocation = From;
-	float MinDistSq = MAX_flt;
-	
+	// 한 번의 순회로 두 후보를 동시에 추적:
+	// - NearestSmokeFree: 연기 없는 출구 중 가장 가까운 것
+	// - NearestAny: 연기 유무 무관하게 가장 가까운 것 (bSmokeFreeOnly 폴백용)
+	FVector NearestSmokeFree = FVector::ZeroVector;
+	FVector NearestAny = FVector::ZeroVector;
+	float MinSmokeFreeDist = MAX_flt;
+	float MinAnyDist = MAX_flt;
+
 	for (AYUFSExitPoint* Exit : CachedExits)
 	{
 		if (!IsValid(Exit)) continue;
-		
-		FVector ExitLoc = Exit->GetActorLocation();
-		
-		if (bSmokeFreeOnly && IsLocationDangerous(ExitLoc, Frame))
+
+		const FVector ExitLoc = Exit->GetActorLocation();
+		const float DistSq = FVector::DistSquared(From, ExitLoc);
+
+		if (DistSq < MinAnyDist)
 		{
-			continue;
+			MinAnyDist = DistSq;
+			NearestAny = ExitLoc;
 		}
-		
-		float DistSq = FVector::DistSquared(From, ExitLoc);
-		if (DistSq < MinDistSq)
+
+		if (!IsLocationDangerous(ExitLoc, Frame) && DistSq < MinSmokeFreeDist)
 		{
-			MinDistSq = DistSq;
-			NearestLocation = ExitLoc;
+			MinSmokeFreeDist = DistSq;
+			NearestSmokeFree = ExitLoc;
 		}
 	}
-	
-	return NearestLocation;
+
+	if (bSmokeFreeOnly)
+	{
+		// 연기 없는 출구 우선 — 모두 막혔으면 연기 있어도 가장 가까운 출구로 폴백
+		// (폴백 없이 From을 반환하면 NPC가 자기 위치를 목적지로 설정해 무한 대기)
+		if (MinSmokeFreeDist < MAX_flt) return NearestSmokeFree;
+		if (MinAnyDist < MAX_flt)       return NearestAny;
+		return From;
+	}
+
+	return MinAnyDist < MAX_flt ? NearestAny : From;
 }
 
 FVector AYUFSLevelDataManager::GetFamiliarExit(FVector NPCSpawnLocation) const
@@ -101,23 +116,36 @@ FVector AYUFSLevelDataManager::GetFamiliarExit(FVector NPCSpawnLocation) const
 
 FVector AYUFSLevelDataManager::GetNearestAvailableShelter(FVector From) const
 {
-	FVector NearestLocation = From;
-	float MinDistSq = MAX_flt;
-	
+	FVector NearestAvailable = FVector::ZeroVector;
+	FVector NearestAny = FVector::ZeroVector;
+	float MinAvailableDist = MAX_flt;
+	float MinAnyDist = MAX_flt;
+
 	for (AYUFSShelterPoint* Shelter : CachedShelters)
 	{
 		if (!IsValid(Shelter)) continue;
-		
-		FVector ShelterLoc = Shelter->GetActorLocation();
-		float DistSq = FVector::DistSquared(From, ShelterLoc);
-		if (DistSq < MinDistSq)
+
+		const FVector ShelterLoc = Shelter->GetActorLocation();
+		const float DistSq = FVector::DistSquared(From, ShelterLoc);
+
+		if (DistSq < MinAnyDist)
 		{
-			MinDistSq = DistSq;
-			NearestLocation = ShelterLoc;
+			MinAnyDist = DistSq;
+			NearestAny = ShelterLoc;
+		}
+
+		// 수용 인원이 남아 있는 대피처만 우선 선택
+		if (!Shelter->IsFull() && DistSq < MinAvailableDist)
+		{
+			MinAvailableDist = DistSq;
+			NearestAvailable = ShelterLoc;
 		}
 	}
-	
-	return NearestLocation;
+
+	// 여유 있는 대피처 우선, 모두 꽉 찼으면 가장 가까운 곳으로 폴백
+	if (MinAvailableDist < MAX_flt) return NearestAvailable;
+	if (MinAnyDist < MAX_flt)       return NearestAny;
+	return From;
 }
 
 bool AYUFSLevelDataManager::IsLocationDangerous(FVector Location, int32 Frame) const

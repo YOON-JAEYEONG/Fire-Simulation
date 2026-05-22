@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.\\\\.venv\\\\Scripts\\\\python.exe train_rl/inspect_dataset.py)",
+      "Bash(powershell *)",
+      "Bash(Select-Object -First 100)",
+      "Bash(\"/c/Program Files/Epic Games/UE_5.7/Engine/Build/BatchFiles/Build.bat\" YUFS Win64 Development \"C:/Users/dbswo/Documents/GitHub/Fire-Simulation/YUFS/YUFS.uproject\" -waitmutex -NoXGE)"
+    ]
+  }
+}
