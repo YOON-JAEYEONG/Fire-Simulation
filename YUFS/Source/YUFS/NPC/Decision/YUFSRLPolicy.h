@@ -25,8 +25,11 @@ public:
 		const FYUFSNPCObservation& NextObs,
 		float Reward,
 		bool bDone) override;
-	virtual bool IsLearningMode() const override { return false; }
+	virtual bool IsLearningMode() const override { return bForceFallback; }
 	virtual void LoadModel(const FString& Path) override;
+
+	// ONNX 모델이 있어도 룰베이스 폴백을 강제해 학습 데이터를 수집
+	void SetLearningMode(bool bEnable) { bForceFallback = bEnable; }
 
 private:
 	bool EnsureModelLoaded();
@@ -45,8 +48,9 @@ private:
 	FString ModelPath;
 	FString RuntimeName;
 	FString ResolvedModelPath;
-	bool bLoadAttempted = false;
-	bool bModelReady = false;
+	bool bLoadAttempted  = false;
+	bool bModelReady     = false;
+	bool bForceFallback  = false;
 	TStrongObjectPtr<UNNEModelData> ModelData;
 	TSharedPtr<UE::NNE::IModelCPU> CpuModel;
 	TSharedPtr<UE::NNE::IModelInstanceCPU> CpuModelInstance;

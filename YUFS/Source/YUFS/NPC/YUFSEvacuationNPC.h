@@ -5,6 +5,7 @@
 #include "Core/YUFSObservation.h"
 #include "Core/YUFSTypes.h"
 #include "GameFramework/Character.h"
+#include "NPC/Decision/YUFSRLPolicy.h"
 #include "YUFSEvacuationNPC.generated.h"
 
 class UAnimMontage;
@@ -22,8 +23,6 @@ UCLASS()
 class YUFS_API AYUFSEvacuationNPC : public ACharacter
 {
 	GENERATED_BODY()
-
-public:
 	AYUFSEvacuationNPC();
 
 protected:
@@ -43,11 +42,13 @@ public:
 	UPROPERTY(EditAnywhere, Category="Animation")
 	UAnimMontage* FilmMontage = nullptr;
 
+	UPROPERTY(EditAnywhere, Category="AI|Policy")
+	bool bLearningMode = false;
+
 	UPROPERTY(EditAnywhere, Category="AI|Logging")
 	bool bLogTransitions = true;
 
-	// ── BT Task에서 호출하는 공개 API ──────────────────────────────────
-	// 네비게이션 + 이동 입력을 묶어서 처리 (BT Task → 매 틱 호출)
+	// ── 이동 보조 API ──────────────────────────────────────────────────
 	void DriveMovementToward(FVector Target);
 	void SetMovementSpeed(float Speed);
 	int32 GetCurrentSimFramePublic() const { return GetCurrentSimFrame(); }
@@ -69,8 +70,7 @@ public:
 	FVector GetSpawnLocation()          const { return SpawnLocation; }
 
 	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
-	EYUFSAction GetLastAction() const { return LastBTAction; }
-	void SetLastBTAction(EYUFSAction Action) { LastBTAction = Action; }
+	EYUFSAction GetLastAction() const { return CurrentAction; }
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
 private:
@@ -112,7 +112,6 @@ private:
 	FYUFSNPCObservation PrevObservation{};
 	bool bHasPendingTransition = false;
 	int32 TransitionStepIndex = 0;
-	EYUFSAction LastBTAction = EYUFSAction::Idle;
 
 	// ── 스턱 감지 ─────────────────────────────────────────────────────
 	float StuckTimer = 0.f;
@@ -120,6 +119,21 @@ private:
 	FVector LastMovementSampleLocation = FVector::ZeroVector;
 	FVector LastPositionCheckLocation  = FVector::ZeroVector;
 	bool bHasMovementSample = false;
+
+	// ── MLP 정책 (ONNX 추론, RuleBasedPolicy 폴백 내장) ──────────────
+	FYUFSRLPolicy MLPolicy;
+
+	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
+	EYUFSAction CurrentAction            = EYUFSAction::Idle;
+	float PolicyTickAccumulator          = 0.f;
+	float ActionHoldTimer                = 0.f;
+	EYUFSBehaviorState LastPolicyBehaviorState = EYUFSBehaviorState::Normal;
+	FVector CurrentNavTarget             = FVector::ZeroVector;
+	float LookAnchorYaw                  = 0.f;
+	float LookElapsed                    = 0.f;
+
+	static constexpr float PolicyTickInterval    = 0.1f;
+	static constexpr float MinActionHoldDuration = 2.0f;
 
 	// ── 내부 함수 ─────────────────────────────────────────────────────
 	int32 GetCurrentSimFrame() const;
@@ -132,4 +146,11 @@ private:
 		EYUFSAction Action,
 		const FYUFSNPCObservation& NextObs,
 		EYUFSTerminalReason TerminalReason) const;
+
+	// ── MLP 정책 실행 ─────────────────────────────────────────────────
+	void TickPolicy(float DeltaTime);
+	void OnActionChanged(EYUFSAction NewAction);
+	void ExecuteCurrentAction(float DeltaTime);
+	FVector ResolveNavigationTarget(EYUFSAction Action) const;
+	static bool IsNavigationAction(EYUFSAction Action);
 };

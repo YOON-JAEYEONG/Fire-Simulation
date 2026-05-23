@@ -31,6 +31,7 @@ public:
 	float GetNearbyEvacuatingRatio() const;
 	int32 GetNearbyNPCCount() const;
 	FVector GetAverageEvacuationDestination() const;
+	FVector GetNearestNPCNeedingHelpLocation() const;
 
 	bool  ShouldHelpNearbyNPC()      const;
 	float GetGroupSpeedMultiplier()  const; // 그룹 → 가장 느린 멤버 속도

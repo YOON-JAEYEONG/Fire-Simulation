@@ -81,6 +81,20 @@ def iter_transitions(csv_path: str | Path) -> Iterator[Transition]:
         yield parse_transition_row(row)
 
 
+REQUIRED_COLUMNS = {"run_id", "agent_id", "step_index", "sim_frame", "sim_time_seconds",
+                    "action", "reward", "done", "terminal_reason", "state", "next_state"}
+
+
+def _has_required_columns(csv_path: Path) -> bool:
+    try:
+        with csv_path.open("r", encoding="utf-8", newline="") as handle:
+            header_line = handle.readline()
+        columns = {col.strip().lstrip("﻿") for col in header_line.split(",")}
+        return REQUIRED_COLUMNS.issubset(columns)
+    except OSError:
+        return False
+
+
 def find_transition_logs(root: str | Path) -> list[Path]:
     base_path = Path(root)
     if base_path.is_file():
@@ -92,6 +106,9 @@ def find_transition_logs(root: str | Path) -> list[Path]:
 def load_transition_directory(root: str | Path) -> list[Transition]:
     transitions: list[Transition] = []
     for csv_path in find_transition_logs(root):
+        if not _has_required_columns(csv_path):
+            print(f"skipped_incompatible_file={csv_path.name}")
+            continue
         transitions.extend(load_transitions(csv_path))
     return transitions
 

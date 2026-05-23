@@ -1,10 +1,11 @@
 #include "NPC/YUFSEvacuationNPC.h"
 
-#include "NPC/AI/YUFSNPCAIController.h"
+#include "AIController.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NPC/Behavior/YUFSBehaviorConfig.h"
 #include "Communication/YUFSCommTypes.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
+#include "Animation/AnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Core/YUFSExperienceLogger.h"
@@ -27,7 +28,7 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	AIControllerClass = AYUFSNPCAIController::StaticClass();
+	AIControllerClass = AAIController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
 	PerceptionComp = CreateDefaultSubobject<UYUFSNPCPerceptionComponent>(TEXT("YUFSNPCPerceptionComponent"));
@@ -101,7 +102,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 
 	const int32 CurrentFrame = GetCurrentSimFrame();
 
-	// ── 지각 / 사회 갱신 (BT Service 보다 먼저 — SM이 최신 데이터 사용) ──
+	// ── 지각 / 사회 갱신 (SM 및 MLP 정책이 최신 데이터 사용) ───────────
 	if (PerceptionComp) PerceptionComp->UpdatePerception(CurrentFrame);
 	if (SocialComp)     SocialComp->UpdateSocialContext();
 
@@ -112,6 +113,9 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		BuildObservation(Obs);
 		BehaviorSM->TickStateMachine(DeltaTime, Obs);
 	}
+
+	// ── MLP 정책 추론 및 액션 실행 ───────────────────────────────────────
+	TickPolicy(DeltaTime);
 
 	// ── 이동 속도 제한 (Crawl / Incapacitated) ───────────────────────────
 	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
@@ -170,7 +174,6 @@ void AYUFSEvacuationNPC::DriveMovementToward(FVector Target)
 		if (!Resolved.IsZero()) NavTarget = Resolved;
 	}
 
-	// 조향 — 경로 요청/취소는 BT Task 에서 담당, 여기선 기존 경로만 사용
 	Navigator->UpdateWaypoint(GetActorLocation(), 80.f);
 	const FVector SteeringTarget = Navigator->GetSteeringTarget(GetActorLocation(), 120.f);
 
@@ -361,9 +364,7 @@ void AYUFSEvacuationNPC::FlushLearningTransition(const FYUFSNPCObservation& Next
 {
 	if (!bHasPendingTransition || !bLogTransitions) return;
 
-	// BT 기반에서 EYUFSAction은 직접 추적하지 않으므로 Idle로 기록
-	const EYUFSAction LogAction = EYUFSAction::Idle;
-	const float Reward = CalculateTransitionReward(PrevObservation, LogAction, NextObs, TerminalReason);
+	const float Reward = CalculateTransitionReward(PrevObservation, CurrentAction, NextObs, TerminalReason);
 	const bool bDone = TerminalReason != EYUFSTerminalReason::None;
 
 	FYUFSExperienceLogger::LogTransition(
@@ -373,7 +374,7 @@ void AYUFSEvacuationNPC::FlushLearningTransition(const FYUFSNPCObservation& Next
 		GetCurrentSimFrame(),
 		SimulationController ? SimulationController->GetElapsedTime() : 0.f,
 		PrevObservation,
-		LogAction,
+		CurrentAction,
 		Reward,
 		NextObs,
 		bDone,
@@ -381,4 +382,184 @@ void AYUFSEvacuationNPC::FlushLearningTransition(const FYUFSNPCObservation& Next
 
 	++TransitionStepIndex;
 	bHasPendingTransition = !bDone;
+}
+
+// ── MLP 정책 실행 메서드 ────────────────────────────────────────────────────
+
+void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
+{
+	if (!BehaviorSM) return;
+	if (BehaviorSM->IsIncapacitated()) return;
+
+	MLPolicy.SetLearningMode(bLearningMode);
+
+	ActionHoldTimer         += DeltaTime;
+	PolicyTickAccumulator   += DeltaTime;
+
+	if (PolicyTickAccumulator >= PolicyTickInterval)
+	{
+		PolicyTickAccumulator = 0.f;
+
+		FYUFSNPCObservation Obs{};
+		BuildObservation(Obs);
+		const EYUFSAction NewAction = MLPolicy.SelectAction(Obs);
+
+		// PADM 상태 전이가 발생하면 즉시 반응, 아니면 최소 유지 시간 보장
+		// (RuleBasedPolicy의 FMath::FRand() 매 틱 재추첨으로 인한 떨림 방지)
+		const bool bStateChanged   = Obs.CurrentState != LastPolicyBehaviorState;
+		const bool bHeldLongEnough = ActionHoldTimer >= MinActionHoldDuration;
+
+		if (NewAction != CurrentAction && (bStateChanged || bHeldLongEnough))
+		{
+			ActionHoldTimer = 0.f;
+			OnActionChanged(NewAction);
+			CurrentAction = NewAction;
+		}
+
+		LastPolicyBehaviorState = Obs.CurrentState;
+	}
+
+	ExecuteCurrentAction(DeltaTime);
+}
+
+void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
+{
+	LookAnchorYaw = GetActorRotation().Yaw;
+	LookElapsed   = 0.f;
+
+	if (!IsNavigationAction(NewAction))
+	{
+		if (Navigator) Navigator->ClearPath();
+		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+			Mv->StopMovementImmediately();
+		CurrentNavTarget = FVector::ZeroVector;
+	}
+	else
+	{
+		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+			if (Mv->MaxWalkSpeed < 1.f) Mv->MaxWalkSpeed = 400.f;
+
+		const FVector Target = ResolveNavigationTarget(NewAction);
+		if (!Target.IsZero() && Navigator && !Navigator->bIsPathfinding)
+		{
+			CurrentNavTarget = Target;
+			Navigator->ClearPath();
+			Navigator->RequestPathAsync(Target, GetCurrentSimFrame());
+		}
+	}
+}
+
+void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
+{
+	if (!BehaviorSM || BehaviorSM->IsIncapacitated()) return;
+
+	switch (CurrentAction)
+	{
+	case EYUFSAction::SeekInformation:
+	case EYUFSAction::AlertNearbyOccupants:
+		if (BehaviorSM->Config)
+		{
+			LookElapsed += DeltaTime;
+			const float Osc = FMath::Sin(LookElapsed * 2.f * PI * BehaviorSM->Config->LookAroundFrequencyHz);
+			FRotator Rot = GetActorRotation();
+			Rot.Yaw = LookAnchorYaw + Osc * BehaviorSM->Config->LookAroundYawAmplitudeDegrees;
+			SetActorRotation(Rot);
+		}
+		break;
+
+	case EYUFSAction::Cough:
+		if (CoughMontage)
+		{
+			UAnimInstance* Anim = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+			if (Anim && !Anim->Montage_IsPlaying(CoughMontage))
+				PlayAnimMontage(CoughMontage);
+		}
+		break;
+
+	case EYUFSAction::Film:
+		if (FilmMontage)
+		{
+			UAnimInstance* Anim = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
+			if (Anim && !Anim->Montage_IsPlaying(FilmMontage))
+				PlayAnimMontage(FilmMontage);
+		}
+		break;
+
+	case EYUFSAction::EvacuateToNearestExit:
+	case EYUFSAction::EvacuateToFamiliarExit:
+	case EYUFSAction::FollowCrowd:
+	case EYUFSAction::MoveToShelter:
+	case EYUFSAction::HelpOther:
+		if (Navigator)
+		{
+			const FVector Target = ResolveNavigationTarget(CurrentAction);
+			if (Target.IsZero()) break;
+
+			Navigator->CheckAndReroute(GetCurrentSimFrame());
+
+			if (!Navigator->bIsPathfinding && FVector::Dist(Target, CurrentNavTarget) > 500.f)
+			{
+				CurrentNavTarget = Target;
+				Navigator->ClearPath();
+				Navigator->RequestPathAsync(Target, GetCurrentSimFrame());
+			}
+
+			if (!Navigator->bIsPathfinding && !Navigator->GetCurrentPathPoints().IsEmpty())
+				DriveMovementToward(Target);
+		}
+		break;
+
+	default:
+		// Idle / WaitForInfo / GatherBelongings — 이동 없음
+		break;
+	}
+}
+
+FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
+{
+	if (!LevelDataMgr) return FVector::ZeroVector;
+	const FVector Pos   = GetActorLocation();
+	const int32   Frame = GetCurrentSimFrame();
+
+	switch (Action)
+	{
+	case EYUFSAction::EvacuateToNearestExit:
+		if (bReceivedStaffGuidance && !StaffGuidedExitLocation.IsZero())
+			return StaffGuidedExitLocation;
+		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+
+	case EYUFSAction::EvacuateToFamiliarExit:
+		return LevelDataMgr->GetFamiliarExit(SpawnLocation);
+
+	case EYUFSAction::FollowCrowd:
+		if (SocialComp)
+		{
+			const FVector Avg = SocialComp->GetAverageEvacuationDestination();
+			if (!Avg.IsZero()) return Avg;
+		}
+		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+
+	case EYUFSAction::MoveToShelter:
+		return LevelDataMgr->GetNearestAvailableShelter(Pos);
+
+	case EYUFSAction::HelpOther:
+		if (SocialComp)
+		{
+			const FVector HelpLoc = SocialComp->GetNearestNPCNeedingHelpLocation();
+			if (!HelpLoc.IsZero()) return HelpLoc;
+		}
+		return FVector::ZeroVector;
+
+	default:
+		return FVector::ZeroVector;
+	}
+}
+
+bool AYUFSEvacuationNPC::IsNavigationAction(EYUFSAction Action)
+{
+	return Action == EYUFSAction::EvacuateToNearestExit
+		|| Action == EYUFSAction::EvacuateToFamiliarExit
+		|| Action == EYUFSAction::FollowCrowd
+		|| Action == EYUFSAction::MoveToShelter
+		|| Action == EYUFSAction::HelpOther;
 }

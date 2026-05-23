@@ -132,6 +132,35 @@ FVector UYUFSSocialInfluenceComponent::GetAverageEvacuationDestination() const
 	return FVector::ZeroVector;
 }
 
+FVector UYUFSSocialInfluenceComponent::GetNearestNPCNeedingHelpLocation() const
+{
+	float   BestDistSq = FLT_MAX;
+	FVector BestLoc    = FVector::ZeroVector;
+	const FVector OwnerLoc = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
+
+	for (ACharacter* CharNPC : NearbyNPCs)
+	{
+		AYUFSEvacuationNPC* NPC = Cast<AYUFSEvacuationNPC>(CharNPC);
+		if (!NPC) continue;
+
+		UYUFSBehaviorStateMachine* SM = NPC->GetBehaviorStateMachine();
+		if (!SM) continue;
+
+		const EYUFSBehaviorState State = SM->GetCurrentState();
+		if (State != EYUFSBehaviorState::Crawling && State != EYUFSBehaviorState::Incapacitated)
+			continue;
+
+		const float DistSq = FVector::DistSquared(OwnerLoc, NPC->GetActorLocation());
+		if (DistSq < BestDistSq)
+		{
+			BestDistSq = DistSq;
+			BestLoc    = NPC->GetActorLocation();
+		}
+	}
+
+	return BestLoc;
+}
+
 bool UYUFSSocialInfluenceComponent::ShouldHelpNearbyNPC() const
 {
 	// 방관자 효과(Bystander Effect): 주변에 사람이 많을수록 도와줄 확률 감소

@@ -33,7 +33,7 @@ FYUFSRLPolicy::FYUFSRLPolicy(const FString& InModelPath, const FString& InRuntim
 
 EYUFSAction FYUFSRLPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 {
-	if (!EnsureModelLoaded())
+	if (bForceFallback || !EnsureModelLoaded())
 	{
 		return FallbackPolicy.SelectAction(Obs);
 	}
