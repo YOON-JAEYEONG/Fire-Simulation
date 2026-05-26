@@ -113,7 +113,7 @@ FString UYUFSNPCDebugComponent::BuildStateText(const FYUFSNPCObservation& Obs) c
 FString UYUFSNPCDebugComponent::BuildObservationText(const FYUFSNPCObservation& Obs) const
 {
 	return FString::Printf(
-		TEXT("Smoke Self/Front/Above: %.2f / %.2f / %.2f\nTemp: %.2f | Crowd: %d (%.2f)\nAlarm: %s | Staff: %s | HelpCue: %s\nExitDist: %.0f | ShelterDist: %.0f"),
+		TEXT("Smoke Self/Front/Above: %.2f / %.2f / %.2f\nTemp: %.2f | Crowd: %d (%.2f)\nAlarm: %s | Staff: %s | HelpCue: %s\nExitDist: %.0f"),
 		Obs.SmokeDensityAtSelf,
 		Obs.SmokeInFrontNormalized,
 		Obs.SmokeAboveNormalized,
@@ -123,8 +123,7 @@ FString UYUFSNPCDebugComponent::BuildObservationText(const FYUFSNPCObservation& 
 		Obs.bAlarmSounding ? TEXT("Y") : TEXT("N"),
 		Obs.bReceivedStaffGuidance ? TEXT("Y") : TEXT("N"),
 		Obs.bNearbyNPCNeedsHelp ? TEXT("Y") : TEXT("N"),
-		Obs.DistToNearestExit,
-		Obs.DistToNearestShelter);
+		Obs.DistToNearestExit);
 }
 
 void UYUFSNPCDebugComponent::DrawDebugOverlay(const FYUFSNPCObservation& Obs)

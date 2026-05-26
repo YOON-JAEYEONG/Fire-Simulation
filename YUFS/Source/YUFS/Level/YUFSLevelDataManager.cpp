@@ -4,33 +4,21 @@
 #include "Level/YUFSLevelDataManager.h"
 
 #include "YUFSExitPoint.h"
-#include "YUFSShelterPoint.h"
 #include "Fire/YUFSBinaryManager.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AYUFSLevelDataManager::AYUFSLevelDataManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
 void AYUFSLevelDataManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	CollectLevelActors(); // 에디터 배치 Actor 자동 수집
+	CollectLevelActors();
 	BinaryManager = Cast<AYUFSBinaryManager>(
 		UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSBinaryManager::StaticClass()));
-}
-
-// Called every frame
-void AYUFSLevelDataManager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void AYUFSLevelDataManager::CollectLevelActors()
@@ -42,13 +30,6 @@ void AYUFSLevelDataManager::CollectLevelActors()
 		CachedExits.Add(Cast<AYUFSExitPoint>(Actor));
 	}
 
-	TArray<AActor*> FoundShelters;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AYUFSShelterPoint::StaticClass(), FoundShelters);
-	for (AActor* Actor : FoundShelters)
-	{
-		CachedShelters.Add(Cast<AYUFSShelterPoint>(Actor));
-	}
-	
 }
 
 FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const
@@ -112,40 +93,6 @@ FVector AYUFSLevelDataManager::GetFamiliarExit(FVector NPCSpawnLocation) const
 	}
 	
 	return NearestLocation;
-}
-
-FVector AYUFSLevelDataManager::GetNearestAvailableShelter(FVector From) const
-{
-	FVector NearestAvailable = FVector::ZeroVector;
-	FVector NearestAny = FVector::ZeroVector;
-	float MinAvailableDist = MAX_flt;
-	float MinAnyDist = MAX_flt;
-
-	for (AYUFSShelterPoint* Shelter : CachedShelters)
-	{
-		if (!IsValid(Shelter)) continue;
-
-		const FVector ShelterLoc = Shelter->GetActorLocation();
-		const float DistSq = FVector::DistSquared(From, ShelterLoc);
-
-		if (DistSq < MinAnyDist)
-		{
-			MinAnyDist = DistSq;
-			NearestAny = ShelterLoc;
-		}
-
-		// 수용 인원이 남아 있는 대피처만 우선 선택
-		if (!Shelter->IsFull() && DistSq < MinAvailableDist)
-		{
-			MinAvailableDist = DistSq;
-			NearestAvailable = ShelterLoc;
-		}
-	}
-
-	// 여유 있는 대피처 우선, 모두 꽉 찼으면 가장 가까운 곳으로 폴백
-	if (MinAvailableDist < MAX_flt) return NearestAvailable;
-	if (MinAnyDist < MAX_flt)       return NearestAny;
-	return From;
 }
 
 bool AYUFSLevelDataManager::IsLocationDangerous(FVector Location, int32 Frame) const

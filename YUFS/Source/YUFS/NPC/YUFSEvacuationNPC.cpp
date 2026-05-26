@@ -10,7 +10,6 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Core/YUFSExperienceLogger.h"
 #include "Core/YUFSObservation.h"
-#include "Core/YUFSRewardCalculator.h"
 #include "Debug/YUFSNPCDebugComponent.h"
 #include "EngineUtils.h"
 #include "Fire/YUFSBinaryManager.h"
@@ -20,7 +19,6 @@
 #include "Navigation/YUFSSmokeAwareNavigator.h"
 #include "NavigationSystem.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
-#include "Simulation/YUFSBottleneckQueueManager.h"
 #include "Simulation/YUFSSimulationController.h"
 #include "Social/YUFSSocialInfluenceComponent.h"
 
@@ -73,7 +71,6 @@ void AYUFSEvacuationNPC::BeginPlay()
 
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)  { BinaryManager = *It; break; }
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It){ LevelDataMgr  = *It; break; }
-	for (TActorIterator<AYUFSBottleneckQueueManager> It(GetWorld()); It; ++It){ BottleneckQueueManager = *It; break; }
 
 	for (TActorIterator<AYUFSSimulationController> It(GetWorld()); It; ++It)
 	{
@@ -90,7 +87,6 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// ── 시뮬레이션 일시정지 ───────────────────────────────────────────────
 	if (SimulationController && !SimulationController->IsNPCSimulationEnabled())
 	{
-		if (BottleneckQueueManager) BottleneckQueueManager->ReleaseRequester(this);
 		if (Navigator) Navigator->ClearPath();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 		{
@@ -163,15 +159,6 @@ void AYUFSEvacuationNPC::DriveMovementToward(FVector Target)
 	{
 		if (Mv->MaxWalkSpeed < 1.f)
 			Mv->MaxWalkSpeed = 300.f;
-	}
-
-	// 병목 대기열 해소 — 경로 포인트 기반으로 임시 중간 목적지 선택
-	FVector NavTarget = Target;
-	if (BottleneckQueueManager)
-	{
-		const FVector Resolved = BottleneckQueueManager->ResolveMovementTarget(
-			this, Navigator->GetCurrentPathPoints(), Target);
-		if (!Resolved.IsZero()) NavTarget = Resolved;
 	}
 
 	Navigator->UpdateWaypoint(GetActorLocation(), 80.f);
@@ -253,11 +240,6 @@ void AYUFSEvacuationNPC::UpdateStuckDetection(float DeltaTime)
 	bHasMovementSample = true;
 }
 
-void AYUFSEvacuationNPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
 void AYUFSEvacuationNPC::OnCommReceived(EYUFSCommType CommType, FVector SourceLocation, float EffectiveRadius, FVector GuidanceTarget)
 {
 	if (FVector::DistSquared(GetActorLocation(), SourceLocation) > EffectiveRadius * EffectiveRadius) return;
@@ -303,6 +285,7 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 	Out.RiskPerception          = BehaviorSM->GetRiskPerception();
 	Out.StressLevel             = PerceptionComp->GetRiskLevel();
 	Out.SmokeExposureAccumulated= BehaviorSM->GetSmokeExposure();
+	Out.MillingActionCount      = MillingActionCount;
 	Out.StaffGuidedExitLocation = StaffGuidedExitLocation;
 	Out.bAlarmSounding          = bAlarmSounding;
 	Out.bReceivedPreRecordedMsg = bReceivedPreRecordedMsg;
@@ -317,11 +300,9 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 	const int32 Frame   = GetCurrentSimFrame();
 	const FVector NExit = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
 	const FVector FExit = LevelDataMgr->GetFamiliarExit(SpawnLocation);
-	const FVector Shelt = LevelDataMgr->GetNearestAvailableShelter(Pos);
 
 	Out.DistToNearestExit    = FVector::Dist(Pos, NExit);
 	Out.DistToFamiliarExit   = FVector::Dist(Pos, FExit);
-	Out.DistToNearestShelter = FVector::Dist(Pos, Shelt);
 	Out.DirToNearestExit     = (NExit - Pos).GetSafeNormal();
 	Out.SimTimeNormalized    = FMath::Clamp(static_cast<float>(Frame) / 8000.f, 0.f, 1.f);
 	Out.bNearestExitSmokeFree= !LevelDataMgr->IsLocationDangerous(NExit, Frame);
@@ -344,8 +325,6 @@ EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
 
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)
 {
-	if (BottleneckQueueManager) BottleneckQueueManager->ReleaseRequester(this);
-
 	if (!bHasPendingTransition) return;
 
 	FYUFSNPCObservation TerminalObs{};
@@ -353,18 +332,10 @@ void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReaso
 	FlushLearningTransition(TerminalObs, TerminalReason);
 }
 
-float AYUFSEvacuationNPC::CalculateTransitionReward(
-	const FYUFSNPCObservation& PrevObs, EYUFSAction Action,
-	const FYUFSNPCObservation& NextObs, EYUFSTerminalReason TerminalReason) const
-{
-	return YUFSRewardCalculator::Calculate(PrevObs, Action, NextObs, TerminalReason);
-}
-
 void AYUFSEvacuationNPC::FlushLearningTransition(const FYUFSNPCObservation& NextObs, EYUFSTerminalReason TerminalReason)
 {
 	if (!bHasPendingTransition || !bLogTransitions) return;
 
-	const float Reward = CalculateTransitionReward(PrevObservation, CurrentAction, NextObs, TerminalReason);
 	const bool bDone = TerminalReason != EYUFSTerminalReason::None;
 
 	FYUFSExperienceLogger::LogTransition(
@@ -375,7 +346,6 @@ void AYUFSEvacuationNPC::FlushLearningTransition(const FYUFSNPCObservation& Next
 		SimulationController ? SimulationController->GetElapsedTime() : 0.f,
 		PrevObservation,
 		CurrentAction,
-		Reward,
 		NextObs,
 		bDone,
 		TerminalReason);
@@ -391,7 +361,7 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
 	if (!BehaviorSM) return;
 	if (BehaviorSM->IsIncapacitated()) return;
 
-	MLPolicy.SetLearningMode(bLearningMode);
+	MLPolicy.SetDataCollectionMode(bDataCollectionMode);
 
 	ActionHoldTimer         += DeltaTime;
 	PolicyTickAccumulator   += DeltaTime;
@@ -403,6 +373,9 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
 		FYUFSNPCObservation Obs{};
 		BuildObservation(Obs);
 		const EYUFSAction NewAction = MLPolicy.SelectAction(Obs);
+
+		if (Obs.CurrentState == EYUFSBehaviorState::Milling)
+			++MillingActionCount;
 
 		// PADM 상태 전이가 발생하면 즉시 반응, 아니면 최소 유지 시간 보장
 		// (RuleBasedPolicy의 FMath::FRand() 매 틱 재추첨으로 인한 떨림 방지)
@@ -488,7 +461,6 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 	case EYUFSAction::EvacuateToNearestExit:
 	case EYUFSAction::EvacuateToFamiliarExit:
 	case EYUFSAction::FollowCrowd:
-	case EYUFSAction::MoveToShelter:
 	case EYUFSAction::HelpOther:
 		if (Navigator)
 		{
@@ -539,9 +511,6 @@ FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 		}
 		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
 
-	case EYUFSAction::MoveToShelter:
-		return LevelDataMgr->GetNearestAvailableShelter(Pos);
-
 	case EYUFSAction::HelpOther:
 		if (SocialComp)
 		{
@@ -560,6 +529,5 @@ bool AYUFSEvacuationNPC::IsNavigationAction(EYUFSAction Action)
 	return Action == EYUFSAction::EvacuateToNearestExit
 		|| Action == EYUFSAction::EvacuateToFamiliarExit
 		|| Action == EYUFSAction::FollowCrowd
-		|| Action == EYUFSAction::MoveToShelter
 		|| Action == EYUFSAction::HelpOther;
 }

@@ -14,10 +14,8 @@ class YUFS_API UYUFSPerceptionConfig : public UDataAsset
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(EditAnywhere) float SmokeAwarenessThreshold  = 0.15f; // Perceiving threshold
-	UPROPERTY(EditAnywhere) float IncapacitationThreshold  = 0.70f; // Incapacitation threshold
-	UPROPERTY(EditAnywhere) float PathSampleLookAheadDist  = 300.f; // Forward path sample distance (cm)
-	UPROPERTY(EditAnywhere) int32 PathSampleCount          = 4;     // Forward path sample count
+	UPROPERTY(EditAnywhere) float SmokeAwarenessThreshold  = 0.15f;
+	UPROPERTY(EditAnywhere) float IncapacitationThreshold  = 0.70f;
 	UPROPERTY(EditAnywhere) float VisionRange              = 1000.f;
 	UPROPERTY(EditAnywhere) float FieldOfViewDegrees       = 90.f;
 	UPROPERTY(EditAnywhere) int32 VisionRayCount           = 5;

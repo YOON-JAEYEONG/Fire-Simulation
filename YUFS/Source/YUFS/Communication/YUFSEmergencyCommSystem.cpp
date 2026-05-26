@@ -1,23 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Communication/YUFSEmergencyCommSystem.h"
-
 #include "YUFSCommTypes.h"
 
-// Sets default values
 AYUFSEmergencyCommSystem::AYUFSEmergencyCommSystem()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-	
-	RootComponent = CreateDefaultSubobject<USceneComponent>("RootComponent");;
-}
-
-// Called when the game starts or when spawned
-void AYUFSEmergencyCommSystem::BeginPlay()
-{
-	Super::BeginPlay();
+	RootComponent = CreateDefaultSubobject<USceneComponent>("RootComponent");
 }
 
 void AYUFSEmergencyCommSystem::ActivateAlarm()
@@ -26,12 +15,12 @@ void AYUFSEmergencyCommSystem::ActivateAlarm()
 	OnEmergencyComm.Broadcast(EYUFSCommType::AlarmOnly, GetActorLocation(), AlarmRadius, FVector::ZeroVector);
 }
 
-void AYUFSEmergencyCommSystem::BroadcastPreRecordedMessage(FText Message)
+void AYUFSEmergencyCommSystem::BroadcastPreRecordedMessage()
 {
 	OnEmergencyComm.Broadcast(EYUFSCommType::PreRecordedMessage, GetActorLocation(), AnnouncementRadius, FVector::ZeroVector);
 }
 
-void AYUFSEmergencyCommSystem::BroadcastLiveAnnouncement(FText Message)
+void AYUFSEmergencyCommSystem::BroadcastLiveAnnouncement()
 {
 	// 논문: 실시간 안내는 알람보다 빠른 반응을 유도함 [cite: 1579, 1762]
 	OnEmergencyComm.Broadcast(EYUFSCommType::LiveAnnouncement, GetActorLocation(), AnnouncementRadius, FVector::ZeroVector);

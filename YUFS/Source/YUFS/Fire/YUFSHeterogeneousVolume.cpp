@@ -4,7 +4,7 @@
 
 AYUFSHeterogeneousVolume::AYUFSHeterogeneousVolume()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	HeterogeneousVolumeComponent = CreateDefaultSubobject<UHeterogeneousVolumeComponent>(TEXT("YUFSHeterogeneousVolumeComponent"));
 	// 생성자에서는 재생하지 않음 — SimulationController가 제어
@@ -35,11 +35,6 @@ void AYUFSHeterogeneousVolume::BeginPlay()
 			UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Standby. Waiting for SimulationController to call StartFire()."));
 		}
 	}
-}
-
-void AYUFSHeterogeneousVolume::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

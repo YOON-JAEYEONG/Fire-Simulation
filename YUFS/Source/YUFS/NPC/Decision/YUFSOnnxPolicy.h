@@ -11,25 +11,19 @@
 #include "UObject/StrongObjectPtr.h"
 #include "YUFSRuleBasedPolicy.h"
 
-class YUFS_API FYUFSRLPolicy : public IYUFSDecisionPolicy
+class YUFS_API FYUFSOnnxPolicy : public IYUFSDecisionPolicy
 {
 public:
-	FYUFSRLPolicy(
+	FYUFSOnnxPolicy(
 		const FString& InModelPath = FString(),
 		const FString& InRuntimeName = TEXT("NNERuntimeORTCpu"));
 
 	virtual EYUFSAction SelectAction(const FYUFSNPCObservation& Obs) override;
-	virtual void OnTransition(
-		const FYUFSNPCObservation& PrevObs,
-		EYUFSAction Action,
-		const FYUFSNPCObservation& NextObs,
-		float Reward,
-		bool bDone) override;
-	virtual bool IsLearningMode() const override { return bForceFallback; }
+	virtual bool IsDataCollectionMode() const override { return bDataCollectionMode; }
 	virtual void LoadModel(const FString& Path) override;
 
-	// ONNX 모델이 있어도 룰베이스 폴백을 강제해 학습 데이터를 수집
-	void SetLearningMode(bool bEnable) { bForceFallback = bEnable; }
+	// 데이터 수집 모드: ONNX 모델 대신 룰베이스 폴백을 강제해 학습 데이터를 수집
+	void SetDataCollectionMode(bool bEnable) { bDataCollectionMode = bEnable; }
 
 private:
 	bool EnsureModelLoaded();
@@ -44,13 +38,27 @@ private:
 	EYUFSAction SelectActionFromLogits(const TArray<float>& Logits) const;
 	void ResetLoadedModelState();
 
+	// ── 공통 헬퍼 (CPU/GPU Configure·Run 중복 제거) ───────────────────────
+	bool ParseInputShape(
+		TConstArrayView<UE::NNE::FTensorDesc> InputDescs,
+		TConstArrayView<UE::NNE::FTensorDesc> OutputDescs,
+		UE::NNE::FTensorShape& OutInputShape) const;
+	bool FinalizeBuffers(
+		TConstArrayView<UE::NNE::FTensorShape> OutputShapes,
+		const UE::NNE::FTensorDesc& OutputDesc,
+		const UE::NNE::FTensorShape& InputShape);
+	bool PrepareInferenceBindings(
+		const TArray<float>& StateVec,
+		TArray<UE::NNE::FTensorBindingCPU>& OutInputBindings,
+		TArray<UE::NNE::FTensorBindingCPU>& OutOutputBindings);
+
 	FYUFSRuleBasedPolicy FallbackPolicy;
 	FString ModelPath;
 	FString RuntimeName;
 	FString ResolvedModelPath;
-	bool bLoadAttempted  = false;
-	bool bModelReady     = false;
-	bool bForceFallback  = false;
+	bool bLoadAttempted    = false;
+	bool bModelReady       = false;
+	bool bDataCollectionMode = false;
 	TStrongObjectPtr<UNNEModelData> ModelData;
 	TSharedPtr<UE::NNE::IModelCPU> CpuModel;
 	TSharedPtr<UE::NNE::IModelInstanceCPU> CpuModelInstance;

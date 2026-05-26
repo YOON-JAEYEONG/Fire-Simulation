@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import statistics
 from collections import Counter
 from pathlib import Path
 
@@ -47,7 +46,6 @@ def main() -> int:
     action_counts = Counter(item.action_id for item in transitions)
     terminal_counts = Counter(item.terminal_reason_id for item in transitions)
     done_count = sum(1 for item in transitions if item.done)
-    rewards = [item.reward for item in transitions]
     run_ids = sorted({item.run_id for item in transitions})
     agent_ids = sorted({item.agent_id for item in transitions})
 
@@ -56,9 +54,6 @@ def main() -> int:
     print(f"runs: {len(run_ids)} -> {run_ids}")
     print(f"agents: {len(agent_ids)}")
     print(f"done_transitions: {done_count}")
-    print(f"reward_mean: {statistics.fmean(rewards):.6f}")
-    print(f"reward_min: {min(rewards):.6f}")
-    print(f"reward_max: {max(rewards):.6f}")
 
     print("\naction_counts:")
     for action_id, count in sorted(action_counts.items()):
@@ -76,7 +71,7 @@ def main() -> int:
     for item in transitions[: max(args.preview, 0)]:
         print(
             f"  run={item.run_id} agent={item.agent_id} step={item.step_index} "
-            f"action={item.action_name} reward={item.reward:.4f} done={int(item.done)} "
+            f"action={item.action_name} done={int(item.done)} "
             f"terminal={item.terminal_reason}"
         )
 

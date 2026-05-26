@@ -11,7 +11,6 @@
 #include "Level/YUFSLevelDataManager.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
-#include "Simulation/YUFSBottleneckQueueManager.h"
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
@@ -43,18 +42,6 @@ void AYUFSSimulationController::BeginPlay()
 		CachedLDM = *It;
 		break;
 	}
-
-	AYUFSBottleneckQueueManager* BottleneckQueueManager = nullptr;
-	for (TActorIterator<AYUFSBottleneckQueueManager> It(GetWorld()); It; ++It)
-	{
-		BottleneckQueueManager = *It;
-		break;
-	}
-	if (!BottleneckQueueManager)
-	{
-		BottleneckQueueManager = GetWorld()->SpawnActor<AYUFSBottleneckQueueManager>();
-	}
-
 
 	// 씬에 이미 배치된 NPC들 자동 수집
 	for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
@@ -226,7 +213,7 @@ void AYUFSSimulationController::TickFireActivePhase(float DeltaTime)
 	{
 		if (CommSystem)
 		{
-			CommSystem->BroadcastPreRecordedMessage(FText::GetEmpty());
+			CommSystem->BroadcastPreRecordedMessage();
 			bPreRecordedMsgFired = true;
 			UE_LOG(LogTemp, Warning, TEXT("[YUFS] === PRE-RECORDED MESSAGE BROADCAST ==="));
 		}
@@ -238,7 +225,7 @@ void AYUFSSimulationController::TickFireActivePhase(float DeltaTime)
 	{
 		if (CommSystem)
 		{
-			CommSystem->BroadcastLiveAnnouncement(FText::GetEmpty());
+			CommSystem->BroadcastLiveAnnouncement();
 			bLiveAnnouncementFired = true;
 			UE_LOG(LogTemp, Warning, TEXT("[YUFS] === LIVE ANNOUNCEMENT BROADCAST ==="));
 		}

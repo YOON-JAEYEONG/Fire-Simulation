@@ -154,10 +154,6 @@ void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame
 	});
 }
 
-void UYUFSSmokeAwareNavigator::OnPathFound(uint32 PathId, ENavigationQueryResult::Type Result, FNavPathSharedPtr NavPath)
-{
-}
-
 void UYUFSSmokeAwareNavigator::CheckAndReroute(int32 Frame)
 {
 	if (CurrentPath.IsEmpty() || bIsPathfinding)
@@ -260,12 +256,3 @@ void UYUFSSmokeAwareNavigator::UpdateWaypoint(FVector ActorLocation, float Accep
 	}
 }
 
-float UYUFSSmokeAwareNavigator::EvaluatePathCost(const TArray<FVector>& Path, int32 Frame) const
-{
-	if (LevelDataMgr)
-	{
-		return LevelDataMgr->GetPathDangerScore(Path, Frame);
-	}
-
-	return 0.f;
-}

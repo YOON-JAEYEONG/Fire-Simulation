@@ -5,7 +5,7 @@
 #include "Core/YUFSObservation.h"
 #include "Core/YUFSTypes.h"
 #include "GameFramework/Character.h"
-#include "NPC/Decision/YUFSRLPolicy.h"
+#include "NPC/Decision/YUFSOnnxPolicy.h"
 #include "YUFSEvacuationNPC.generated.h"
 
 class UAnimMontage;
@@ -17,7 +17,6 @@ class UYUFSBehaviorStateMachine;
 class UYUFSNPCDebugComponent;
 class UYUFSNPCPerceptionComponent;
 class AYUFSSimulationController;
-class AYUFSBottleneckQueueManager;
 
 UCLASS()
 class YUFS_API AYUFSEvacuationNPC : public ACharacter
@@ -30,7 +29,6 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION()
 	void OnCommReceived(EYUFSCommType CommType, FVector SourceLocation, float EffectiveRadius, FVector GuidanceTarget);
@@ -43,7 +41,7 @@ public:
 	UAnimMontage* FilmMontage = nullptr;
 
 	UPROPERTY(EditAnywhere, Category="AI|Policy")
-	bool bLearningMode = false;
+	bool bDataCollectionMode = false;
 
 	UPROPERTY(EditAnywhere, Category="AI|Logging")
 	bool bLogTransitions = true;
@@ -51,7 +49,6 @@ public:
 	// ── 이동 보조 API ──────────────────────────────────────────────────
 	void DriveMovementToward(FVector Target);
 	void SetMovementSpeed(float Speed);
-	int32 GetCurrentSimFramePublic() const { return GetCurrentSimFrame(); }
 
 	// ── 컴포넌트 접근자 ────────────────────────────────────────────────
 	UYUFSBehaviorStateMachine*   GetBehaviorStateMachine() const { return BehaviorSM; }
@@ -91,8 +88,6 @@ private:
 	AYUFSLevelDataManager* LevelDataMgr = nullptr;
 	UPROPERTY(VisibleAnywhere)
 	AYUFSSimulationController* SimulationController = nullptr;
-	UPROPERTY(VisibleAnywhere)
-	AYUFSBottleneckQueueManager* BottleneckQueueManager = nullptr;
 
 	// ── 통신 상태 ─────────────────────────────────────────────────────
 	UPROPERTY(VisibleAnywhere)
@@ -120,8 +115,11 @@ private:
 	FVector LastPositionCheckLocation  = FVector::ZeroVector;
 	bool bHasMovementSample = false;
 
+	// ── Milling 누적 카운터 (정책 틱 단위) ────────────────────────────
+	int32 MillingActionCount = 0;
+
 	// ── MLP 정책 (ONNX 추론, RuleBasedPolicy 폴백 내장) ──────────────
-	FYUFSRLPolicy MLPolicy;
+	FYUFSOnnxPolicy MLPolicy;
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
 	EYUFSAction CurrentAction            = EYUFSAction::Idle;
@@ -141,11 +139,6 @@ private:
 	void FlushLearningTransition(const FYUFSNPCObservation& NextObs, EYUFSTerminalReason TerminalReason);
 	EYUFSTerminalReason GetCurrentTerminalReason() const;
 	void UpdateStuckDetection(float DeltaTime);
-	float CalculateTransitionReward(
-		const FYUFSNPCObservation& PrevObs,
-		EYUFSAction Action,
-		const FYUFSNPCObservation& NextObs,
-		EYUFSTerminalReason TerminalReason) const;
 
 	// ── MLP 정책 실행 ─────────────────────────────────────────────────
 	void TickPolicy(float DeltaTime);

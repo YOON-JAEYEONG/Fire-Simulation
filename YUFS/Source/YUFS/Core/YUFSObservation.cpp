@@ -27,7 +27,7 @@ float NormalizeCount(int32 Count)
 TArray<float> FYUFSNPCObservation::ToFloatArray() const
 {
 	TArray<float> OutArray;
-	OutArray.Reserve(29);
+	OutArray.Reserve(28);
 
 	OutArray.Add(SmokeDensityAtSelf);
 	OutArray.Add(TemperatureAtSelf);
@@ -42,7 +42,6 @@ TArray<float> FYUFSNPCObservation::ToFloatArray() const
 	OutArray.Add(static_cast<float>(DirToNearestExit.Y));
 	OutArray.Add(static_cast<float>(DirToNearestExit.Z));
 	OutArray.Add(bNearestExitSmokeFree ? 1.0f : 0.0f);
-	OutArray.Add(NormalizeDistance(DistToNearestShelter));
 
 	OutArray.Add(NearbyEvacuatingRatio);
 	OutArray.Add(NormalizeCount(NearbyNPCCount));

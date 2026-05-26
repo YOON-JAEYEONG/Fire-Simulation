@@ -23,16 +23,12 @@ public:
 	// Sets default values for this actor's properties
 	AYUFSEmergencyCommSystem();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 public:
 	// 4가지 통신 수단 (논문 van der Wal et al. 기반)
 	UFUNCTION(BlueprintCallable)
 	void ActivateAlarm();
-	void BroadcastPreRecordedMessage(FText Message);
-	void BroadcastLiveAnnouncement(FText Message);
+	void BroadcastPreRecordedMessage();
+	void BroadcastLiveAnnouncement();
 	void DispatchStaffGuidance(FVector TargetExit);
 	void NotifyNPCsInRadius(float Radius, EYUFSCommType CommType, FVector GuidanceTarget = FVector::ZeroVector);
 

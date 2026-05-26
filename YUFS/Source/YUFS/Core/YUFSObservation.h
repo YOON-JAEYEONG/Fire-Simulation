@@ -32,8 +32,6 @@ struct YUFS_API FYUFSNPCObservation
 	FVector DirToNearestExit;
 	UPROPERTY()
 	bool bNearestExitSmokeFree;
-	UPROPERTY()
-	float DistToNearestShelter;
 
 	UPROPERTY()
 	float NearbyEvacuatingRatio;

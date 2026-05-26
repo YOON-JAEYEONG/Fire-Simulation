@@ -5,20 +5,7 @@
 
 UYUFSBehaviorStateMachine::UYUFSBehaviorStateMachine()
 {
-	PrimaryComponentTick.bCanEverTick = true;
-}
-
-void UYUFSBehaviorStateMachine::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void UYUFSBehaviorStateMachine::TickComponent(
-	float DeltaTime,
-	ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UYUFSBehaviorStateMachine::TickStateMachine(float DeltaTime, const FYUFSNPCObservation& Obs)
@@ -207,28 +194,12 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& Obs)
 		}
 		break;
 
-	case EYUFSBehaviorState::Sheltering:
-		// 위험 인식이 충분히 낮아지고 연기도 해소되면 대피 재개
-		if (RiskPerception < Config->RiskPerceptionThreshold * 0.3f
-			&& Obs.SmokeDensityAtSelf < Config->SmokeAwarenessThreshold)
-		{
-			CurrentState = EYUFSBehaviorState::Evacuating;
-		}
-		break;
-
 	case EYUFSBehaviorState::Evacuating:
 		// Helping 진입: 주변 NPC가 도움을 필요로 하고 위험 인식이 충분히 낮을 때
 		// (Behavioral fact #6 — 사람들은 화재 시 이타적으로 행동)
 		if (Obs.bNearbyNPCNeedsHelp && RiskPerception < Config->RiskPerceptionThreshold * 0.7f)
 		{
 			CurrentState = EYUFSBehaviorState::Helping;
-		}
-		// Sheltering 진입: 현재 위치는 연기가 없으나 전방 경로가 강한 연기로 차단된 상황
-		// — 대피 불가 판단, 안전 지점에서 대기 (Convergence Cluster)
-		else if (Obs.SmokeDensityAtSelf < Config->SmokeAwarenessThreshold
-			&& Obs.SmokeInFrontNormalized > Config->VisionSmokeCueThreshold * 2.f)
-		{
-			CurrentState = EYUFSBehaviorState::Sheltering;
 		}
 		break;
 
@@ -257,7 +228,7 @@ void UYUFSBehaviorStateMachine::AccumulateSmokeExposure(const FYUFSNPCObservatio
 		const float ExposureRate = Config->SmokeExposureAccumRate * Obs.SmokeDensityAtSelf;
 		SmokeExposureAccumulated = FMath::Clamp(SmokeExposureAccumulated + ExposureRate * DeltaTime, 0.f, 1.f);
 	}
-	// 연기가 없는 곳에서는 아주 쳌쳌 히복 (신선한 공기 찼는 중)
+	// 연기가 없는 곳에서는 아주 천천히 회복 (신선한 공기 찾는 중)
 	else
 	{
 		const float RecoveryRate = Config->SmokeExposureAccumRate * 0.1f;

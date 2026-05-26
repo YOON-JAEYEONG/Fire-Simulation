@@ -21,9 +21,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-public:
 	void UpdatePerception(int32 CurrentFrame);
 	float SampleSmokeAtPoint(FVector WorldPos, int32 Frame) const;
 

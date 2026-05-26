@@ -30,7 +30,7 @@ def append_class_expansion(onnx_model: onnx.ModelProto, classes: np.ndarray) -> 
     """RF가 학습한 클래스(예: 9개)의 probabilities를 전체 액션 공간(12개)으로 확장.
 
     skl2onnx RF의 probabilities 출력은 학습 시 등장한 클래스 수만큼만 나온다.
-    YUFSRLPolicy는 index를 직접 EYUFSAction enum 값으로 사용하므로,
+    FYUFSOnnxPolicy는 index를 직접 EYUFSAction enum 값으로 사용하므로,
     [batch, n_seen] → [batch, NUM_ACTIONS] 확장이 필수.
 
     구현: probabilities @ P (MatMul)

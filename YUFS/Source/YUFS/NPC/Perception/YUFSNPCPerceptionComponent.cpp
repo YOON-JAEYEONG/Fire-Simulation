@@ -12,7 +12,7 @@
 
 UYUFSNPCPerceptionComponent::UYUFSNPCPerceptionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UYUFSNPCPerceptionComponent::BeginPlay()
@@ -24,14 +24,6 @@ void UYUFSNPCPerceptionComponent::BeginPlay()
 		BinaryManager = *It;
 		break;
 	}
-}
-
-void UYUFSNPCPerceptionComponent::TickComponent(
-	float DeltaTime,
-	ELevelTick TickType,
-	FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
 void UYUFSNPCPerceptionComponent::UpdatePerception(int32 CurrentFrame)

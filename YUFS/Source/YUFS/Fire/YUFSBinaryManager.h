@@ -79,8 +79,6 @@ private:
 	uint8 TemperatureThreshold = 10;
 	FColor DensityColor = FColor::Black;
 	FColor TemperatureColor = FColor::Red;
-	bool bPauseAnimation = false;
-	
 	UPROPERTY(VisibleAnywhere, Category="Fire")
 	int32 DimX = 0;
 	

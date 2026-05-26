@@ -28,8 +28,6 @@ public:
 public:
 	void RequestPathAsync(FVector Destination, int32 Frame);
 
-	void OnPathFound(uint32 PathId, ENavigationQueryResult::Type Result, FNavPathSharedPtr NavPath);
-
 	bool bIsPathfinding = false;
 
 	void CheckAndReroute(int32 Frame);
@@ -52,8 +50,6 @@ public:
 	float SmokeBlockThreshold = 0.4f;
 
 private:
-	float EvaluatePathCost(const TArray<FVector>& Path, int32 Frame) const;
-
 	UPROPERTY()
 	AYUFSLevelDataManager* LevelDataMgr = nullptr;
 

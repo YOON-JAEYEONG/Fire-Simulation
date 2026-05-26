@@ -29,7 +29,6 @@ void FYUFSExperienceLogger::LogTransition(
 	float SimTimeSeconds,
 	const FYUFSNPCObservation& State,
 	EYUFSAction Action,
-	float Reward,
 	const FYUFSNPCObservation& NextState,
 	bool bDone,
 	EYUFSTerminalReason TerminalReason)
@@ -41,14 +40,13 @@ void FYUFSExperienceLogger::LogTransition(
 	}
 
 	const FString Line = FString::Printf(
-		TEXT("%d,%s,%d,%d,%s,%s,%s,%s,%s,%s,%s\n"),
+		TEXT("%d,%s,%d,%d,%s,%s,%s,%s,%s,%s\n"),
 		RunIndex,
 		*EscapeCsv(AgentId),
 		StepIndex,
 		SimFrame,
 		*FormatFloat(SimTimeSeconds),
 		*EscapeCsv(GetActionName(Action)),
-		*FormatFloat(Reward),
 		bDone ? TEXT("1") : TEXT("0"),
 		*EscapeCsv(GetTerminalReasonName(TerminalReason)),
 		*EscapeCsv(SerializeObservation(State)),
@@ -71,21 +69,21 @@ bool FYUFSExperienceLogger::EnsureLogFile()
 		return true;
 	}
 
-	const FString LogDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("RLTransitions"));
+	const FString LogDirectory = FPaths::Combine(FPaths::ProjectSavedDir(), TEXT("Transitions"));
 	IFileManager::Get().MakeDirectory(*LogDirectory, true);
 
 	const FString Timestamp = FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
-	LogFilePath = FPaths::Combine(LogDirectory, FString::Printf(TEXT("yufs_rl_transitions_%s.csv"), *Timestamp));
+	LogFilePath = FPaths::Combine(LogDirectory, FString::Printf(TEXT("yufs_transitions_%s.csv"), *Timestamp));
 
 	LogArchive.Reset(IFileManager::Get().CreateFileWriter(*LogFilePath, FILEWRITE_AllowRead));
 	if (!LogArchive.IsValid())
 	{
-		UE_LOG(LogTemp, Error, TEXT("[YUFS RL] Failed to create transition log: %s"), *LogFilePath);
+		UE_LOG(LogTemp, Error, TEXT("[YUFS] Failed to create transition log: %s"), *LogFilePath);
 		return false;
 	}
 
-	WriteLine(TEXT("run_id,agent_id,step_index,sim_frame,sim_time_seconds,action,reward,done,terminal_reason,state,next_state\n"));
-	UE_LOG(LogTemp, Log, TEXT("[YUFS RL] Writing transition log: %s"), *LogFilePath);
+	WriteLine(TEXT("run_id,agent_id,step_index,sim_frame,sim_time_seconds,action,done,terminal_reason,state,next_state\n"));
+	UE_LOG(LogTemp, Log, TEXT("[YUFS] Writing transition log: %s"), *LogFilePath);
 	return true;
 }
 

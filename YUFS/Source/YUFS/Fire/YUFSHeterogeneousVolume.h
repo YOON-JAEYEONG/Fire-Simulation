@@ -18,9 +18,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	virtual void Tick(float DeltaTime) override;
-	
+public:
 	// ── SimulationController에서 호출하는 제어 API ─────────────────────
 	// 화재 시뮬레이션 재생 시작 (시뮬레이션 FireActive 단계 진입 시)
 	UFUNCTION(BlueprintCallable, Category="Fire")

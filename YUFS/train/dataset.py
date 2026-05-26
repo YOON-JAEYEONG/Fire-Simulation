@@ -20,7 +20,6 @@ class Transition:
     sim_time_seconds: float
     action_name: str
     action_id: int
-    reward: float
     done: bool
     terminal_reason: str
     terminal_reason_id: int
@@ -54,7 +53,6 @@ def parse_transition_row(row: dict[str, str]) -> Transition:
         sim_time_seconds=float(row["sim_time_seconds"]),
         action_name=action_name,
         action_id=ACTION_NAME_TO_ID[action_name],
-        reward=float(row["reward"]),
         done=row["done"] == "1",
         terminal_reason=terminal_reason,
         terminal_reason_id=TERMINAL_NAME_TO_ID[terminal_reason],
@@ -82,7 +80,7 @@ def iter_transitions(csv_path: str | Path) -> Iterator[Transition]:
 
 
 REQUIRED_COLUMNS = {"run_id", "agent_id", "step_index", "sim_frame", "sim_time_seconds",
-                    "action", "reward", "done", "terminal_reason", "state", "next_state"}
+                    "action", "done", "terminal_reason", "state", "next_state"}
 
 
 def _has_required_columns(csv_path: Path) -> bool:
@@ -120,7 +118,6 @@ def transitions_to_numpy_dict(transitions: Iterable[Transition]):
     return {
         "state": np.asarray([item.state for item in transition_list], dtype=np.float32),
         "action": np.asarray([item.action_id for item in transition_list], dtype=np.int64),
-        "reward": np.asarray([item.reward for item in transition_list], dtype=np.float32),
         "next_state": np.asarray([item.next_state for item in transition_list], dtype=np.float32),
         "done": np.asarray([item.done for item in transition_list], dtype=np.bool_),
         "run_id": np.asarray([item.run_id for item in transition_list], dtype=np.int64),

@@ -19,13 +19,6 @@ class YUFS_API UYUFSBehaviorStateMachine : public UActorComponent
 public:
 	UYUFSBehaviorStateMachine();
 
-protected:
-	virtual void BeginPlay() override;
-
-public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
-	                           FActorComponentTickFunction* ThisTickFunction) override;
-
 public:
 	void TickStateMachine(float DeltaTime, const FYUFSNPCObservation& Obs);
 

@@ -8,22 +8,9 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/World.h"
 
-// Sets default values for this component's properties
 UYUFSSocialInfluenceComponent::UYUFSSocialInfluenceComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
-}
-
-// Called when the game starts
-void UYUFSSocialInfluenceComponent::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-// Called every frame
-void UYUFSSocialInfluenceComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UYUFSSocialInfluenceComponent::UpdateSocialContext()

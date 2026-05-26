@@ -18,7 +18,6 @@ enum class EYUFSBehaviorState : uint8
 	Preparing,       // 대피 준비 (소지품·타인 알림 등)
 	Evacuating,      // 실제 대피 이동
 	Helping,         // 타인 도움 (Altruistic Behavior)
-	Sheltering,      // 대피처 대기 (Convergence Cluster)
 	Crawling,        // 기어가기 (연기 흡입 누적 CrawlThreshold~IncapacitationThreshold 구간)
 	Incapacitated    // 행동 불능 (연기 흡입 임계값 초과)
 };
@@ -35,7 +34,6 @@ enum class EYUFSAction : uint8
 	EvacuateToNearestExit,    // 가장 가까운 출구로
 	EvacuateToFamiliarExit,   // 친숙한 출구로 (Affiliative Model)
 	HelpOther,                // 느린 NPC 동행
-	MoveToShelter,            // 대피처 이동
 	WaitForInfo,              // 정보 대기
 	Cough,                    // 연기 흡입 반응 (애니메이션 트리거용)
 	FollowCrowd,              // 군중 휩쓸리기 (Herd Instinct)
@@ -49,13 +47,4 @@ enum class EYUFSTerminalReason : uint8
 	ReachedExit,
 	Incapacitated,
 	TimedOut
-};
-/**
- * 
- */
-class YUFS_API YUFSTypes
-{
-public:
-	YUFSTypes();
-	~YUFSTypes();
 };

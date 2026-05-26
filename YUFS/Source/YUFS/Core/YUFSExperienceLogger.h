@@ -17,7 +17,6 @@ public:
 		float SimTimeSeconds,
 		const FYUFSNPCObservation& State,
 		EYUFSAction Action,
-		float Reward,
 		const FYUFSNPCObservation& NextState,
 		bool bDone,
 		EYUFSTerminalReason TerminalReason);

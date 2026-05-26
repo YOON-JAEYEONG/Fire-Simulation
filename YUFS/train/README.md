@@ -132,7 +132,7 @@ Saved/RLModels/rf_baseline_YYYYMMDD_HHMMSS/
 - 출력 `action_logits`: `float32 [batch, 12]` — 전체 액션 공간의 확률값
 
 학습 데이터에 등장하지 않은 액션(예: `HelpOther`, `WaitForInfo`, `Cough`)은 출력 확률이 0으로 채워집니다.
-`YUFSRLPolicy`는 argmax로 액션을 선택하므로 MLP ONNX와 동일하게 동작합니다.
+`FYUFSOnnxPolicy`는 argmax로 액션을 선택하므로 MLP ONNX와 동일하게 동작합니다.
 
 ## Unreal inference hookup
 
