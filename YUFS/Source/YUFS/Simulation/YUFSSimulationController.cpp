@@ -122,22 +122,52 @@ void AYUFSSimulationController::StartSimulation()
 void AYUFSSimulationController::PauseSimulation()
 {
 	bIsPaused = true;
-	// HeterogeneousVolume도 함께 정지
-	if (HeterogeneousVolume) HeterogeneousVolume->PauseFire();
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.0001f);
-	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation PAUSED."));
+
+	if (HeterogeneousVolume)
+	{
+		HeterogeneousVolume->PauseFire();
+	}
+
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (!IsValid(NPC)) continue;
+
+		if (UCharacterMovementComponent* MoveComp = NPC->GetCharacterMovement())
+		{
+			MoveComp->StopMovementImmediately();
+			MoveComp->DisableMovement();
+		}
+
+		NPC->SetActorTickEnabled(false);
+	}
+
+	// 이 줄은 제거
+	// UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 0.0001f);
 }
 
 void AYUFSSimulationController::ResumeSimulation()
 {
 	bIsPaused = false;
-	// 화재 단계에서만 볼륨 재개
+
 	if (HeterogeneousVolume && CurrentPhase == ESimPhase::FireActive)
 	{
 		HeterogeneousVolume->ResumeFire();
 	}
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
-	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation RESUMED."));
+
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (!IsValid(NPC)) continue;
+
+		NPC->SetActorTickEnabled(true);
+
+		if (UCharacterMovementComponent* MoveComp = NPC->GetCharacterMovement())
+		{
+			MoveComp->SetMovementMode(MOVE_Walking);
+		}
+	}
+
+	// 이것도 필요 없음
+	// UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 }
 
 void AYUFSSimulationController::StopAndResetSimulation()
