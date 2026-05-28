@@ -84,6 +84,20 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
+	// 관찰 모드에서는 AI 판단, 경로 탐색, 이동 입력을 다시 계산하면 안 됩니다.
+	// 저장된 스냅샷만 SimulationController/TimelineRecorder가 적용합니다.
+	if (bTimelinePlaybackMode)
+	{
+		if (Navigator) Navigator->ClearPath();
+		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+		{
+			Mv->StopMovementImmediately();
+			Mv->DisableMovement();
+		}
+		return;
+	}
+
 	// ── 시뮬레이션 일시정지 ───────────────────────────────────────────────
 	if (SimulationController && !SimulationController->IsNPCSimulationEnabled())
 	{
@@ -321,6 +335,93 @@ EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
 	}
 
 	return EYUFSTerminalReason::None;
+}
+
+
+FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
+{
+	FYUFSTimelineNPCSnapshot Snapshot;
+	Snapshot.NPCId = GetFName();
+	Snapshot.Location = GetActorLocation();
+	Snapshot.Rotation = GetActorRotation();
+	Snapshot.CurrentAction = CurrentAction;
+	Snapshot.bVisible = !IsHidden();
+	Snapshot.bEvacuated = false;
+	Snapshot.bIncapacitated = false;
+
+	if (BehaviorSM)
+	{
+		Snapshot.BehaviorState = BehaviorSM->GetCurrentState();
+		Snapshot.RiskPerception = BehaviorSM->GetRiskPerception();
+		Snapshot.SmokeExposure = BehaviorSM->GetSmokeExposure();
+		Snapshot.bIncapacitated = BehaviorSM->IsIncapacitated();
+	}
+
+	// SimulationController가 대피 완료 NPC를 숨겼다면 관찰 모드에서도 숨김 상태로 기록합니다.
+	// 별도 bEvacuated 플래그는 Controller가 필요 시 확장할 수 있도록 남겨둡니다.
+	if (IsHidden() && !Snapshot.bIncapacitated)
+	{
+		Snapshot.bEvacuated = true;
+	}
+
+	return Snapshot;
+}
+
+void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot)
+{
+	// 관찰 모드에서는 물리 이동이 아니라 기록된 위치로 직접 배치합니다.
+	SetActorLocationAndRotation(Snapshot.Location, Snapshot.Rotation, false, nullptr, ETeleportType::TeleportPhysics);
+
+	SetActorHiddenInGame(!Snapshot.bVisible);
+	SetActorEnableCollision(Snapshot.bVisible);
+
+	CurrentAction = Snapshot.CurrentAction;
+
+	if (Navigator)
+	{
+		Navigator->ClearPath();
+	}
+
+	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+	{
+		Mv->StopMovementImmediately();
+		Mv->DisableMovement();
+	}
+
+	// 현재 BehaviorStateMachine은 외부에서 상태를 강제로 세팅하는 API가 없으므로
+	// 상태값은 Snapshot에 저장하되, 실제 AI 상태머신은 관찰 모드에서 갱신하지 않습니다.
+}
+
+void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
+{
+	if (bTimelinePlaybackMode == bEnabled)
+	{
+		return;
+	}
+
+	bTimelinePlaybackMode = bEnabled;
+
+	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+	{
+		if (bEnabled)
+		{
+			SavedWalkSpeedBeforeTimeline = Mv->MaxWalkSpeed;
+			Mv->StopMovementImmediately();
+			Mv->DisableMovement();
+		}
+		else
+		{
+			Mv->SetMovementMode(MOVE_Walking);
+			Mv->MaxWalkSpeed = FMath::Max(1.f, SavedWalkSpeedBeforeTimeline);
+		}
+	}
+
+	if (Navigator)
+	{
+		Navigator->ClearPath();
+	}
+
+	SetActorTickEnabled(true);
 }
 
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)

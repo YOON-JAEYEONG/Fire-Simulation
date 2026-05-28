@@ -6,6 +6,7 @@
 #include "Core/YUFSTypes.h"
 #include "GameFramework/Character.h"
 #include "NPC/Decision/YUFSOnnxPolicy.h"
+#include "Simulation/YUFSTimelineTypes.h"
 #include "YUFSEvacuationNPC.generated.h"
 
 class UAnimMontage;
@@ -70,6 +71,17 @@ public:
 	EYUFSAction GetLastAction() const { return CurrentAction; }
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
+	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
+	// 현재 NPC 상태를 최소 정보 스냅샷으로 변환합니다.
+	FYUFSTimelineNPCSnapshot BuildTimelineSnapshot() const;
+
+	// 관찰 모드에서 저장된 스냅샷을 Actor에 적용합니다.
+	void ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot);
+
+	// 관찰 모드에서는 AI/이동/정책 Tick을 정지하고 기록된 Transform만 적용합니다.
+	void SetTimelinePlaybackMode(bool bEnabled);
+	bool IsTimelinePlaybackMode() const { return bTimelinePlaybackMode; }
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCPerceptionComponent* PerceptionComp;
@@ -102,6 +114,10 @@ private:
 	FVector StaffGuidedExitLocation = FVector::ZeroVector;
 
 	FVector SpawnLocation = FVector::ZeroVector;
+
+	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
+	bool bTimelinePlaybackMode = false;
+	float SavedWalkSpeedBeforeTimeline = 300.f;
 
 	// ── CSV 로깅 ──────────────────────────────────────────────────────
 	FYUFSNPCObservation PrevObservation{};

@@ -32,6 +32,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category="YUFS|HUD")
 	void OnStopButtonClicked();
 
+	// ── 타임라인 관찰 모드 버튼/슬라이더 바인딩 ───────────────────────
+	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Timeline")
+	void OnTimelinePlayButtonClicked();
+
+	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Timeline")
+	void OnTimelinePauseButtonClicked();
+
+	// UMG Slider의 OnValueChanged(float)에 연결합니다. Value는 0.0~1.0 기준입니다.
+	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Timeline")
+	void OnTimelineSliderChanged(float NormalizedValue);
+
 	// ── UMG 텍스트/프로그레스바에 바인딩할 데이터 조회 함수들 ─────────────
 	UFUNCTION(BlueprintPure, Category="YUFS|HUD")
 	FText GetPhaseText() const;
@@ -56,6 +67,18 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="YUFS|HUD")
 	bool IsFireActive() const;
+
+	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Timeline")
+	bool IsTimelineReviewMode() const;
+
+	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Timeline")
+	bool IsTimelinePlaying() const;
+
+	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Timeline")
+	float GetTimelineProgress01() const;
+
+	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Timeline")
+	FText GetTimelineTimeText() const;
 
 private:
 	UPROPERTY()

@@ -74,6 +74,7 @@ FText UYUFSSimHUD::GetPhaseText() const
 	case ESimPhase::WaitingToStart: return FText::FromString(TEXT("대기 중"));
 	case ESimPhase::FireStartDelay: return FText::FromString(TEXT("화재 발생 전"));
 	case ESimPhase::FireActive:     return FText::FromString(TEXT("🔥 화재 진행 중"));
+	case ESimPhase::TimelineReview: return FText::FromString(TEXT("타임라인 관찰 모드"));
 	case ESimPhase::Completed:      return FText::FromString(TEXT("✅ 시뮬레이션 완료"));
 	default:                        return FText::FromString(TEXT("--"));
 	}
@@ -139,4 +140,61 @@ bool UYUFSSimHUD::IsFireActive() const
 {
 	if (!SimController) return false;
 	return SimController->GetCurrentPhase() == ESimPhase::FireActive;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 타임라인 관찰 모드 바인딩
+// ─────────────────────────────────────────────────────────────────────────────
+
+void UYUFSSimHUD::OnTimelinePlayButtonClicked()
+{
+	if (SimController)
+	{
+		SimController->PlayTimeline();
+	}
+}
+
+void UYUFSSimHUD::OnTimelinePauseButtonClicked()
+{
+	if (SimController)
+	{
+		SimController->PauseTimeline();
+	}
+}
+
+void UYUFSSimHUD::OnTimelineSliderChanged(float NormalizedValue)
+{
+	if (SimController)
+	{
+		SimController->SeekTimelineByNormalizedValue(NormalizedValue);
+	}
+}
+
+bool UYUFSSimHUD::IsTimelineReviewMode() const
+{
+	return SimController && SimController->IsTimelineReviewMode();
+}
+
+bool UYUFSSimHUD::IsTimelinePlaying() const
+{
+	return SimController && SimController->IsTimelinePlaying();
+}
+
+float UYUFSSimHUD::GetTimelineProgress01() const
+{
+	return SimController ? SimController->GetTimelineProgress01() : 0.f;
+}
+
+FText UYUFSSimHUD::GetTimelineTimeText() const
+{
+	if (!SimController)
+	{
+		return FText::FromString(TEXT("0.0 / 0.0초"));
+	}
+
+	return FText::FromString(FString::Printf(
+		TEXT("%.1f / %.1f초"),
+		SimController->GetTimelineCurrentTime(),
+		SimController->GetTimelineMaxTime()));
 }

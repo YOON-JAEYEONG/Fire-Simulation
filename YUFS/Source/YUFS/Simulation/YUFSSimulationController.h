@@ -13,6 +13,7 @@ class AYUFSBinaryManager;
 class AYUFSEmergencyCommSystem;
 class AYUFSHeterogeneousVolume;
 class UYUFSSimHUD;
+class UYUFSTimelineRecorder;
 
 // ── 시뮬레이션 단계 ────────────────────────────────────────────────────────
 UENUM(BlueprintType)
@@ -21,6 +22,7 @@ enum class ESimPhase : uint8
 	WaitingToStart,   // 대기 (카운트다운 중)
 	FireStartDelay,   // 불이 붙기 전 (NPC들 일상 상태)
 	FireActive,       // 화재 진행 중 (NPC들 대피 중)
+	TimelineReview,   // 기록 종료 후 시간대 이동/관찰 모드
 	Completed,        // 시뮬레이션 종료 (성공/실패)
 };
 
@@ -87,6 +89,7 @@ public:
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	bool IsNPCSimulationEnabled() const
 	{
+		// 관찰 모드에서는 NPC AI가 다시 계산되면 안 되므로 FireActive에서만 true입니다.
 		return !bIsPaused && CurrentPhase == ESimPhase::FireActive;
 	}
 
@@ -101,6 +104,40 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	TArray<FSimRunResult> GetAllRunResults() const { return AllRunResults; }
+
+	// ── 타임라인 기록/관찰 API ───────────────────────────────────────
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void StartTimelineRecordingSimulation(float InRecordEndFireSeconds);
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void EnterTimelineReviewMode();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void SeekTimelineBySeconds(float FireElapsedSeconds);
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void SeekTimelineByNormalizedValue(float NormalizedValue);
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void PlayTimeline();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void PauseTimeline();
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	float GetTimelineCurrentTime() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	float GetTimelineMaxTime() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	float GetTimelineProgress01() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	bool IsTimelineReviewMode() const { return CurrentPhase == ESimPhase::TimelineReview; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	bool IsTimelinePlaying() const;
 
 	// ── NPC 등록 (NPC의 BeginPlay에서 자동 호출) ─────────────────────
 	void RegisterNPC(AYUFSEvacuationNPC* NPC);
@@ -154,6 +191,19 @@ public:
 	UPROPERTY(EditAnywhere, Category="Simulation|UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 
+	// ── 타임라인 기록 설정 ─────────────────────────────────────────────
+	// true면 StartSimulation()으로도 지정 시간까지 기록 후 관찰 모드로 전환합니다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline")
+	bool bEnableTimelineRecording = true;
+
+	// 화재 시작 후 몇 초까지 기록할지 설정합니다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.0"))
+	float TimelineRecordEndFireSeconds = 60.f;
+
+	// 너무 많은 정보를 저장하지 않기 위한 기록 간격입니다. 0.25초면 초당 4개 스냅샷입니다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.05"))
+	float TimelineRecordIntervalSeconds = 0.25f;
+
 private:
 	// ── 내부 상태 ─────────────────────────────────────────────────────
 	ESimPhase CurrentPhase = ESimPhase::WaitingToStart;
@@ -176,12 +226,18 @@ private:
 	TArray<AYUFSEvacuationNPC*> RegisteredNPCs;
 	TArray<FSimRunResult> AllRunResults;
 
+	// 대피/행동불능 처리를 이미 끝낸 NPC를 기억해서 카운트 중복 증가를 막습니다.
+	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;
+
 	// 캐싱
 	AYUFSBinaryManager* BinaryManager = nullptr;
 	AYUFSEmergencyCommSystem* CommSystem = nullptr;
 	AYUFSHeterogeneousVolume* HeterogeneousVolume = nullptr;
 	AYUFSLevelDataManager* CachedLDM = nullptr;
 	UUserWidget* HUDWidgetInstance = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category="Simulation|Timeline")
+	UYUFSTimelineRecorder* TimelineRecorder = nullptr;
 
 	// ── 내부 함수 ─────────────────────────────────────────────────────
 	void SetPhase(ESimPhase NewPhase);

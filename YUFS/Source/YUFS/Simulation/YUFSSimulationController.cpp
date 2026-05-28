@@ -2,6 +2,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Simulation/YUFSGameInstance.h"
+#include "Simulation/YUFSTimelineRecorder.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "EngineUtils.h"
 #include "Fire/YUFSBinaryManager.h"
@@ -15,6 +16,10 @@
 AYUFSSimulationController::AYUFSSimulationController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	// 타임라인 기록/관찰 로직은 별도 컴포넌트에 분리합니다.
+	// SimulationController는 Phase 전환과 외부 API만 담당합니다.
+	TimelineRecorder = CreateDefaultSubobject<UYUFSTimelineRecorder>(TEXT("YUFSTimelineRecorder"));
 }
 
 void AYUFSSimulationController::BeginPlay()
@@ -50,6 +55,11 @@ void AYUFSSimulationController::BeginPlay()
 	}
 	InitialNPCCount = RegisteredNPCs.Num();
 
+	if (TimelineRecorder)
+	{
+		TimelineRecorder->Initialize(this, HeterogeneousVolume);
+	}
+
 	SpawnHUD();
 
 	// 레벨 리로드 후 배치 실험 복원 — GameInstance에 저장된 회차 상태를 읽어옴
@@ -71,6 +81,17 @@ void AYUFSSimulationController::BeginPlay()
 void AYUFSSimulationController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// 관찰 모드는 일반 시뮬레이션 Pause와 독립적으로 동작합니다.
+	// 재생/일시정지는 TimelineRecorder 내부의 bReviewPlaying으로 제어합니다.
+	if (CurrentPhase == ESimPhase::TimelineReview)
+	{
+		if (TimelineRecorder)
+		{
+			TimelineRecorder->TickReview(DeltaTime, RegisteredNPCs);
+		}
+		return;
+	}
 
 	if (bIsPaused) return;
 	if (CurrentPhase == ESimPhase::WaitingToStart || CurrentPhase == ESimPhase::Completed) return;
@@ -112,6 +133,7 @@ void AYUFSSimulationController::StartSimulation()
 	LiveIncapacitatedCount = 0;
 	TotalEvacuationTime = 0.f;
 	AllRunResults.Empty();
+	ResolvedNPCs.Empty();
 
 	SetPhase(ESimPhase::FireStartDelay);
 
@@ -121,6 +143,12 @@ void AYUFSSimulationController::StartSimulation()
 
 void AYUFSSimulationController::PauseSimulation()
 {
+	if (CurrentPhase == ESimPhase::TimelineReview)
+	{
+		PauseTimeline();
+		return;
+	}
+
 	bIsPaused = true;
 
 	if (HeterogeneousVolume)
@@ -147,6 +175,12 @@ void AYUFSSimulationController::PauseSimulation()
 
 void AYUFSSimulationController::ResumeSimulation()
 {
+	if (CurrentPhase == ESimPhase::TimelineReview)
+	{
+		PlayTimeline();
+		return;
+	}
+
 	bIsPaused = false;
 
 	if (HeterogeneousVolume && CurrentPhase == ESimPhase::FireActive)
@@ -203,7 +237,17 @@ void AYUFSSimulationController::SetPhase(ESimPhase NewPhase)
 	case ESimPhase::FireActive:
 		// 화재 시작: HeterogeneousVolume 재생 개시
 		if (HeterogeneousVolume) HeterogeneousVolume->StartFire();
+		if (bEnableTimelineRecording && TimelineRecorder)
+		{
+			TimelineRecorder->BeginRecording(TimelineRecordEndFireSeconds, TimelineRecordIntervalSeconds);
+		}
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS] Phase: FireActive === 🔥 Fire STARTED ==="));
+		break;
+
+	case ESimPhase::TimelineReview:
+		// 기록 종료 후 관찰 모드: 화재와 NPC AI를 멈추고 스냅샷만 적용합니다.
+		if (HeterogeneousVolume) HeterogeneousVolume->PauseFire();
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] Phase: TimelineReview — time travel / observation mode."));
 		break;
 
 	case ESimPhase::Completed:
@@ -278,17 +322,46 @@ void AYUFSSimulationController::TickFireActivePhase(float DeltaTime)
 	}
 
 	UpdateLiveCounts();
-	CheckCompletionCondition();
-	if (CurrentPhase == ESimPhase::Completed)
+
+	const int32 CurrentFrame = BinaryManager ? BinaryManager->GetCurrentFrame() : 0;
+	if (bEnableTimelineRecording && TimelineRecorder)
 	{
-		return;
+		TimelineRecorder->TickRecording(
+			DeltaTime,
+			FireElapsed,
+			CurrentFrame,
+			RegisteredNPCs,
+			LiveEvacuatedCount,
+			LiveIncapacitatedCount);
+
+		// 사용자가 지정한 시간까지 기록이 끝나면 종료가 아니라 관찰 모드로 전환합니다.
+		if (FireElapsed >= TimelineRecordEndFireSeconds)
+		{
+			EnterTimelineReviewMode();
+			return;
+		}
+	}
+	else
+	{
+		CheckCompletionCondition();
+		if (CurrentPhase == ESimPhase::Completed)
+		{
+			return;
+		}
 	}
 
 	// 최대 시뮬레이션 시간 초과 시 강제 종료
 	if (ElapsedSimTime - FireStartDelaySeconds >= MaxSimDurationSeconds)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS] Max simulation duration reached. Forcing end."));
-		FinalizeRun();
+		if (bEnableTimelineRecording)
+		{
+			EnterTimelineReviewMode();
+		}
+		else
+		{
+			FinalizeRun();
+		}
 	}
 }
 
@@ -298,25 +371,23 @@ void AYUFSSimulationController::UpdateLiveCounts()
 
 	const int32 CurrentFrame = BinaryManager->GetCurrentFrame();
 
-	// 역방향으로 순회하여 대피완료 NPC를 배열에서 안전하게 제거
-	for (int32 i = RegisteredNPCs.Num() - 1; i >= 0; --i)
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
 	{
-		AYUFSEvacuationNPC* NPC = RegisteredNPCs[i];
-		if (!IsValid(NPC))
+		if (!IsValid(NPC) || ResolvedNPCs.Contains(NPC))
 		{
-			RegisteredNPCs.RemoveAt(i);
 			continue;
 		}
 
 		UYUFSBehaviorStateMachine* SM = NPC->GetBehaviorStateMachine();
 		if (!SM) continue;
 
-		// 행동불능 카운트 (숨은 상태로 유지)
+		// 행동불능 카운트: 삭제하지 않고 숨겨야 타임라인에서 과거 시점 복원이 가능합니다.
 		if (SM->GetCurrentState() == EYUFSBehaviorState::Incapacitated)
 		{
 			NPC->NotifyEpisodeFinished(EYUFSTerminalReason::Incapacitated);
 			LiveIncapacitatedCount++;
-			RegisteredNPCs.RemoveAt(i);
+			ResolvedNPCs.Add(NPC);
+
 			NPC->SetActorHiddenInGame(true);
 			NPC->SetActorEnableCollision(false);
 			NPC->SetActorTickEnabled(false);
@@ -333,22 +404,25 @@ void AYUFSSimulationController::UpdateLiveCounts()
 			NPC->NotifyEpisodeFinished(EYUFSTerminalReason::ReachedExit);
 			LiveEvacuatedCount++;
 			TotalEvacuationTime += ElapsedSimTime;
-			RegisteredNPCs.RemoveAt(i);
+			ResolvedNPCs.Add(NPC);
 
 			UE_LOG(LogTemp, Log, TEXT("[YUFS] NPC '%s' evacuated successfully. Total: %d"),
 				*NPC->GetName(), LiveEvacuatedCount);
 
-			// 대피 성공 시 NPC 제거
-			NPC->Destroy();
+			// 기존 코드의 Destroy()는 타임라인 복원을 불가능하게 만듭니다.
+			// Actor는 유지하고 화면/충돌/Tick만 끕니다.
+			NPC->SetActorHiddenInGame(true);
+			NPC->SetActorEnableCollision(false);
+			NPC->SetActorTickEnabled(false);
 		}
 	}
 }
 
 void AYUFSSimulationController::CheckCompletionCondition()
 {
-	// RegisteredNPCs에서 이미 처리된 NPC는 제거되므로,
-	// 배열이 비면 모든 NPC가 대피 완료 또는 행동불능 상태
-	if (RegisteredNPCs.IsEmpty())
+	// RegisteredNPCs를 제거하지 않으므로, 해결된 NPC 수로 종료를 판단합니다.
+	const int32 TotalCount = InitialNPCCount > 0 ? InitialNPCCount : RegisteredNPCs.Num();
+	if (TotalCount > 0 && ResolvedNPCs.Num() >= TotalCount)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS] All NPCs resolved. Finalizing run %d."), CurrentRunIndex);
 		FinalizeRun();
@@ -361,7 +435,7 @@ void AYUFSSimulationController::FinalizeRun()
 	{
 		for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
 		{
-			if (IsValid(NPC))
+			if (IsValid(NPC) && !ResolvedNPCs.Contains(NPC))
 			{
 				NPC->NotifyEpisodeFinished(EYUFSTerminalReason::TimedOut);
 				if (UCharacterMovementComponent* MovementComp = NPC->GetCharacterMovement())
@@ -422,6 +496,108 @@ void AYUFSSimulationController::StartNextRun()
 
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 	UGameplayStatics::OpenLevel(GetWorld(), *GetWorld()->GetName());
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 타임라인 기록/관찰 API
+// ─────────────────────────────────────────────────────────────────────────────
+
+void AYUFSSimulationController::StartTimelineRecordingSimulation(float InRecordEndFireSeconds)
+{
+	TimelineRecordEndFireSeconds = FMath::Max(0.f, InRecordEndFireSeconds);
+	bEnableTimelineRecording = true;
+	StartSimulation();
+}
+
+void AYUFSSimulationController::EnterTimelineReviewMode()
+{
+	if (CurrentPhase == ESimPhase::TimelineReview)
+	{
+		return;
+	}
+
+	bIsPaused = false;
+
+	if (HeterogeneousVolume)
+	{
+		HeterogeneousVolume->PauseFire();
+	}
+
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (!IsValid(NPC))
+		{
+			continue;
+		}
+
+		NPC->SetActorTickEnabled(true);
+		NPC->SetTimelinePlaybackMode(true);
+	}
+
+	if (TimelineRecorder)
+	{
+		TimelineRecorder->EnterReviewMode(RegisteredNPCs);
+	}
+
+	SetPhase(ESimPhase::TimelineReview);
+}
+
+void AYUFSSimulationController::SeekTimelineBySeconds(float FireElapsedSeconds)
+{
+	if (CurrentPhase != ESimPhase::TimelineReview || !TimelineRecorder)
+	{
+		return;
+	}
+
+	TimelineRecorder->SeekToFireTime(FireElapsedSeconds, RegisteredNPCs);
+}
+
+void AYUFSSimulationController::SeekTimelineByNormalizedValue(float NormalizedValue)
+{
+	if (!TimelineRecorder)
+	{
+		return;
+	}
+
+	const float TargetTime = FMath::Clamp(NormalizedValue, 0.f, 1.f) * TimelineRecorder->GetMaxRecordedFireTime();
+	SeekTimelineBySeconds(TargetTime);
+}
+
+void AYUFSSimulationController::PlayTimeline()
+{
+	if (CurrentPhase == ESimPhase::TimelineReview && TimelineRecorder)
+	{
+		TimelineRecorder->PlayReview();
+	}
+}
+
+void AYUFSSimulationController::PauseTimeline()
+{
+	if (CurrentPhase == ESimPhase::TimelineReview && TimelineRecorder)
+	{
+		TimelineRecorder->PauseReview();
+	}
+}
+
+float AYUFSSimulationController::GetTimelineCurrentTime() const
+{
+	return TimelineRecorder ? TimelineRecorder->GetCurrentReviewFireTime() : 0.f;
+}
+
+float AYUFSSimulationController::GetTimelineMaxTime() const
+{
+	return TimelineRecorder ? TimelineRecorder->GetMaxRecordedFireTime() : 0.f;
+}
+
+float AYUFSSimulationController::GetTimelineProgress01() const
+{
+	return TimelineRecorder ? TimelineRecorder->GetTimelineProgress01() : 0.f;
+}
+
+bool AYUFSSimulationController::IsTimelinePlaying() const
+{
+	return TimelineRecorder && TimelineRecorder->IsReviewPlaying();
 }
 
 void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)

@@ -87,6 +87,26 @@ int32 AYUFSHeterogeneousVolume::GetFrame() const
 	return 0;
 }
 
+void AYUFSHeterogeneousVolume::SetFrame(int32 TargetFrame)
+{
+	if (!HeterogeneousVolumeComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[YUFSFire] SetFrame failed: HeterogeneousVolumeComponent is null."));
+		return;
+	}
+
+	// TotalFrameCount는 float로 관리되고 있으므로 안전하게 int 범위로 Clamp합니다.
+	const int32 MaxFrame = FMath::Max(0, FMath::FloorToInt(TotalFrameCount) - 1);
+	const int32 ClampedFrame = FMath::Clamp(TargetFrame, 0, MaxFrame);
+
+	HeterogeneousVolumeComponent->Frame = static_cast<float>(ClampedFrame);
+	HeterogeneousVolumeComponent->EndFrame = TotalFrameCount;
+
+	// Seek는 "이 시점으로 이동"하는 동작이므로 기본적으로 정지 상태로 둡니다.
+	// 재생 버튼을 누르면 TimelineRecorder가 다시 ResumeFire()를 호출합니다.
+	HeterogeneousVolumeComponent->bPlaying = false;
+}
+
 bool AYUFSHeterogeneousVolume::IsPlaying() const
 {
 	return HeterogeneousVolumeComponent && HeterogeneousVolumeComponent->bPlaying;

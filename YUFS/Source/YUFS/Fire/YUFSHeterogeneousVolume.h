@@ -40,6 +40,14 @@ public:
 	UFUNCTION(BlueprintPure, Category="Fire")
 	int32 GetFrame() const;
 
+	// 타임라인 관찰 모드에서 특정 화재 프레임으로 즉시 이동합니다.
+	UFUNCTION(BlueprintCallable, Category="Fire|Timeline")
+	void SetFrame(int32 TargetFrame);
+
+	// 시간(초) → 화재 프레임 변환에 사용할 재생 FPS입니다.
+	UFUNCTION(BlueprintPure, Category="Fire|Timeline")
+	float GetPlaybackFrameRate() const { return PlaybackFrameRate; }
+
 	// 현재 재생 중인지 여부
 	UFUNCTION(BlueprintPure, Category="Fire")
 	bool IsPlaying() const;
