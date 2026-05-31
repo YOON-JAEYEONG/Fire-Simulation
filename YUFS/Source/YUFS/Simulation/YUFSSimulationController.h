@@ -154,6 +154,10 @@ public:
 	UPROPERTY(EditAnywhere, Category="Simulation|UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 
+	// FireActive 진입 시 활성화할 화재 시나리오 인덱스 (HeterogeneousVolume.FireScenarios 기준)
+	UPROPERTY(EditAnywhere, Category="Simulation|Fire")
+	int32 FireScenarioIndex = 0;
+
 private:
 	// ── 내부 상태 ─────────────────────────────────────────────────────
 	ESimPhase CurrentPhase = ESimPhase::WaitingToStart;

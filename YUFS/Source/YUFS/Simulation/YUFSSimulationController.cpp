@@ -171,9 +171,11 @@ void AYUFSSimulationController::SetPhase(ESimPhase NewPhase)
 		break;
 
 	case ESimPhase::FireActive:
-		// 화재 시작: HeterogeneousVolume 재생 개시
+		// 시나리오 전환 → 바이너리 초기화 → 재생 순서 보장
+		if (HeterogeneousVolume) HeterogeneousVolume->SetActiveScenario(FireScenarioIndex);
+		if (BinaryManager) BinaryManager->InitializeForScenario();
 		if (HeterogeneousVolume) HeterogeneousVolume->StartFire();
-		UE_LOG(LogTemp, Warning, TEXT("[YUFS] Phase: FireActive === 🔥 Fire STARTED ==="));
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] Phase: FireActive | Scenario: %d"), FireScenarioIndex);
 		break;
 
 	case ESimPhase::Completed:
