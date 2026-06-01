@@ -1,0 +1,33 @@
+{
+  "model_type": "random_forest",
+  "input_dim": 28,
+  "output_dim": 11,
+  "n_estimators": 50,
+  "max_depth": 12,
+  "seed": 42,
+  "train_samples": 279024,
+  "val_samples": 69755,
+  "val_accuracy": 0.7475879865242635,
+  "train_accuracy": 0.7487277080107805,
+  "val_macro_accuracy": 0.9145080194630071,
+  "action_distribution": {
+    "Idle": 55658,
+    "SeekInformation": 10654,
+    "AlertNearbyOccupants": 11796,
+    "GatherBelongings": 5941,
+    "EvacuateToNearestExit": 207,
+    "EvacuateToFamiliarExit": 110989,
+    "FollowCrowd": 83498,
+    "Film": 281
+  },
+  "val_per_class_accuracy": {
+    "Idle": 0.999496945742005,
+    "SeekInformation": 0.9898610589560646,
+    "AlertNearbyOccupants": 0.9986436080027128,
+    "GatherBelongings": 0.9959595959595959,
+    "EvacuateToNearestExit": 0.9807692307692307,
+    "EvacuateToFamiliarExit": 0.37160774137744623,
+    "FollowCrowd": 0.9940116891827153,
+    "Film": 0.9857142857142858
+  }
+}
