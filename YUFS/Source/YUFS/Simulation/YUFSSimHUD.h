@@ -32,12 +32,22 @@ public:
 	UFUNCTION(BlueprintCallable, Category="YUFS|HUD")
 	void OnStopButtonClicked();
 
+	// ── 카메라 제어 버튼 바인딩 ───────────────────────────────────────
+	UFUNCTION(BlueprintCallable, Category = "YUFS|HUD|Camera")
+	void OnCameraOverviewButtonClicked();
+
+	UFUNCTION(BlueprintCallable, Category = "YUFS|HUD|Camera")
+	void OnCameraFireZoneButtonClicked();
+
+	UFUNCTION(BlueprintCallable, Category = "YUFS|HUD|Camera")
+	void OnCameraPlayerViewButtonClicked();
+
 	// ── 타임라인 관찰 모드 버튼/슬라이더 바인딩 ───────────────────────
 	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Timeline")
 	void OnTimelinePlayButtonClicked();
 
 	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Timeline")
-	void OnTimelinePauseButtonClicked();
+	void OnTimelinePauseButtonClicked();	
 
 	// UMG Slider의 OnValueChanged(float)에 연결합니다. Value는 0.0~1.0 기준입니다.
 	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Timeline")
