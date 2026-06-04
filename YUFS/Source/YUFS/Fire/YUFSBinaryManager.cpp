@@ -59,7 +59,6 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 	{
 		CurrentDebugFrame = HeterogeneousVolume->GetFrame();
 	}
-
 	// 프레임 점프 감지 (에디터 조작 등)
 	if (FMath::Abs(CurrentDebugFrame - LastCurrentFrame) > 50)
 	{
@@ -94,6 +93,14 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 			LoadDynamicChunkAsync(MissingStart, MissingEnd, LoadGeneration);
 		}
 	}
+}
+
+void AYUFSBinaryManager::SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolume)
+{
+	HeterogeneousVolume = InVolume;
+
+	UE_LOG(LogTemp, Warning, TEXT("[BinaryManager] HeterogeneousVolume manually linked: %s"),
+		HeterogeneousVolume ? *HeterogeneousVolume->GetName() : TEXT("NULL"));
 }
 
 void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation)

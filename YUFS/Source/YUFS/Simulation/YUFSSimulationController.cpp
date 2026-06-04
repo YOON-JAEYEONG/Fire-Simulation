@@ -54,7 +54,10 @@ void AYUFSSimulationController::BeginPlay()
 		RegisterNPC(*It);
 	}
 	InitialNPCCount = RegisteredNPCs.Num();
-
+	if (BinaryManager && HeterogeneousVolume)
+	{
+		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
+	}
 	if (TimelineRecorder)
 	{
 		TimelineRecorder->Initialize(this, HeterogeneousVolume);

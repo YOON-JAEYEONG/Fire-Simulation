@@ -35,6 +35,9 @@ protected:
 	void PlayDebugAnimation();
 
 public:
+
+	void SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolume);
+
 	bool GetSmokeDensityAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutDensity);
 	bool GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature);
 	

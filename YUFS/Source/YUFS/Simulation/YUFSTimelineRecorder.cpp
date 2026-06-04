@@ -71,7 +71,7 @@ void UYUFSTimelineRecorder::CaptureFrame(
 	Frame.EvacuatedCount = EvacuatedCount;
 	Frame.IncapacitatedCount = IncapacitatedCount;
 	Frame.NPCSnapshots.Reserve(NPCs.Num());
-
+	
 	for (AYUFSEvacuationNPC* NPC : NPCs)
 	{
 		if (!IsValid(NPC))
