@@ -44,6 +44,12 @@ void AYUFSBinaryManager::BeginPlay()
 	}
 
 	HeterogeneousVolume = Cast<AYUFSHeterogeneousVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSHeterogeneousVolume::StaticClass()));
+
+	if (HeterogeneousVolume && FireWorldOrigin.IsZero())
+	{
+		FireWorldOrigin = HeterogeneousVolume->GetActorLocation();
+		UE_LOG(LogTemp, Log, TEXT("[BinaryManager] FireWorldOrigin auto-set from HeterogeneousVolume: %s"), *FireWorldOrigin.ToString());
+	}
 	
 	if (bDrawVoxelDebug)
 	{
@@ -229,9 +235,10 @@ bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector WorldLocation, int32 
 		return false;
 	}
 
-	float LocalX = -WorldLocation.X; 
-	float LocalY = -WorldLocation.Y; 
-	float LocalZ = WorldLocation.Z;
+	FVector Local = WorldLocation - FireWorldOrigin;
+	float LocalX = -Local.X;
+	float LocalY = -Local.Y;
+	float LocalZ = Local.Z;
 
 	int32 IndexX = FMath::FloorToInt(LocalX / VoxelSize);
 	int32 BaseIndexY = FMath::FloorToInt(LocalY / VoxelSize);
@@ -243,7 +250,7 @@ bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector WorldLocation, int32 
 		IndexZ >= 0 && IndexZ < DimZ)
 	{
 		int32 FlatIndex = (IndexX * DimY * DimZ) + (IndexY * DimZ) + IndexZ;
-        
+
 		OutDensity = FramesBuffer[FrameIndex % MaxBufferSize].DensityGrid[FlatIndex];
 		return true;
 	}
@@ -254,8 +261,8 @@ bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector WorldLocation, int32 
 bool AYUFSBinaryManager::GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature)
 {
 	OutTemperature = 0;
-	
-	if (FrameIndex < 0 || FrameIndex >= TotalFrames) 
+
+	if (FrameIndex < 0 || FrameIndex >= TotalFrames)
 	{
 		return false;
 	}
@@ -265,9 +272,10 @@ bool AYUFSBinaryManager::GetTemperatureAtLocation(FVector WorldLocation, int32 F
 		return false;
 	}
 
-	float LocalX = -WorldLocation.X; 
-	float LocalY = -WorldLocation.Y; 
-	float LocalZ = WorldLocation.Z;
+	FVector Local = WorldLocation - FireWorldOrigin;
+	float LocalX = -Local.X;
+	float LocalY = -Local.Y;
+	float LocalZ = Local.Z;
 
 	int32 IndexX = FMath::FloorToInt(LocalX / VoxelSize);
 	int32 BaseIndexY = FMath::FloorToInt(LocalY / VoxelSize);
