@@ -45,12 +45,6 @@ void AYUFSBinaryManager::BeginPlay()
 
 	HeterogeneousVolume = Cast<AYUFSHeterogeneousVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSHeterogeneousVolume::StaticClass()));
 
-	if (HeterogeneousVolume && FireWorldOrigin.IsZero())
-	{
-		FireWorldOrigin = HeterogeneousVolume->GetActorLocation();
-		UE_LOG(LogTemp, Log, TEXT("[BinaryManager] FireWorldOrigin auto-set from HeterogeneousVolume: %s"), *FireWorldOrigin.ToString());
-	}
-	
 	if (bDrawVoxelDebug)
 	{
 		GetWorld()->GetTimerManager().SetTimer(DebugTimerHandle, this, &AYUFSBinaryManager::PlayDebugAnimation, 0.1f, true);
@@ -182,9 +176,12 @@ void AYUFSBinaryManager::PlayDebugAnimation()
 		return;
 	}
 
+	if (!HeterogeneousVolume) return;
+
 	FlushPersistentDebugLines(GetWorld());
 
-	int32 SafeDebugStep = FMath::Max(DebugStep, 4); 
+	const float LocalVoxelSize = VoxelSize / FMath::Abs(HeterogeneousVolume->GetActorScale3D().X);
+	int32 SafeDebugStep = FMath::Max(DebugStep, 4);
 
 	for (int32 x = 0; x < DimX; x += SafeDebugStep)
 	{
@@ -194,12 +191,8 @@ void AYUFSBinaryManager::PlayDebugAnimation()
 			{
 				int32 FlatIndex = (x * DimY * DimZ) + (y * DimZ) + z;
 
-				// 하드코딩된 GetSmokeDensityAtLocation의 완벽한 역연산
-				FVector WorldPos(
-					-x * VoxelSize,
-					-((DimY - 1) - y) * VoxelSize,
-					z * VoxelSize
-				);
+							FVector LocalPos(x * LocalVoxelSize, y * LocalVoxelSize, z * LocalVoxelSize);
+				FVector WorldPos = HeterogeneousVolume->GetActorTransform().TransformPosition(LocalPos);
 
 				FVector BaseExtent = FVector(VoxelSize * 0.5f * SafeDebugStep);
 
@@ -235,15 +228,14 @@ bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector WorldLocation, int32 
 		return false;
 	}
 
-	FVector Local = WorldLocation - FireWorldOrigin;
-	float LocalX = -Local.X;
-	float LocalY = -Local.Y;
-	float LocalZ = Local.Z;
+	if (!HeterogeneousVolume) return false;
 
-	int32 IndexX = FMath::FloorToInt(LocalX / VoxelSize);
-	int32 BaseIndexY = FMath::FloorToInt(LocalY / VoxelSize);
-	int32 IndexZ = FMath::FloorToInt(LocalZ / VoxelSize);
-	int32 IndexY = (DimY - 1) - BaseIndexY;
+	const float LocalVoxelSize = VoxelSize / FMath::Abs(HeterogeneousVolume->GetActorScale3D().X);
+	FVector LocalPos = HeterogeneousVolume->GetActorTransform().InverseTransformPosition(WorldLocation);
+
+	int32 IndexX = FMath::FloorToInt(LocalPos.X / LocalVoxelSize);
+	int32 IndexY = FMath::FloorToInt(LocalPos.Y / LocalVoxelSize);
+	int32 IndexZ = FMath::FloorToInt(LocalPos.Z / LocalVoxelSize);
 
 	if (IndexX >= 0 && IndexX < DimX &&
 		IndexY >= 0 && IndexY < DimY &&
@@ -272,15 +264,14 @@ bool AYUFSBinaryManager::GetTemperatureAtLocation(FVector WorldLocation, int32 F
 		return false;
 	}
 
-	FVector Local = WorldLocation - FireWorldOrigin;
-	float LocalX = -Local.X;
-	float LocalY = -Local.Y;
-	float LocalZ = Local.Z;
+	if (!HeterogeneousVolume) return false;
 
-	int32 IndexX = FMath::FloorToInt(LocalX / VoxelSize);
-	int32 BaseIndexY = FMath::FloorToInt(LocalY / VoxelSize);
-	int32 IndexZ = FMath::FloorToInt(LocalZ / VoxelSize);
-	int32 IndexY = (DimY - 1) - BaseIndexY;
+	const float LocalVoxelSize = VoxelSize / FMath::Abs(HeterogeneousVolume->GetActorScale3D().X);
+	FVector LocalPos = HeterogeneousVolume->GetActorTransform().InverseTransformPosition(WorldLocation);
+
+	int32 IndexX = FMath::FloorToInt(LocalPos.X / LocalVoxelSize);
+	int32 IndexY = FMath::FloorToInt(LocalPos.Y / LocalVoxelSize);
+	int32 IndexZ = FMath::FloorToInt(LocalPos.Z / LocalVoxelSize);
 
 	if (IndexX >= 0 && IndexX < DimX &&
 		IndexY >= 0 && IndexY < DimY &&

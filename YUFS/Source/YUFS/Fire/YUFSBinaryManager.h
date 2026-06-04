@@ -73,9 +73,6 @@ private:
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");
 
-	// FDS 시뮬레이션 원점에 해당하는 UE 월드 좌표. 미설정(Zero)이면 BeginPlay에서 HeterogeneousVolume 위치로 자동 설정됨
-	UPROPERTY(EditAnywhere, Category="Fire")
-	FVector FireWorldOrigin = FVector::ZeroVector;
 	
 	// true로 설정하면 매 100ms마다 복셀 디버그 박스를 월드에 그림 (에디터 전용)
 	UPROPERTY(EditAnywhere, Category="Fire|Debug")

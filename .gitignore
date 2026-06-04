@@ -88,5 +88,11 @@ Build/*/**
 !**/Saved/Transitions/**
 !**/Saved/Models/
 !**/Saved/Models/**
+
+
 YUFS/Content/Fires/vdb/Scenario_01/vdb/fire.uasset
-YUFS/Content/Fires/vdb/Scenario_01/vdb/fire.uasset
+YUFS/Content/Fires/vdb/Scenario_02/vdb/fire.uasset
+YUFS/Content/Fires/vdb/Scenario_03/vdb/fire.uasset
+
+# Claude Code 임시 작업 폴더
+YUFS/.claude/worktrees/
