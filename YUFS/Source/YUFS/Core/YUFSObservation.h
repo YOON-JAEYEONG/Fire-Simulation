@@ -64,5 +64,6 @@ struct YUFS_API FYUFSNPCObservation
 	UPROPERTY()
 	float SmokeExposureAccumulated = 0.0f; // 누적 연기 흡입량 [0,1] — 행동불능 결정 변수
 
-	TArray<float> ToFloatArray() const;
+	static constexpr int32 FeatureCount = 28;
+	void FillFloatArray(TArray<float>& OutArray) const;
 };

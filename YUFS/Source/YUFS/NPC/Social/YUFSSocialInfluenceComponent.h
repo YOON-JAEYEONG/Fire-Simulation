@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/EngineTypes.h"
 #include "YUFSSocialInfluenceComponent.generated.h"
 
 
@@ -34,6 +35,9 @@ public:
 
 private:
 	TArray<ACharacter*> NearbyNPCs;
+	TArray<AActor*> OverlappingActors;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	TArray<AActor*> ActorsToIgnore;
 	int32 EvacuatingCount = 0;
 	bool bCachedShouldHelpNearbyNPC = false;
 	bool bHasNPCNeedingHelp = false;   // 실제 도움이 필요한 NPC 존재 여부 (Crawling/Incapacitated)

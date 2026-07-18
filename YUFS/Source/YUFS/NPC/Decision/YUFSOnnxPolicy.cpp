@@ -3,14 +3,35 @@
 #include "NPC/Decision/YUFSOnnxPolicy.h"
 
 #include "NNE.h"
+#include "NNEModelData.h"
 #include "HAL/FileManager.h"
+#include "HAL/CriticalSection.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
+#include "Misc/ScopeLock.h"
+#include "UObject/StrongObjectPtr.h"
+
+struct FYUFSSharedOnnxModelState
+{
+	TStrongObjectPtr<UNNEModelData> ModelData;
+	TSharedPtr<UE::NNE::IModelCPU> CpuModel;
+	TSharedPtr<UE::NNE::IModelInstanceCPU> CpuModelInstance;
+	TSharedPtr<UE::NNE::IModelGPU> GpuModel;
+	TSharedPtr<UE::NNE::IModelInstanceGPU> GpuModelInstance;
+	TArray<float> InputBuffer;
+	TArray<float> OutputBuffer;
+	TArray<UE::NNE::FTensorBindingCPU> InputBindings;
+	TArray<UE::NNE::FTensorBindingCPU> OutputBindings;
+};
 
 namespace
 {
 	const TCHAR* DefaultOrtCpuRuntimeName = TEXT("NNERuntimeORTCpu");
 	const TCHAR* DefaultOrtDmlRuntimeName = TEXT("NNERuntimeORTDml");
+	TMap<FString, TWeakPtr<FYUFSSharedOnnxModelState>> SharedModelCache;
+	FCriticalSection AutoSelectedModelPathMutex;
+	bool bAutoModelPathSelectionAttempted = false;
+	FString AutoSelectedModelPath;
 
 	UE::NNE::FTensorShape ResolveOutputShape(
 		TConstArrayView<UE::NNE::FTensorShape> OutputTensorShapes,
@@ -38,18 +59,17 @@ EYUFSAction FYUFSOnnxPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 		return FallbackPolicy.SelectAction(Obs);
 	}
 
-	const TArray<float> StateVec = Obs.ToFloatArray();
-	TArray<float> Logits;
-	const bool bInferenceSucceeded = CpuModelInstance.IsValid()
-		? RunCpuInference(StateVec, Logits)
-		: RunGpuInference(StateVec, Logits);
+	Obs.FillFloatArray(SharedModelState->InputBuffer);
+	const bool bInferenceSucceeded = SharedModelState->CpuModelInstance.IsValid()
+		? RunCpuInference()
+		: RunGpuInference();
 
 	if (!bInferenceSucceeded)
 	{
 		return FallbackPolicy.SelectAction(Obs);
 	}
 
-	return SelectActionFromLogits(Logits);
+	return SelectActionFromLogits(SharedModelState->OutputBuffer);
 }
 
 void FYUFSOnnxPolicy::LoadModel(const FString& Path)
@@ -91,6 +111,19 @@ bool FYUFSOnnxPolicy::EnsureModelLoaded()
 		return false;
 	}
 
+	const FString CacheKey = RuntimeName.ToLower() + TEXT("|") + ResolvedModelPath.ToLower();
+	if (const TWeakPtr<FYUFSSharedOnnxModelState>* CachedModel = SharedModelCache.Find(CacheKey))
+	{
+		SharedModelState = CachedModel->Pin();
+		if (SharedModelState.IsValid())
+		{
+			bModelReady = true;
+			return true;
+		}
+
+		SharedModelCache.Remove(CacheKey);
+	}
+
 	TArray64<uint8> ModelBytes;
 	if (!FFileHelper::LoadFileToArray(ModelBytes, *ResolvedModelPath))
 	{
@@ -98,13 +131,21 @@ bool FYUFSOnnxPolicy::EnsureModelLoaded()
 		return false;
 	}
 
+	TSharedPtr<FYUFSSharedOnnxModelState> NewSharedState = MakeShared<FYUFSSharedOnnxModelState>();
+
 	if (RuntimeName.Equals(DefaultOrtDmlRuntimeName, ESearchCase::IgnoreCase))
 	{
-		bModelReady = LoadGpuModel(ResolvedModelPath, ModelBytes);
+		bModelReady = LoadGpuModel(*NewSharedState, ResolvedModelPath, ModelBytes);
 	}
 	else
 	{
-		bModelReady = LoadCpuModel(ResolvedModelPath, ModelBytes);
+		bModelReady = LoadCpuModel(*NewSharedState, ResolvedModelPath, ModelBytes);
+	}
+
+	if (bModelReady)
+	{
+		SharedModelState = MoveTemp(NewSharedState);
+		SharedModelCache.Add(CacheKey, SharedModelState);
 	}
 
 	if (!bModelReady)
@@ -120,7 +161,7 @@ bool FYUFSOnnxPolicy::EnsureModelLoaded()
 	return bModelReady;
 }
 
-bool FYUFSOnnxPolicy::LoadCpuModel(const FString& ResolvedPath, const TArray64<uint8>& ModelBytes)
+bool FYUFSOnnxPolicy::LoadCpuModel(FYUFSSharedOnnxModelState& State, const FString& ResolvedPath, const TArray64<uint8>& ModelBytes)
 {
 	TWeakInterfacePtr<INNERuntimeCPU> Runtime = UE::NNE::GetRuntime<INNERuntimeCPU>(RuntimeName);
 	if (!Runtime.IsValid())
@@ -129,33 +170,33 @@ bool FYUFSOnnxPolicy::LoadCpuModel(const FString& ResolvedPath, const TArray64<u
 		return false;
 	}
 
-	ModelData.Reset(NewObject<UNNEModelData>(GetTransientPackage()));
-	ModelData->Init(TEXT("onnx"), ModelBytes);
+	State.ModelData.Reset(NewObject<UNNEModelData>(GetTransientPackage()));
+	State.ModelData->Init(TEXT("onnx"), ModelBytes);
 
-	if (Runtime->CanCreateModelCPU(ModelData.Get()) != INNERuntimeCPU::ECanCreateModelCPUStatus::Ok)
+	if (Runtime->CanCreateModelCPU(State.ModelData.Get()) != INNERuntimeCPU::ECanCreateModelCPUStatus::Ok)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Runtime '%s' can not create CPU model from '%s'."), *RuntimeName, *ResolvedPath);
 		return false;
 	}
 
-	CpuModel = Runtime->CreateModelCPU(ModelData.Get());
-	if (!CpuModel.IsValid())
+	State.CpuModel = Runtime->CreateModelCPU(State.ModelData.Get());
+	if (!State.CpuModel.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Failed to create CPU model for '%s'."), *ResolvedPath);
 		return false;
 	}
 
-	CpuModelInstance = CpuModel->CreateModelInstanceCPU();
-	if (!CpuModelInstance.IsValid())
+	State.CpuModelInstance = State.CpuModel->CreateModelInstanceCPU();
+	if (!State.CpuModelInstance.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Failed to create CPU model instance for '%s'."), *ResolvedPath);
 		return false;
 	}
 
-	return ConfigureCpuModelInstance();
+	return ConfigureCpuModelInstance(State);
 }
 
-bool FYUFSOnnxPolicy::LoadGpuModel(const FString& ResolvedPath, const TArray64<uint8>& ModelBytes)
+bool FYUFSOnnxPolicy::LoadGpuModel(FYUFSSharedOnnxModelState& State, const FString& ResolvedPath, const TArray64<uint8>& ModelBytes)
 {
 	TWeakInterfacePtr<INNERuntimeGPU> Runtime = UE::NNE::GetRuntime<INNERuntimeGPU>(RuntimeName);
 	if (!Runtime.IsValid())
@@ -164,30 +205,30 @@ bool FYUFSOnnxPolicy::LoadGpuModel(const FString& ResolvedPath, const TArray64<u
 		return false;
 	}
 
-	ModelData.Reset(NewObject<UNNEModelData>(GetTransientPackage()));
-	ModelData->Init(TEXT("onnx"), ModelBytes);
+	State.ModelData.Reset(NewObject<UNNEModelData>(GetTransientPackage()));
+	State.ModelData->Init(TEXT("onnx"), ModelBytes);
 
-	if (Runtime->CanCreateModelGPU(ModelData.Get()) != INNERuntimeGPU::ECanCreateModelGPUStatus::Ok)
+	if (Runtime->CanCreateModelGPU(State.ModelData.Get()) != INNERuntimeGPU::ECanCreateModelGPUStatus::Ok)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Runtime '%s' can not create GPU model from '%s'."), *RuntimeName, *ResolvedPath);
 		return false;
 	}
 
-	GpuModel = Runtime->CreateModelGPU(ModelData.Get());
-	if (!GpuModel.IsValid())
+	State.GpuModel = Runtime->CreateModelGPU(State.ModelData.Get());
+	if (!State.GpuModel.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Failed to create GPU model for '%s'."), *ResolvedPath);
 		return false;
 	}
 
-	GpuModelInstance = GpuModel->CreateModelInstanceGPU();
-	if (!GpuModelInstance.IsValid())
+	State.GpuModelInstance = State.GpuModel->CreateModelInstanceGPU();
+	if (!State.GpuModelInstance.IsValid())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Failed to create GPU model instance for '%s'."), *ResolvedPath);
 		return false;
 	}
 
-	return ConfigureGpuModelInstance();
+	return ConfigureGpuModelInstance(State);
 }
 
 bool FYUFSOnnxPolicy::ParseInputShape(
@@ -215,6 +256,7 @@ bool FYUFSOnnxPolicy::ParseInputShape(
 }
 
 bool FYUFSOnnxPolicy::FinalizeBuffers(
+	FYUFSSharedOnnxModelState& State,
 	TConstArrayView<UE::NNE::FTensorShape> OutputShapes,
 	const UE::NNE::FTensorDesc& OutputDesc,
 	const UE::NNE::FTensorShape& InputShape)
@@ -226,97 +268,104 @@ bool FYUFSOnnxPolicy::FinalizeBuffers(
 		return false;
 	}
 
-	InputBuffer.SetNumZeroed(static_cast<int32>(InputShape.Volume()));
-	OutputBuffer.SetNumZeroed(static_cast<int32>(OutputShape.Volume()));
-	return OutputBuffer.Num() > 0;
-}
-
-bool FYUFSOnnxPolicy::PrepareInferenceBindings(
-	const TArray<float>& StateVec,
-	TArray<UE::NNE::FTensorBindingCPU>& OutInputBindings,
-	TArray<UE::NNE::FTensorBindingCPU>& OutOutputBindings)
-{
-	if (StateVec.Num() != InputBuffer.Num())
+	const int32 InputElementCount = static_cast<int32>(InputShape.Volume());
+	if (InputElementCount != FYUFSNPCObservation::FeatureCount)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: State dimension mismatch. Expected %d but got %d."),
-			InputBuffer.Num(), StateVec.Num());
+		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Model expects %d input values, but observations provide %d."),
+			InputElementCount, FYUFSNPCObservation::FeatureCount);
 		return false;
 	}
 
-	InputBuffer = StateVec;
-	OutInputBindings  = { { InputBuffer.GetData(),  static_cast<uint64>(InputBuffer.Num()  * sizeof(float)) } };
-	OutOutputBindings = { { OutputBuffer.GetData(), static_cast<uint64>(OutputBuffer.Num() * sizeof(float)) } };
+	State.InputBuffer.SetNumZeroed(InputElementCount);
+	State.OutputBuffer.SetNumZeroed(static_cast<int32>(OutputShape.Volume()));
+	return PrepareInferenceBindings(State);
+}
+
+bool FYUFSOnnxPolicy::PrepareInferenceBindings(FYUFSSharedOnnxModelState& State)
+{
+	if (State.InputBuffer.Num() != FYUFSNPCObservation::FeatureCount || State.OutputBuffer.IsEmpty())
+	{
+		return false;
+	}
+
+	State.InputBindings = { { State.InputBuffer.GetData(), static_cast<uint64>(State.InputBuffer.Num() * sizeof(float)) } };
+	State.OutputBindings = { { State.OutputBuffer.GetData(), static_cast<uint64>(State.OutputBuffer.Num() * sizeof(float)) } };
 	return true;
 }
 
-bool FYUFSOnnxPolicy::ConfigureCpuModelInstance()
+bool FYUFSOnnxPolicy::ConfigureCpuModelInstance(FYUFSSharedOnnxModelState& State)
 {
 	UE::NNE::FTensorShape InputShape;
-	const TConstArrayView<UE::NNE::FTensorDesc> OutputDescs = CpuModelInstance->GetOutputTensorDescs();
-	if (!ParseInputShape(CpuModelInstance->GetInputTensorDescs(), OutputDescs, InputShape))
+	const TConstArrayView<UE::NNE::FTensorDesc> OutputDescs = State.CpuModelInstance->GetOutputTensorDescs();
+	if (!ParseInputShape(State.CpuModelInstance->GetInputTensorDescs(), OutputDescs, InputShape))
 		return false;
 
-	if (CpuModelInstance->SetInputTensorShapes({ InputShape }) != UE::NNE::IModelInstanceCPU::ESetInputTensorShapesStatus::Ok)
+	if (State.CpuModelInstance->SetInputTensorShapes({ InputShape }) != UE::NNE::IModelInstanceCPU::ESetInputTensorShapesStatus::Ok)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Failed to set CPU input tensor shape for '%s'."), *ResolvedModelPath);
 		return false;
 	}
 
-	return FinalizeBuffers(CpuModelInstance->GetOutputTensorShapes(), OutputDescs[0], InputShape);
+	return FinalizeBuffers(State, State.CpuModelInstance->GetOutputTensorShapes(), OutputDescs[0], InputShape);
 }
 
-bool FYUFSOnnxPolicy::ConfigureGpuModelInstance()
+bool FYUFSOnnxPolicy::ConfigureGpuModelInstance(FYUFSSharedOnnxModelState& State)
 {
 	UE::NNE::FTensorShape InputShape;
-	const TConstArrayView<UE::NNE::FTensorDesc> OutputDescs = GpuModelInstance->GetOutputTensorDescs();
-	if (!ParseInputShape(GpuModelInstance->GetInputTensorDescs(), OutputDescs, InputShape))
+	const TConstArrayView<UE::NNE::FTensorDesc> OutputDescs = State.GpuModelInstance->GetOutputTensorDescs();
+	if (!ParseInputShape(State.GpuModelInstance->GetInputTensorDescs(), OutputDescs, InputShape))
 		return false;
 
-	if (GpuModelInstance->SetInputTensorShapes({ InputShape }) != UE::NNE::IModelInstanceGPU::ESetInputTensorShapesStatus::Ok)
+	if (State.GpuModelInstance->SetInputTensorShapes({ InputShape }) != UE::NNE::IModelInstanceGPU::ESetInputTensorShapesStatus::Ok)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: Failed to set GPU input tensor shape for '%s'."), *ResolvedModelPath);
 		return false;
 	}
 
-	return FinalizeBuffers(GpuModelInstance->GetOutputTensorShapes(), OutputDescs[0], InputShape);
+	return FinalizeBuffers(State, State.GpuModelInstance->GetOutputTensorShapes(), OutputDescs[0], InputShape);
 }
 
-bool FYUFSOnnxPolicy::RunCpuInference(const TArray<float>& StateVec, TArray<float>& OutLogits)
+bool FYUFSOnnxPolicy::RunCpuInference()
 {
-	if (!CpuModelInstance.IsValid()) return false;
+	if (!SharedModelState.IsValid() || !SharedModelState->CpuModelInstance.IsValid()) return false;
 
-	TArray<UE::NNE::FTensorBindingCPU> InputBindings, OutputBindings;
-	if (!PrepareInferenceBindings(StateVec, InputBindings, OutputBindings)) return false;
-
-	if (CpuModelInstance->RunSync(InputBindings, OutputBindings) != UE::NNE::IModelInstanceCPU::ERunSyncStatus::Ok)
+	if (SharedModelState->CpuModelInstance->RunSync(SharedModelState->InputBindings, SharedModelState->OutputBindings)
+		!= UE::NNE::IModelInstanceCPU::ERunSyncStatus::Ok)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: CPU RunSync failed for model '%s'."), *ResolvedModelPath);
 		return false;
 	}
 
-	OutLogits = OutputBuffer;
 	return true;
 }
 
-bool FYUFSOnnxPolicy::RunGpuInference(const TArray<float>& StateVec, TArray<float>& OutLogits)
+bool FYUFSOnnxPolicy::RunGpuInference()
 {
-	if (!GpuModelInstance.IsValid()) return false;
+	if (!SharedModelState.IsValid() || !SharedModelState->GpuModelInstance.IsValid()) return false;
 
-	TArray<UE::NNE::FTensorBindingCPU> InputBindings, OutputBindings;
-	if (!PrepareInferenceBindings(StateVec, InputBindings, OutputBindings)) return false;
-
-	if (GpuModelInstance->RunSync(InputBindings, OutputBindings) != UE::NNE::IModelInstanceGPU::ERunSyncStatus::Ok)
+	if (SharedModelState->GpuModelInstance->RunSync(SharedModelState->InputBindings, SharedModelState->OutputBindings)
+		!= UE::NNE::IModelInstanceGPU::ERunSyncStatus::Ok)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("FYUFSOnnxPolicy: GPU RunSync failed for model '%s'."), *ResolvedModelPath);
 		return false;
 	}
 
-	OutLogits = OutputBuffer;
 	return true;
 }
 
 FString FYUFSOnnxPolicy::FindLatestOnnxModelPath()
 {
+	// 모델 경로가 명시되지 않은 경우 최초 탐색 결과를 프로세스 수명 동안 고정한다.
+	// NPC마다 Saved 디렉터리를 다시 탐색하면 파일 타임스탬프가 비슷한 모델 중
+	// 서로 다른 경로를 선택할 수 있으므로, 빈 결과도 포함해 한 번만 탐색한다.
+	FScopeLock Lock(&AutoSelectedModelPathMutex);
+	if (bAutoModelPathSelectionAttempted)
+	{
+		return AutoSelectedModelPath;
+	}
+
+	bAutoModelPathSelectionAttempted = true;
+
 	TArray<FString> FoundFiles;
 	IFileManager::Get().FindFilesRecursive(
 		FoundFiles,
@@ -328,15 +377,24 @@ FString FYUFSOnnxPolicy::FindLatestOnnxModelPath()
 
 	if (FoundFiles.IsEmpty())
 	{
-		return FString();
+		return AutoSelectedModelPath;
 	}
 
 	FoundFiles.Sort([](const FString& Left, const FString& Right)
 	{
-		return IFileManager::Get().GetTimeStamp(*Left) > IFileManager::Get().GetTimeStamp(*Right);
+		const FDateTime LeftTimestamp = IFileManager::Get().GetTimeStamp(*Left);
+		const FDateTime RightTimestamp = IFileManager::Get().GetTimeStamp(*Right);
+		if (LeftTimestamp != RightTimestamp)
+		{
+			return LeftTimestamp > RightTimestamp;
+		}
+
+		// 동일 타임스탬프에서도 실행마다 결과가 달라지지 않도록 경로로 순서를 고정한다.
+		return Left.Compare(Right, ESearchCase::IgnoreCase) < 0;
 	});
 
-	return FoundFiles[0];
+	AutoSelectedModelPath = FoundFiles[0];
+	return AutoSelectedModelPath;
 }
 
 FString FYUFSOnnxPolicy::ResolveModelPath(const FString& InPath)
@@ -396,11 +454,5 @@ void FYUFSOnnxPolicy::ResetLoadedModelState()
 	bLoadAttempted = false;
 	bModelReady = false;
 	ResolvedModelPath.Reset();
-	ModelData.Reset();
-	CpuModel.Reset();
-	CpuModelInstance.Reset();
-	GpuModel.Reset();
-	GpuModelInstance.Reset();
-	InputBuffer.Reset();
-	OutputBuffer.Reset();
+	SharedModelState.Reset();
 }

@@ -14,6 +14,9 @@ namespace
 FCriticalSection LogMutex;
 TUniquePtr<FArchive> LogArchive;
 FString LogFilePath;
+TArray<float> ObservationScratchBuffer;
+int32 LinesSinceFlush = 0;
+constexpr int32 FlushIntervalLines = 256;
 
 FString FormatFloat(float Value)
 {
@@ -96,21 +99,29 @@ void FYUFSExperienceLogger::WriteLine(const FString& Line)
 
 	FTCHARToUTF8 Converter(*Line);
 	LogArchive->Serialize(reinterpret_cast<void*>(const_cast<ANSICHAR*>(Converter.Get())), Converter.Length());
-	LogArchive->Flush();
+	if (++LinesSinceFlush >= FlushIntervalLines)
+	{
+		LogArchive->Flush();
+		LinesSinceFlush = 0;
+	}
 }
 
 FString FYUFSExperienceLogger::SerializeObservation(const FYUFSNPCObservation& Observation)
 {
-	const TArray<float> Values = Observation.ToFloatArray();
-	TArray<FString> Parts;
-	Parts.Reserve(Values.Num());
+	Observation.FillFloatArray(ObservationScratchBuffer);
+	FString Result;
+	Result.Reserve(ObservationScratchBuffer.Num() * 12);
 
-	for (float Value : Values)
+	for (int32 Index = 0; Index < ObservationScratchBuffer.Num(); ++Index)
 	{
-		Parts.Add(FormatFloat(Value));
+		if (Index > 0)
+		{
+			Result.AppendChar(TEXT(';'));
+		}
+		Result.Append(FormatFloat(ObservationScratchBuffer[Index]));
 	}
 
-	return FString::Join(Parts, TEXT(";"));
+	return Result;
 }
 
 FString FYUFSExperienceLogger::EscapeCsv(const FString& Value)

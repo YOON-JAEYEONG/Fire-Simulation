@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "Core/YUFSDecisionPolicy.h"
 #include "Core/YUFSObservation.h"
-#include "NNEModelData.h"
 #include "NNERuntimeCPU.h"
 #include "NNERuntimeGPU.h"
-#include "UObject/StrongObjectPtr.h"
 #include "YUFSRuleBasedPolicy.h"
+
+struct FYUFSSharedOnnxModelState;
 
 class YUFS_API FYUFSOnnxPolicy : public IYUFSDecisionPolicy
 {
@@ -27,12 +27,12 @@ public:
 
 private:
 	bool EnsureModelLoaded();
-	bool LoadCpuModel(const FString& ResolvedPath, const TArray64<uint8>& ModelBytes);
-	bool LoadGpuModel(const FString& ResolvedPath, const TArray64<uint8>& ModelBytes);
-	bool ConfigureCpuModelInstance();
-	bool ConfigureGpuModelInstance();
-	bool RunCpuInference(const TArray<float>& StateVec, TArray<float>& OutLogits);
-	bool RunGpuInference(const TArray<float>& StateVec, TArray<float>& OutLogits);
+	bool LoadCpuModel(FYUFSSharedOnnxModelState& State, const FString& ResolvedPath, const TArray64<uint8>& ModelBytes);
+	bool LoadGpuModel(FYUFSSharedOnnxModelState& State, const FString& ResolvedPath, const TArray64<uint8>& ModelBytes);
+	bool ConfigureCpuModelInstance(FYUFSSharedOnnxModelState& State);
+	bool ConfigureGpuModelInstance(FYUFSSharedOnnxModelState& State);
+	bool RunCpuInference();
+	bool RunGpuInference();
 	static FString FindLatestOnnxModelPath();
 	static FString ResolveModelPath(const FString& InPath);
 	EYUFSAction SelectActionFromLogits(const TArray<float>& Logits) const;
@@ -44,13 +44,11 @@ private:
 		TConstArrayView<UE::NNE::FTensorDesc> OutputDescs,
 		UE::NNE::FTensorShape& OutInputShape) const;
 	bool FinalizeBuffers(
+		FYUFSSharedOnnxModelState& State,
 		TConstArrayView<UE::NNE::FTensorShape> OutputShapes,
 		const UE::NNE::FTensorDesc& OutputDesc,
 		const UE::NNE::FTensorShape& InputShape);
-	bool PrepareInferenceBindings(
-		const TArray<float>& StateVec,
-		TArray<UE::NNE::FTensorBindingCPU>& OutInputBindings,
-		TArray<UE::NNE::FTensorBindingCPU>& OutOutputBindings);
+	bool PrepareInferenceBindings(FYUFSSharedOnnxModelState& State);
 
 	FYUFSRuleBasedPolicy FallbackPolicy;
 	FString ModelPath;
@@ -59,11 +57,5 @@ private:
 	bool bLoadAttempted    = false;
 	bool bModelReady       = false;
 	bool bDataCollectionMode = false;
-	TStrongObjectPtr<UNNEModelData> ModelData;
-	TSharedPtr<UE::NNE::IModelCPU> CpuModel;
-	TSharedPtr<UE::NNE::IModelInstanceCPU> CpuModelInstance;
-	TSharedPtr<UE::NNE::IModelGPU> GpuModel;
-	TSharedPtr<UE::NNE::IModelInstanceGPU> GpuModelInstance;
-	TArray<float> InputBuffer;
-	TArray<float> OutputBuffer;
+	TSharedPtr<FYUFSSharedOnnxModelState> SharedModelState;
 };
