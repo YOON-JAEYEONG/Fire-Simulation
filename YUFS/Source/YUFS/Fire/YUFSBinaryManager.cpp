@@ -39,8 +39,8 @@ void AYUFSBinaryManager::BeginPlay()
 	const int32 GridSize = DimX * DimY * DimZ;
 	for (int32 i = 0; i < MaxBufferSize; i++)
 	{
-		FramesBuffer[i].DensityGrid.SetNumZeroed(GridSize);
-		FramesBuffer[i].TemperatureGrid.SetNumZeroed(GridSize);
+		FramesBuffer[i].DensityGrid.SetNumUninitialized(GridSize);
+		FramesBuffer[i].TemperatureGrid.SetNumUninitialized(GridSize);
 	}
 
 	HeterogeneousVolume = Cast<AYUFSHeterogeneousVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSHeterogeneousVolume::StaticClass()));
@@ -70,8 +70,8 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 	// 필요한 프레임 찾기 및 백그라운드 로드 요청
 	if (!bIsLoadingChunk && TotalFrames > 0)
 	{
-		int32 LookBehind = 50; // 지나간 프레임 여유분
-		int32 LookAhead = 200; // 다가올 프레임 미리 로드
+		int32 LookBehind = 24; // 지나간 프레임 여유분
+		int32 LookAhead = 120; // 다가올 프레임 미리 로드
 		
 		int32 StartF = FMath::Max(0, CurrentDebugFrame - LookBehind);
 		int32 EndF = FMath::Min(TotalFrames, CurrentDebugFrame + LookAhead);

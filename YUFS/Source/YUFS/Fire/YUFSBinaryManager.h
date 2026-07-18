@@ -62,7 +62,7 @@ private:
 	int32 TotalFrames = 0;
 	
 	UPROPERTY(EditAnywhere, Category="Fire")
-	int32 ChunkSize = 50; 
+	int32 ChunkSize = 24; 
 	
 	int32 CurrentDebugFrame = 0;
 	FTimerHandle DebugTimerHandle;
@@ -93,7 +93,7 @@ private:
 	int32 DimZ = 0;
 
 	// 동적 스트리밍 관련 변수
-	const int32 MaxBufferSize = 400; // 앞뒤 200프레임 (여유롭게 400 고정)
+	const int32 MaxBufferSize = 192;
 	bool bIsLoadingChunk = false;
 	int32 LoadGeneration = 0;
 	int32 LastCurrentFrame = -1;
