@@ -79,6 +79,10 @@ private:
 	float TimeSinceLastRecord = 0.f;
 	float CurrentReviewFireTime = 0.f;
 
+	// 리뷰 재생은 표시 프레임보다 자주 Tick될 수 있다. 같은 기록 프레임을
+	// 반복 적용하면 모든 NPC의 렌더 상태와 Ray Tracing Scene을 불필요하게 갱신한다.
+	const FYUFSTimelineFrame* LastAppliedReviewFrame = nullptr;
+
 	void CaptureFrame(
 		float FireElapsedTime,
 		int32 FireFrame,

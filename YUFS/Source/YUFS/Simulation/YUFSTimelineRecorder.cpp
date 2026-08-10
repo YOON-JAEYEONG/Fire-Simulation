@@ -18,6 +18,7 @@ void UYUFSTimelineRecorder::Initialize(AYUFSSimulationController* InController, 
 void UYUFSTimelineRecorder::BeginRecording(float InTargetFireTimeSeconds, float InRecordIntervalSeconds)
 {
 	RecordedFrames.Empty();
+	LastAppliedReviewFrame = nullptr;
 	bRecording = true;
 	bReviewPlaying = false;
 	TargetFireTimeSeconds = FMath::Max(0.f, InTargetFireTimeSeconds);
@@ -89,6 +90,7 @@ void UYUFSTimelineRecorder::EnterReviewMode(const TArray<AYUFSEvacuationNPC*>& N
 {
 	StopRecording();
 	bReviewPlaying = false;
+	LastAppliedReviewFrame = nullptr;
 
 	for (AYUFSEvacuationNPC* NPC : NPCs)
 	{
@@ -160,9 +162,10 @@ void UYUFSTimelineRecorder::SeekToFireTime(float TargetFireTime, const TArray<AY
 	CurrentReviewFireTime = FMath::Clamp(TargetFireTime, 0.f, GetMaxRecordedFireTime());
 
 	const FYUFSTimelineFrame* Frame = FindNearestFrame(CurrentReviewFireTime);
-	if (Frame)
+	if (Frame && Frame != LastAppliedReviewFrame)
 	{
 		ApplyFrame(*Frame, NPCs);
+		LastAppliedReviewFrame = Frame;
 	}
 }
 

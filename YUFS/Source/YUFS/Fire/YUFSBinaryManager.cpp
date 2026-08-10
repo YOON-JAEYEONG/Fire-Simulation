@@ -139,7 +139,9 @@ void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame,
 			}
 			delete FileHandle;
 
-			// 메인 스레드로 넘겨서 버퍼 갱신 (MoveTemp 사용)
+			// 메인 스레드에서 미리 할당한 순환 버퍼에 복사한다.
+			// 여기서 MoveTemp로 슬롯 배열을 교체하면 다음 순환 시 해당 슬롯의
+			// 대형 grid 배열을 다시 할당해야 하므로, 버퍼의 용량을 유지한다.
 			AsyncTask(ENamedThreads::GameThread, [this, StartFrame, EndFrame, Generation, TempData = MoveTemp(TempFrames)]() mutable
 			{
 				// 해당 로드 작업이 취소/무효화되지 않은 경우에만 버퍼에 덮어쓰기
@@ -149,7 +151,13 @@ void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame,
 					{
 						int32 f = StartFrame + i;
 						int32 Idx = f % MaxBufferSize;
-						this->FramesBuffer[Idx] = MoveTemp(TempData[i]);
+						FFrameData& Destination = this->FramesBuffer[Idx];
+						const FFrameData& Source = TempData[i];
+
+						check(Destination.DensityGrid.Num() == Source.DensityGrid.Num());
+						check(Destination.TemperatureGrid.Num() == Source.TemperatureGrid.Num());
+						FMemory::Memcpy(Destination.DensityGrid.GetData(), Source.DensityGrid.GetData(), Source.DensityGrid.Num());
+						FMemory::Memcpy(Destination.TemperatureGrid.GetData(), Source.TemperatureGrid.GetData(), Source.TemperatureGrid.Num());
 						this->LoadedFrameIndices[Idx] = f;
 					}
 				}

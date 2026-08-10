@@ -29,11 +29,46 @@ void AYUFSLevelDataManager::CollectLevelActors()
 	{
 		CachedExits.Add(Cast<AYUFSExitPoint>(Actor));
 	}
+	CachedDangerFrame = INDEX_NONE;
+	CachedExitDangerStates.Reset();
 
+}
+
+void AYUFSLevelDataManager::RefreshExitDangerCache(int32 Frame) const
+{
+	if (CachedDangerFrame == Frame && CachedExitDangerStates.Num() == CachedExits.Num())
+	{
+		return;
+	}
+
+	CachedDangerFrame = Frame;
+	CachedExitDangerStates.Init(-1, CachedExits.Num());
+	if (!BinaryManager)
+	{
+		return;
+	}
+
+	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
+	{
+		const AYUFSExitPoint* Exit = CachedExits[Index];
+		if (!IsValid(Exit))
+		{
+			continue;
+		}
+
+		uint8 Density = 0;
+		if (BinaryManager->GetSmokeDensityAtLocation(Exit->GetActorLocation(), Frame, Density))
+		{
+			CachedExitDangerStates[Index] =
+				(Density / 255.f >= DangerSmokeDensityThreshold) ? 1 : 0;
+		}
+	}
 }
 
 FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const
 {
+	RefreshExitDangerCache(Frame);
+
 	// 한 번의 순회로 두 후보를 동시에 추적:
 	// - NearestSmokeFree: 연기 없는 출구 중 가장 가까운 것
 	// - NearestAny: 연기 유무 무관하게 가장 가까운 것 (bSmokeFreeOnly 폴백용)
@@ -42,8 +77,9 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 	float MinSmokeFreeDist = MAX_flt;
 	float MinAnyDist = MAX_flt;
 
-	for (AYUFSExitPoint* Exit : CachedExits)
+	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
 	{
+		AYUFSExitPoint* Exit = CachedExits[Index];
 		if (!IsValid(Exit)) continue;
 
 		const FVector ExitLoc = Exit->GetActorLocation();
@@ -55,7 +91,10 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 			NearestAny = ExitLoc;
 		}
 
-		if (!IsLocationDangerous(ExitLoc, Frame) && DistSq < MinSmokeFreeDist)
+		const bool bDangerous = CachedExitDangerStates.IsValidIndex(Index)
+			? CachedExitDangerStates[Index] == 1
+			: IsLocationDangerous(ExitLoc, Frame);
+		if (!bDangerous && DistSq < MinSmokeFreeDist)
 		{
 			MinSmokeFreeDist = DistSq;
 			NearestSmokeFree = ExitLoc;
@@ -98,12 +137,35 @@ FVector AYUFSLevelDataManager::GetFamiliarExit(FVector NPCSpawnLocation) const
 bool AYUFSLevelDataManager::IsLocationDangerous(FVector Location, int32 Frame) const
 {
 	if (!BinaryManager) return false;
+	RefreshExitDangerCache(Frame);
+
+	// 출구 위치라면 같은 화재 프레임에 이미 조회한 위험도를 재사용한다.
+	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
+	{
+		const AYUFSExitPoint* Exit = CachedExits[Index];
+		if (IsValid(Exit) && Exit->GetActorLocation().Equals(Location, 1.f)
+			&& CachedExitDangerStates.IsValidIndex(Index)
+			&& CachedExitDangerStates[Index] >= 0)
+		{
+			return CachedExitDangerStates[Index] == 1;
+		}
+	}
 	
 	uint8 OutDensity = 0;
 	if (BinaryManager->GetSmokeDensityAtLocation(Location, Frame, OutDensity))
 	{
-		float NormalizedDensity = OutDensity / 255.0f;
-		return NormalizedDensity >= DangerSmokeDensityThreshold;
+		const bool bDangerous = OutDensity / 255.f >= DangerSmokeDensityThreshold;
+		for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
+		{
+			const AYUFSExitPoint* Exit = CachedExits[Index];
+			if (IsValid(Exit) && Exit->GetActorLocation().Equals(Location, 1.f)
+				&& CachedExitDangerStates.IsValidIndex(Index))
+			{
+				CachedExitDangerStates[Index] = bDangerous ? 1 : 0;
+				break;
+			}
+		}
+		return bDangerous;
 	}
 	
 	return false;

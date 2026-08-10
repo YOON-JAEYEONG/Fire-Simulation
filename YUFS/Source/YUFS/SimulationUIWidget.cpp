@@ -158,6 +158,7 @@ void USimulationUIWidget::UpdateSimulationStats()
     if (SimulationTimeText)
     {
         SimulationTimeText->SetText(FText::FromString(TEXT("00:00 / 01:00")));
+		LastDisplayedSimulationSecond = 0;
     }
 }
 void USimulationUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -177,6 +178,12 @@ void USimulationUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
     }
 
     int32 CurrentSeconds = FMath::FloorToInt(SimulationElapsedTime);
+    if (CurrentSeconds == LastDisplayedSimulationSecond)
+    {
+        return;
+    }
+
+    LastDisplayedSimulationSecond = CurrentSeconds;
     int32 TotalSeconds = FMath::FloorToInt(SimulationDuration);
 
     FString TimeString = FString::Printf(

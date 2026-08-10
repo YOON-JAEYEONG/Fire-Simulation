@@ -17,6 +17,7 @@ private:
     float SimulationElapsedTime = 0.0f;
     float SimulationDuration = 60.0f;
     bool bIsSimulationRunning = true;
+	int32 LastDisplayedSimulationSecond = INDEX_NONE;
 
 protected:
     UFUNCTION()

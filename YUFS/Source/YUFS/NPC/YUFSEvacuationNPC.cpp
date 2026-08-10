@@ -63,6 +63,13 @@ void AYUFSEvacuationNPC::BeginPlay()
 	LastPositionCheckLocation  = SpawnLocation;
 	bHasMovementSample = true;
 
+	// 첫 갱신 시점을 NPC마다 분산해 대규모 스폰 시 Trace/Overlap 피크를 방지한다.
+	const float PerceptionInterval = FMath::Max(PerceptionUpdateIntervalSeconds, 0.05f);
+	const float SocialInterval = FMath::Max(SocialUpdateIntervalSeconds, 0.05f);
+	const float UniquePhase = static_cast<float>(GetUniqueID() % 1000);
+	PerceptionUpdateAccumulator = FMath::Fmod(UniquePhase * 0.61803398875f, PerceptionInterval);
+	SocialUpdateAccumulator = FMath::Fmod(UniquePhase * 0.38196601125f, SocialInterval);
+
 	if (AYUFSEmergencyCommSystem* CommSystem = Cast<AYUFSEmergencyCommSystem>(
 		UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSEmergencyCommSystem::StaticClass())))
 	{
@@ -112,20 +119,42 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 
 	const int32 CurrentFrame = GetCurrentSimFrame();
 
-	// ── 지각 / 사회 갱신 (SM 및 MLP 정책이 최신 데이터 사용) ───────────
-	if (PerceptionComp) PerceptionComp->UpdatePerception(CurrentFrame);
-	if (SocialComp)     SocialComp->UpdateSocialContext();
+	// ── 지각 / 사회 갱신 ────────────────────────────────────────────────
+	// 감지는 5Hz, 근접 NPC 탐색은 5Hz가 기본값이다. 각 NPC의 시작 위상을
+	// 분산했으므로 같은 프레임에 모든 NPC가 물리 쿼리를 실행하지 않는다.
+	PerceptionUpdateAccumulator += DeltaTime;
+	const float PerceptionInterval = FMath::Max(PerceptionUpdateIntervalSeconds, 0.05f);
+	if (PerceptionComp && PerceptionUpdateAccumulator >= PerceptionInterval)
+	{
+		PerceptionUpdateAccumulator = FMath::Fmod(PerceptionUpdateAccumulator, PerceptionInterval);
+		PerceptionComp->UpdatePerception(CurrentFrame);
+	}
+
+	SocialUpdateAccumulator += DeltaTime;
+	const float SocialInterval = FMath::Max(SocialUpdateIntervalSeconds, 0.05f);
+	if (SocialComp && SocialUpdateAccumulator >= SocialInterval)
+	{
+		SocialUpdateAccumulator = FMath::Fmod(SocialUpdateAccumulator, SocialInterval);
+		SocialComp->UpdateSocialContext();
+	}
+
+	// ── Observation은 Tick당 한 번만 생성해 상태머신/정책/기록이 공유한다. ──
+	FYUFSNPCObservation CurrentObs{};
+	BuildObservation(CurrentObs);
 
 	// ── PADM 상태머신 갱신 ───────────────────────────────────────────────
 	if (BehaviorSM)
 	{
-		FYUFSNPCObservation Obs{};
-		BuildObservation(Obs);
-		BehaviorSM->TickStateMachine(DeltaTime, Obs);
+		BehaviorSM->TickStateMachine(DeltaTime, CurrentObs);
+		// 상태머신이 이번 Tick에 갱신한 상태를 정책과 기록에 반영한다.
+		CurrentObs.CurrentState = BehaviorSM->GetCurrentState();
+		CurrentObs.RiskPerception = BehaviorSM->GetRiskPerception();
+		CurrentObs.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
 	}
 
 	// ── MLP 정책 추론 및 액션 실행 ───────────────────────────────────────
-	TickPolicy(DeltaTime);
+	TickPolicy(DeltaTime, CurrentObs);
+	CurrentObs.MillingActionCount = MillingActionCount;
 
 	// ── 이동 속도 제한 (Crawl / Incapacitated) ───────────────────────────
 	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
@@ -147,11 +176,27 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// ── 스턱 감지 ─────────────────────────────────────────────────────────
 	UpdateStuckDetection(DeltaTime);
 
-	// ── CSV 로깅 ──────────────────────────────────────────────────────────
-	FYUFSNPCObservation CurrentObs{};
-	BuildObservation(CurrentObs);
+	// ── CSV 로깅 (최대 10Hz) ───────────────────────────────────────────────
 	const EYUFSTerminalReason TerminalReason = GetCurrentTerminalReason();
-	FlushLearningTransition(CurrentObs, TerminalReason);
+	TransitionLogAccumulator += DeltaTime;
+	const float LogInterval = FMath::Max(TransitionLogIntervalSeconds, 0.1f);
+
+	if (!bHasPendingTransition)
+	{
+		// 첫 관찰값은 기준 상태로만 보관한다.
+		PrevObservation = CurrentObs;
+		bHasPendingTransition = bLogTransitions;
+		TransitionLogAccumulator = 0.f;
+	}
+	else if (TerminalReason != EYUFSTerminalReason::None || TransitionLogAccumulator >= LogInterval)
+	{
+		FlushLearningTransition(CurrentObs, TerminalReason);
+		TransitionLogAccumulator = FMath::Fmod(TransitionLogAccumulator, LogInterval);
+		if (bHasPendingTransition)
+		{
+			PrevObservation = CurrentObs;
+		}
+	}
 
 	if (TerminalReason != EYUFSTerminalReason::None)
 	{
@@ -159,8 +204,6 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		if (Navigator) Navigator->ClearPath();
 	}
 
-	PrevObservation = CurrentObs;
-	bHasPendingTransition = bLogTransitions;
 }
 
 void AYUFSEvacuationNPC::DriveMovementToward(FVector Target)
@@ -370,10 +413,26 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot)
 {
 	// 관찰 모드에서는 물리 이동이 아니라 기록된 위치로 직접 배치합니다.
-	SetActorLocationAndRotation(Snapshot.Location, Snapshot.Rotation, false, nullptr, ETeleportType::TeleportPhysics);
+	// Transform/가시성 변경은 렌더 프록시와 Ray Tracing Scene 갱신을 유발하므로,
+	// 스냅샷이 현재 상태와 실제로 다를 때만 적용합니다.
+	constexpr float LocationToleranceCm = 1.0f;
+	constexpr float RotationToleranceDeg = 0.1f;
+	if (!GetActorLocation().Equals(Snapshot.Location, LocationToleranceCm) ||
+		!GetActorRotation().Equals(Snapshot.Rotation, RotationToleranceDeg))
+	{
+		SetActorLocationAndRotation(Snapshot.Location, Snapshot.Rotation, false, nullptr, ETeleportType::TeleportPhysics);
+	}
 
-	SetActorHiddenInGame(!Snapshot.bVisible);
-	SetActorEnableCollision(Snapshot.bVisible);
+	const bool bShouldBeHidden = !Snapshot.bVisible;
+	if (IsHidden() != bShouldBeHidden)
+	{
+		SetActorHiddenInGame(bShouldBeHidden);
+	}
+
+	if (GetActorEnableCollision() != Snapshot.bVisible)
+	{
+		SetActorEnableCollision(Snapshot.bVisible);
+	}
 
 	CurrentAction = Snapshot.CurrentAction;
 
@@ -457,7 +516,7 @@ void AYUFSEvacuationNPC::FlushLearningTransition(const FYUFSNPCObservation& Next
 
 // ── MLP 정책 실행 메서드 ────────────────────────────────────────────────────
 
-void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
+void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation)
 {
 	if (!BehaviorSM) return;
 	if (BehaviorSM->IsIncapacitated()) return;
@@ -471,16 +530,14 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
 	{
 		PolicyTickAccumulator = 0.f;
 
-		FYUFSNPCObservation Obs{};
-		BuildObservation(Obs);
-		const EYUFSAction NewAction = MLPolicy.SelectAction(Obs);
+		const EYUFSAction NewAction = MLPolicy.SelectAction(Observation);
 
-		if (Obs.CurrentState == EYUFSBehaviorState::Milling)
+		if (Observation.CurrentState == EYUFSBehaviorState::Milling)
 			++MillingActionCount;
 
 		// PADM 상태 전이가 발생하면 즉시 반응, 아니면 최소 유지 시간 보장
 		// (RuleBasedPolicy의 FMath::FRand() 매 틱 재추첨으로 인한 떨림 방지)
-		const bool bStateChanged   = Obs.CurrentState != LastPolicyBehaviorState;
+		const bool bStateChanged   = Observation.CurrentState != LastPolicyBehaviorState;
 		const bool bHeldLongEnough = ActionHoldTimer >= MinActionHoldDuration;
 
 		if (NewAction != CurrentAction && (bStateChanged || bHeldLongEnough))
@@ -490,7 +547,7 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
 			CurrentAction = NewAction;
 		}
 
-		LastPolicyBehaviorState = Obs.CurrentState;
+		LastPolicyBehaviorState = Observation.CurrentState;
 	}
 
 	ExecuteCurrentAction(DeltaTime);

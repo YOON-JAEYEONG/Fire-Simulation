@@ -47,6 +47,18 @@ public:
 	UPROPERTY(EditAnywhere, Category="AI|Logging")
 	bool bLogTransitions = true;
 
+	// 비용이 큰 감지/근접 NPC 탐색은 렌더 프레임마다 수행하지 않는다.
+	// NPC별 초기 위상을 달리해 같은 프레임에 갱신이 몰리지 않게 한다.
+	UPROPERTY(EditAnywhere, Category="AI|Optimization", meta=(ClampMin="0.05"))
+	float PerceptionUpdateIntervalSeconds = 0.2f;
+
+	UPROPERTY(EditAnywhere, Category="AI|Optimization", meta=(ClampMin="0.05"))
+	float SocialUpdateIntervalSeconds = 0.2f;
+
+	// 경험 전이는 정책 주기와 같은 최대 10Hz로 기록한다.
+	UPROPERTY(EditAnywhere, Category="AI|Logging", meta=(ClampMin="0.1"))
+	float TransitionLogIntervalSeconds = 0.1f;
+
 	// ── 이동 보조 API ──────────────────────────────────────────────────
 	void DriveMovementToward(FVector Target);
 	void SetMovementSpeed(float Speed);
@@ -123,6 +135,9 @@ private:
 	FYUFSNPCObservation PrevObservation{};
 	bool bHasPendingTransition = false;
 	int32 TransitionStepIndex = 0;
+	float PerceptionUpdateAccumulator = 0.f;
+	float SocialUpdateAccumulator = 0.f;
+	float TransitionLogAccumulator = 0.f;
 
 	// ── 스턱 감지 ─────────────────────────────────────────────────────
 	float StuckTimer = 0.f;
@@ -157,7 +172,7 @@ private:
 	void UpdateStuckDetection(float DeltaTime);
 
 	// ── MLP 정책 실행 ─────────────────────────────────────────────────
-	void TickPolicy(float DeltaTime);
+	void TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation);
 	void OnActionChanged(EYUFSAction NewAction);
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
