@@ -143,6 +143,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Simulation")
 	void RegisterNPC(AYUFSEvacuationNPC* NPC);
 
+	// ── NPC 등록 해제 (배치 취소 시 호출) ────────────────────────────
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void UnregisterNPC(AYUFSEvacuationNPC* NPC);
+
 	// ── 이벤트 ────────────────────────────────────────────────────────
 	UPROPERTY(BlueprintAssignable)
 	FOnSimPhaseChanged OnPhaseChanged;
