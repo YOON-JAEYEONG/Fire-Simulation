@@ -629,6 +629,9 @@ void AYUFSSimulationController::SpawnHUD()
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC || !HUDWidgetClass) return;
 
+	PC->bShowMouseCursor = true;
+	PC->SetInputMode(FInputModeGameAndUI());
+
 	HUDWidgetInstance = CreateWidget<UUserWidget>(PC, HUDWidgetClass);
 	if (HUDWidgetInstance)
 	{
