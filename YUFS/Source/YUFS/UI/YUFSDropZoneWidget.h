@@ -8,6 +8,7 @@ class AYUFSSimulationController;
 class AYUFSEvacuationNPC;
 class AYUFSNPCPlacementPreview;
 class UYUFSNPCRotationWidget;
+class UYUFSNPCActionWidget;
 
 UCLASS()
 class YUFS_API UYUFSDropZoneWidget : public UUserWidget
@@ -21,12 +22,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category="Preview")
 	TSubclassOf<AYUFSNPCPlacementPreview> PreviewActorClass;
 
-	// 확인/취소 버튼이 있는 위젯 클래스 (WBP_NPCRotation을 만들어 연결)
 	UPROPERTY(EditDefaultsOnly, Category="Rotation")
 	TSubclassOf<UYUFSNPCRotationWidget> RotationWidgetClass;
 
+	// 삭제/취소 버튼 위젯 클래스 (WBP_NPCAction을 만들어 연결)
+	UPROPERTY(EditDefaultsOnly, Category="NPCAction")
+	TSubclassOf<UYUFSNPCActionWidget> NPCActionWidgetClass;
+
 protected:
 	virtual void NativeConstruct() override;
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragEnter(const FGeometry&, const FDragDropEvent&, UDragDropOperation*) override;
 	virtual void NativeOnDragLeave(const FDragDropEvent&, UDragDropOperation*) override;
 	virtual bool NativeOnDragOver(const FGeometry&, const FDragDropEvent&, UDragDropOperation*) override;
@@ -56,4 +61,20 @@ private:
 	UPROPERTY() AYUFSEvacuationNPC* PendingNPC = nullptr;
 	UPROPERTY() UYUFSNPCRotationWidget* RotationWidget = nullptr;
 	bool bInRotationMode = false;
+
+	// ── NPC 액션 (클릭 선택 → 삭제/취소) ────────────────────────────
+	bool TryGetNPCUnderCursor(AYUFSEvacuationNPC*& OutNPC) const;
+	void ShowNPCActionWidget(AYUFSEvacuationNPC* NPC);
+	void HideNPCActionWidget();
+	void TryDetectNPCClick();       // 타이머 폴링 방식 (위젯 히트 미스 대비)
+
+	UFUNCTION() void OnNPCDeleteClicked();
+	UFUNCTION() void OnNPCCancelClicked();
+
+	UPROPERTY() AYUFSEvacuationNPC* SelectedNPC = nullptr;
+	UPROPERTY() UYUFSNPCActionWidget* NPCActionWidget = nullptr;
+	bool bShowingNPCAction = false;
+
+	FTimerHandle ClickDetectionTimer;
+	bool bWasLeftMouseDown = false;
 };
