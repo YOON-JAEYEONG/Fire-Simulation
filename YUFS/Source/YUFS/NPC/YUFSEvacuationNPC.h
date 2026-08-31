@@ -41,20 +41,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="Animation")
 	UAnimMontage* FilmMontage = nullptr;
 
-	UPROPERTY(EditAnywhere, Category="Animation")
-	UAnimMontage* InitialFirefightingMontage = nullptr;
-
 	UPROPERTY(EditAnywhere, Category="AI|Policy")
 	bool bDataCollectionMode = false;
-
-	UPROPERTY(EditAnywhere, Category="AI|Decision")
-	bool bUseCalibratedBehaviorModel = true;
-
-	UPROPERTY(EditAnywhere, Category="AI|Decision")
-	bool bSafetyTrained = false;
-
-	UPROPERTY(EditAnywhere, Category="AI|Decision")
-	int32 BehaviorRandomSeed = 1337;
 
 	UPROPERTY(EditAnywhere, Category="AI|Logging")
 	bool bLogTransitions = true;
@@ -81,10 +69,6 @@ public:
 
 	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
-	EYUFSDangerCue GetActiveDangerCue() const { return ActiveDangerCue; }
-	EYUFSRouteStrategy GetSelectedRouteStrategy() const { return SelectedRouteStrategy; }
-	int32 GetTargetPreEvacuationActionCount() const { return TargetPreEvacuationActionCount; }
-	int32 GetCompletedPreEvacuationActionCount() const { return CompletedPreEvacuationActionCount; }
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
 	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
@@ -150,18 +134,6 @@ private:
 	// ── Milling 누적 카운터 (정책 틱 단위) ────────────────────────────
 	int32 MillingActionCount = 0;
 
-	FRandomStream DecisionRandomStream;
-	FRandomStream DurationRandomStream;
-	FRandomStream RouteRandomStream;
-	int32 ResolvedBehaviorSeed = 0;
-	EYUFSDangerCue ActiveDangerCue = EYUFSDangerCue::None;
-	EYUFSRouteStrategy SelectedRouteStrategy = EYUFSRouteStrategy::None;
-	int32 TargetPreEvacuationActionCount = 0;
-	int32 CompletedPreEvacuationActionCount = 0;
-	float PlannedActionDuration = 0.f;
-	bool bIntentDecisionMade = false;
-	bool bRouteDecisionMade = false;
-
 	// ── MLP 정책 (ONNX 추론, RuleBasedPolicy 폴백 내장) ──────────────
 	FYUFSOnnxPolicy MLPolicy;
 
@@ -186,17 +158,6 @@ private:
 
 	// ── MLP 정책 실행 ─────────────────────────────────────────────────
 	void TickPolicy(float DeltaTime);
-	void TickCalibratedPolicy(const FYUFSNPCObservation& Obs);
-	void InitializeBehaviorRandomStreams();
-	void MakeInitialIntentDecision(const FYUFSNPCObservation& Obs);
-	void SelectNextPreEvacuationAction();
-	void SelectRouteDecision(const FYUFSNPCObservation& Obs);
-	void ApplySelectedRouteAction();
-	EYUFSDangerCue DetermineDangerCue(const FYUFSNPCObservation& Obs) const;
-	float GetBaseCommitProbability(EYUFSDangerCue Cue) const;
-	FVector2D GetActionDurationRange(EYUFSAction Action) const;
-	bool IsCurrentRouteUnsafe() const;
-	static bool IsPreEvacuationState(EYUFSBehaviorState State);
 	void OnActionChanged(EYUFSAction NewAction);
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;

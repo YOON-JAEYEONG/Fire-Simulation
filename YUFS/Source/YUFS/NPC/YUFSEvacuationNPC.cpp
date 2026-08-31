@@ -18,11 +18,9 @@
 #include "Level/YUFSLevelDataManager.h"
 #include "Navigation/YUFSSmokeAwareNavigator.h"
 #include "NavigationSystem.h"
-#include "NPC/Decision/YUFSBehaviorDecisionModel.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
 #include "Simulation/YUFSSimulationController.h"
 #include "Social/YUFSSocialInfluenceComponent.h"
-#include "Misc/Crc.h"
 
 AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 {
@@ -64,12 +62,6 @@ void AYUFSEvacuationNPC::BeginPlay()
 	LastMovementSampleLocation = SpawnLocation;
 	LastPositionCheckLocation  = SpawnLocation;
 	bHasMovementSample = true;
-	InitializeBehaviorRandomStreams();
-
-	if (BehaviorSM)
-	{
-		BehaviorSM->SetExternalCommitControl(bUseCalibratedBehaviorModel);
-	}
 
 	if (AYUFSEmergencyCommSystem* CommSystem = Cast<AYUFSEmergencyCommSystem>(
 		UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSEmergencyCommSystem::StaticClass())))
@@ -470,6 +462,8 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
 	if (!BehaviorSM) return;
 	if (BehaviorSM->IsIncapacitated()) return;
 
+	MLPolicy.SetDataCollectionMode(bDataCollectionMode);
+
 	ActionHoldTimer         += DeltaTime;
 	PolicyTickAccumulator   += DeltaTime;
 
@@ -479,377 +473,27 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
 
 		FYUFSNPCObservation Obs{};
 		BuildObservation(Obs);
+		const EYUFSAction NewAction = MLPolicy.SelectAction(Obs);
 
-		if (bUseCalibratedBehaviorModel && BehaviorSM->Config)
+		if (Obs.CurrentState == EYUFSBehaviorState::Milling)
+			++MillingActionCount;
+
+		// PADM 상태 전이가 발생하면 즉시 반응, 아니면 최소 유지 시간 보장
+		// (RuleBasedPolicy의 FMath::FRand() 매 틱 재추첨으로 인한 떨림 방지)
+		const bool bStateChanged   = Obs.CurrentState != LastPolicyBehaviorState;
+		const bool bHeldLongEnough = ActionHoldTimer >= MinActionHoldDuration;
+
+		if (NewAction != CurrentAction && (bStateChanged || bHeldLongEnough))
 		{
-			TickCalibratedPolicy(Obs);
+			ActionHoldTimer = 0.f;
+			OnActionChanged(NewAction);
+			CurrentAction = NewAction;
 		}
-		else
-		{
-			MLPolicy.SetDataCollectionMode(bDataCollectionMode);
-			const EYUFSAction NewAction = MLPolicy.SelectAction(Obs);
 
-			if (Obs.CurrentState == EYUFSBehaviorState::Milling)
-				++MillingActionCount;
-
-			const bool bStateChanged = Obs.CurrentState != LastPolicyBehaviorState;
-			const bool bHeldLongEnough = ActionHoldTimer >= MinActionHoldDuration;
-
-			if (NewAction != CurrentAction && (bStateChanged || bHeldLongEnough))
-			{
-				ActionHoldTimer = 0.f;
-				OnActionChanged(NewAction);
-				CurrentAction = NewAction;
-			}
-
-			LastPolicyBehaviorState = Obs.CurrentState;
-		}
+		LastPolicyBehaviorState = Obs.CurrentState;
 	}
 
 	ExecuteCurrentAction(DeltaTime);
-}
-
-void AYUFSEvacuationNPC::InitializeBehaviorRandomStreams()
-{
-	const uint32 AgentHash = FCrc::StrCrc32(*GetName());
-	ResolvedBehaviorSeed = BehaviorRandomSeed ^ static_cast<int32>(AgentHash);
-	DecisionRandomStream.Initialize(ResolvedBehaviorSeed ^ 0x13579BDF);
-	DurationRandomStream.Initialize(ResolvedBehaviorSeed ^ 0x02468ACE);
-	RouteRandomStream.Initialize(ResolvedBehaviorSeed ^ 0x10203040);
-
-	UE_LOG(LogTemp, Log, TEXT("[YUFS][Decision] agent=%s seed=%d"), *GetName(), ResolvedBehaviorSeed);
-}
-
-void AYUFSEvacuationNPC::TickCalibratedPolicy(const FYUFSNPCObservation& Obs)
-{
-	const EYUFSBehaviorState State = Obs.CurrentState;
-	const bool bStateChanged = State != LastPolicyBehaviorState;
-
-	if (IsPreEvacuationState(State)
-		&& (Obs.bReceivedStaffGuidance || Obs.bReceivedLiveAnnouncement))
-	{
-		UE_LOG(LogTemp, Log, TEXT("[YUFS][Decision] agent=%s override=OfficialInstruction"), *GetName());
-		BehaviorSM->CommitToEvacuation();
-		bRouteDecisionMade = false;
-		SelectRouteDecision(Obs);
-		LastPolicyBehaviorState = BehaviorSM->GetCurrentState();
-		return;
-	}
-
-	if (State == EYUFSBehaviorState::Normal)
-	{
-		if (bStateChanged || CurrentAction != EYUFSAction::Idle)
-		{
-			OnActionChanged(EYUFSAction::Idle);
-			CurrentAction = EYUFSAction::Idle;
-			ActionHoldTimer = 0.f;
-		}
-	}
-	else if (IsPreEvacuationState(State))
-	{
-		if (!bIntentDecisionMade)
-		{
-			MakeInitialIntentDecision(Obs);
-		}
-		else if (ActionHoldTimer >= PlannedActionDuration)
-		{
-			++CompletedPreEvacuationActionCount;
-			MillingActionCount = CompletedPreEvacuationActionCount;
-
-			if (CompletedPreEvacuationActionCount >= TargetPreEvacuationActionCount)
-			{
-				BehaviorSM->CommitToEvacuation();
-				bRouteDecisionMade = false;
-				SelectRouteDecision(Obs);
-			}
-			else
-			{
-				SelectNextPreEvacuationAction();
-			}
-		}
-	}
-	else if (State == EYUFSBehaviorState::Evacuating)
-	{
-		const bool bNewGuidance = Obs.bReceivedStaffGuidance
-			&& SelectedRouteStrategy != EYUFSRouteStrategy::CrowdOrLeader;
-		if (!bRouteDecisionMade || IsCurrentRouteUnsafe() || bNewGuidance)
-		{
-			SelectRouteDecision(Obs);
-		}
-		else if (bStateChanged)
-		{
-			ApplySelectedRouteAction();
-		}
-	}
-	else if (State == EYUFSBehaviorState::Helping)
-	{
-		if (bStateChanged || CurrentAction != EYUFSAction::HelpOther)
-		{
-			OnActionChanged(EYUFSAction::HelpOther);
-			CurrentAction = EYUFSAction::HelpOther;
-			ActionHoldTimer = 0.f;
-		}
-	}
-	else if (State == EYUFSBehaviorState::Crawling)
-	{
-		FVector SafeExit = FVector::ZeroVector;
-		SelectedRouteStrategy = LevelDataMgr
-			&& LevelDataMgr->TryGetNearestSafeExit(GetActorLocation(), GetCurrentSimFrame(), SafeExit)
-			? EYUFSRouteStrategy::NearestSafeExit
-			: EYUFSRouteStrategy::ShelterInPlace;
-		bRouteDecisionMade = true;
-		const EYUFSAction ExpectedAction = SelectedRouteStrategy == EYUFSRouteStrategy::NearestSafeExit
-			? EYUFSAction::EvacuateToNearestExit
-			: EYUFSAction::WaitForInfo;
-		if (bStateChanged || CurrentAction != ExpectedAction)
-		{
-			ApplySelectedRouteAction();
-		}
-	}
-
-	LastPolicyBehaviorState = BehaviorSM->GetCurrentState();
-}
-
-void AYUFSEvacuationNPC::MakeInitialIntentDecision(const FYUFSNPCObservation& Obs)
-{
-	const UYUFSBehaviorConfig* Config = BehaviorSM ? BehaviorSM->Config : nullptr;
-	if (!Config) return;
-
-	ActiveDangerCue = DetermineDangerCue(Obs);
-	TArray<float> LikelihoodRatios;
-	if (bSafetyTrained) LikelihoodRatios.Add(Config->SafetyTrainingLikelihoodRatio);
-	if (Obs.bReceivedPreRecordedMsg) LikelihoodRatios.Add(Config->OfficialInformationLikelihoodRatio);
-	if (Obs.NearbyEvacuatingRatio >= Config->MovingCrowdRatioThreshold)
-	{
-		LikelihoodRatios.Add(Config->MovingCrowdLikelihoodRatio);
-	}
-
-	const float CommitProbability = FYUFSBehaviorDecisionModel::ComputeCommitProbability(
-		GetBaseCommitProbability(ActiveDangerCue),
-		LikelihoodRatios);
-	const float Roll = DecisionRandomStream.GetFraction();
-	bIntentDecisionMade = true;
-
-	UE_LOG(
-		LogTemp,
-		Log,
-		TEXT("[YUFS][Decision] agent=%s cue=%s p_commit=%.4f roll=%.4f seed=%d"),
-		*GetName(),
-		*StaticEnum<EYUFSDangerCue>()->GetNameStringByValue(static_cast<int64>(ActiveDangerCue)),
-		CommitProbability,
-		Roll,
-		ResolvedBehaviorSeed);
-
-	if (Roll < CommitProbability)
-	{
-		BehaviorSM->CommitToEvacuation();
-		bRouteDecisionMade = false;
-		SelectRouteDecision(Obs);
-		return;
-	}
-
-	TargetPreEvacuationActionCount = FYUFSBehaviorDecisionModel::SelectPreEvacuationActionCount(
-		DecisionRandomStream,
-		Config->ShortActionCountWeight,
-		Config->MediumActionCountWeight,
-		Config->LongActionCountWeight);
-	CompletedPreEvacuationActionCount = 0;
-	SelectNextPreEvacuationAction();
-}
-
-void AYUFSEvacuationNPC::SelectNextPreEvacuationAction()
-{
-	const UYUFSBehaviorConfig* Config = BehaviorSM ? BehaviorSM->Config : nullptr;
-	if (!Config) return;
-
-	const TArray<FYUFSActionWeight> Candidates = {
-		FYUFSActionWeight(EYUFSAction::SeekInformation, Config->SeekInformationWeight),
-		FYUFSActionWeight(EYUFSAction::WaitForInfo, Config->WaitAndObserveWeight),
-		FYUFSActionWeight(EYUFSAction::GatherBelongings, Config->GatherBelongingsWeight),
-		FYUFSActionWeight(EYUFSAction::AlertNearbyOccupants, Config->AlertAndHelpWeight),
-		FYUFSActionWeight(EYUFSAction::AttemptInitialFirefighting, Config->InitialFirefightingWeight)
-	};
-
-	const EYUFSAction NewAction = FYUFSBehaviorDecisionModel::SelectWeightedAction(DecisionRandomStream, Candidates);
-	PlannedActionDuration = FYUFSBehaviorDecisionModel::SelectDuration(
-		DurationRandomStream,
-		GetActionDurationRange(NewAction));
-	ActionHoldTimer = 0.f;
-	OnActionChanged(NewAction);
-	CurrentAction = NewAction;
-
-	UE_LOG(
-		LogTemp,
-		Log,
-		TEXT("[YUFS][Decision] agent=%s task=%s task_index=%d/%d duration=%.2f"),
-		*GetName(),
-		*StaticEnum<EYUFSAction>()->GetNameStringByValue(static_cast<int64>(NewAction)),
-		CompletedPreEvacuationActionCount + 1,
-		TargetPreEvacuationActionCount,
-		PlannedActionDuration);
-}
-
-void AYUFSEvacuationNPC::SelectRouteDecision(const FYUFSNPCObservation& Obs)
-{
-	const UYUFSBehaviorConfig* Config = BehaviorSM ? BehaviorSM->Config : nullptr;
-	if (!Config || !LevelDataMgr) return;
-
-	const FVector Position = GetActorLocation();
-	const int32 Frame = GetCurrentSimFrame();
-
-	if (Obs.bReceivedStaffGuidance
-		&& !StaffGuidedExitLocation.IsZero()
-		&& !LevelDataMgr->IsLocationDangerous(StaffGuidedExitLocation, Frame))
-	{
-		SelectedRouteStrategy = EYUFSRouteStrategy::CrowdOrLeader;
-		bRouteDecisionMade = true;
-		ApplySelectedRouteAction();
-		UE_LOG(LogTemp, Log, TEXT("[YUFS][Decision] agent=%s route=CrowdOrLeader source=StaffGuidance frame=%d"), *GetName(), Frame);
-		return;
-	}
-
-	FVector NearestSafeExit = FVector::ZeroVector;
-	const bool bHasNearestSafeExit = LevelDataMgr->TryGetNearestSafeExit(Position, Frame, NearestSafeExit);
-	const FVector FamiliarExit = LevelDataMgr->GetFamiliarExit(SpawnLocation);
-	const bool bHasSafeFamiliarExit = FVector::DistSquared(Position, FamiliarExit) > FMath::Square(100.f)
-		&& !LevelDataMgr->IsLocationDangerous(FamiliarExit, Frame);
-	const FVector CrowdDestination = SocialComp ? SocialComp->GetAverageEvacuationDestination() : FVector::ZeroVector;
-	const bool bHasSafeCrowdDestination = !CrowdDestination.IsZero()
-		&& !LevelDataMgr->IsLocationDangerous(CrowdDestination, Frame);
-
-	const auto DistanceUtility = [Position, Config](FVector Destination)
-	{
-		return -Config->RouteDistanceUtilityScale
-			* FMath::Clamp(FVector::Dist(Position, Destination) / 10000.f, 0.f, 10.f);
-	};
-
-	const TArray<FYUFSRouteCandidate> Candidates = {
-		FYUFSRouteCandidate(
-			EYUFSRouteStrategy::FamiliarExit,
-			Config->FamiliarRoutePriorWeight,
-			bHasSafeFamiliarExit ? DistanceUtility(FamiliarExit) : 0.f,
-			bHasSafeFamiliarExit),
-		FYUFSRouteCandidate(
-			EYUFSRouteStrategy::CrowdOrLeader,
-			Config->CrowdOrLeaderRoutePriorWeight,
-			bHasSafeCrowdDestination
-				? DistanceUtility(CrowdDestination) + Config->CrowdEvidenceUtilityScale * Obs.NearbyEvacuatingRatio
-				: 0.f,
-			bHasSafeCrowdDestination),
-		FYUFSRouteCandidate(
-			EYUFSRouteStrategy::NearestSafeExit,
-			Config->NearestSafeRoutePriorWeight,
-			bHasNearestSafeExit ? DistanceUtility(NearestSafeExit) : 0.f,
-			bHasNearestSafeExit)
-	};
-
-	SelectedRouteStrategy = FYUFSBehaviorDecisionModel::SelectRoute(RouteRandomStream, Candidates);
-	bRouteDecisionMade = true;
-	ApplySelectedRouteAction();
-
-	UE_LOG(
-		LogTemp,
-		Log,
-		TEXT("[YUFS][Decision] agent=%s route=%s frame=%d"),
-		*GetName(),
-		*StaticEnum<EYUFSRouteStrategy>()->GetNameStringByValue(static_cast<int64>(SelectedRouteStrategy)),
-		Frame);
-}
-
-void AYUFSEvacuationNPC::ApplySelectedRouteAction()
-{
-	EYUFSAction NewAction = EYUFSAction::WaitForInfo;
-	switch (SelectedRouteStrategy)
-	{
-	case EYUFSRouteStrategy::FamiliarExit:
-		NewAction = EYUFSAction::EvacuateToFamiliarExit;
-		break;
-	case EYUFSRouteStrategy::CrowdOrLeader:
-		NewAction = bReceivedStaffGuidance
-			? EYUFSAction::EvacuateToNearestExit
-			: EYUFSAction::FollowCrowd;
-		break;
-	case EYUFSRouteStrategy::NearestSafeExit:
-		NewAction = EYUFSAction::EvacuateToNearestExit;
-		break;
-	case EYUFSRouteStrategy::ShelterInPlace:
-	default:
-		NewAction = EYUFSAction::WaitForInfo;
-		break;
-	}
-
-	ActionHoldTimer = 0.f;
-	OnActionChanged(NewAction);
-	CurrentAction = NewAction;
-}
-
-EYUFSDangerCue AYUFSEvacuationNPC::DetermineDangerCue(const FYUFSNPCObservation& Obs) const
-{
-	const UYUFSBehaviorConfig* Config = BehaviorSM ? BehaviorSM->Config : nullptr;
-	if (!Config) return EYUFSDangerCue::None;
-
-	if (Obs.TemperatureAtSelf >= Config->FlameOrHighHeatTemperatureThreshold)
-		return EYUFSDangerCue::FlameOrHighHeat;
-
-	if (Obs.SmokeDensityAtSelf >= Config->SmokeAwarenessThreshold
-		|| Obs.SmokeInFrontNormalized >= Config->VisionSmokeCueThreshold
-		|| Obs.SmokeAboveNormalized >= Config->AboveSmokeCueThreshold)
-	{
-		return EYUFSDangerCue::Smoke;
-	}
-
-	if (Obs.bAlarmSounding || Obs.bReceivedPreRecordedMsg
-		|| Obs.bReceivedLiveAnnouncement || Obs.bReceivedStaffGuidance)
-	{
-		return EYUFSDangerCue::AlarmOnly;
-	}
-
-	return EYUFSDangerCue::None;
-}
-
-float AYUFSEvacuationNPC::GetBaseCommitProbability(EYUFSDangerCue Cue) const
-{
-	const UYUFSBehaviorConfig* Config = BehaviorSM ? BehaviorSM->Config : nullptr;
-	if (!Config) return 0.f;
-
-	switch (Cue)
-	{
-	case EYUFSDangerCue::AlarmOnly: return Config->AlarmOnlyImmediateEvacuationProbability;
-	case EYUFSDangerCue::Smoke: return Config->SmokeImmediateEvacuationProbability;
-	case EYUFSDangerCue::FlameOrHighHeat: return Config->FlameOrHeatImmediateEvacuationProbability;
-	default: return 0.f;
-	}
-}
-
-FVector2D AYUFSEvacuationNPC::GetActionDurationRange(EYUFSAction Action) const
-{
-	const UYUFSBehaviorConfig* Config = BehaviorSM ? BehaviorSM->Config : nullptr;
-	if (!Config) return FVector2D(MinActionHoldDuration, MinActionHoldDuration);
-
-	switch (Action)
-	{
-	case EYUFSAction::SeekInformation: return Config->SeekInformationDurationRange;
-	case EYUFSAction::WaitForInfo: return Config->WaitAndObserveDurationRange;
-	case EYUFSAction::GatherBelongings: return Config->GatherBelongingsDurationRange;
-	case EYUFSAction::AlertNearbyOccupants: return Config->AlertAndHelpDurationRange;
-	case EYUFSAction::AttemptInitialFirefighting: return Config->InitialFirefightingDurationRange;
-	default: return FVector2D(MinActionHoldDuration, MinActionHoldDuration);
-	}
-}
-
-bool AYUFSEvacuationNPC::IsCurrentRouteUnsafe() const
-{
-	if (!LevelDataMgr || SelectedRouteStrategy == EYUFSRouteStrategy::ShelterInPlace) return false;
-	const FVector Target = ResolveNavigationTarget(CurrentAction);
-	return Target.IsZero() || LevelDataMgr->IsLocationDangerous(Target, GetCurrentSimFrame());
-}
-
-bool AYUFSEvacuationNPC::IsPreEvacuationState(EYUFSBehaviorState State)
-{
-	return State == EYUFSBehaviorState::Perceiving
-		|| State == EYUFSBehaviorState::Milling
-		|| State == EYUFSBehaviorState::RiskAssessment
-		|| State == EYUFSBehaviorState::Preparing;
 }
 
 void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
@@ -915,15 +559,6 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 		}
 		break;
 
-	case EYUFSAction::AttemptInitialFirefighting:
-		if (InitialFirefightingMontage)
-		{
-			UAnimInstance* Anim = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
-			if (Anim && !Anim->Montage_IsPlaying(InitialFirefightingMontage))
-				PlayAnimMontage(InitialFirefightingMontage);
-		}
-		break;
-
 	case EYUFSAction::EvacuateToNearestExit:
 	case EYUFSAction::EvacuateToFamiliarExit:
 	case EYUFSAction::FollowCrowd:
@@ -963,40 +598,19 @@ FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 	{
 	case EYUFSAction::EvacuateToNearestExit:
 		if (bReceivedStaffGuidance && !StaffGuidedExitLocation.IsZero())
-		{
-			if (!LevelDataMgr->IsLocationDangerous(StaffGuidedExitLocation, Frame))
-				return StaffGuidedExitLocation;
-		}
-		{
-			FVector SafeExit = FVector::ZeroVector;
-			return LevelDataMgr->TryGetNearestSafeExit(Pos, Frame, SafeExit)
-				? SafeExit
-				: FVector::ZeroVector;
-		}
+			return StaffGuidedExitLocation;
+		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
 
 	case EYUFSAction::EvacuateToFamiliarExit:
-		{
-			const FVector FamiliarExit = LevelDataMgr->GetFamiliarExit(SpawnLocation);
-			if (!LevelDataMgr->IsLocationDangerous(FamiliarExit, Frame)) return FamiliarExit;
-
-			FVector SafeExit = FVector::ZeroVector;
-			return LevelDataMgr->TryGetNearestSafeExit(Pos, Frame, SafeExit)
-				? SafeExit
-				: FVector::ZeroVector;
-		}
+		return LevelDataMgr->GetFamiliarExit(SpawnLocation);
 
 	case EYUFSAction::FollowCrowd:
 		if (SocialComp)
 		{
 			const FVector Avg = SocialComp->GetAverageEvacuationDestination();
-			if (!Avg.IsZero() && !LevelDataMgr->IsLocationDangerous(Avg, Frame)) return Avg;
+			if (!Avg.IsZero()) return Avg;
 		}
-		{
-			FVector SafeExit = FVector::ZeroVector;
-			return LevelDataMgr->TryGetNearestSafeExit(Pos, Frame, SafeExit)
-				? SafeExit
-				: FVector::ZeroVector;
-		}
+		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
 
 	case EYUFSAction::HelpOther:
 		if (SocialComp)

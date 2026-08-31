@@ -44,7 +44,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category="Trigger")
 	bool bIsLookingAround = false;
 
-	// Film 행동. 발생 비율은 시나리오별로 캘리브레이션한다.
+	// Film 행동 — van der Wal: 경보만 있을 때 56% 빈도
 	UPROPERTY(BlueprintReadOnly, Category="Trigger")
 	bool bIsFilming = false;
 

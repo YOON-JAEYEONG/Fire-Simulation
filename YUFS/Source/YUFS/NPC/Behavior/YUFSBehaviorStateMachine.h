@@ -27,8 +27,6 @@ public:
 	float GetSmokeExposure() const { return SmokeExposureAccumulated; }
 	bool IsCrawling() const { return CurrentState == EYUFSBehaviorState::Crawling; }
 	bool IsIncapacitated() const { return CurrentState == EYUFSBehaviorState::Incapacitated; }
-	void CommitToEvacuation();
-	void SetExternalCommitControl(bool bEnabled) { bExternalCommitControl = bEnabled; }
 
 	// Communication System 이벤트 수신
 	void OnAlarmReceived();
@@ -44,7 +42,6 @@ private:
 	float StateTimer = 0.f;
 	float RiskPerception = 0.f;
 	float SmokeExposureAccumulated = 0.f; // 누적 연기 흡입량 [0,1]
-	bool bExternalCommitControl = false;
 
 	// 상태별 전이 조건
 	void TryTransition(const FYUFSNPCObservation& Obs);

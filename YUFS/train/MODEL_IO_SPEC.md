@@ -44,7 +44,7 @@ RF(Random Forest) 및 BC(Behavior Cloning MLP) 두 모델은 동일한 관측 �
 
 ### 출력 클래스 — 행동(Action)
 
-**클래스 수: 12**
+**클래스 수: 11**  
 모델의 추론 결과는 아래 `ActionId` 중 하나의 정수 인덱스.
 
 | ID | 행동명 | 설명 |
@@ -60,9 +60,6 @@ RF(Random Forest) 및 BC(Behavior Cloning MLP) 두 모델은 동일한 관측 �
 | 8 | `Cough` | 기침 |
 | 9 | `FollowCrowd` | 군중 따르기 |
 | 10 | `Film` | 촬영 |
-| 11 | `AttemptInitialFirefighting` | 초기 소화 시도 |
-
-기존 11클래스 ONNX 모델도 런타임에서 계속 사용할 수 있지만, 새 행동(ID 11)을 선택하려면 12클래스로 재학습해야 한다.
 
 ---
 
@@ -93,7 +90,7 @@ clf.predict_proba(X)  → float32[batch, n_seen] # 클래스별 확률
 ### ONNX 출력 (`export_onnx_rf.py`)
 
 ```
-action_logits: float32[batch, 12]
+action_logits: float32[batch, 11]
 ```
 
 RF가 학습 중 본 클래스가 12개 미만일 경우, `append_class_expansion()`이  
@@ -113,7 +110,7 @@ Unreal NNE/ORT에서 `action_logits`의 argmax를 `EYUFSAction` enum 인덱스�
 ### 구조
 
 - 알고리즘: PyTorch MLP (`BCMLPClassifier`)
-- 기본 아키텍처: Linear(28→128) → ReLU → Linear(128→128) → ReLU → Linear(128→12)
+- 기본 아키텍처: Linear(28→128) → ReLU → Linear(128→128) → ReLU → Linear(128→11)
 - 손실 함수: CrossEntropyLoss (역빈도 기반 클래스 가중치 적용)
 - 옵티마이저: AdamW (lr=1e-3, weight_decay=1e-5)
 - 저장 형식: `.pt` (PyTorch checkpoint)
@@ -144,7 +141,7 @@ action  = model.predict(normalized_obs)   # int64[batch]         — argmax
 
 ```
 입력:  observation   — float32[batch, 28]  (정규화 전 원시값)
-출력:  action_logits — float32[batch, 12]  (raw logit)
+출력:  action_logits — float32[batch, 11]  (raw logit)
 ```
 
 `NormalizedPolicyWrapper`가 ONNX 그래프 내부에서 정규화를 처리하므로,  
