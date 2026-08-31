@@ -12,57 +12,57 @@ struct YUFS_API FYUFSNPCObservation
 	GENERATED_BODY()
 
 	UPROPERTY()
-	float SmokeDensityAtSelf;
+	float SmokeDensityAtSelf = 0.f;
 	UPROPERTY()
-	float TemperatureAtSelf;
+	float TemperatureAtSelf = 0.f;
 	UPROPERTY()
-	float SmokeInFrontNormalized;
+	float SmokeInFrontNormalized = 0.f;
 	UPROPERTY()
-	float SmokeAboveNormalized;
+	float SmokeAboveNormalized = 0.f;
 	UPROPERTY()
-	float RiskLevel;
+	float RiskLevel = 0.f;
 	UPROPERTY()
-	float SimTimeNormalized;
+	float SimTimeNormalized = 0.f;
 
 	UPROPERTY()
-	float DistToNearestExit;
+	float DistToNearestExit = 0.f;
 	UPROPERTY()
-	float DistToFamiliarExit;
+	float DistToFamiliarExit = 0.f;
 	UPROPERTY()
-	FVector DirToNearestExit;
+	FVector DirToNearestExit = FVector::ZeroVector;
 	UPROPERTY()
-	bool bNearestExitSmokeFree;
+	bool bNearestExitSmokeFree = false;
 
 	UPROPERTY()
-	float NearbyEvacuatingRatio;
+	float NearbyEvacuatingRatio = 0.f;
 	UPROPERTY()
-	int32 NearbyNPCCount;
+	int32 NearbyNPCCount = 0;
 	UPROPERTY()
-	int32 GroupSize;
+	int32 GroupSize = 0;
 	UPROPERTY()
-	bool bNearbyNPCNeedsHelp;
+	bool bNearbyNPCNeedsHelp = false;
 
 	UPROPERTY()
-	bool bAlarmSounding;
+	bool bAlarmSounding = false;
 	UPROPERTY()
-	bool bReceivedPreRecordedMsg;
+	bool bReceivedPreRecordedMsg = false;
 	UPROPERTY()
-	bool bReceivedLiveAnnouncement;
+	bool bReceivedLiveAnnouncement = false;
 	UPROPERTY()
-	bool bReceivedStaffGuidance;
+	bool bReceivedStaffGuidance = false;
 	UPROPERTY()
-	FVector StaffGuidedExitLocation;
+	FVector StaffGuidedExitLocation = FVector::ZeroVector;
 
 	UPROPERTY()
-	EYUFSBehaviorState CurrentState;
+	EYUFSBehaviorState CurrentState = EYUFSBehaviorState::Normal;
 	UPROPERTY()
-	float RiskPerception;
+	float RiskPerception = 0.f;
 	UPROPERTY()
-	float StressLevel;
+	float StressLevel = 0.f;
 	UPROPERTY()
-	int32 MillingActionCount;
+	int32 MillingActionCount = 0;
 	UPROPERTY()
-	float SmokeExposureAccumulated; // 누적 연기 흡입량 [0,1] — 행동불능 결정 변수
+	float SmokeExposureAccumulated = 0.f; // 누적 연기 흡입량 [0,1] — 행동불능 결정 변수
 
 	TArray<float> ToFloatArray() const;
 };

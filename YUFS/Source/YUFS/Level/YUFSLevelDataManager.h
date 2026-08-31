@@ -34,6 +34,7 @@ private:
 
 public:
 	FVector GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const;
+	bool TryGetNearestSafeExit(FVector From, int32 Frame, FVector& OutExitLocation) const;
 	FVector GetFamiliarExit(FVector NPCSpawnLocation) const;
 	bool IsLocationDangerous(FVector Location, int32 Frame) const;
 	float GetPathDangerScore(const TArray<FVector>& Path, int32 Frame) const;

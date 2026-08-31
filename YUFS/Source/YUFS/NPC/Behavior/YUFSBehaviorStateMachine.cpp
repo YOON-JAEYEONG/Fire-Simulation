@@ -172,7 +172,7 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& Obs)
 		break;
 
 	case EYUFSBehaviorState::Preparing:
-		if (StateTimer > Config->PreparationDuration || Obs.bReceivedStaffGuidance)
+		if (!bExternalCommitControl && (StateTimer > Config->PreparationDuration || Obs.bReceivedStaffGuidance))
 		{
 			CurrentState = EYUFSBehaviorState::Evacuating;
 		}
@@ -205,6 +205,20 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& Obs)
 
 	default:
 		break;
+	}
+}
+
+void UYUFSBehaviorStateMachine::CommitToEvacuation()
+{
+	if (CurrentState == EYUFSBehaviorState::Incapacitated || CurrentState == EYUFSBehaviorState::Crawling)
+	{
+		return;
+	}
+
+	if (CurrentState != EYUFSBehaviorState::Evacuating)
+	{
+		CurrentState = EYUFSBehaviorState::Evacuating;
+		StateTimer = 0.f;
 	}
 }
 

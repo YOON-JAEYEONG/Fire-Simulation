@@ -74,6 +74,30 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 	return MinAnyDist < MAX_flt ? NearestAny : From;
 }
 
+bool AYUFSLevelDataManager::TryGetNearestSafeExit(FVector From, int32 Frame, FVector& OutExitLocation) const
+{
+	float MinDistanceSquared = MAX_flt;
+	bool bFound = false;
+
+	for (AYUFSExitPoint* Exit : CachedExits)
+	{
+		if (!IsValid(Exit)) continue;
+
+		const FVector ExitLocation = Exit->GetActorLocation();
+		if (IsLocationDangerous(ExitLocation, Frame)) continue;
+
+		const float DistanceSquared = FVector::DistSquared(From, ExitLocation);
+		if (DistanceSquared < MinDistanceSquared)
+		{
+			MinDistanceSquared = DistanceSquared;
+			OutExitLocation = ExitLocation;
+			bFound = true;
+		}
+	}
+
+	return bFound;
+}
+
 FVector AYUFSLevelDataManager::GetFamiliarExit(FVector NPCSpawnLocation) const
 {
 	FVector NearestLocation = NPCSpawnLocation;

@@ -37,7 +37,27 @@ enum class EYUFSAction : uint8
 	WaitForInfo,              // 정보 대기
 	Cough,                    // 연기 흡입 반응 (애니메이션 트리거용)
 	FollowCrowd,              // 군중 휩쓸리기 (Herd Instinct)
-	Film                      // 촬영 행동 — van der Wal: 경보만 있을 때 56%로 가장 빈번한 지연 행동
+	Film,                     // 촬영 행동 (발생률은 시나리오별 캘리브레이션 필요)
+	AttemptInitialFirefighting // 초기 소화 시도 (기존 ONNX 0~10 액션 인덱스를 보존하기 위해 맨 뒤에 추가)
+};
+
+UENUM(BlueprintType)
+enum class EYUFSDangerCue : uint8
+{
+	None,
+	AlarmOnly,
+	Smoke,
+	FlameOrHighHeat
+};
+
+UENUM(BlueprintType)
+enum class EYUFSRouteStrategy : uint8
+{
+	None,
+	FamiliarExit,
+	CrowdOrLeader,
+	NearestSafeExit,
+	ShelterInPlace
 };
 
 UENUM(BlueprintType)

@@ -15,6 +15,88 @@ class YUFS_API UYUFSBehaviorConfig : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	// ppt.html의 초기값. 프로젝트 데이터에 맞게 Data Asset에서 조정한다.
+	UPROPERTY(EditAnywhere, Category="Decision|Commit", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float AlarmOnlyImmediateEvacuationProbability = 0.25f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Commit", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float SmokeImmediateEvacuationProbability = 0.65f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Commit", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float FlameOrHeatImmediateEvacuationProbability = 0.90f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Commit", meta=(ClampMin="0.01"))
+	float SafetyTrainingLikelihoodRatio = 1.40f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Commit", meta=(ClampMin="0.01"))
+	float OfficialInformationLikelihoodRatio = 2.20f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Commit", meta=(ClampMin="0.01"))
+	float MovingCrowdLikelihoodRatio = 1.50f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Commit", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float MovingCrowdRatioThreshold = 0.30f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Commit", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float FlameOrHighHeatTemperatureThreshold = 0.65f;
+
+	// 사전행동 개수 구간: 1~5 / 6~9 / 10~15의 사람 비율.
+	UPROPERTY(EditAnywhere, Category="Decision|PreEvacuation", meta=(ClampMin="0.0"))
+	float ShortActionCountWeight = 88.5f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|PreEvacuation", meta=(ClampMin="0.0"))
+	float MediumActionCountWeight = 8.1f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|PreEvacuation", meta=(ClampMin="0.0"))
+	float LongActionCountWeight = 3.4f;
+
+	// 개인의 발생 확률이 아니라 사전행동 풀 내 선택 비중이다.
+	UPROPERTY(EditAnywhere, Category="Decision|PreEvacuation", meta=(ClampMin="0.0"))
+	float SeekInformationWeight = 45.f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|PreEvacuation", meta=(ClampMin="0.0"))
+	float WaitAndObserveWeight = 20.f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|PreEvacuation", meta=(ClampMin="0.0"))
+	float GatherBelongingsWeight = 20.f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|PreEvacuation", meta=(ClampMin="0.0"))
+	float AlertAndHelpWeight = 10.f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|PreEvacuation", meta=(ClampMin="0.0"))
+	float InitialFirefightingWeight = 5.f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Duration")
+	FVector2D SeekInformationDurationRange = FVector2D(4.f, 8.f);
+
+	UPROPERTY(EditAnywhere, Category="Decision|Duration")
+	FVector2D WaitAndObserveDurationRange = FVector2D(3.f, 6.f);
+
+	UPROPERTY(EditAnywhere, Category="Decision|Duration")
+	FVector2D GatherBelongingsDurationRange = FVector2D(3.f, 8.f);
+
+	UPROPERTY(EditAnywhere, Category="Decision|Duration")
+	FVector2D AlertAndHelpDurationRange = FVector2D(2.f, 5.f);
+
+	UPROPERTY(EditAnywhere, Category="Decision|Duration")
+	FVector2D InitialFirefightingDurationRange = FVector2D(4.f, 10.f);
+
+	// 70/20/10은 확률적 경로 효용 모델의 캘리브레이션 사전값이다.
+	UPROPERTY(EditAnywhere, Category="Decision|Route", meta=(ClampMin="0.0"))
+	float FamiliarRoutePriorWeight = 70.f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Route", meta=(ClampMin="0.0"))
+	float CrowdOrLeaderRoutePriorWeight = 20.f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Route", meta=(ClampMin="0.0"))
+	float NearestSafeRoutePriorWeight = 10.f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Route", meta=(ClampMin="0.0"))
+	float RouteDistanceUtilityScale = 0.50f;
+
+	UPROPERTY(EditAnywhere, Category="Decision|Route", meta=(ClampMin="0.0"))
+	float CrowdEvidenceUtilityScale = 1.00f;
+
 	UPROPERTY(EditAnywhere)
 	float MaxMillingDuration = 30.f;
 

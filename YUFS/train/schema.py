@@ -58,6 +58,7 @@ class ActionId(IntEnum):
     Cough = 8
     FollowCrowd = 9
     Film = 10
+    AttemptInitialFirefighting = 11
 
 
 class TerminalReasonId(IntEnum):
