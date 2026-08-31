@@ -40,6 +40,49 @@ enum class EYUFSAction : uint8
 	Film                      // 촬영 행동 — van der Wal: 경보만 있을 때 56%로 가장 빈번한 지연 행동
 };
 
+// ── 근거 기반 결정 계층 ──────────────────────────────────────────────
+// 기존 BehaviorState/Action 숫자는 ONNX V1 계약을 위해 그대로 유지한다.
+// Intent와 ActionTask는 병렬 계층으로 추가하며 기존 상태는 UI 호환 투영에 사용한다.
+UENUM(BlueprintType)
+enum class EYUFSIntent : uint8
+{
+	Observe,
+	Prepare,
+	CommitEvac,
+	Help,
+	Shelter,
+	Reenter,
+	Incapacitated
+};
+
+UENUM(BlueprintType)
+enum class EYUFSActionTask : uint8
+{
+	None,
+	ContinueRoutine,
+	ObserveOthers,
+	SeekInformation,
+	AlertHelp,
+	GatherBelongings,
+	AssistOther,
+	WaitForOfficialInfo,
+	FilmObserve,
+	InitialExtinguish,
+	Freeze
+};
+
+UENUM(BlueprintType)
+enum class EYUFSTaskCancelReason : uint8
+{
+	None,
+	Completed,
+	LifeRisk,
+	OfficialInstruction,
+	IntentChanged,
+	InvalidContext,
+	Timeout
+};
+
 UENUM(BlueprintType)
 enum class EYUFSTerminalReason : uint8
 {

@@ -2,6 +2,7 @@
 
 #include "Communication/YUFSCommTypes.h"
 #include "CoreMinimal.h"
+#include "Core/YUFSDeterministicRng.h"
 #include "Core/YUFSObservation.h"
 #include "Core/YUFSTypes.h"
 #include "GameFramework/Character.h"
@@ -15,6 +16,9 @@ class AYUFSBinaryManager;
 class UYUFSSocialInfluenceComponent;
 class UYUFSSmokeAwareNavigator;
 class UYUFSBehaviorStateMachine;
+class UYUFSBeliefComponent;
+class UYUFSIntentComponent;
+class UYUFSActionTaskComponent;
 class UYUFSNPCDebugComponent;
 class UYUFSNPCPerceptionComponent;
 class AYUFSSimulationController;
@@ -47,6 +51,20 @@ public:
 	UPROPERTY(EditAnywhere, Category="AI|Logging")
 	bool bLogTransitions = true;
 
+	// ── 근거 기반 결정 모델 ───────────────────────────────────────────
+	UPROPERTY(EditAnywhere, Category="AI|Evidence Decision")
+	bool bEnableEvidenceDecisionModel = true;
+
+	UPROPERTY(EditAnywhere, Category="AI|Evidence Decision")
+	bool bLogDecisionTrace = true;
+
+	// 배치 NPC는 에디터에서 명시할 수 있고, 미지정 시 Actor 경로 CRC로 결정한다.
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="AI|Determinism")
+	int32 StableNPCId = INDEX_NONE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI|Determinism")
+	int32 ScenarioSeed = 20260831;
+
 	// 비용이 큰 감지/근접 NPC 탐색은 렌더 프레임마다 수행하지 않는다.
 	// NPC별 초기 위상을 달리해 같은 프레임에 갱신이 몰리지 않게 한다.
 	UPROPERTY(EditAnywhere, Category="AI|Optimization", meta=(ClampMin="0.05"))
@@ -70,6 +88,13 @@ public:
 	UYUFSSocialInfluenceComponent* GetSocialComponent()     const { return SocialComp; }
 	AYUFSLevelDataManager*       GetLevelDataManager()      const { return LevelDataMgr; }
 	AYUFSBinaryManager*          GetBinaryManager()         const { return BinaryManager; }
+	UYUFSBeliefComponent*        GetBeliefComponent()       const { return BeliefComp; }
+	UYUFSIntentComponent*        GetIntentComponent()       const { return IntentComp; }
+	UYUFSActionTaskComponent*    GetActionTaskComponent()   const { return ActionTaskComp; }
+	EYUFSIntent GetCurrentIntent() const;
+	int32 GetStableNPCId() const { return StableNPCId; }
+	bool RollSocialProbability(float Probability);
+	void ApplyDistributedSpawnLocation(const FVector& NewLocation);
 
 	// ── 통신 상태 접근자 ──────────────────────────────────────────────
 	bool    IsAlarmSounding()           const { return bAlarmSounding; }
@@ -105,6 +130,12 @@ private:
 	UYUFSSocialInfluenceComponent* SocialComp;
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCDebugComponent* DebugComp;
+	UPROPERTY(VisibleAnywhere)
+	UYUFSBeliefComponent* BeliefComp;
+	UPROPERTY(VisibleAnywhere)
+	UYUFSIntentComponent* IntentComp;
+	UPROPERTY(VisibleAnywhere)
+	UYUFSActionTaskComponent* ActionTaskComp;
 
 	UPROPERTY(VisibleAnywhere)
 	AYUFSBinaryManager* BinaryManager = nullptr;
@@ -151,6 +182,9 @@ private:
 
 	// ── MLP 정책 (ONNX 추론, RuleBasedPolicy 폴백 내장) ──────────────
 	FYUFSOnnxPolicy MLPolicy;
+	FYUFSDeterministicRngSet DeterministicRng;
+	bool bHasSafeExit = false;
+	FVector LastSafeExit = FVector::ZeroVector;
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
 	EYUFSAction CurrentAction            = EYUFSAction::Idle;
@@ -173,6 +207,11 @@ private:
 
 	// ── MLP 정책 실행 ─────────────────────────────────────────────────
 	void TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation);
+	EYUFSAction ConstrainActionForIntent(EYUFSAction ProposedAction) const;
+	void UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCObservation& Observation);
+	void TraceIntentTransition() const;
+	void TraceTaskEvent(EYUFSActionTask Task, EYUFSTaskCancelReason Reason, const FString& Trigger) const;
+	FString GetScenarioHash() const;
 	void OnActionChanged(EYUFSAction NewAction);
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;

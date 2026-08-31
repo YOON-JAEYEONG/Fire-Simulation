@@ -28,6 +28,10 @@ public:
 	bool IsCrawling() const { return CurrentState == EYUFSBehaviorState::Crawling; }
 	bool IsIncapacitated() const { return CurrentState == EYUFSBehaviorState::Incapacitated; }
 
+	// V2 Intent를 기존 BehaviorState/UI/ONNX V1 입력으로 투영한다.
+	// Crawling/Incapacitated 신체 상태는 의도보다 우선하므로 덮어쓰지 않는다.
+	void ApplyIntentProjection(EYUFSIntent Intent);
+
 	// Communication System 이벤트 수신
 	void OnAlarmReceived();
 	void OnPreRecordedMessageReceived();

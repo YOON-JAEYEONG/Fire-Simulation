@@ -5,13 +5,17 @@
 #include "Simulation/YUFSTimelineRecorder.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "EngineUtils.h"
+#include "Engine/StaticMeshActor.h"
 #include "Fire/YUFSBinaryManager.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "NavigationSystem.h"
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
@@ -54,6 +58,7 @@ void AYUFSSimulationController::BeginPlay()
 		RegisterNPC(*It);
 	}
 	InitialNPCCount = RegisteredNPCs.Num();
+	ScheduleNPCDistribution();
 	if (BinaryManager && HeterogeneousVolume)
 	{
 		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
@@ -611,8 +616,429 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 		if (CurrentPhase == ESimPhase::WaitingToStart)
 		{
 			InitialNPCCount = RegisteredNPCs.Num();
+			ScheduleNPCDistribution();
 		}
 	}
+}
+
+void AYUFSSimulationController::ScheduleNPCDistribution()
+{
+	if (!bDistributeOverlappingNPCs || !GetWorld() || CurrentPhase != ESimPhase::WaitingToStart)
+	{
+		return;
+	}
+
+	GetWorldTimerManager().SetTimer(
+		NPCDistributionTimerHandle,
+		this,
+		&AYUFSSimulationController::DistributeRegisteredNPCs,
+		FMath::Max(NPCDistributionDelaySeconds, 0.01f),
+		false);
+}
+
+void AYUFSSimulationController::DistributeRegisteredNPCs()
+{
+	if (!bDistributeOverlappingNPCs || CurrentPhase != ESimPhase::WaitingToStart)
+	{
+		return;
+	}
+
+	TArray<AYUFSEvacuationNPC*> NPCs;
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (IsValid(NPC) && !NPC->IsHidden())
+		{
+			NPCs.Add(NPC);
+		}
+	}
+
+	NPCs.Sort([](const AYUFSEvacuationNPC& Left, const AYUFSEvacuationNPC& Right)
+	{
+		if (Left.GetStableNPCId() != Right.GetStableNPCId())
+		{
+			return Left.GetStableNPCId() < Right.GetStableNPCId();
+		}
+		return Left.GetName() < Right.GetName();
+	});
+
+	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	if (NPCs.Num() < 2)
+	{
+		return;
+	}
+
+	TArray<float> RawIndoorFloorLevels;
+	for (TActorIterator<AStaticMeshActor> It(GetWorld()); It; ++It)
+	{
+		const UStaticMeshComponent* Component = It->GetStaticMeshComponent();
+		if (!Component || Component->GetCollisionEnabled() == ECollisionEnabled::NoCollision)
+		{
+			continue;
+		}
+
+		const FBoxSphereBounds Bounds = Component->Bounds;
+		const float TopZ = Bounds.Origin.Z + Bounds.BoxExtent.Z;
+		if (Bounds.BoxExtent.X >= IndoorFloorSurfaceMinExtentCm
+			&& Bounds.BoxExtent.Y >= IndoorFloorSurfaceMinExtentCm
+			&& Bounds.BoxExtent.Z <= IndoorFloorSurfaceMaxHalfThicknessCm
+			&& TopZ >= -200.f
+			&& TopZ <= 2000.f)
+		{
+			RawIndoorFloorLevels.Add(TopZ);
+		}
+	}
+
+	RawIndoorFloorLevels.Sort();
+	TArray<float> IndoorFloorLevels;
+	TArray<int32> IndoorFloorLevelSampleCounts;
+	for (const float SurfaceZ : RawIndoorFloorLevels)
+	{
+		if (IndoorFloorLevels.IsEmpty()
+			|| FMath::Abs(SurfaceZ - IndoorFloorLevels.Last()) > IndoorFloorGroupingToleranceCm)
+		{
+			IndoorFloorLevels.Add(SurfaceZ);
+			IndoorFloorLevelSampleCounts.Add(1);
+		}
+		else
+		{
+			const int32 LastIndex = IndoorFloorLevels.Num() - 1;
+			const int32 NewSampleCount = IndoorFloorLevelSampleCounts[LastIndex] + 1;
+			IndoorFloorLevels[LastIndex] =
+				(IndoorFloorLevels[LastIndex] * IndoorFloorLevelSampleCounts[LastIndex] + SurfaceZ)
+				/ static_cast<float>(NewSampleCount);
+			IndoorFloorLevelSampleCounts[LastIndex] = NewSampleCount;
+		}
+	}
+
+	if (IndoorFloorLevels.IsEmpty())
+	{
+		const float CapsuleHalfHeight = NPCs[0]->GetCapsuleComponent()
+			? NPCs[0]->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()
+			: 88.f;
+		IndoorFloorLevels.Add(NPCs[0]->GetActorLocation().Z - CapsuleHalfHeight);
+	}
+	IndoorFloorLevels.SetNum(FMath::Min(
+		IndoorFloorLevels.Num(),
+		FMath::Max(NPCDistributionTargetFloorCount, 1)));
+
+	FString FloorLevelSummary;
+	for (int32 FloorIndex = 0; FloorIndex < IndoorFloorLevels.Num(); ++FloorIndex)
+	{
+		FloorLevelSummary += FString::Printf(
+			TEXT("%s%dF=%.1fcm"),
+			FloorIndex > 0 ? TEXT(", ") : TEXT(""),
+			FloorIndex + 1,
+			IndoorFloorLevels[FloorIndex]);
+	}
+	UE_LOG(LogTemp, Log, TEXT("[YUFS] Indoor floor levels detected: %s."), *FloorLevelSummary);
+
+	const float ClusterRadiusSq = FMath::Square(FMath::Max(NPCDistributionClusterRadiusCm, 50.f));
+	const float Spacing = FMath::Max(NPCDistributionSpacingCm, 80.f);
+	const float MinimumSpacingSq = FMath::Square(Spacing * 0.8f);
+	const float MaxRadius = FMath::Max(NPCDistributionMaxRadiusCm, Spacing);
+	const FVector ProjectionExtent(Spacing, Spacing, 500.f);
+	constexpr float GoldenAngleRadians = 2.39996323f;
+	const int32 MaxPlacementAttempts = FMath::Max(NPCDistributionMaxPlacementAttempts, 64);
+	TArray<bool> Assigned;
+	Assigned.Init(false, NPCs.Num());
+	int32 TotalMoved = 0;
+	int32 NavProjectionSuccessCount = 0;
+	int32 FloorResolutionSuccessCount = 0;
+	int32 TeleportRejectionCount = 0;
+	int32 CeilingValidatedPlacementCount = 0;
+	int32 EnclosureFallbackPlacementCount = 0;
+	TArray<int32> FloorPlacementCounts;
+	FloorPlacementCounts.Init(0, IndoorFloorLevels.Num());
+
+	for (int32 SeedIndex = 0; SeedIndex < NPCs.Num(); ++SeedIndex)
+	{
+		if (Assigned[SeedIndex])
+		{
+			continue;
+		}
+
+		TArray<int32> ClusterIndices { SeedIndex };
+		Assigned[SeedIndex] = true;
+		for (int32 QueueIndex = 0; QueueIndex < ClusterIndices.Num(); ++QueueIndex)
+		{
+			const FVector QueueLocation = NPCs[ClusterIndices[QueueIndex]]->GetActorLocation();
+			for (int32 CandidateIndex = 0; CandidateIndex < NPCs.Num(); ++CandidateIndex)
+			{
+				if (!Assigned[CandidateIndex]
+					&& FVector::DistSquared2D(QueueLocation, NPCs[CandidateIndex]->GetActorLocation()) <= ClusterRadiusSq)
+				{
+					Assigned[CandidateIndex] = true;
+					ClusterIndices.Add(CandidateIndex);
+				}
+			}
+		}
+
+		if (ClusterIndices.Num() < 2)
+		{
+			continue;
+		}
+
+		FVector ClusterCenter = FVector::ZeroVector;
+		for (const int32 Index : ClusterIndices)
+		{
+			ClusterCenter += NPCs[Index]->GetActorLocation();
+		}
+		ClusterCenter /= static_cast<float>(ClusterIndices.Num());
+
+		TArray<FVector> AcceptedLocations;
+		for (int32 MemberIndex = 0; MemberIndex < ClusterIndices.Num(); ++MemberIndex)
+		{
+			AYUFSEvacuationNPC* NPC = NPCs[ClusterIndices[MemberIndex]];
+			const int32 TargetFloorIndex = ClusterIndices[MemberIndex] % IndoorFloorLevels.Num();
+			const float CapsuleHalfHeight = NPC->GetCapsuleComponent()
+				? NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()
+				: 88.f;
+			const float TargetActorZ = IndoorFloorLevels[TargetFloorIndex] + CapsuleHalfHeight + 2.f;
+			bool bPlaced = false;
+			const int32 PlacementPassCount = bRequireIndoorNPCPlacement && bPreferCeilingCollisionForIndoorPlacement ? 2 : 1;
+			for (int32 PlacementPass = 0; PlacementPass < PlacementPassCount && !bPlaced; ++PlacementPass)
+			{
+				const bool bRequireCeilingThisPass =
+					bRequireIndoorNPCPlacement && bPreferCeilingCollisionForIndoorPlacement && PlacementPass == 0;
+				for (int32 Attempt = 0; Attempt < MaxPlacementAttempts; ++Attempt)
+				{
+					// All members scan the same dense deterministic field. Accepted points
+					// reject later overlaps, so each member naturally continues outward.
+					const int32 SpiralIndex = Attempt;
+					const float Radius = FMath::Min(
+						Spacing * 0.55f * FMath::Sqrt(static_cast<float>(SpiralIndex)),
+						MaxRadius);
+					const float Angle = GoldenAngleRadians * static_cast<float>(SpiralIndex);
+					const FVector DesiredLocation = FVector(ClusterCenter.X, ClusterCenter.Y, TargetActorZ) + FVector(
+						FMath::Cos(Angle) * Radius,
+						FMath::Sin(Angle) * Radius,
+						0.f);
+
+					FVector CandidateLocation = DesiredLocation;
+					FNavLocation ProjectedLocation;
+					if (NavSystem && NavSystem->ProjectPointToNavigation(DesiredLocation, ProjectedLocation, ProjectionExtent))
+					{
+						CandidateLocation.X = ProjectedLocation.Location.X;
+						CandidateLocation.Y = ProjectedLocation.Location.Y;
+						++NavProjectionSuccessCount;
+					}
+
+					if (bRequireIndoorNPCPlacement
+						&& !TryResolveIndoorNPCSpawnLocation(CandidateLocation, NPC, bRequireCeilingThisPass, CandidateLocation))
+					{
+						continue;
+					}
+					if (bRequireIndoorNPCPlacement)
+					{
+						++FloorResolutionSuccessCount;
+					}
+					if (FMath::Abs(CandidateLocation.Z - TargetActorZ) > NPCDistributionMaxFloorDeltaCm)
+					{
+						continue;
+					}
+
+					bool bTooClose = false;
+					for (const FVector& AcceptedLocation : AcceptedLocations)
+					{
+						const bool bSameFloor =
+							FMath::Abs(CandidateLocation.Z - AcceptedLocation.Z) <= IndoorFloorGroupingToleranceCm;
+						if (bSameFloor
+							&& FVector::DistSquared2D(CandidateLocation, AcceptedLocation) < MinimumSpacingSq)
+						{
+							bTooClose = true;
+							break;
+						}
+					}
+					if (bTooClose)
+					{
+						continue;
+					}
+
+					FVector TeleportLocation = CandidateLocation;
+					if (!GetWorld()->FindTeleportSpot(NPC, TeleportLocation, NPC->GetActorRotation()))
+					{
+						++TeleportRejectionCount;
+						continue;
+					}
+
+					// FindTeleportSpot may move a valid indoor candidate onto the outdoor
+					// landscape. Treat its result as untrusted and validate it again.
+					if (bRequireIndoorNPCPlacement)
+					{
+						FVector RevalidatedLocation;
+						if (!TryResolveIndoorNPCSpawnLocation(
+							TeleportLocation,
+							NPC,
+							bRequireCeilingThisPass,
+							RevalidatedLocation))
+						{
+							continue;
+						}
+						TeleportLocation = RevalidatedLocation;
+						if (FMath::Abs(TeleportLocation.Z - TargetActorZ) > NPCDistributionMaxFloorDeltaCm)
+						{
+							continue;
+						}
+					}
+
+					bTooClose = false;
+					for (const FVector& AcceptedLocation : AcceptedLocations)
+					{
+						const bool bSameFloor =
+							FMath::Abs(TeleportLocation.Z - AcceptedLocation.Z) <= IndoorFloorGroupingToleranceCm;
+						if (bSameFloor
+							&& FVector::DistSquared2D(TeleportLocation, AcceptedLocation) < MinimumSpacingSq)
+						{
+							bTooClose = true;
+							break;
+						}
+					}
+					if (bTooClose)
+					{
+						continue;
+					}
+
+					AcceptedLocations.Add(TeleportLocation);
+					++FloorPlacementCounts[TargetFloorIndex];
+					if (bRequireCeilingThisPass)
+					{
+						++CeilingValidatedPlacementCount;
+					}
+					else
+					{
+						++EnclosureFallbackPlacementCount;
+					}
+					if (!NPC->GetActorLocation().Equals(TeleportLocation, 1.f))
+					{
+						NPC->ApplyDistributedSpawnLocation(TeleportLocation);
+						++TotalMoved;
+					}
+					bPlaced = true;
+					break;
+				}
+			}
+
+			if (!bPlaced)
+			{
+				AcceptedLocations.Add(NPC->GetActorLocation());
+				UE_LOG(
+					LogTemp,
+					Warning,
+					TEXT("[YUFS] No valid indoor spawn slot found for NPC %s on floor %d."),
+					*NPC->GetName(),
+					TargetFloorIndex + 1);
+			}
+		}
+	}
+
+	FString FloorPlacementSummary;
+	for (int32 FloorIndex = 0; FloorIndex < FloorPlacementCounts.Num(); ++FloorIndex)
+	{
+		FloorPlacementSummary += FString::Printf(
+			TEXT("%s%dF=%d"),
+			FloorIndex > 0 ? TEXT(", ") : TEXT(""),
+			FloorIndex + 1,
+			FloorPlacementCounts[FloorIndex]);
+	}
+
+	UE_LOG(
+		LogTemp,
+		Log,
+		TEXT("[YUFS] NPC spawn distribution complete: %d/%d moved, floors [%s], spacing %.0f cm, ceiling-validated %d, wall-enclosure fallback %d, nav projections %d, floor hits %d, collision rejections %d."),
+		TotalMoved,
+		NPCs.Num(),
+		*FloorPlacementSummary,
+		Spacing,
+		CeilingValidatedPlacementCount,
+		EnclosureFallbackPlacementCount,
+		NavProjectionSuccessCount,
+		FloorResolutionSuccessCount,
+		TeleportRejectionCount);
+}
+
+bool AYUFSSimulationController::TryResolveIndoorNPCSpawnLocation(
+	const FVector& DesiredLocation,
+	AYUFSEvacuationNPC* NPC,
+	bool bRequireCeiling,
+	FVector& OutLocation) const
+{
+	UWorld* World = GetWorld();
+	if (!World || !NPC)
+	{
+		return false;
+	}
+
+	FCollisionObjectQueryParams StaticObjectQuery;
+	StaticObjectQuery.AddObjectTypesToQuery(ECC_WorldStatic);
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(YUFSIndoorNPCPlacement), false);
+	QueryParams.AddIgnoredActor(NPC);
+
+	FHitResult FloorHit;
+	const bool bHasFloor = World->LineTraceSingleByObjectType(
+		FloorHit,
+		DesiredLocation + FVector(0.f, 0.f, 100.f),
+		DesiredLocation - FVector(0.f, 0.f, 1000.f),
+		StaticObjectQuery,
+		QueryParams);
+	if (!bHasFloor)
+	{
+		return false;
+	}
+	if (!Cast<UStaticMeshComponent>(FloorHit.GetComponent()))
+	{
+		// The large outdoor Landscape surrounds the CAD building and must never
+		// become an NPC spawn floor.
+		return false;
+	}
+
+	const float CapsuleHalfHeight = NPC->GetCapsuleComponent()
+		? NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()
+		: 88.f;
+	// Imported NPC actors can be authored well above the visible floor. Snap the
+	// capsule center to the actual collision floor so the rendered mesh stays inside
+	// the walls in both world space and the perspective overview camera.
+	OutLocation = FVector(
+		DesiredLocation.X,
+		DesiredLocation.Y,
+		FloorHit.ImpactPoint.Z + CapsuleHalfHeight + 2.f);
+
+	if (!bRequireCeiling)
+	{
+		const float EnclosureTraceDistance = FMath::Max(IndoorEnclosureTraceDistanceCm, 500.f);
+		const FVector TraceStart = OutLocation + FVector(0.f, 0.f, CapsuleHalfHeight * 0.25f);
+		const FVector Directions[] =
+		{
+			FVector::ForwardVector,
+			-FVector::ForwardVector,
+			FVector::RightVector,
+			-FVector::RightVector
+		};
+
+		int32 EnclosedDirectionCount = 0;
+		for (const FVector& Direction : Directions)
+		{
+			FHitResult WallHit;
+			if (World->LineTraceSingleByObjectType(
+				WallHit,
+				TraceStart,
+				TraceStart + Direction * EnclosureTraceDistance,
+				StaticObjectQuery,
+				QueryParams))
+			{
+				++EnclosedDirectionCount;
+			}
+		}
+
+		return EnclosedDirectionCount == UE_ARRAY_COUNT(Directions);
+	}
+
+	FHitResult CeilingHit;
+	return World->LineTraceSingleByObjectType(
+		CeilingHit,
+		OutLocation + FVector(0.f, 0.f, CapsuleHalfHeight + 20.f),
+		OutLocation + FVector(0.f, 0.f, FMath::Max(IndoorCeilingTraceHeightCm, 200.f)),
+		StaticObjectQuery,
+		QueryParams);
 }
 
 float AYUFSSimulationController::GetFireStartCountdown() const

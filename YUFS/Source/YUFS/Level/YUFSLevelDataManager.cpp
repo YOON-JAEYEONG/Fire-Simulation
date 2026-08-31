@@ -65,16 +65,47 @@ void AYUFSLevelDataManager::RefreshExitDangerCache(int32 Frame) const
 	}
 }
 
+bool AYUFSLevelDataManager::TryGetNearestSafeExit(FVector From, int32 Frame, FVector& OutExit) const
+{
+	RefreshExitDangerCache(Frame);
+	OutExit = FVector::ZeroVector;
+	float MinSafeDist = MAX_flt;
+
+	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
+	{
+		AYUFSExitPoint* Exit = CachedExits[Index];
+		if (!IsValid(Exit)) continue;
+
+		const int8 DangerState = CachedExitDangerStates.IsValidIndex(Index)
+			? CachedExitDangerStates[Index]
+			: -1;
+		const bool bDangerous = DangerState == 1 || (DangerState < 0 && bTreatUnknownExitAsDangerous);
+		if (bDangerous) continue;
+
+		const float DistSq = FVector::DistSquared(From, Exit->GetActorLocation());
+		if (DistSq < MinSafeDist)
+		{
+			MinSafeDist = DistSq;
+			OutExit = Exit->GetActorLocation();
+		}
+	}
+
+	return MinSafeDist < MAX_flt;
+}
+
 FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const
 {
 	RefreshExitDangerCache(Frame);
 
-	// 한 번의 순회로 두 후보를 동시에 추적:
-	// - NearestSmokeFree: 연기 없는 출구 중 가장 가까운 것
-	// - NearestAny: 연기 유무 무관하게 가장 가까운 것 (bSmokeFreeOnly 폴백용)
-	FVector NearestSmokeFree = FVector::ZeroVector;
+	if (bSmokeFreeOnly)
+	{
+		FVector SafeExit = FVector::ZeroVector;
+		// 모두 위험하거나 화재 데이터가 확인되지 않으면 현재 위치를 반환한다.
+		// 호출자는 TryGetNearestSafeExit로 SHELTER 전환 여부를 명시적으로 판단한다.
+		return TryGetNearestSafeExit(From, Frame, SafeExit) ? SafeExit : From;
+	}
+
 	FVector NearestAny = FVector::ZeroVector;
-	float MinSmokeFreeDist = MAX_flt;
 	float MinAnyDist = MAX_flt;
 
 	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
@@ -91,23 +122,6 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 			NearestAny = ExitLoc;
 		}
 
-		const bool bDangerous = CachedExitDangerStates.IsValidIndex(Index)
-			? CachedExitDangerStates[Index] == 1
-			: IsLocationDangerous(ExitLoc, Frame);
-		if (!bDangerous && DistSq < MinSmokeFreeDist)
-		{
-			MinSmokeFreeDist = DistSq;
-			NearestSmokeFree = ExitLoc;
-		}
-	}
-
-	if (bSmokeFreeOnly)
-	{
-		// 연기 없는 출구 우선 — 모두 막혔으면 연기 있어도 가장 가까운 출구로 폴백
-		// (폴백 없이 From을 반환하면 NPC가 자기 위치를 목적지로 설정해 무한 대기)
-		if (MinSmokeFreeDist < MAX_flt) return NearestSmokeFree;
-		if (MinAnyDist < MAX_flt)       return NearestAny;
-		return From;
 	}
 
 	return MinAnyDist < MAX_flt ? NearestAny : From;
@@ -176,6 +190,7 @@ float AYUFSLevelDataManager::GetPathDangerScore(const TArray<FVector>& Path, int
 	if (!BinaryManager || Path.IsEmpty()) return 0.0f;
 	
 	float TotalScore = 0.0f;
+	int32 SampleCount = 0;
 	float StepSize = 50.0f; // 50cm 간격으로 선분 위를 촘촘하게 검사
 
 	for (int32 i = 0; i < Path.Num() - 1; ++i)
@@ -194,9 +209,11 @@ float AYUFSLevelDataManager::GetPathDangerScore(const TArray<FVector>& Path, int
 			if (BinaryManager->GetSmokeDensityAtLocation(CheckPoint, Frame, OutDensity))
 			{
 				TotalScore += (OutDensity / 255.0f);
+				++SampleCount;
 			}
 		}
 	}
 	
-	return TotalScore;
+	// 경로 길이 자체가 위험도로 중복 계산되지 않도록 유효 샘플 평균을 반환한다.
+	return SampleCount > 0 ? TotalScore / static_cast<float>(SampleCount) : 0.f;
 }

@@ -71,7 +71,10 @@ void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 			1.0f - (CurrentCount * 0.1f * BystanderEffectStrength),
 			0.1f,
 			1.0f);
-		bCachedShouldHelpNearbyNPC = FMath::FRand() <= ProbabilityToHelp;
+		AYUFSEvacuationNPC* OwnerNPC = Cast<AYUFSEvacuationNPC>(GetOwner());
+		bCachedShouldHelpNearbyNPC = OwnerNPC
+			? OwnerNPC->RollSocialProbability(ProbabilityToHelp)
+			: ProbabilityToHelp >= 0.5f;
 		CachedNearbyNPCCount = CurrentCount;
 	}
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Blueprint/UserWidget.h"
+#include "TimerManager.h"
 #include "YUFSSimulationController.generated.h"
 
 class AYUFSLevelDataManager;
@@ -204,6 +205,60 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.05"))
 	float TimelineRecordIntervalSeconds = 0.25f;
 
+	// 같은 지점 또는 너무 가까운 NPC를 건물 바닥 후보에 자동 분산한다.
+	// NavMesh가 있으면 XY 후보를 보정하고, 없으면 정적 바닥 충돌만으로 동작한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bDistributeOverlappingNPCs = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="50.0"))
+	float NPCDistributionClusterRadiusCm = 180.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="80.0"))
+	float NPCDistributionSpacingCm = 300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="64", ClampMax="1024"))
+	int32 NPCDistributionMaxPlacementAttempts = 256;
+
+	// 감지된 실내 바닥 높이 중 몇 개 층에 NPC를 균등 분배할지 지정한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="1", ClampMax="8"))
+	int32 NPCDistributionTargetFloorCount = 2;
+
+	// CAD 슬래브의 수 cm 높이 차이를 같은 층으로 묶는 허용치다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="20.0"))
+	float IndoorFloorGroupingToleranceCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="100.0"))
+	float IndoorFloorSurfaceMinExtentCm = 200.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="10.0"))
+	float IndoorFloorSurfaceMaxHalfThicknessCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="200.0"))
+	float NPCDistributionMaxRadiusCm = 3000.f;
+
+	// 외부 NavMesh를 제외하기 위해 정적 바닥과 천장이 모두 있는 지점만 사용한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bRequireIndoorNPCPlacement = true;
+
+	// CAD 천장에 충돌이 있으면 천장이 확인된 후보를 먼저 사용한다.
+	// 충돌이 없는 건물은 동일 층의 정적 바닥 후보로 자동 폴백한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bPreferCeilingCollisionForIndoorPlacement = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="200.0"))
+	float IndoorCeilingTraceHeightCm = 1500.f;
+
+	// 천장 충돌이 없는 CAD 건물에서는 동·서·남·북 모두 벽에 막힌 지점만 실내로 인정한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="500.0"))
+	float IndoorEnclosureTraceDistanceCm = 5000.f;
+
+	// 후보가 할당된 층이 아닌 다른 슬래브로 스냅되는 것을 막는 높이 허용치다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="10.0"))
+	float NPCDistributionMaxFloorDeltaCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="0.0"))
+	float NPCDistributionDelaySeconds = 0.25f;
+
 private:
 	// ── 내부 상태 ─────────────────────────────────────────────────────
 	ESimPhase CurrentPhase = ESimPhase::WaitingToStart;
@@ -228,6 +283,7 @@ private:
 
 	// 대피/행동불능 처리를 이미 끝낸 NPC를 기억해서 카운트 중복 증가를 막습니다.
 	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;
+	FTimerHandle NPCDistributionTimerHandle;
 
 	// 캐싱
 	AYUFSBinaryManager* BinaryManager = nullptr;
@@ -247,4 +303,11 @@ private:
 	void StartNextRun();
 	void UpdateLiveCounts();
 	void SpawnHUD();
+	void ScheduleNPCDistribution();
+	void DistributeRegisteredNPCs();
+	bool TryResolveIndoorNPCSpawnLocation(
+		const FVector& DesiredLocation,
+		AYUFSEvacuationNPC* NPC,
+		bool bRequireCeiling,
+		FVector& OutLocation) const;
 };

@@ -28,6 +28,45 @@ void UYUFSBehaviorStateMachine::TickStateMachine(float DeltaTime, const FYUFSNPC
 	}
 }
 
+void UYUFSBehaviorStateMachine::ApplyIntentProjection(EYUFSIntent Intent)
+{
+	if (CurrentState == EYUFSBehaviorState::Crawling || CurrentState == EYUFSBehaviorState::Incapacitated)
+	{
+		return;
+	}
+
+	EYUFSBehaviorState ProjectedState = CurrentState;
+	switch (Intent)
+	{
+	case EYUFSIntent::Prepare:
+		ProjectedState = EYUFSBehaviorState::Preparing;
+		break;
+	case EYUFSIntent::CommitEvac:
+	case EYUFSIntent::Reenter:
+		ProjectedState = EYUFSBehaviorState::Evacuating;
+		break;
+	case EYUFSIntent::Help:
+		ProjectedState = EYUFSBehaviorState::Helping;
+		break;
+	case EYUFSIntent::Shelter:
+		ProjectedState = EYUFSBehaviorState::RiskAssessment;
+		break;
+	case EYUFSIntent::Incapacitated:
+		ProjectedState = EYUFSBehaviorState::Incapacitated;
+		break;
+	case EYUFSIntent::Observe:
+	default:
+		// Observe는 기존 PADM의 Perceiving/Milling 진행을 그대로 둔다.
+		break;
+	}
+
+	if (ProjectedState != CurrentState)
+	{
+		CurrentState = ProjectedState;
+		StateTimer = 0.f;
+	}
+}
+
 void UYUFSBehaviorStateMachine::AccumulateRiskPerception(const FYUFSNPCObservation& Obs, float DeltaTime)
 {
 	if (!Config)

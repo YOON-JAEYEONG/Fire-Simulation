@@ -8,6 +8,7 @@
 #include "Animation/AnimInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Core/YUFSDecisionTraceLogger.h"
 #include "Core/YUFSExperienceLogger.h"
 #include "Core/YUFSObservation.h"
 #include "Debug/YUFSNPCDebugComponent.h"
@@ -18,9 +19,13 @@
 #include "Level/YUFSLevelDataManager.h"
 #include "Navigation/YUFSSmokeAwareNavigator.h"
 #include "NavigationSystem.h"
+#include "NPC/Decision/YUFSBeliefComponent.h"
+#include "NPC/Decision/YUFSIntentComponent.h"
+#include "NPC/Tasks/YUFSActionTaskComponent.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
 #include "Simulation/YUFSSimulationController.h"
 #include "Social/YUFSSocialInfluenceComponent.h"
+#include "Misc/Crc.h"
 
 AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 {
@@ -34,6 +39,9 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 	Navigator      = CreateDefaultSubobject<UYUFSSmokeAwareNavigator>(TEXT("YUFSSmokeAwareNavigator"));
 	SocialComp     = CreateDefaultSubobject<UYUFSSocialInfluenceComponent>(TEXT("YUFSSocialInfluenceComponent"));
 	DebugComp      = CreateDefaultSubobject<UYUFSNPCDebugComponent>(TEXT("YUFSNPCDebugComponent"));
+	BeliefComp     = CreateDefaultSubobject<UYUFSBeliefComponent>(TEXT("YUFSBeliefComponent"));
+	IntentComp     = CreateDefaultSubobject<UYUFSIntentComponent>(TEXT("YUFSIntentComponent"));
+	ActionTaskComp = CreateDefaultSubobject<UYUFSActionTaskComponent>(TEXT("YUFSActionTaskComponent"));
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw   = false;
@@ -63,10 +71,17 @@ void AYUFSEvacuationNPC::BeginPlay()
 	LastPositionCheckLocation  = SpawnLocation;
 	bHasMovementSample = true;
 
+	if (StableNPCId == INDEX_NONE)
+	{
+		StableNPCId = static_cast<int32>(FCrc::StrCrc32(*GetPathName()) & 0x7fffffffu);
+	}
+	DeterministicRng.Initialize(ScenarioSeed, StableNPCId);
+	MLPolicy.SetFallbackRandomSource(&DeterministicRng);
+
 	// 첫 갱신 시점을 NPC마다 분산해 대규모 스폰 시 Trace/Overlap 피크를 방지한다.
 	const float PerceptionInterval = FMath::Max(PerceptionUpdateIntervalSeconds, 0.05f);
 	const float SocialInterval = FMath::Max(SocialUpdateIntervalSeconds, 0.05f);
-	const float UniquePhase = static_cast<float>(GetUniqueID() % 1000);
+	const float UniquePhase = static_cast<float>(StableNPCId % 1000);
 	PerceptionUpdateAccumulator = FMath::Fmod(UniquePhase * 0.61803398875f, PerceptionInterval);
 	SocialUpdateAccumulator = FMath::Fmod(UniquePhase * 0.38196601125f, SocialInterval);
 
@@ -152,8 +167,41 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		CurrentObs.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
 	}
 
+	// ── 근거 기반 Belief → Intent 갱신 및 V1 상태 투영 ────────────────
+	UpdateEvidenceDecisionModel(DeltaTime, CurrentObs);
+
 	// ── MLP 정책 추론 및 액션 실행 ───────────────────────────────────────
 	TickPolicy(DeltaTime, CurrentObs);
+
+	if (bEnableEvidenceDecisionModel && ActionTaskComp && BeliefComp && IntentComp)
+	{
+		ActionTaskComp->UpdateTask(
+			DeltaTime,
+			CurrentAction,
+			IntentComp->GetCurrentIntent(),
+			BeliefComp->HasImmediateLifeRisk(),
+			BeliefComp->HasVerifiedOfficialInstruction(),
+			DeterministicRng);
+
+		EYUFSActionTask FromTask = EYUFSActionTask::None;
+		EYUFSActionTask ToTask = EYUFSActionTask::None;
+		EYUFSTaskCancelReason Reason = EYUFSTaskCancelReason::None;
+		while (ActionTaskComp->ConsumeTaskEvent(FromTask, ToTask, Reason))
+		{
+			const EYUFSActionTask EventTask = ToTask != EYUFSActionTask::None ? ToTask : FromTask;
+			TraceTaskEvent(EventTask, Reason, ToTask != EYUFSActionTask::None ? TEXT("TaskStarted") : TEXT("TaskEnded"));
+			if (Reason == EYUFSTaskCancelReason::Completed)
+			{
+				IntentComp->NotifyPreActionCompleted(bHasSafeExit);
+				BehaviorSM->ApplyIntentProjection(IntentComp->GetCurrentIntent());
+				if (IntentComp->DidIntentChange())
+				{
+					TraceIntentTransition();
+				}
+				ActionHoldTimer = MinActionHoldDuration;
+			}
+		}
+	}
 	CurrentObs.MillingActionCount = MillingActionCount;
 
 	// ── 이동 속도 제한 (Crawl / Incapacitated) ───────────────────────────
@@ -355,14 +403,149 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 
 	const FVector Pos   = GetActorLocation();
 	const int32 Frame   = GetCurrentSimFrame();
-	const FVector NExit = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+	FVector NExit = FVector::ZeroVector;
+	const bool bFoundSafeExit = LevelDataMgr->TryGetNearestSafeExit(Pos, Frame, NExit);
 	const FVector FExit = LevelDataMgr->GetFamiliarExit(SpawnLocation);
 
-	Out.DistToNearestExit    = FVector::Dist(Pos, NExit);
+	Out.DistToNearestExit    = bFoundSafeExit ? FVector::Dist(Pos, NExit) : 100000.f;
 	Out.DistToFamiliarExit   = FVector::Dist(Pos, FExit);
-	Out.DirToNearestExit     = (NExit - Pos).GetSafeNormal();
+	Out.DirToNearestExit     = bFoundSafeExit ? (NExit - Pos).GetSafeNormal() : FVector::ZeroVector;
 	Out.SimTimeNormalized    = FMath::Clamp(static_cast<float>(Frame) / 8000.f, 0.f, 1.f);
-	Out.bNearestExitSmokeFree= !LevelDataMgr->IsLocationDangerous(NExit, Frame);
+	Out.bNearestExitSmokeFree= bFoundSafeExit;
+}
+
+void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCObservation& Observation)
+{
+	if (!bEnableEvidenceDecisionModel || !BeliefComp || !IntentComp || !BehaviorSM)
+	{
+		return;
+	}
+
+	BeliefComp->UpdateBelief(Observation);
+	bHasSafeExit = LevelDataMgr && LevelDataMgr->TryGetNearestSafeExit(
+		GetActorLocation(),
+		GetCurrentSimFrame(),
+		LastSafeExit);
+	if (!bHasSafeExit)
+	{
+		LastSafeExit = FVector::ZeroVector;
+	}
+
+	IntentComp->UpdateIntent(DeltaTime, Observation, *BeliefComp, bHasSafeExit, DeterministicRng);
+	BehaviorSM->ApplyIntentProjection(IntentComp->GetCurrentIntent());
+
+	// 기존 UI/ONNX V1은 호환 투영된 BehaviorState를 계속 읽는다.
+	Observation.CurrentState = BehaviorSM->GetCurrentState();
+	Observation.RiskPerception = BehaviorSM->GetRiskPerception();
+	Observation.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
+
+	if (IntentComp->DidIntentChange())
+	{
+		TraceIntentTransition();
+	}
+}
+
+EYUFSIntent AYUFSEvacuationNPC::GetCurrentIntent() const
+{
+	return IntentComp ? IntentComp->GetCurrentIntent() : EYUFSIntent::Observe;
+}
+
+bool AYUFSEvacuationNPC::RollSocialProbability(float Probability)
+{
+	return DeterministicRng.IsInitialized()
+		? DeterministicRng.Roll(EYUFSRngStream::Social, Probability)
+		: Probability >= 0.5f;
+}
+
+void AYUFSEvacuationNPC::ApplyDistributedSpawnLocation(const FVector& NewLocation)
+{
+	SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
+	SpawnLocation = NewLocation;
+	LastMovementSampleLocation = NewLocation;
+	LastPositionCheckLocation = NewLocation;
+	bHasMovementSample = true;
+	CurrentNavTarget = FVector::ZeroVector;
+
+	if (Navigator)
+	{
+		Navigator->ClearPath();
+	}
+	if (UCharacterMovementComponent* Movement = GetCharacterMovement())
+	{
+		Movement->StopMovementImmediately();
+	}
+}
+
+void AYUFSEvacuationNPC::TraceIntentTransition() const
+{
+	if (!bLogDecisionTrace || !IntentComp || !BeliefComp)
+	{
+		return;
+	}
+
+	FYUFSDecisionTraceLogger::LogEvent(
+		SimulationController ? SimulationController->GetCurrentRunIndex() : 0,
+		StableNPCId,
+		GetCurrentSimFrame(),
+		SimulationController ? SimulationController->GetElapsedTime() : 0.f,
+		BeliefComp->GetPolicyHash(),
+		GetScenarioHash(),
+		IntentComp->GetDecisionIndex(),
+		IntentComp->GetPreviousIntent(),
+		IntentComp->GetCurrentIntent(),
+		IntentComp->GetLastTrigger(),
+		BeliefComp->GetCommitProbability(),
+		BeliefComp->GetActiveCueMask(),
+		bHasSafeExit,
+		ActionTaskComp ? ActionTaskComp->GetCurrentTask() : EYUFSActionTask::None,
+		EYUFSTaskCancelReason::None,
+		IntentComp->GetPreActionCompletedCount(),
+		IntentComp->GetPreActionTargetCount(),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Decision),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::TaskDuration),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Route),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Social));
+}
+
+void AYUFSEvacuationNPC::TraceTaskEvent(
+	EYUFSActionTask Task,
+	EYUFSTaskCancelReason Reason,
+	const FString& Trigger) const
+{
+	if (!bLogDecisionTrace || !IntentComp || !BeliefComp)
+	{
+		return;
+	}
+
+	FYUFSDecisionTraceLogger::LogEvent(
+		SimulationController ? SimulationController->GetCurrentRunIndex() : 0,
+		StableNPCId,
+		GetCurrentSimFrame(),
+		SimulationController ? SimulationController->GetElapsedTime() : 0.f,
+		BeliefComp->GetPolicyHash(),
+		GetScenarioHash(),
+		IntentComp->GetDecisionIndex(),
+		IntentComp->GetCurrentIntent(),
+		IntentComp->GetCurrentIntent(),
+		Trigger,
+		BeliefComp->GetCommitProbability(),
+		BeliefComp->GetActiveCueMask(),
+		bHasSafeExit,
+		Task,
+		Reason,
+		IntentComp->GetPreActionCompletedCount(),
+		IntentComp->GetPreActionTargetCount(),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Decision),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::TaskDuration),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Route),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Social));
+}
+
+FString AYUFSEvacuationNPC::GetScenarioHash() const
+{
+	const FString MapName = GetWorld() ? GetWorld()->GetMapName() : TEXT("NoWorld");
+	const FString Canonical = FString::Printf(TEXT("%s|seed=%d"), *MapName, ScenarioSeed);
+	return FString::Printf(TEXT("crc32:%08x"), FCrc::StrCrc32(*Canonical));
 }
 
 EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
@@ -388,6 +571,11 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 	Snapshot.Location = GetActorLocation();
 	Snapshot.Rotation = GetActorRotation();
 	Snapshot.CurrentAction = CurrentAction;
+	Snapshot.Intent = IntentComp ? IntentComp->GetCurrentIntent() : EYUFSIntent::Observe;
+	Snapshot.ActionTask = ActionTaskComp ? ActionTaskComp->GetCurrentTask() : EYUFSActionTask::None;
+	Snapshot.CommitProbability = BeliefComp ? BeliefComp->GetCommitProbability() : 0.f;
+	Snapshot.PreActionCompletedCount = IntentComp ? IntentComp->GetPreActionCompletedCount() : 0;
+	Snapshot.PreActionTargetCount = IntentComp ? IntentComp->GetPreActionTargetCount() : 0;
 	Snapshot.bVisible = !IsHidden();
 	Snapshot.bEvacuated = false;
 	Snapshot.bIncapacitated = false;
@@ -530,7 +718,7 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& 
 	{
 		PolicyTickAccumulator = 0.f;
 
-		const EYUFSAction NewAction = MLPolicy.SelectAction(Observation);
+		const EYUFSAction NewAction = ConstrainActionForIntent(MLPolicy.SelectAction(Observation));
 
 		if (Observation.CurrentState == EYUFSBehaviorState::Milling)
 			++MillingActionCount;
@@ -551,6 +739,39 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& 
 	}
 
 	ExecuteCurrentAction(DeltaTime);
+}
+
+EYUFSAction AYUFSEvacuationNPC::ConstrainActionForIntent(EYUFSAction ProposedAction) const
+{
+	if (!bEnableEvidenceDecisionModel || !IntentComp)
+	{
+		return ProposedAction;
+	}
+
+	switch (IntentComp->GetCurrentIntent())
+	{
+	case EYUFSIntent::Incapacitated:
+		return EYUFSAction::Cough;
+	case EYUFSIntent::Shelter:
+	case EYUFSIntent::Reenter:
+		return EYUFSAction::WaitForInfo;
+	case EYUFSIntent::Help:
+		return EYUFSAction::HelpOther;
+	case EYUFSIntent::CommitEvac:
+		if (!bHasSafeExit)
+		{
+			return EYUFSAction::WaitForInfo;
+		}
+		return IsNavigationAction(ProposedAction) && ProposedAction != EYUFSAction::HelpOther
+			? ProposedAction
+			: EYUFSAction::EvacuateToNearestExit;
+	case EYUFSIntent::Observe:
+		return IsNavigationAction(ProposedAction) ? EYUFSAction::SeekInformation : ProposedAction;
+	case EYUFSIntent::Prepare:
+		return IsNavigationAction(ProposedAction) ? EYUFSAction::GatherBelongings : ProposedAction;
+	default:
+		return ProposedAction;
+	}
 }
 
 void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
@@ -650,24 +871,32 @@ FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 	if (!LevelDataMgr) return FVector::ZeroVector;
 	const FVector Pos   = GetActorLocation();
 	const int32   Frame = GetCurrentSimFrame();
+	FVector SafeExit = FVector::ZeroVector;
+	const bool bFoundSafeExit = LevelDataMgr->TryGetNearestSafeExit(Pos, Frame, SafeExit);
 
 	switch (Action)
 	{
 	case EYUFSAction::EvacuateToNearestExit:
-		if (bReceivedStaffGuidance && !StaffGuidedExitLocation.IsZero())
+		if (bReceivedStaffGuidance && !StaffGuidedExitLocation.IsZero()
+			&& !LevelDataMgr->IsLocationDangerous(StaffGuidedExitLocation, Frame))
 			return StaffGuidedExitLocation;
-		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+		return bFoundSafeExit ? SafeExit : FVector::ZeroVector;
 
 	case EYUFSAction::EvacuateToFamiliarExit:
-		return LevelDataMgr->GetFamiliarExit(SpawnLocation);
+	{
+		const FVector FamiliarExit = LevelDataMgr->GetFamiliarExit(SpawnLocation);
+		return !LevelDataMgr->IsLocationDangerous(FamiliarExit, Frame)
+			? FamiliarExit
+			: (bFoundSafeExit ? SafeExit : FVector::ZeroVector);
+	}
 
 	case EYUFSAction::FollowCrowd:
 		if (SocialComp)
 		{
 			const FVector Avg = SocialComp->GetAverageEvacuationDestination();
-			if (!Avg.IsZero()) return Avg;
+			if (!Avg.IsZero() && !LevelDataMgr->IsLocationDangerous(Avg, Frame)) return Avg;
 		}
-		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+		return bFoundSafeExit ? SafeExit : FVector::ZeroVector;
 
 	case EYUFSAction::HelpOther:
 		if (SocialComp)
