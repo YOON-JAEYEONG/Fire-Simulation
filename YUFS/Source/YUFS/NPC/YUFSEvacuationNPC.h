@@ -19,6 +19,7 @@ class UYUFSBehaviorStateMachine;
 class UYUFSBeliefComponent;
 class UYUFSIntentComponent;
 class UYUFSActionTaskComponent;
+class UYUFSActionAnimationComponent;
 class UYUFSNPCDebugComponent;
 class UYUFSNPCPerceptionComponent;
 class AYUFSSimulationController;
@@ -91,6 +92,7 @@ public:
 	UYUFSBeliefComponent*        GetBeliefComponent()       const { return BeliefComp; }
 	UYUFSIntentComponent*        GetIntentComponent()       const { return IntentComp; }
 	UYUFSActionTaskComponent*    GetActionTaskComponent()   const { return ActionTaskComp; }
+	UYUFSActionAnimationComponent* GetActionAnimationComponent() const { return ActionAnimationComp; }
 	EYUFSIntent GetCurrentIntent() const;
 	int32 GetStableNPCId() const { return StableNPCId; }
 	bool RollSocialProbability(float Probability);
@@ -106,6 +108,16 @@ public:
 
 	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
+	EYUFSAction GetDisplayedAction() const { return bActionAnimationPreviewActive ? PreviewAction : CurrentAction; }
+	bool IsActionAnimationPreviewActive() const { return bActionAnimationPreviewActive; }
+	FString GetCurrentActionAnimationName() const;
+
+	UFUNCTION(BlueprintCallable, Category="NPC|Animation")
+	void SetActionAnimationPreview(EYUFSAction Action);
+
+	UFUNCTION(BlueprintCallable, Category="NPC|Animation")
+	void ClearActionAnimationPreview();
+
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
 	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
@@ -136,6 +148,8 @@ private:
 	UYUFSIntentComponent* IntentComp;
 	UPROPERTY(VisibleAnywhere)
 	UYUFSActionTaskComponent* ActionTaskComp;
+	UPROPERTY(VisibleAnywhere)
+	UYUFSActionAnimationComponent* ActionAnimationComp;
 
 	UPROPERTY(VisibleAnywhere)
 	AYUFSBinaryManager* BinaryManager = nullptr;
@@ -194,6 +208,8 @@ private:
 	FVector CurrentNavTarget             = FVector::ZeroVector;
 	float LookAnchorYaw                  = 0.f;
 	float LookElapsed                    = 0.f;
+	bool bActionAnimationPreviewActive   = false;
+	EYUFSAction PreviewAction            = EYUFSAction::Idle;
 
 	static constexpr float PolicyTickInterval    = 0.1f;
 	static constexpr float MinActionHoldDuration = 2.0f;
@@ -213,6 +229,7 @@ private:
 	void TraceTaskEvent(EYUFSActionTask Task, EYUFSTaskCancelReason Reason, const FString& Trigger) const;
 	FString GetScenarioHash() const;
 	void OnActionChanged(EYUFSAction NewAction);
+	void UpdateActionAnimation(bool bForce = false);
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
 	static bool IsNavigationAction(EYUFSAction Action);

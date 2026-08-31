@@ -2,11 +2,55 @@
 
 #include "Misc/AutomationTest.h"
 
+#include "Animation/AnimationAsset.h"
 #include "Core/YUFSDeterministicRng.h"
 #include "Core/YUFSObservation.h"
+#include "Engine/SkeletalMesh.h"
 #include "NPC/Decision/YUFSBeliefComponent.h"
 #include "NPC/Decision/YUFSIntentComponent.h"
+#include "NPC/Animation/YUFSActionAnimationComponent.h"
 #include "NPC/Tasks/YUFSActionTaskComponent.h"
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FYUFSActionAnimationMappingTest,
+	"YUFS.NPC.Animation.ActionMappingCoverage",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::CommandletContext | EAutomationTestFlags::EngineFilter)
+
+bool FYUFSActionAnimationMappingTest::RunTest(const FString& Parameters)
+{
+	const UYUFSActionAnimationComponent* Animations = NewObject<UYUFSActionAnimationComponent>();
+	const USkeletalMesh* NPCMesh = LoadObject<USkeletalMesh>(
+		nullptr,
+		TEXT("/Game/NPCs/Crawling__1_.Crawling__1_"));
+	TestNotNull(TEXT("NPC preview mesh is loadable"), NPCMesh);
+
+	const int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
+	for (int32 ActionIndex = 0; ActionIndex < ActionCount; ++ActionIndex)
+	{
+		const EYUFSAction Action = static_cast<EYUFSAction>(ActionIndex);
+		const FString ActionName = StaticEnum<EYUFSAction>()->GetNameStringByValue(ActionIndex);
+		TestTrue(
+			FString::Printf(TEXT("%s has an animation binding"), *ActionName),
+			Animations->HasAnimationForAction(Action));
+		TestFalse(
+			FString::Printf(TEXT("%s has a non-empty asset path"), *ActionName),
+			Animations->GetConfiguredAnimationPath(Action).IsEmpty());
+
+		const FString AnimationPath = Animations->GetConfiguredAnimationPath(Action);
+		const UAnimationAsset* Animation = LoadObject<UAnimationAsset>(nullptr, *AnimationPath);
+		TestNotNull(
+			FString::Printf(TEXT("%s animation asset is loadable"), *ActionName),
+			Animation);
+		if (NPCMesh && Animation)
+		{
+			TestTrue(
+				FString::Printf(TEXT("%s animation uses the NPC skeleton"), *ActionName),
+				Animation->GetSkeleton() == NPCMesh->GetSkeleton());
+		}
+	}
+
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(
 	FYUFSDeterministicRngTest,

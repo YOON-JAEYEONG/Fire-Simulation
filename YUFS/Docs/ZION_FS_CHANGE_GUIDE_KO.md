@@ -2,7 +2,7 @@
 
 ## 한 줄 요약
 
-`IT_YOON_JAEYEONG` 브랜치의 `1189e6e`를 기준으로, 화재 대피 NPC에 **근거 기반 의사결정 계층**, **결정 재현·추적 기능**, **건물 내부 1·2층 자동 분산 배치**를 추가했다. 기존 `EYUFSAction` 11개와 ONNX 입력 28개 계약은 유지한다.
+`IT_YOON_JAEYEONG` 브랜치의 `1189e6e`를 기준으로, 화재 대피 NPC에 **근거 기반 의사결정 계층**, **결정 재현·추적 기능**, **건물 내부 1·2층 자동 분산 배치**, **11개 행동 애니메이션과 검수 갤러리**를 추가했다. 기존 `EYUFSAction` 11개와 ONNX 입력 28개 계약은 유지한다.
 
 ## 팀원이 먼저 볼 핵심 변화
 
@@ -15,6 +15,7 @@
 | 난수 | 기능 간 난수 소비 순서가 결과에 영향 가능 | NPC별 4개 독립 난수 스트림으로 같은 seed의 결과 재현 |
 | 사후 분석 | 최종 행동 중심 | 결정 시점, 확률, 근거, 태스크 전이, 난수 draw 수를 JSONL로 기록 |
 | 초기 NPC 위치 | 동일 지점에 겹치거나 외부 지형으로 이동 가능 | CAD 건물의 정적 바닥을 감지해 1·2층에 균등 배치하고 최종 위치를 다시 실내 검증 |
+| 행동 시각화 | 일부 기침·촬영 몽타주 슬롯만 존재 | 11개 행동과 기어가기·행동불능 상태를 스켈레톤 호환 애니메이션에 연결하고 대기 화면에서 전부 미리보기 |
 | Windows 실행 | 한글 경로에서 `cl.exe` 시작 오류 가능 | 영문 junction을 거치는 안전 빌드·실행 스크립트 제공 |
 
 ## 1. NPC 결정 흐름
@@ -137,6 +138,12 @@ ActionTask: 시간 제한 대피 전 행동의 시작·완료·취소
 
 각 행에는 run/NPC/tick/시뮬레이션 시간, policy·scenario hash, decision index, 이전·다음 intent, trigger, `pCommit`, cue mask, task와 취소 사유, 대피 전 행동 진행 수, 네 난수 스트림의 draw counter, 근거 source ID가 포함된다.
 
+## 4-1. 행동 애니메이션과 검수 화면
+
+`UYUFSActionAnimationComponent`가 11개 `EYUFSAction`을 현재 NPC의 `Crawling__1__Skeleton`과 호환되는 `/Game/NPCs` 애니메이션에 연결한다. 시뮬레이션 시작 전에는 20명의 NPC가 11개 행동을 나눠 전시하며 머리 위에 `Action`과 실제 `Anim` 에셋 이름이 표시된다. 시작 버튼을 누르면 미리보기는 자동 해제되고 AI가 선택한 실제 행동에 맞춰 전환된다.
+
+전체 매핑과 확인법은 `Docs/NPC_ACTION_ANIMATION_GUIDE_KO.md`를 참고한다.
+
 ## 5. 변경 파일 안내
 
 ### 새 핵심 파일
@@ -146,7 +153,8 @@ ActionTask: 시간 제한 대피 전 행동의 시작·완료·취소
 - `Source/YUFS/NPC/Decision/YUFSBeliefComponent.*`: 단서 기반 belief 계산
 - `Source/YUFS/NPC/Decision/YUFSIntentComponent.*`: 확률을 intent 상태로 연결
 - `Source/YUFS/NPC/Tasks/YUFSActionTaskComponent.*`: 시간 제한 태스크 수명주기
-- `Source/YUFS/Tests/YUFSDecisionModelTests.cpp`: 결정 모델 자동화 테스트 4개
+- `Source/YUFS/NPC/Animation/YUFSActionAnimationComponent.*`: 행동·상태 애니메이션 매핑과 스켈레톤 검증
+- `Source/YUFS/Tests/YUFSDecisionModelTests.cpp`: 결정 모델 4개와 애니메이션 호환성 테스트 1개
 
 ### 주요 수정 파일
 
@@ -195,8 +203,9 @@ ActionTask: 시간 제한 대피 전 행동의 시작·완료·취소
 ### 이 브랜치의 최종 검증 상태
 
 - `YUFSEditor Win64 Development`: 성공
-- `YUFS.NPC.Decision`: 4개 성공, 경고 0, 실패 0
+- `YUFS.NPC`: 결정 4개 + 애니메이션 매핑·에셋·스켈레톤 호환성 1개 성공, 경고 0, 실패 0
 - Editor PIE 실내 다층 배치: 20/20 이동, 1층 10명, 2층 10명
+- Editor PIE 행동 갤러리: 20명에게 11개 행동 전부 배정, 누락 에셋·스켈레톤 오류 0
 - `git diff --check`: 공백 오류 없음
 
 자동화 보고서는 로컬 `YUFS/Saved/Automation/ZionFS/index.json`에 생성되며 Git에는 포함하지 않는다.

@@ -259,6 +259,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="0.0"))
 	float NPCDistributionDelaySeconds = 0.25f;
 
+	// 대기 화면에서 NPC들을 11개 행동에 순서대로 배정해 애니메이션과
+	// 머리 위 Action/Anim 라벨을 검수할 수 있게 한다. 시뮬레이션 시작 시
+	// 자동 해제되므로 AI 결정에는 영향을 주지 않는다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bPreviewAllNPCActionAnimations = true;
+
 private:
 	// ── 내부 상태 ─────────────────────────────────────────────────────
 	ESimPhase CurrentPhase = ESimPhase::WaitingToStart;
@@ -305,6 +311,7 @@ private:
 	void SpawnHUD();
 	void ScheduleNPCDistribution();
 	void DistributeRegisteredNPCs();
+	void ApplyNPCActionAnimationPreview(const TArray<AYUFSEvacuationNPC*>& NPCs);
 	bool TryResolveIndoorNPCSpawnLocation(
 		const FVector& DesiredLocation,
 		AYUFSEvacuationNPC* NPC,

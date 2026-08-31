@@ -128,6 +128,16 @@ void AYUFSSimulationController::StartSimulation()
 {
 	if (CurrentPhase != ESimPhase::WaitingToStart) return;
 
+	// The waiting-room animation gallery is presentation-only. Restore every
+	// NPC to its real policy action before the simulation clock starts.
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (IsValid(NPC))
+		{
+			NPC->ClearActionAnimationPreview();
+		}
+	}
+
 	CurrentRunIndex = 1;
 	bIsPaused = false;
 	ElapsedSimTime = 0.f;
@@ -623,7 +633,9 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 
 void AYUFSSimulationController::ScheduleNPCDistribution()
 {
-	if (!bDistributeOverlappingNPCs || !GetWorld() || CurrentPhase != ESimPhase::WaitingToStart)
+	if ((!bDistributeOverlappingNPCs && !bPreviewAllNPCActionAnimations)
+		|| !GetWorld()
+		|| CurrentPhase != ESimPhase::WaitingToStart)
 	{
 		return;
 	}
@@ -638,7 +650,7 @@ void AYUFSSimulationController::ScheduleNPCDistribution()
 
 void AYUFSSimulationController::DistributeRegisteredNPCs()
 {
-	if (!bDistributeOverlappingNPCs || CurrentPhase != ESimPhase::WaitingToStart)
+	if (CurrentPhase != ESimPhase::WaitingToStart)
 	{
 		return;
 	}
@@ -661,11 +673,13 @@ void AYUFSSimulationController::DistributeRegisteredNPCs()
 		return Left.GetName() < Right.GetName();
 	});
 
-	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-	if (NPCs.Num() < 2)
+	if (!bDistributeOverlappingNPCs || NPCs.Num() < 2)
 	{
+		ApplyNPCActionAnimationPreview(NPCs);
 		return;
 	}
+
+	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
 
 	TArray<float> RawIndoorFloorLevels;
 	for (TActorIterator<AStaticMeshActor> It(GetWorld()); It; ++It)
@@ -954,6 +968,63 @@ void AYUFSSimulationController::DistributeRegisteredNPCs()
 		NavProjectionSuccessCount,
 		FloorResolutionSuccessCount,
 		TeleportRejectionCount);
+
+	ApplyNPCActionAnimationPreview(NPCs);
+}
+
+void AYUFSSimulationController::ApplyNPCActionAnimationPreview(const TArray<AYUFSEvacuationNPC*>& NPCs)
+{
+	if (!bPreviewAllNPCActionAnimations)
+	{
+		for (AYUFSEvacuationNPC* NPC : NPCs)
+		{
+			if (IsValid(NPC))
+			{
+				NPC->ClearActionAnimationPreview();
+			}
+		}
+		return;
+	}
+
+	constexpr int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
+	TArray<int32> PreviewCounts;
+	PreviewCounts.Init(0, ActionCount);
+	for (int32 Index = 0; Index < NPCs.Num(); ++Index)
+	{
+		AYUFSEvacuationNPC* NPC = NPCs[Index];
+		if (!IsValid(NPC))
+		{
+			continue;
+		}
+
+		const int32 ActionIndex = Index % ActionCount;
+		const EYUFSAction PreviewAction = static_cast<EYUFSAction>(ActionIndex);
+		NPC->SetActionAnimationPreview(PreviewAction);
+		++PreviewCounts[ActionIndex];
+	}
+
+	FString Summary;
+	for (int32 ActionIndex = 0; ActionIndex < ActionCount; ++ActionIndex)
+	{
+		if (PreviewCounts[ActionIndex] <= 0)
+		{
+			continue;
+		}
+
+		const EYUFSAction Action = static_cast<EYUFSAction>(ActionIndex);
+		Summary += FString::Printf(
+			TEXT("%s%s=%d"),
+			Summary.IsEmpty() ? TEXT("") : TEXT(", "),
+			*StaticEnum<EYUFSAction>()->GetNameStringByValue(static_cast<int64>(Action)),
+			PreviewCounts[ActionIndex]);
+	}
+
+	UE_LOG(
+		LogTemp,
+		Log,
+		TEXT("[YUFS][Animation] Preview gallery active for %d NPCs: %s."),
+		NPCs.Num(),
+		*Summary);
 }
 
 bool AYUFSSimulationController::TryResolveIndoorNPCSpawnLocation(

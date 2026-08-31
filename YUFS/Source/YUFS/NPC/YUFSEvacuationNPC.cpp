@@ -3,6 +3,7 @@
 #include "AIController.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NPC/Behavior/YUFSBehaviorConfig.h"
+#include "NPC/Animation/YUFSActionAnimationComponent.h"
 #include "Communication/YUFSCommTypes.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "Animation/AnimInstance.h"
@@ -42,6 +43,7 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 	BeliefComp     = CreateDefaultSubobject<UYUFSBeliefComponent>(TEXT("YUFSBeliefComponent"));
 	IntentComp     = CreateDefaultSubobject<UYUFSIntentComponent>(TEXT("YUFSIntentComponent"));
 	ActionTaskComp = CreateDefaultSubobject<UYUFSActionTaskComponent>(TEXT("YUFSActionTaskComponent"));
+	ActionAnimationComp = CreateDefaultSubobject<UYUFSActionAnimationComponent>(TEXT("YUFSActionAnimationComponent"));
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw   = false;
@@ -77,6 +79,10 @@ void AYUFSEvacuationNPC::BeginPlay()
 	}
 	DeterministicRng.Initialize(ScenarioSeed, StableNPCId);
 	MLPolicy.SetFallbackRandomSource(&DeterministicRng);
+	if (ActionAnimationComp)
+	{
+		ActionAnimationComp->Initialize(GetMesh(), StableNPCId);
+	}
 
 	// 첫 갱신 시점을 NPC마다 분산해 대규모 스폰 시 Trace/Overlap 피크를 방지한다.
 	const float PerceptionInterval = FMath::Max(PerceptionUpdateIntervalSeconds, 0.05f);
@@ -111,6 +117,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// 저장된 스냅샷만 SimulationController/TimelineRecorder가 적용합니다.
 	if (bTimelinePlaybackMode)
 	{
+		UpdateActionAnimation();
 		if (Navigator) Navigator->ClearPath();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 		{
@@ -123,6 +130,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// ── 시뮬레이션 일시정지 ───────────────────────────────────────────────
 	if (SimulationController && !SimulationController->IsNPCSimulationEnabled())
 	{
+		UpdateActionAnimation();
 		if (Navigator) Navigator->ClearPath();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 		{
@@ -251,6 +259,8 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement()) Mv->MaxWalkSpeed = 0.f;
 		if (Navigator) Navigator->ClearPath();
 	}
+
+	UpdateActionAnimation();
 
 }
 
@@ -623,6 +633,7 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 	}
 
 	CurrentAction = Snapshot.CurrentAction;
+	UpdateActionAnimation();
 
 	if (Navigator)
 	{
@@ -799,6 +810,52 @@ void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
 			Navigator->RequestPathAsync(Target, GetCurrentSimFrame());
 		}
 	}
+
+	if (!bActionAnimationPreviewActive && ActionAnimationComp)
+	{
+		const EYUFSBehaviorState State = BehaviorSM
+			? BehaviorSM->GetCurrentState()
+			: EYUFSBehaviorState::Normal;
+		ActionAnimationComp->ApplyAction(NewAction, State);
+	}
+}
+
+void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
+{
+	if (!ActionAnimationComp)
+	{
+		return;
+	}
+
+	const EYUFSAction DisplayAction = GetDisplayedAction();
+	const EYUFSBehaviorState DisplayState = bActionAnimationPreviewActive
+		? EYUFSBehaviorState::Normal
+		: (BehaviorSM ? BehaviorSM->GetCurrentState() : EYUFSBehaviorState::Normal);
+	ActionAnimationComp->ApplyAction(DisplayAction, DisplayState, bForce);
+}
+
+void AYUFSEvacuationNPC::SetActionAnimationPreview(EYUFSAction Action)
+{
+	bActionAnimationPreviewActive = true;
+	PreviewAction = Action;
+	UpdateActionAnimation(true);
+}
+
+void AYUFSEvacuationNPC::ClearActionAnimationPreview()
+{
+	if (!bActionAnimationPreviewActive)
+	{
+		return;
+	}
+
+	bActionAnimationPreviewActive = false;
+	PreviewAction = EYUFSAction::Idle;
+	UpdateActionAnimation(true);
+}
+
+FString AYUFSEvacuationNPC::GetCurrentActionAnimationName() const
+{
+	return ActionAnimationComp ? ActionAnimationComp->GetActiveAnimationName() : TEXT("None");
 }
 
 void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
@@ -820,7 +877,7 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 		break;
 
 	case EYUFSAction::Cough:
-		if (CoughMontage)
+		if (!ActionAnimationComp && CoughMontage)
 		{
 			UAnimInstance* Anim = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
 			if (Anim && !Anim->Montage_IsPlaying(CoughMontage))
@@ -829,7 +886,7 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 		break;
 
 	case EYUFSAction::Film:
-		if (FilmMontage)
+		if (!ActionAnimationComp && FilmMontage)
 		{
 			UAnimInstance* Anim = GetMesh() ? GetMesh()->GetAnimInstance() : nullptr;
 			if (Anim && !Anim->Montage_IsPlaying(FilmMontage))
