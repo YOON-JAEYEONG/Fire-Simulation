@@ -36,7 +36,7 @@ void UYUFSNPCDebugComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 bool UYUFSNPCDebugComponent::ShouldDraw() const
 {
-	if (!bEnabled || !OwnerNPC.IsValid() || !GetWorld())
+	if (bTemporarilySuppressed || !bEnabled || !OwnerNPC.IsValid() || !GetWorld())
 	{
 		return false;
 	}

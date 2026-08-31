@@ -23,6 +23,10 @@ protected:
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// 근접 애니메이션 검수 중에는 상태 문자열과 위험 구체가 캐릭터를
+	// 가리지 않도록 일시적으로만 억제한다. 기존 디버그 설정은 보존된다.
+	void SetTemporarilySuppressed(bool bSuppressed) { bTemporarilySuppressed = bSuppressed; }
+
 	UPROPERTY(EditAnywhere, Category="Debug")
 	bool bEnabled = true;
 
@@ -62,6 +66,7 @@ public:
 	void DrawDebugOverlay(const FYUFSNPCObservation& Obs);
 
 private:
+	bool bTemporarilySuppressed = false;
 	bool ShouldDraw() const;
 	FColor GetRiskColor(float NormalizedRisk) const;
 	FString BuildStateText(const FYUFSNPCObservation& Obs) const;

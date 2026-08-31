@@ -4,11 +4,14 @@
 
 1. `Launch-YUFS-Safe.cmd`로 프로젝트를 연다.
 2. 메인 맵에서 Play(PIE)를 누른다.
-3. 시뮬레이션 시작 전 대기 화면에서 NPC 머리 위의 `Action`과 `Anim` 라벨을 확인한다.
-4. 20명의 NPC가 stable ID 순서로 11개 행동을 반복 배정받으므로 한 화면에서 모든 매핑을 확인할 수 있다.
-5. HUD의 시뮬레이션 시작 버튼을 누르면 미리보기는 자동 해제되고 실제 AI 행동에 맞춰 애니메이션이 전환된다.
+3. 분산 배치가 끝나면 카메라가 실내 대표 NPC 앞으로 자동 이동한다.
+4. 화면 위 검수 패널의 `Action`과 `Animation`을 확인한다. 11개 행동이 4초 간격으로 자동 순환한다.
+5. 검수 중에는 다른 NPC와 위험도 디버그 도형을 잠시 숨기고 카메라 조명을 켜므로 관절 동작을 가리지 않는다.
+6. HUD의 시뮬레이션 시작 버튼을 누르면 원래 카메라와 모든 NPC가 복원되고 실제 AI 행동에 맞춰 애니메이션이 전환된다.
 
 `SimulationController > Simulation > NPC Animation Preview > Preview All NPC Action Animations`를 끄면 전시 모드를 비활성화할 수 있다.
+
+세부 검수 설정은 같은 카테고리의 `Auto Focus NPC Action Animation Showcase`, `Isolate Focused NPC In Animation Showcase`, `NPC Action Preview Seconds Per Action`에서 조정한다.
 
 ## 행동별 매핑
 

@@ -853,6 +853,14 @@ void AYUFSEvacuationNPC::ClearActionAnimationPreview()
 	UpdateActionAnimation(true);
 }
 
+void AYUFSEvacuationNPC::SetAnimationShowcaseDebugSuppressed(bool bSuppressed)
+{
+	if (DebugComp)
+	{
+		DebugComp->SetTemporarilySuppressed(bSuppressed);
+	}
+}
+
 FString AYUFSEvacuationNPC::GetCurrentActionAnimationName() const
 {
 	return ActionAnimationComp ? ActionAnimationComp->GetActiveAnimationName() : TEXT("None");

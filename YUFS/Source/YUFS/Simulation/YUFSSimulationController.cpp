@@ -4,6 +4,10 @@
 #include "Simulation/YUFSGameInstance.h"
 #include "Simulation/YUFSTimelineRecorder.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
+#include "Camera/CameraActor.h"
+#include "Camera/CameraComponent.h"
+#include "Engine/Engine.h"
+#include "Engine/GameViewportClient.h"
 #include "EngineUtils.h"
 #include "Engine/StaticMeshActor.h"
 #include "Fire/YUFSBinaryManager.h"
@@ -11,11 +15,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SpotLightComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NavigationSystem.h"
+#include "Styling/CoreStyle.h"
+#include "Widgets/SOverlay.h"
+#include "Widgets/Layout/SBorder.h"
+#include "Widgets/Text/STextBlock.h"
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
@@ -86,6 +95,14 @@ void AYUFSSimulationController::BeginPlay()
 	}
 }
 
+void AYUFSSimulationController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	// PIE Stop, 레벨 전환, 에디터 종료 어느 경로에서도 검수용 Slate 위젯과
+	// 임시 카메라/숨김 상태가 다음 실행에 남지 않게 정리한다.
+	StopNPCActionAnimationShowcase();
+	Super::EndPlay(EndPlayReason);
+}
+
 void AYUFSSimulationController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -101,8 +118,14 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 		return;
 	}
 
+	if (CurrentPhase == ESimPhase::WaitingToStart)
+	{
+		TickNPCActionAnimationShowcase(DeltaTime);
+		return;
+	}
+
 	if (bIsPaused) return;
-	if (CurrentPhase == ESimPhase::WaitingToStart || CurrentPhase == ESimPhase::Completed) return;
+	if (CurrentPhase == ESimPhase::Completed) return;
 
 	ElapsedSimTime += DeltaTime;
 
@@ -127,6 +150,8 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 void AYUFSSimulationController::StartSimulation()
 {
 	if (CurrentPhase != ESimPhase::WaitingToStart) return;
+
+	StopNPCActionAnimationShowcase();
 
 	// The waiting-room animation gallery is presentation-only. Restore every
 	// NPC to its real policy action before the simulation clock starts.
@@ -225,6 +250,7 @@ void AYUFSSimulationController::ResumeSimulation()
 void AYUFSSimulationController::StopAndResetSimulation()
 {
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation STOPPED. Reloading level..."));
+	StopNPCActionAnimationShowcase();
 
 	// TimeDilation을 먼저 정상화한 뒤 레벨을 리로드해야 다음 실행 시 정상 속도로 시작됨
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
@@ -976,6 +1002,7 @@ void AYUFSSimulationController::ApplyNPCActionAnimationPreview(const TArray<AYUF
 {
 	if (!bPreviewAllNPCActionAnimations)
 	{
+		StopNPCActionAnimationShowcase();
 		for (AYUFSEvacuationNPC* NPC : NPCs)
 		{
 			if (IsValid(NPC))
@@ -1025,6 +1052,347 @@ void AYUFSSimulationController::ApplyNPCActionAnimationPreview(const TArray<AYUF
 		TEXT("[YUFS][Animation] Preview gallery active for %d NPCs: %s."),
 		NPCs.Num(),
 		*Summary);
+
+	if (bAutoFocusNPCActionAnimationShowcase)
+	{
+		StartNPCActionAnimationShowcase();
+	}
+}
+
+void AYUFSSimulationController::StartNPCActionAnimationShowcase()
+{
+	if (!bPreviewAllNPCActionAnimations || CurrentPhase != ESimPhase::WaitingToStart || !GetWorld())
+	{
+		return;
+	}
+
+	AYUFSEvacuationNPC* FocusNPC = nullptr;
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (IsValid(NPC) && !NPC->IsHidden())
+		{
+			if (!FocusNPC || NPC->GetStableNPCId() < FocusNPC->GetStableNPCId())
+			{
+				FocusNPC = NPC;
+			}
+		}
+	}
+	if (!FocusNPC)
+	{
+		return;
+	}
+
+	// Distribution can be scheduled more than once while actors register. Reuse the
+	// existing showcase instead of saving the preview camera as its own return target.
+	if (bNPCActionAnimationShowcaseActive)
+	{
+		NPCActionPreviewFocusNPC = FocusNPC;
+		SavedNPCActionPreviewRotation = FocusNPC->GetActorRotation();
+		NPCActionPreviewAccumulator = 0.f;
+		NPCActionPreviewIndex = 0;
+		ApplyCurrentNPCActionAnimationShowcaseStep();
+		UpdateNPCActionAnimationShowcaseCamera();
+		return;
+	}
+
+	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+	if (!PlayerController)
+	{
+		return;
+	}
+
+	SavedNPCActionPreviewViewTarget = PlayerController->GetViewTarget();
+	NPCActionPreviewFocusNPC = FocusNPC;
+	SavedNPCActionPreviewRotation = FocusNPC->GetActorRotation();
+	NPCActionPreviewAccumulator = 0.f;
+	NPCActionPreviewIndex = 0;
+
+	FActorSpawnParameters SpawnParameters;
+	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	SpawnParameters.ObjectFlags |= RF_Transient;
+	NPCActionPreviewCamera = GetWorld()->SpawnActor<ACameraActor>(
+		ACameraActor::StaticClass(),
+		FocusNPC->GetActorLocation(),
+		FocusNPC->GetActorRotation(),
+		SpawnParameters);
+	if (!NPCActionPreviewCamera)
+	{
+		NPCActionPreviewFocusNPC = nullptr;
+		SavedNPCActionPreviewViewTarget.Reset();
+		return;
+	}
+
+	NPCActionPreviewCamera->GetCameraComponent()->SetFieldOfView(52.f);
+	NPCActionPreviewLight = NewObject<USpotLightComponent>(
+		NPCActionPreviewCamera,
+		TEXT("YUFSNPCAnimationPreviewLight"));
+	if (NPCActionPreviewLight)
+	{
+		NPCActionPreviewLight->SetupAttachment(NPCActionPreviewCamera->GetRootComponent());
+		NPCActionPreviewLight->SetMobility(EComponentMobility::Movable);
+		NPCActionPreviewLight->SetRelativeLocation(FVector::ZeroVector);
+		NPCActionPreviewLight->SetRelativeRotation(FRotator::ZeroRotator);
+		NPCActionPreviewLight->SetIntensity(8500.f);
+		NPCActionPreviewLight->SetAttenuationRadius(900.f);
+		NPCActionPreviewLight->SetInnerConeAngle(18.f);
+		NPCActionPreviewLight->SetOuterConeAngle(48.f);
+		NPCActionPreviewLight->SetLightColor(FLinearColor(1.f, 0.94f, 0.86f));
+		NPCActionPreviewLight->SetCastShadows(false);
+		NPCActionPreviewLight->RegisterComponent();
+	}
+	bNPCActionAnimationShowcaseActive = true;
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (!IsValid(NPC))
+		{
+			continue;
+		}
+
+		NPC->SetAnimationShowcaseDebugSuppressed(true);
+		if (bIsolateFocusedNPCInAnimationShowcase && NPC != FocusNPC && !NPC->IsHidden())
+		{
+			NPC->SetActorHiddenInGame(true);
+			NPCActionPreviewTemporarilyHiddenNPCs.Add(NPC);
+		}
+	}
+
+	if (UGameViewportClient* Viewport = GetWorld()->GetGameViewport())
+	{
+		SAssignNew(NPCActionPreviewOverlayText, STextBlock)
+			.Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"), 18))
+			.ColorAndOpacity(FLinearColor(0.82f, 0.98f, 1.f, 1.f))
+			.Justification(ETextJustify::Center)
+			.ShadowOffset(FVector2D(1.f, 1.f))
+			.ShadowColorAndOpacity(FLinearColor::Black);
+
+		SAssignNew(NPCActionPreviewOverlayWidget, SOverlay)
+		+ SOverlay::Slot()
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Top)
+		.Padding(FMargin(0.f, 28.f, 0.f, 0.f))
+		[
+			SNew(SBorder)
+			.BorderImage(FCoreStyle::Get().GetBrush(TEXT("ToolPanel.GroupBorder")))
+			.BorderBackgroundColor(FLinearColor(0.015f, 0.025f, 0.04f, 0.92f))
+			.Padding(FMargin(24.f, 12.f))
+			[
+				NPCActionPreviewOverlayText.ToSharedRef()
+			]
+		];
+		Viewport->AddViewportWidgetContent(NPCActionPreviewOverlayWidget.ToSharedRef(), 10000);
+	}
+
+	ApplyCurrentNPCActionAnimationShowcaseStep();
+	UpdateNPCActionAnimationShowcaseCamera();
+	PlayerController->SetViewTargetWithBlend(NPCActionPreviewCamera, 0.35f);
+
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[YUFS][Animation] Visible showcase started on %s; actions auto-cycle every %.1f seconds."),
+		*FocusNPC->GetName(),
+		NPCActionPreviewSecondsPerAction);
+}
+
+void AYUFSSimulationController::StopNPCActionAnimationShowcase()
+{
+	if (!bNPCActionAnimationShowcaseActive)
+	{
+		return;
+	}
+
+	if (IsValid(NPCActionPreviewFocusNPC))
+	{
+		NPCActionPreviewFocusNPC->SetActorRotation(SavedNPCActionPreviewRotation);
+	}
+
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (IsValid(NPC))
+		{
+			NPC->SetAnimationShowcaseDebugSuppressed(false);
+		}
+	}
+	for (const TWeakObjectPtr<AYUFSEvacuationNPC>& HiddenNPC : NPCActionPreviewTemporarilyHiddenNPCs)
+	{
+		if (HiddenNPC.IsValid())
+		{
+			HiddenNPC->SetActorHiddenInGame(false);
+		}
+	}
+	NPCActionPreviewTemporarilyHiddenNPCs.Reset();
+
+	if (UWorld* World = GetWorld())
+	{
+		if (UGameViewportClient* Viewport = World->GetGameViewport())
+		{
+			if (NPCActionPreviewOverlayWidget.IsValid())
+			{
+				Viewport->RemoveViewportWidgetContent(NPCActionPreviewOverlayWidget.ToSharedRef());
+			}
+		}
+	}
+	NPCActionPreviewOverlayText.Reset();
+	NPCActionPreviewOverlayWidget.Reset();
+
+	if (UWorld* World = GetWorld())
+	{
+		if (APlayerController* PlayerController = World->GetFirstPlayerController())
+		{
+			AActor* RestoreTarget = SavedNPCActionPreviewViewTarget.Get();
+			if (!IsValid(RestoreTarget))
+			{
+				RestoreTarget = PlayerController->GetPawn();
+			}
+			if (IsValid(RestoreTarget))
+			{
+				PlayerController->SetViewTargetWithBlend(RestoreTarget, 0.25f);
+			}
+		}
+	}
+
+	if (IsValid(NPCActionPreviewCamera))
+	{
+		NPCActionPreviewCamera->Destroy();
+	}
+
+	bNPCActionAnimationShowcaseActive = false;
+	NPCActionPreviewFocusNPC = nullptr;
+	NPCActionPreviewCamera = nullptr;
+	NPCActionPreviewLight = nullptr;
+	SavedNPCActionPreviewViewTarget.Reset();
+	NPCActionPreviewAccumulator = 0.f;
+
+}
+
+void AYUFSSimulationController::TickNPCActionAnimationShowcase(float DeltaTime)
+{
+	if (!bNPCActionAnimationShowcaseActive
+		|| !IsValid(NPCActionPreviewFocusNPC)
+		|| !IsValid(NPCActionPreviewCamera))
+	{
+		return;
+	}
+
+	const float SecondsPerAction = FMath::Max(NPCActionPreviewSecondsPerAction, 1.f);
+	NPCActionPreviewAccumulator += DeltaTime;
+	if (NPCActionPreviewAccumulator >= SecondsPerAction)
+	{
+		NPCActionPreviewAccumulator = FMath::Fmod(NPCActionPreviewAccumulator, SecondsPerAction);
+		constexpr int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
+		NPCActionPreviewIndex = (NPCActionPreviewIndex + 1) % ActionCount;
+		ApplyCurrentNPCActionAnimationShowcaseStep();
+	}
+
+	UpdateNPCActionAnimationShowcaseCamera();
+	DrawNPCActionAnimationShowcaseOverlay();
+}
+
+void AYUFSSimulationController::ApplyCurrentNPCActionAnimationShowcaseStep()
+{
+	if (!IsValid(NPCActionPreviewFocusNPC))
+	{
+		return;
+	}
+
+	constexpr int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
+	NPCActionPreviewIndex = FMath::Clamp(NPCActionPreviewIndex, 0, ActionCount - 1);
+	const EYUFSAction Action = static_cast<EYUFSAction>(NPCActionPreviewIndex);
+	NPCActionPreviewFocusNPC->SetActionAnimationPreview(Action);
+
+	UE_LOG(
+		LogTemp,
+		Log,
+		TEXT("[YUFS][Animation][Showcase] %d/%d Action=%s Animation=%s"),
+		NPCActionPreviewIndex + 1,
+		ActionCount,
+		*StaticEnum<EYUFSAction>()->GetNameStringByValue(static_cast<int64>(Action)),
+		*NPCActionPreviewFocusNPC->GetCurrentActionAnimationName());
+}
+
+void AYUFSSimulationController::UpdateNPCActionAnimationShowcaseCamera()
+{
+	if (!IsValid(NPCActionPreviewFocusNPC) || !IsValid(NPCActionPreviewCamera) || !GetWorld())
+	{
+		return;
+	}
+
+	const FVector Target = NPCActionPreviewFocusNPC->GetActorLocation()
+		+ FVector(0.f, 0.f, NPCActionPreviewLookAtHeightCm);
+	FVector Forward = NPCActionPreviewFocusNPC->GetActorForwardVector().GetSafeNormal2D();
+	if (Forward.IsNearlyZero())
+	{
+		Forward = FVector::ForwardVector;
+	}
+	const FVector Right = FVector::CrossProduct(FVector::UpVector, Forward).GetSafeNormal();
+	const FVector CandidateDirections[] = { Forward, Right, -Forward, -Right };
+	const float PreferredDistance = FMath::Max(NPCActionPreviewCameraDistanceCm, 80.f);
+	const float CandidateDistances[] =
+	{
+		PreferredDistance,
+		PreferredDistance * 0.78f,
+		PreferredDistance * 0.58f,
+		PreferredDistance * 0.42f
+	};
+
+	FCollisionObjectQueryParams StaticObjectQuery;
+	StaticObjectQuery.AddObjectTypesToQuery(ECC_WorldStatic);
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(YUFSNPCAnimationShowcaseCamera), false);
+	QueryParams.AddIgnoredActor(NPCActionPreviewFocusNPC);
+	QueryParams.AddIgnoredActor(NPCActionPreviewCamera);
+
+	FVector CameraLocation = Target + Forward * CandidateDistances[UE_ARRAY_COUNT(CandidateDistances) - 1];
+	CameraLocation.Z += 15.f;
+	bool bFoundClearView = false;
+	for (const float Distance : CandidateDistances)
+	{
+		for (const FVector& Direction : CandidateDirections)
+		{
+			const FVector Candidate = Target + Direction * Distance + FVector(0.f, 0.f, 15.f);
+			FHitResult VisibilityHit;
+			const bool bBlocked = GetWorld()->LineTraceSingleByObjectType(
+				VisibilityHit,
+				Candidate,
+				Target,
+				StaticObjectQuery,
+				QueryParams);
+			if (!bBlocked)
+			{
+				CameraLocation = Candidate;
+				bFoundClearView = true;
+				break;
+			}
+		}
+		if (bFoundClearView)
+		{
+			break;
+		}
+	}
+
+	const FRotator CameraRotation = (Target - CameraLocation).Rotation();
+	NPCActionPreviewCamera->SetActorLocationAndRotation(CameraLocation, CameraRotation);
+}
+
+void AYUFSSimulationController::DrawNPCActionAnimationShowcaseOverlay() const
+{
+	if (!NPCActionPreviewOverlayText.IsValid() || !IsValid(NPCActionPreviewFocusNPC))
+	{
+		return;
+	}
+
+	constexpr int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
+	const EYUFSAction Action = static_cast<EYUFSAction>(NPCActionPreviewIndex);
+	const float SecondsRemaining = FMath::Max(
+		0.f,
+		FMath::Max(NPCActionPreviewSecondsPerAction, 1.f) - NPCActionPreviewAccumulator);
+	const FString Overlay = FString::Printf(
+		TEXT("NPC ACTION ANIMATION CHECK  [%02d / %02d]\n%s  |  Animation: %s  |  Next: %.1fs\nPress START SIMULATION to return to the normal camera"),
+		NPCActionPreviewIndex + 1,
+		ActionCount,
+		*StaticEnum<EYUFSAction>()->GetNameStringByValue(static_cast<int64>(Action)),
+		*NPCActionPreviewFocusNPC->GetCurrentActionAnimationName(),
+		SecondsRemaining);
+	NPCActionPreviewOverlayText->SetText(FText::FromString(Overlay));
 }
 
 bool AYUFSSimulationController::TryResolveIndoorNPCSpawnLocation(

@@ -13,6 +13,10 @@ class AYUFSEvacuationNPC;
 class AYUFSBinaryManager;
 class AYUFSEmergencyCommSystem;
 class AYUFSHeterogeneousVolume;
+class ACameraActor;
+class STextBlock;
+class SWidget;
+class USpotLightComponent;
 class UYUFSSimHUD;
 class UYUFSTimelineRecorder;
 
@@ -57,6 +61,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -73,6 +78,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Simulation")
 	void StopAndResetSimulation();
+
+	// 대기 화면에서 대표 NPC를 근접 촬영하며 모든 행동 애니메이션을
+	// 자동 순환한다. 레벨 BP/HUD에서도 수동으로 켜고 끌 수 있다.
+	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
+	void StartNPCActionAnimationShowcase();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
+	void StopNPCActionAnimationShowcase();
 
 	// ── 상태 조회 (HUD가 읽음) ───────────────────────────────────────────
 	UFUNCTION(BlueprintPure, Category="Simulation")
@@ -265,6 +278,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
 	bool bPreviewAllNPCActionAnimations = true;
 
+	// 분산 배치가 끝나면 대표 NPC 앞으로 카메라를 이동하고 11개 행동을
+	// 자동 순환한다. Start Simulation을 누르면 원래 카메라로 복귀한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bAutoFocusNPCActionAnimationShowcase = true;
+
+	// 근접 검수에서는 대표 NPC 한 명만 보여 행동 차이를 명확히 한다.
+	// 시뮬레이션 시작 시 숨겼던 NPC를 모두 즉시 복원한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bIsolateFocusedNPCInAnimationShowcase = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="1.0", ClampMax="15.0"))
+	float NPCActionPreviewSecondsPerAction = 4.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="80.0", ClampMax="600.0"))
+	float NPCActionPreviewCameraDistanceCm = 240.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="30.0", ClampMax="180.0"))
+	float NPCActionPreviewLookAtHeightCm = 90.f;
+
 private:
 	// ── 내부 상태 ─────────────────────────────────────────────────────
 	ESimPhase CurrentPhase = ESimPhase::WaitingToStart;
@@ -291,6 +323,24 @@ private:
 	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;
 	FTimerHandle NPCDistributionTimerHandle;
 
+	UPROPERTY(Transient)
+	TObjectPtr<AYUFSEvacuationNPC> NPCActionPreviewFocusNPC = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<ACameraActor> NPCActionPreviewCamera = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<USpotLightComponent> NPCActionPreviewLight = nullptr;
+
+	TWeakObjectPtr<AActor> SavedNPCActionPreviewViewTarget;
+	TArray<TWeakObjectPtr<AYUFSEvacuationNPC>> NPCActionPreviewTemporarilyHiddenNPCs;
+	TSharedPtr<SWidget> NPCActionPreviewOverlayWidget;
+	TSharedPtr<STextBlock> NPCActionPreviewOverlayText;
+	FRotator SavedNPCActionPreviewRotation = FRotator::ZeroRotator;
+	float NPCActionPreviewAccumulator = 0.f;
+	int32 NPCActionPreviewIndex = 0;
+	bool bNPCActionAnimationShowcaseActive = false;
+
 	// 캐싱
 	AYUFSBinaryManager* BinaryManager = nullptr;
 	AYUFSEmergencyCommSystem* CommSystem = nullptr;
@@ -312,6 +362,10 @@ private:
 	void ScheduleNPCDistribution();
 	void DistributeRegisteredNPCs();
 	void ApplyNPCActionAnimationPreview(const TArray<AYUFSEvacuationNPC*>& NPCs);
+	void TickNPCActionAnimationShowcase(float DeltaTime);
+	void ApplyCurrentNPCActionAnimationShowcaseStep();
+	void UpdateNPCActionAnimationShowcaseCamera();
+	void DrawNPCActionAnimationShowcaseOverlay() const;
 	bool TryResolveIndoorNPCSpawnLocation(
 		const FVector& DesiredLocation,
 		AYUFSEvacuationNPC* NPC,

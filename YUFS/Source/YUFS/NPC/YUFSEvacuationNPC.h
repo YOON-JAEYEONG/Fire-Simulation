@@ -118,6 +118,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="NPC|Animation")
 	void ClearActionAnimationPreview();
 
+	void SetAnimationShowcaseDebugSuppressed(bool bSuppressed);
+
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
 	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
