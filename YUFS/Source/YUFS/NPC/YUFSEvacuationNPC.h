@@ -10,6 +10,7 @@
 #include "YUFSEvacuationNPC.generated.h"
 
 class UAnimMontage;
+class UYUFSLocalMovementComponent;
 class AYUFSLevelDataManager;
 class AYUFSBinaryManager;
 class UYUFSSocialInfluenceComponent;
@@ -60,9 +61,10 @@ public:
 	float TransitionLogIntervalSeconds = 0.1f;
 
 	// ── 이동 보조 API ──────────────────────────────────────────────────
-	void DriveMovementToward(FVector Target);
+	void DriveMovementToward(FVector Target, float DeltaTime);
 	void SetMovementSpeed(float Speed);
 
+	UYUFSLocalMovementComponent* GetLocalMovement() const { return LocalMovement; }
 	// ── 컴포넌트 접근자 ────────────────────────────────────────────────
 	UYUFSBehaviorStateMachine*   GetBehaviorStateMachine() const { return BehaviorSM; }
 	UYUFSSmokeAwareNavigator*    GetNavigator()             const { return Navigator; }
@@ -79,7 +81,7 @@ public:
 	FVector GetStaffGuidedExitLocation()const { return StaffGuidedExitLocation; }
 	FVector GetSpawnLocation()          const { return SpawnLocation; }
 
-	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
+	const FYUFSNPCObservation& GetLastObservation() const { return LiveObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
@@ -105,6 +107,8 @@ private:
 	UYUFSSocialInfluenceComponent* SocialComp;
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCDebugComponent* DebugComp;
+	UPROPERTY(VisibleAnywhere) UYUFSLocalMovementComponent* LocalMovement;
+	float BaseWalkSpeed = 400.f;
 
 	UPROPERTY(VisibleAnywhere)
 	AYUFSBinaryManager* BinaryManager = nullptr;
@@ -133,6 +137,7 @@ private:
 
 	// ── CSV 로깅 ──────────────────────────────────────────────────────
 	FYUFSNPCObservation PrevObservation{};
+	FYUFSNPCObservation LiveObservation{};
 	bool bHasPendingTransition = false;
 	int32 TransitionStepIndex = 0;
 	float PerceptionUpdateAccumulator = 0.f;
@@ -141,9 +146,7 @@ private:
 
 	// ── 스턱 감지 ─────────────────────────────────────────────────────
 	float StuckTimer = 0.f;
-	float PositionStuckTimer = 0.f;
 	FVector LastMovementSampleLocation = FVector::ZeroVector;
-	FVector LastPositionCheckLocation  = FVector::ZeroVector;
 	bool bHasMovementSample = false;
 
 	// ── Milling 누적 카운터 (정책 틱 단위) ────────────────────────────
@@ -175,6 +178,7 @@ private:
 	void TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation);
 	void OnActionChanged(EYUFSAction NewAction);
 	void ExecuteCurrentAction(float DeltaTime);
+	FVector ChooseKnownExit() const;
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

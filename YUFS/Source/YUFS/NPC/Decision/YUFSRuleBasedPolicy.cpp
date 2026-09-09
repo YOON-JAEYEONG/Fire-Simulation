@@ -23,7 +23,7 @@ EYUFSAction FYUFSRuleBasedPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 	case EYUFSBehaviorState::Milling:
 		// 논문(van der Wal): 경보 존재 시 촬영 OR 3.43 (p=0.04, 유일한 유의 예측변수)
 		// 사전 녹음 메시지를 받으면 공식 안내 인지로 촬영 동기 감소 → Film 확률 제거
-		if (Obs.bAlarmSounding && !Obs.bReceivedPreRecordedMsg && FMath::FRand() < 0.28f)
+		if (Obs.bAlarmSounding && !Obs.bReceivedPreRecordedMsg && Obs.IndividualRoutePreference < 0.12f)
 		{
 			return EYUFSAction::Film;
 		}
@@ -42,7 +42,7 @@ EYUFSAction FYUFSRuleBasedPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 		if (Obs.NearbyNPCCount > 2 && Obs.NearbyEvacuatingRatio >= 0.5f)
 		{
 			// 70% 확률로 주변 군중의 평균 목적지로 따라감
-			if (FMath::FRand() < 0.7f)
+			if (Obs.IndividualRoutePreference > 0.7f)
 			{
 				return EYUFSAction::FollowCrowd;
 			}
