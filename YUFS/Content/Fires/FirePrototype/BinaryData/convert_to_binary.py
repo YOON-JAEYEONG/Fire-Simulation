@@ -13,7 +13,7 @@ def convert_multiple_csv_to_binary(folder_path, output_bin):
         return
 
     # 격자 크기 정보 (고정된 경우)
-    dim_x, dim_y, dim_z = 153, 115, 17
+    dim_x, dim_y, dim_z = 181, 79, 18
     
     print(f"Found {total_frames} files. Starting conversion...")
 

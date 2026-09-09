@@ -106,9 +106,10 @@ void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame
 
 	bIsPathfinding = true;
 	CurrentDestination = Destination;
+	const uint32 RequestGeneration = ++PathRequestGeneration;
 
 	TWeakObjectPtr<UYUFSSmokeAwareNavigator> WeakThis(this);
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [WeakThis, NavSys, Query]()
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [WeakThis, NavSys, Query, RequestGeneration]()
 	{
 		if (!NavSys)
 		{
@@ -128,10 +129,15 @@ void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame
 			}
 		}
 
-		AsyncTask(ENamedThreads::GameThread, [WeakThis, bSuccess, ResultPathPoints]()
+		AsyncTask(ENamedThreads::GameThread, [WeakThis, bSuccess, ResultPathPoints, RequestGeneration]()
 		{
 			if (UYUFSSmokeAwareNavigator* NavComp = WeakThis.Get())
 			{
+				if (NavComp->PathRequestGeneration != RequestGeneration)
+				{
+					return;
+				}
+
 				NavComp->bIsPathfinding = false;
 				// 경로 탐색 완료 후 연기 패널티 초기화 — 다음 정상 탐색에 영향 없도록
 				UYUFSSmokeNavigationQueryFilter::ResetSmokeCosts();
@@ -192,6 +198,8 @@ void UYUFSSmokeAwareNavigator::CheckAndReroute(int32 Frame)
 
 void UYUFSSmokeAwareNavigator::ClearPath()
 {
+	++PathRequestGeneration;
+	bIsPathfinding = false;
 	CurrentPath.Empty();
 	CurrentWaypointIndex = 0;
 	CurrentDestination = FVector::ZeroVector;
@@ -255,4 +263,3 @@ void UYUFSSmokeAwareNavigator::UpdateWaypoint(FVector ActorLocation, float Accep
 		++CurrentWaypointIndex;
 	}
 }
-

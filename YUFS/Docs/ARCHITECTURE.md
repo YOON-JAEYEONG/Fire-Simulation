@@ -20,6 +20,7 @@ classDiagram
         +ResumeSimulation()
         +RegisterNPC(NPC)
         +IsNPCSimulationEnabled() bool
+        +IsNPCActivityEnabled() bool
         -TickFireActivePhase(DeltaTime)
         -FinalizeRun()
         -UpdateLiveCounts()
@@ -35,6 +36,9 @@ classDiagram
         +NotifyEpisodeFinished(TerminalReason)
         +DriveMovementToward(Target)
         +OnCommReceived(CommType, ...)
+        -TickEverydayBehavior(DeltaTime)
+        -ChooseNextEverydayActivity()
+        -StopEverydayBehavior()
         -BuildObservation(Out)
         -TickPolicy(DeltaTime)
         -ExecuteCurrentAction(DeltaTime)
@@ -385,11 +389,20 @@ sequenceDiagram
 
     SC->>NPC: Tick(DeltaTime)
 
-    NPC->>SC: IsNPCSimulationEnabled()?
-    alt 일시정지 또는 FireActive 아님
+    NPC->>SC: IsNPCActivityEnabled()?
+    alt 일시정지·관찰 모드·종료
         NPC->>NAV: ClearPath()
         NPC->>NPC: StopMovementImmediately()
         NPC-->>SC: return (조기 종료)
+    else WaitingToStart 또는 FireStartDelay
+        NPC->>NPC: TickEverydayBehavior(DeltaTime)
+        alt 산책 선택
+            NPC->>NAV: 임의의 NavMesh 목적지로 RequestPathAsync()
+            NPC->>NPC: 일상 속도로 AddMovementInput()
+        else 대기 선택
+            NPC->>NPC: 짧은 대기 + 천천히 주변 둘러보기
+        end
+        NPC-->>SC: return (위험 정책/학습 기록 없음)
     end
 
     NPC->>PC: UpdatePerception(CurrentFrame)
@@ -407,41 +420,49 @@ sequenceDiagram
     Note over SM: Incapacitated > Crawling > EmergencyOverride ><br/>Normal→Perceiving→Milling→RiskAssessment→<br/>Preparing→Evacuating→Helping/Sheltering
     SM-->>NPC: EYUFSBehaviorState 업데이트
 
-    NPC->>NPC: TickPolicy(DeltaTime)
-    NPC->>NPC: BuildObservation(Obs) → FYUFSNPCObservation
-    NPC->>POL: SelectAction(Obs)
+    alt 아직 Normal (화재 미인지)
+        NPC->>NPC: TickEverydayBehavior(DeltaTime)
+        Note over NPC,NAV: 화재가 시작되어도 단서를 인식할 때까지 일상 행동 유지
+    else Perceiving 이후
+        NPC->>NPC: StopEverydayBehavior() → 일상 경로 즉시 취소
+        NPC->>NPC: TickPolicy(DeltaTime)
+        NPC->>NPC: BuildObservation(Obs) → FYUFSNPCObservation
+        NPC->>POL: SelectAction(Obs)
 
-    alt ONNX 모델 로드 성공 & 학습 모드 OFF
-        POL->>POL: Obs.ToFloatArray() → 29-dim StateVec
-        POL->>POL: RunCpuInference(StateVec) → Logits[12]
-        POL->>POL: argmax(Logits) → BestIndex
-        POL-->>NPC: EYUFSAction (MLP 출력)
-    else 모델 없음 또는 bDataCollectionMode
-        POL->>POL: FallbackPolicy.SelectAction(Obs)
-        Note over POL: PADM 규칙: StaffGuidance > Incapacitated ><br/>Perceiving→SeekInfo, Milling→Film/Alert,<br/>Evacuating→FollowCrowd/FamiliarExit/NearestExit
-        POL-->>NPC: EYUFSAction (규칙 기반)
+        alt ONNX 모델 로드 성공 & 학습 모드 OFF
+            POL->>POL: Obs.ToFloatArray() → 29-dim StateVec
+            POL->>POL: RunCpuInference(StateVec) → Logits[12]
+            POL->>POL: argmax(Logits) → BestIndex
+            POL-->>NPC: EYUFSAction (MLP 출력)
+        else 모델 없음 또는 bDataCollectionMode
+            POL->>POL: FallbackPolicy.SelectAction(Obs)
+            Note over POL: PADM 규칙: StaffGuidance > Incapacitated ><br/>Perceiving→SeekInfo, Milling→Film/Alert,<br/>Evacuating→FollowCrowd/FamiliarExit/NearestExit
+            POL-->>NPC: EYUFSAction (규칙 기반)
+        end
     end
 
-    NPC->>NPC: ActionHoldTimer 경과 또는 상태 변경 시 OnActionChanged(NewAction)
-    NPC->>NPC: ExecuteCurrentAction(DeltaTime)
+    opt Perceiving 이후 정책 행동 실행
+        NPC->>NPC: ActionHoldTimer 경과 또는 상태 변경 시 OnActionChanged(NewAction)
+        NPC->>NPC: ExecuteCurrentAction(DeltaTime)
 
-    alt 이동 액션 (Evacuate, Shelter, Help, FollowCrowd)
-        NPC->>NAV: CheckAndReroute(Frame)
-        Note over NAV: 경로상 연기 농도 재평가 → 필요 시 재탐색
-        alt 목적지 갱신 필요
-            NPC->>NAV: ClearPath() → RequestPathAsync(Target, Frame)
+        alt 이동 액션 (Evacuate, Shelter, Help, FollowCrowd)
+            NPC->>NAV: CheckAndReroute(Frame)
+            Note over NAV: 경로상 연기 농도 재평가 → 필요 시 재탐색
+            alt 목적지 갱신 필요
+                NPC->>NAV: ClearPath() → RequestPathAsync(Target, Frame)
+            end
+            NPC->>NPC: DriveMovementToward(Target)
+            NPC->>NAV: UpdateWaypoint(ActorLocation, 80cm)
+            NPC->>NAV: GetSteeringTarget(ActorLocation, 120cm)
+            NAV-->>NPC: SteeringTarget
+            NPC->>NPC: AddMovementInput(Dir * GroupSpeedMult)
+        else 비이동 액션 (SeekInfo, Alert)
+            NPC->>NPC: SetActorRotation(LookAnchorYaw + sin(t) * Amplitude)
+        else 애니메이션 액션 (Cough, Film)
+            NPC->>NPC: PlayAnimMontage(CoughMontage / FilmMontage)
+        else Idle / WaitForInfo / GatherBelongings
+            Note over NPC: 이동 없음
         end
-        NPC->>NPC: DriveMovementToward(Target)
-        NPC->>NAV: UpdateWaypoint(ActorLocation, 80cm)
-        NPC->>NAV: GetSteeringTarget(ActorLocation, 120cm)
-        NAV-->>NPC: SteeringTarget
-        NPC->>NPC: AddMovementInput(Dir * GroupSpeedMult)
-    else 비이동 액션 (SeekInfo, Alert)
-        NPC->>NPC: SetActorRotation(LookAnchorYaw + sin(t) * Amplitude)
-    else 애니메이션 액션 (Cough, Film)
-        NPC->>NPC: PlayAnimMontage(CoughMontage / FilmMontage)
-    else Idle / WaitForInfo / GatherBelongings
-        Note over NPC: 이동 없음
     end
 
     NPC->>NPC: BuildObservation(CurrentObs)
@@ -577,7 +598,7 @@ sequenceDiagram
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Normal : 시뮬레이션 시작
+    [*] --> Normal : 시뮬레이션 시작 / 산책·대기·둘러보기
 
     Normal --> Perceiving : 연기·온도·알람·방송 감지
 

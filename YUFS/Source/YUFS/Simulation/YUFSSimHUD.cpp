@@ -198,3 +198,76 @@ FText UYUFSSimHUD::GetTimelineTimeText() const
 		SimController->GetTimelineCurrentTime(),
 		SimController->GetTimelineMaxTime()));
 }
+
+void UYUFSSimHUD::OnCameraOverviewButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Overview camera button clicked"));
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC) return;
+
+	TArray<AActor*> Cameras;
+	UGameplayStatics::GetAllActorsWithTag(World, FName("OverviewCamera"), Cameras);
+
+	UE_LOG(LogTemp, Warning, TEXT("OverviewCamera count: %d"), Cameras.Num());
+
+	if (Cameras.Num() > 0 && Cameras[0])
+	{
+		PC->SetViewTargetWithBlend(Cameras[0], 0.5f);
+		UE_LOG(LogTemp, Warning, TEXT("Switched to OverviewCamera"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("OverviewCamera not found"));
+	}
+}
+
+void UYUFSSimHUD::OnCameraFireZoneButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Fire zone camera button clicked"));
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC) return;
+
+	TArray<AActor*> Cameras;
+	UGameplayStatics::GetAllActorsWithTag(World, FName("FireZoneCamera"), Cameras);
+
+	UE_LOG(LogTemp, Warning, TEXT("FireZoneCamera count: %d"), Cameras.Num());
+
+	if (Cameras.Num() > 0 && Cameras[0])
+	{
+		PC->SetViewTargetWithBlend(Cameras[0], 0.5f);
+		UE_LOG(LogTemp, Warning, TEXT("Switched to FireZoneCamera"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("FireZoneCamera not found"));
+	}
+}
+
+void UYUFSSimHUD::OnCameraPlayerViewButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Player view button clicked"));
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC) return;
+
+	APawn* PlayerPawn = PC->GetPawn();
+	if (!PlayerPawn)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Player pawn not found"));
+		return;
+	}
+
+	PC->SetViewTargetWithBlend(PlayerPawn, 0.5f);
+	UE_LOG(LogTemp, Warning, TEXT("Switched back to Player View"));
+}

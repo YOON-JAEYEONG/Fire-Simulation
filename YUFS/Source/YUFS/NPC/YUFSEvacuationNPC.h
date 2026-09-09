@@ -10,6 +10,7 @@
 #include "YUFSEvacuationNPC.generated.h"
 
 class UAnimMontage;
+class AYUFSExitPoint;
 class AYUFSLevelDataManager;
 class AYUFSBinaryManager;
 class UYUFSSocialInfluenceComponent;
@@ -47,6 +48,77 @@ public:
 	UPROPERTY(EditAnywhere, Category="AI|Logging")
 	bool bLogTransitions = true;
 
+	// ── 70:20:10 경로 집단 배정 ───────────────────────────────────────
+	// 스포너에서 명시하지 않으면 SimulationController가 이름 순으로 안정 ID를 부여한다.
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="AI|Route", meta=(ExposeOnSpawn="true"))
+	int32 StableNpcId = INDEX_NONE;
+
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="AI|Route")
+	EYUFSRoutePreference RoutePreference = EYUFSRoutePreference::FamiliarExit;
+
+	// 생성 시 레벨의 출구 중 하나가 무작위로 지정된다.
+	// 스폰 시 명시하거나 인스턴스에서 직접 지정한 값은 덮어쓰지 않는다.
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="AI|Route", meta=(ExposeOnSpawn="true"))
+	AYUFSExitPoint* FamiliarExitPoint = nullptr;
+
+	// 경로 성향을 NPC 디버그 구체의 상단 반구 색으로 표시한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Route|Debug")
+	bool bVisualizeRoutePreference = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Route|Debug")
+	FLinearColor FamiliarExitDebugColor = FLinearColor(0.05f, 0.25f, 1.f, 1.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Route|Debug")
+	FLinearColor SocialFollowingDebugColor = FLinearColor(1.f, 0.35f, 0.03f, 1.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Route|Debug")
+	FLinearColor NearestSafeExitDebugColor = FLinearColor(0.05f, 0.85f, 0.15f, 1.f);
+
+	// 비용이 큰 감지/근접 NPC 탐색은 렌더 프레임마다 수행하지 않는다.
+	// NPC별 초기 위상을 달리해 같은 프레임에 갱신이 몰리지 않게 한다.
+	UPROPERTY(EditAnywhere, Category="AI|Optimization", meta=(ClampMin="0.05"))
+	float PerceptionUpdateIntervalSeconds = 0.2f;
+
+	UPROPERTY(EditAnywhere, Category="AI|Optimization", meta=(ClampMin="0.05"))
+	float SocialUpdateIntervalSeconds = 0.2f;
+
+	// ── 화재 인식 전 일상 행동 ─────────────────────────────────────────
+	// WaitingToStart/FireStartDelay와 FireActive의 Normal 상태에서만 동작한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior")
+	bool bEnableEverydayBehavior = true;
+
+	// 최초 배치 위치를 중심으로 산책할 수 있는 최대 반경 (cm)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="100.0"))
+	float EverydayRoamRadiusCm = 800.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="1.0"))
+	float EverydayWalkSpeedCmPerSecond = 140.f;
+
+	// 새 활동을 고를 때 산책을 선택할 확률. 나머지는 제자리 대기/둘러보기다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float EverydayRoamChance = 0.72f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="0.1"))
+	float EverydayMinIdleSeconds = 1.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="0.1"))
+	float EverydayMaxIdleSeconds = 4.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="10.0"))
+	float EverydayDestinationAcceptanceRadiusCm = 90.f;
+
+	// 막힌 경로 등으로 목적지에 도달하지 못할 때 다음 행동으로 넘어가는 제한 시간
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="1.0"))
+	float EverydayMaxRoamSeconds = 18.f;
+
+	// 같은 NPC 이름과 seed 조합은 실행마다 같은 초기 행동 순서를 만든다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior")
+	int32 EverydayBehaviorSeed = 2026;
+
+	// 경험 전이는 정책 주기와 같은 최대 10Hz로 기록한다.
+	UPROPERTY(EditAnywhere, Category="AI|Logging", meta=(ClampMin="0.1"))
+	float TransitionLogIntervalSeconds = 0.1f;
+
 	// ── 이동 보조 API ──────────────────────────────────────────────────
 	void DriveMovementToward(FVector Target);
 	void SetMovementSpeed(float Speed);
@@ -58,6 +130,7 @@ public:
 	UYUFSSocialInfluenceComponent* GetSocialComponent()     const { return SocialComp; }
 	AYUFSLevelDataManager*       GetLevelDataManager()      const { return LevelDataMgr; }
 	AYUFSBinaryManager*          GetBinaryManager()         const { return BinaryManager; }
+	AYUFSExitPoint*              GetFamiliarExitPoint()     const { return FamiliarExitPoint; }
 
 	// ── 통신 상태 접근자 ──────────────────────────────────────────────
 	bool    IsAlarmSounding()           const { return bAlarmSounding; }
@@ -69,6 +142,11 @@ public:
 
 	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
+	EYUFSRoutePreference GetRoutePreference() const { return RoutePreference; }
+	int32 GetStableNpcId() const { return StableNpcId; }
+	void SetStableNpcId(int32 InStableNpcId) { StableNpcId = InStableNpcId; }
+	void SetRoutePreference(EYUFSRoutePreference InPreference);
+	FLinearColor GetActiveRouteDebugColor() const;
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
 	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
@@ -123,6 +201,9 @@ private:
 	FYUFSNPCObservation PrevObservation{};
 	bool bHasPendingTransition = false;
 	int32 TransitionStepIndex = 0;
+	float PerceptionUpdateAccumulator = 0.f;
+	float SocialUpdateAccumulator = 0.f;
+	float TransitionLogAccumulator = 0.f;
 
 	// ── 스턱 감지 ─────────────────────────────────────────────────────
 	float StuckTimer = 0.f;
@@ -146,20 +227,39 @@ private:
 	float LookAnchorYaw                  = 0.f;
 	float LookElapsed                    = 0.f;
 
+	// ── 화재 인식 전 일상 행동 상태 ───────────────────────────────────
+	FRandomStream EverydayRandomStream;
+	FVector EverydayRoamOrigin           = FVector::ZeroVector;
+	FVector EverydayDestination          = FVector::ZeroVector;
+	float EverydayActivityTimer          = 0.f;
+	float EverydayLookElapsed            = 0.f;
+	float EverydayLookAnchorYaw          = 0.f;
+	float SavedWalkSpeedBeforeEveryday   = 300.f;
+	bool bEverydayBehaviorActive         = false;
+	bool bEverydayRoaming                = false;
+
 	static constexpr float PolicyTickInterval    = 0.1f;
 	static constexpr float MinActionHoldDuration = 2.0f;
 
 	// ── 내부 함수 ─────────────────────────────────────────────────────
 	int32 GetCurrentSimFrame() const;
+	void AssignRandomFamiliarExit();
+	FVector GetAssignedFamiliarExitLocation() const;
 	void BuildObservation(FYUFSNPCObservation& Out) const;
 	void FlushLearningTransition(const FYUFSNPCObservation& NextObs, EYUFSTerminalReason TerminalReason);
 	EYUFSTerminalReason GetCurrentTerminalReason() const;
 	void UpdateStuckDetection(float DeltaTime);
+	void TickEverydayBehavior(float DeltaTime);
+	void ChooseNextEverydayActivity();
+	void BeginEverydayIdle();
+	void StopEverydayBehavior();
 
 	// ── MLP 정책 실행 ─────────────────────────────────────────────────
-	void TickPolicy(float DeltaTime);
+	void TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation);
 	void OnActionChanged(EYUFSAction NewAction);
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
+	EYUFSAction SelectRouteActionFromPreference() const;
+	FLinearColor GetRoutePreferenceColor(EYUFSRoutePreference Preference) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

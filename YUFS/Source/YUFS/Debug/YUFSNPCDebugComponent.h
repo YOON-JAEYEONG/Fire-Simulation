@@ -64,6 +64,7 @@ public:
 private:
 	bool ShouldDraw() const;
 	FColor GetRiskColor(float NormalizedRisk) const;
+	void DrawDebugHemisphere(const FVector& Center, float Radius, bool bUpper, const FColor& Color, float Thickness) const;
 	FString BuildStateText(const FYUFSNPCObservation& Obs) const;
 	FString BuildObservationText(const FYUFSNPCObservation& Obs) const;
 

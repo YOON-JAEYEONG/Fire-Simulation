@@ -11,21 +11,19 @@
 UYUFSSocialInfluenceComponent::UYUFSSocialInfluenceComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
 }
 
 void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 {
-	NearbyNPCs.Empty();
+	NearbyNPCs.Reset();
+	OverlappingActors.Reset();
+	ActorsToIgnore.Reset();
 	EvacuatingCount = 0;
 	bHasNPCNeedingHelp = false;
 
 	if (!GetWorld() || !GetOwner()) return;
 
-	TArray<AActor*> OverlappingActors;
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
-
-	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());
 
 	UKismetSystemLibrary::SphereOverlapActors(

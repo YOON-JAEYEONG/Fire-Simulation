@@ -10,6 +10,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Level/YUFSLevelDataManager.h"
+#include "Core/YUFSRouteAssignment.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 
@@ -54,7 +55,10 @@ void AYUFSSimulationController::BeginPlay()
 		RegisterNPC(*It);
 	}
 	InitialNPCCount = RegisteredNPCs.Num();
-
+	if (BinaryManager && HeterogeneousVolume)
+	{
+		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
+	}
 	if (TimelineRecorder)
 	{
 		TimelineRecorder->Initialize(this, HeterogeneousVolume);
@@ -134,6 +138,8 @@ void AYUFSSimulationController::StartSimulation()
 	TotalEvacuationTime = 0.f;
 	AllRunResults.Empty();
 	ResolvedNPCs.Empty();
+	bRoutePreferencesAssigned = false;
+	AssignRoutePreferences();
 
 	SetPhase(ESimPhase::FireStartDelay);
 
@@ -235,6 +241,12 @@ void AYUFSSimulationController::SetPhase(ESimPhase NewPhase)
 		break;
 
 	case ESimPhase::FireActive:
+		// FireActive부터 NPC AI Tick이 활성화되므로 그 전에 전체 집단 배정을 확정한다.
+		// BeginPlay 이후 늦게 스폰/등록된 NPC가 있으면 여기서 최종 인원으로 다시 계산한다.
+		if (!bRoutePreferencesAssigned)
+		{
+			AssignRoutePreferences();
+		}
 		// 화재 시작: HeterogeneousVolume 재생 개시
 		if (HeterogeneousVolume) HeterogeneousVolume->StartFire();
 		if (bEnableTimelineRecording && TimelineRecorder)
@@ -605,6 +617,7 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 	if (IsValid(NPC) && !RegisteredNPCs.Contains(NPC))
 	{
 		RegisteredNPCs.Add(NPC);
+		bRoutePreferencesAssigned = false;
 		if (CurrentPhase == ESimPhase::WaitingToStart)
 		{
 			InitialNPCCount = RegisteredNPCs.Num();
@@ -612,6 +625,87 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 	}
 }
 
+void AYUFSSimulationController::AssignRoutePreferences()
+{
+	TArray<AYUFSEvacuationNPC*> AssignmentNPCs;
+	AssignmentNPCs.Reserve(RegisteredNPCs.Num());
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (IsValid(NPC))
+		{
+			AssignmentNPCs.Add(NPC);
+		}
+	}
+
+	if (AssignmentNPCs.IsEmpty())
+	{
+		bRoutePreferencesAssigned = false;
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] Route preference assignment skipped: no registered NPCs."));
+		return;
+	}
+
+	// StableNpcId가 없는 기존 BP 스포너와 레벨 배치 NPC도 결정적으로 동작하도록
+	// 먼저 Actor 이름으로 정렬한 뒤 비어 있는 ID를 채운다.
+	AssignmentNPCs.Sort([](const AYUFSEvacuationNPC& Left, const AYUFSEvacuationNPC& Right)
+	{
+		const int32 LeftId = Left.GetStableNpcId();
+		const int32 RightId = Right.GetStableNpcId();
+		if (LeftId != INDEX_NONE && RightId != INDEX_NONE && LeftId != RightId)
+		{
+			return LeftId < RightId;
+		}
+		if (LeftId != INDEX_NONE && RightId == INDEX_NONE) return true;
+		if (LeftId == INDEX_NONE && RightId != INDEX_NONE) return false;
+		return Left.GetFName().LexicalLess(Right.GetFName());
+	});
+
+	for (int32 Index = 0; Index < AssignmentNPCs.Num(); ++Index)
+	{
+		if (AssignmentNPCs[Index]->GetStableNpcId() == INDEX_NONE)
+		{
+			AssignmentNPCs[Index]->SetStableNpcId(Index);
+		}
+	}
+
+	// 동일 seed + 동일 NPC 집합이면 같은 멤버가 같은 성향을 받는다.
+	FRandomStream AssignmentStream(RouteAssignmentSeed);
+	for (int32 Index = AssignmentNPCs.Num() - 1; Index > 0; --Index)
+	{
+		const int32 SwapIndex = AssignmentStream.RandRange(0, Index);
+		AssignmentNPCs.Swap(Index, SwapIndex);
+	}
+
+	const FYUFSRoutePreferenceCounts Counts = FYUFSRouteAssignment::CalculateCounts(
+		AssignmentNPCs.Num(),
+		FamiliarExitRatio,
+		SocialFollowingRatio,
+		NearestSafeExitRatio);
+
+	int32 Cursor = 0;
+	for (; Cursor < Counts.FamiliarExit; ++Cursor)
+	{
+		AssignmentNPCs[Cursor]->SetRoutePreference(EYUFSRoutePreference::FamiliarExit);
+	}
+	for (const int32 SocialEnd = Cursor + Counts.SocialFollowing; Cursor < SocialEnd; ++Cursor)
+	{
+		AssignmentNPCs[Cursor]->SetRoutePreference(EYUFSRoutePreference::SocialFollowing);
+	}
+	for (; Cursor < AssignmentNPCs.Num(); ++Cursor)
+	{
+		AssignmentNPCs[Cursor]->SetRoutePreference(EYUFSRoutePreference::NearestSafeExit);
+	}
+
+	bRoutePreferencesAssigned = true;
+	UE_LOG(
+		LogTemp,
+		Warning,
+		TEXT("[YUFS] Route preferences assigned (seed=%d, total=%d): Familiar=%d, Crowd=%d, Nearest=%d"),
+		RouteAssignmentSeed,
+		AssignmentNPCs.Num(),
+		Counts.FamiliarExit,
+		Counts.SocialFollowing,
+		Counts.NearestSafeExit);
+}
 float AYUFSSimulationController::GetFireStartCountdown() const
 {
 	if (CurrentPhase == ESimPhase::FireStartDelay)

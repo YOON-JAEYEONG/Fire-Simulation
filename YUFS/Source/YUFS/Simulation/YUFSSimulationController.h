@@ -94,6 +94,16 @@ public:
 	}
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
+	bool IsNPCActivityEnabled() const
+	{
+		// 시작 전에는 일상 행동만, FireActive에서는 일상/비상 행동을 상태에 맞게 실행합니다.
+		return !bIsPaused
+			&& (CurrentPhase == ESimPhase::WaitingToStart
+				|| CurrentPhase == ESimPhase::FireStartDelay
+				|| CurrentPhase == ESimPhase::FireActive);
+	}
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
 	int32 GetEvacuatedCount() const { return LiveEvacuatedCount; }
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
@@ -142,6 +152,10 @@ public:
 	// ── NPC 등록 (NPC의 BeginPlay에서 자동 호출) ─────────────────────
 	void RegisterNPC(AYUFSEvacuationNPC* NPC);
 
+	// 등록된 NPC 전체에 보고서 기준 70:20:10 경로 성향을 결정적으로 배정한다.
+	UFUNCTION(BlueprintCallable, Category="Simulation|Route Assignment")
+	void AssignRoutePreferences();
+
 	// ── 이벤트 ────────────────────────────────────────────────────────
 	UPROPERTY(BlueprintAssignable)
 	FOnSimPhaseChanged OnPhaseChanged;
@@ -187,6 +201,20 @@ public:
 	UPROPERTY(EditAnywhere, Category="Simulation|Events")
 	float EvacuationSuccessDistanceCm = 150.f;
 
+	// ── 경로 성향 집단 배정 ───────────────────────────────────────────
+	// 비율 합이 1이 아니어도 실행 시 정규화한다. 모두 0이면 70:20:10을 사용한다.
+	UPROPERTY(EditAnywhere, Category="Simulation|Route Assignment", meta=(ClampMin="0.0"))
+	float FamiliarExitRatio = 0.70f;
+
+	UPROPERTY(EditAnywhere, Category="Simulation|Route Assignment", meta=(ClampMin="0.0"))
+	float SocialFollowingRatio = 0.20f;
+
+	UPROPERTY(EditAnywhere, Category="Simulation|Route Assignment", meta=(ClampMin="0.0"))
+	float NearestSafeExitRatio = 0.10f;
+
+	UPROPERTY(EditAnywhere, Category="Simulation|Route Assignment")
+	int32 RouteAssignmentSeed = 42;
+
 	// HUD 위젯 클래스 (에디터에서 BP 위젯 클래스를 연결)
 	UPROPERTY(EditAnywhere, Category="Simulation|UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
@@ -225,6 +253,7 @@ private:
 
 	TArray<AYUFSEvacuationNPC*> RegisteredNPCs;
 	TArray<FSimRunResult> AllRunResults;
+	bool bRoutePreferencesAssigned = false;
 
 	// 대피/행동불능 처리를 이미 끝낸 NPC를 기억해서 카운트 중복 증가를 막습니다.
 	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;

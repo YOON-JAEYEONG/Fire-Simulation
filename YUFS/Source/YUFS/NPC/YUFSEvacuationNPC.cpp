@@ -15,6 +15,7 @@
 #include "Fire/YUFSBinaryManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Level/YUFSExitPoint.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "Navigation/YUFSSmokeAwareNavigator.h"
 #include "NavigationSystem.h"
@@ -62,6 +63,23 @@ void AYUFSEvacuationNPC::BeginPlay()
 	LastMovementSampleLocation = SpawnLocation;
 	LastPositionCheckLocation  = SpawnLocation;
 	bHasMovementSample = true;
+	EverydayRoamOrigin = SpawnLocation;
+	EverydayLookAnchorYaw = GetActorRotation().Yaw;
+	EverydayRandomStream.Initialize(EverydayBehaviorSeed ^ static_cast<int32>(GetTypeHash(GetFName())));
+	EverydayActivityTimer = EverydayRandomStream.FRandRange(
+		FMath::Min(EverydayMinIdleSeconds, EverydayMaxIdleSeconds),
+		FMath::Max(EverydayMinIdleSeconds, EverydayMaxIdleSeconds));
+	if (const UCharacterMovementComponent* Mv = GetCharacterMovement())
+	{
+		SavedWalkSpeedBeforeEveryday = FMath::Max(1.f, Mv->MaxWalkSpeed);
+	}
+
+	// 첫 갱신 시점을 NPC마다 분산해 대규모 스폰 시 Trace/Overlap 피크를 방지한다.
+	const float PerceptionInterval = FMath::Max(PerceptionUpdateIntervalSeconds, 0.05f);
+	const float SocialInterval = FMath::Max(SocialUpdateIntervalSeconds, 0.05f);
+	const float UniquePhase = static_cast<float>(GetUniqueID() % 1000);
+	PerceptionUpdateAccumulator = FMath::Fmod(UniquePhase * 0.61803398875f, PerceptionInterval);
+	SocialUpdateAccumulator = FMath::Fmod(UniquePhase * 0.38196601125f, SocialInterval);
 
 	if (AYUFSEmergencyCommSystem* CommSystem = Cast<AYUFSEmergencyCommSystem>(
 		UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSEmergencyCommSystem::StaticClass())))
@@ -71,6 +89,7 @@ void AYUFSEvacuationNPC::BeginPlay()
 
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)  { BinaryManager = *It; break; }
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It){ LevelDataMgr  = *It; break; }
+	AssignRandomFamiliarExit();
 
 	for (TActorIterator<AYUFSSimulationController> It(GetWorld()); It; ++It)
 	{
@@ -83,6 +102,13 @@ void AYUFSEvacuationNPC::BeginPlay()
 void AYUFSEvacuationNPC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// 월드 파티션 또는 런타임 스폰으로 출구가 늦게 등록된 경우에만 다시 배정한다.
+	// 이미 지정된 친숙한 출구는 새 출구가 추가되어도 유지된다.
+	if (!IsValid(FamiliarExitPoint) && LevelDataMgr && !LevelDataMgr->GetExitPoints().IsEmpty())
+	{
+		AssignRandomFamiliarExit();
+	}
 
 	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
 	// 관찰 모드에서는 AI 판단, 경로 탐색, 이동 입력을 다시 계산하면 안 됩니다.
@@ -98,34 +124,72 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		return;
 	}
 
-	// ── 시뮬레이션 일시정지 ───────────────────────────────────────────────
-	if (SimulationController && !SimulationController->IsNPCSimulationEnabled())
+	// ── 시뮬레이션 단계별 NPC 활동 ──────────────────────────────────────
+	if (SimulationController && !SimulationController->IsNPCActivityEnabled())
 	{
-		if (Navigator) Navigator->ClearPath();
-		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
-		{
-			Mv->StopMovementImmediately();
-			Mv->MaxWalkSpeed = 0.f;
-		}
+		StopEverydayBehavior();
 		return;
+	}
+
+	// 화재 시작 전에는 위험 지각/정책/학습 기록을 진행하지 않고 일상 행동만 수행한다.
+	if (SimulationController)
+	{
+		const ESimPhase Phase = SimulationController->GetCurrentPhase();
+		if (Phase == ESimPhase::WaitingToStart || Phase == ESimPhase::FireStartDelay)
+		{
+			TickEverydayBehavior(DeltaTime);
+			return;
+		}
 	}
 
 	const int32 CurrentFrame = GetCurrentSimFrame();
 
-	// ── 지각 / 사회 갱신 (SM 및 MLP 정책이 최신 데이터 사용) ───────────
-	if (PerceptionComp) PerceptionComp->UpdatePerception(CurrentFrame);
-	if (SocialComp)     SocialComp->UpdateSocialContext();
+	// ── 지각 / 사회 갱신 ────────────────────────────────────────────────
+	// 감지는 5Hz, 근접 NPC 탐색은 5Hz가 기본값이다. 각 NPC의 시작 위상을
+	// 분산했으므로 같은 프레임에 모든 NPC가 물리 쿼리를 실행하지 않는다.
+	PerceptionUpdateAccumulator += DeltaTime;
+	const float PerceptionInterval = FMath::Max(PerceptionUpdateIntervalSeconds, 0.05f);
+	if (PerceptionComp && PerceptionUpdateAccumulator >= PerceptionInterval)
+	{
+		PerceptionUpdateAccumulator = FMath::Fmod(PerceptionUpdateAccumulator, PerceptionInterval);
+		PerceptionComp->UpdatePerception(CurrentFrame);
+	}
+
+	SocialUpdateAccumulator += DeltaTime;
+	const float SocialInterval = FMath::Max(SocialUpdateIntervalSeconds, 0.05f);
+	if (SocialComp && SocialUpdateAccumulator >= SocialInterval)
+	{
+		SocialUpdateAccumulator = FMath::Fmod(SocialUpdateAccumulator, SocialInterval);
+		SocialComp->UpdateSocialContext();
+	}
+
+	// ── Observation은 Tick당 한 번만 생성해 상태머신/정책/기록이 공유한다. ──
+	FYUFSNPCObservation CurrentObs{};
+	BuildObservation(CurrentObs);
 
 	// ── PADM 상태머신 갱신 ───────────────────────────────────────────────
 	if (BehaviorSM)
 	{
-		FYUFSNPCObservation Obs{};
-		BuildObservation(Obs);
-		BehaviorSM->TickStateMachine(DeltaTime, Obs);
+		BehaviorSM->TickStateMachine(DeltaTime, CurrentObs);
+		// 상태머신이 이번 Tick에 갱신한 상태를 정책과 기록에 반영한다.
+		CurrentObs.CurrentState = BehaviorSM->GetCurrentState();
+		CurrentObs.RiskPerception = BehaviorSM->GetRiskPerception();
+		CurrentObs.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
 	}
 
-	// ── MLP 정책 추론 및 액션 실행 ───────────────────────────────────────
-	TickPolicy(DeltaTime);
+	// ── 일상 행동 또는 MLP 정책 실행 ─────────────────────────────────────
+	// 화재가 시작됐더라도 단서를 아직 인식하지 못한 Normal 상태에서는 산책을 계속한다.
+	// 상태가 바뀐 바로 그 Tick에 일상 경로를 취소하고 기존 비상 행동 정책으로 넘긴다.
+	if (BehaviorSM && BehaviorSM->GetCurrentState() == EYUFSBehaviorState::Normal)
+	{
+		TickEverydayBehavior(DeltaTime);
+	}
+	else
+	{
+		StopEverydayBehavior();
+		TickPolicy(DeltaTime, CurrentObs);
+	}
+	CurrentObs.MillingActionCount = MillingActionCount;
 
 	// ── 이동 속도 제한 (Crawl / Incapacitated) ───────────────────────────
 	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
@@ -147,11 +211,27 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// ── 스턱 감지 ─────────────────────────────────────────────────────────
 	UpdateStuckDetection(DeltaTime);
 
-	// ── CSV 로깅 ──────────────────────────────────────────────────────────
-	FYUFSNPCObservation CurrentObs{};
-	BuildObservation(CurrentObs);
+	// ── CSV 로깅 (최대 10Hz) ───────────────────────────────────────────────
 	const EYUFSTerminalReason TerminalReason = GetCurrentTerminalReason();
-	FlushLearningTransition(CurrentObs, TerminalReason);
+	TransitionLogAccumulator += DeltaTime;
+	const float LogInterval = FMath::Max(TransitionLogIntervalSeconds, 0.1f);
+
+	if (!bHasPendingTransition)
+	{
+		// 첫 관찰값은 기준 상태로만 보관한다.
+		PrevObservation = CurrentObs;
+		bHasPendingTransition = bLogTransitions;
+		TransitionLogAccumulator = 0.f;
+	}
+	else if (TerminalReason != EYUFSTerminalReason::None || TransitionLogAccumulator >= LogInterval)
+	{
+		FlushLearningTransition(CurrentObs, TerminalReason);
+		TransitionLogAccumulator = FMath::Fmod(TransitionLogAccumulator, LogInterval);
+		if (bHasPendingTransition)
+		{
+			PrevObservation = CurrentObs;
+		}
+	}
 
 	if (TerminalReason != EYUFSTerminalReason::None)
 	{
@@ -159,8 +239,6 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		if (Navigator) Navigator->ClearPath();
 	}
 
-	PrevObservation = CurrentObs;
-	bHasPendingTransition = bLogTransitions;
 }
 
 void AYUFSEvacuationNPC::DriveMovementToward(FVector Target)
@@ -193,6 +271,191 @@ void AYUFSEvacuationNPC::SetMovementSpeed(float Speed)
 {
 	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 		Mv->MaxWalkSpeed = Speed;
+}
+
+void AYUFSEvacuationNPC::TickEverydayBehavior(float DeltaTime)
+{
+	if (!bEnableEverydayBehavior || !Navigator)
+	{
+		StopEverydayBehavior();
+		return;
+	}
+
+	if (!bEverydayBehaviorActive)
+	{
+		bEverydayBehaviorActive = true;
+		EverydayLookAnchorYaw = GetActorRotation().Yaw;
+		EverydayLookElapsed = 0.f;
+
+		if (const UCharacterMovementComponent* Mv = GetCharacterMovement())
+		{
+			SavedWalkSpeedBeforeEveryday = FMath::Max(1.f, Mv->MaxWalkSpeed);
+		}
+	}
+
+	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+	{
+		if (Mv->MovementMode == MOVE_None)
+		{
+			Mv->SetMovementMode(MOVE_Walking);
+		}
+		Mv->MaxWalkSpeed = FMath::Max(1.f, EverydayWalkSpeedCmPerSecond);
+	}
+
+	EverydayActivityTimer -= DeltaTime;
+
+	if (bEverydayRoaming)
+	{
+		const float AcceptanceRadius = FMath::Max(10.f, EverydayDestinationAcceptanceRadiusCm);
+		const bool bReachedDestination = !EverydayDestination.IsZero()
+			&& FVector::DistSquared2D(GetActorLocation(), EverydayDestination)
+				<= FMath::Square(AcceptanceRadius);
+
+		if (bReachedDestination || EverydayActivityTimer <= 0.f)
+		{
+			BeginEverydayIdle();
+			return;
+		}
+
+		// 비동기 탐색이 끝났는데 경로가 없다면 잠시 대기 후 새 목적지를 고른다.
+		if (!Navigator->bIsPathfinding && Navigator->GetCurrentPathPoints().IsEmpty())
+		{
+			BeginEverydayIdle();
+			return;
+		}
+
+		if (!Navigator->bIsPathfinding)
+		{
+			Navigator->UpdateWaypoint(GetActorLocation(), AcceptanceRadius);
+			if (Navigator->GetCurrentWaypointIndex() >= Navigator->GetCurrentPathPoints().Num())
+			{
+				BeginEverydayIdle();
+				return;
+			}
+
+			const FVector SteeringTarget = Navigator->GetSteeringTarget(GetActorLocation(), 120.f);
+			FVector Direction = SteeringTarget - GetActorLocation();
+			Direction.Z = 0.f;
+			if (!Direction.IsNearlyZero(1.f))
+			{
+				AddMovementInput(Direction.GetSafeNormal(), 1.f);
+			}
+		}
+		return;
+	}
+
+	// 대기 중에는 고개를 천천히 움직여 완전히 정지된 마네킹처럼 보이지 않게 한다.
+	EverydayLookElapsed += DeltaTime;
+	const float LookOffset = FMath::Sin(EverydayLookElapsed * 0.9f) * 18.f;
+	FRotator Rotation = GetActorRotation();
+	Rotation.Yaw = EverydayLookAnchorYaw + LookOffset;
+	SetActorRotation(Rotation);
+
+	if (EverydayActivityTimer <= 0.f)
+	{
+		ChooseNextEverydayActivity();
+	}
+}
+
+void AYUFSEvacuationNPC::ChooseNextEverydayActivity()
+{
+	const float MinIdle = FMath::Max(0.1f, FMath::Min(EverydayMinIdleSeconds, EverydayMaxIdleSeconds));
+	const float MaxIdle = FMath::Max(MinIdle, FMath::Max(EverydayMinIdleSeconds, EverydayMaxIdleSeconds));
+
+	if (EverydayRandomStream.FRand() > FMath::Clamp(EverydayRoamChance, 0.f, 1.f))
+	{
+		EverydayActivityTimer = EverydayRandomStream.FRandRange(MinIdle, MaxIdle);
+		EverydayLookAnchorYaw = GetActorRotation().Yaw;
+		EverydayLookElapsed = 0.f;
+		return;
+	}
+
+	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
+	if (!NavSystem)
+	{
+		EverydayActivityTimer = EverydayRandomStream.FRandRange(MinIdle, MaxIdle);
+		return;
+	}
+
+	FNavLocation Candidate;
+	bool bFoundDestination = false;
+	constexpr int32 MaxDestinationAttempts = 4;
+	for (int32 Attempt = 0; Attempt < MaxDestinationAttempts; ++Attempt)
+	{
+		if (NavSystem->GetRandomReachablePointInRadius(
+			EverydayRoamOrigin,
+			FMath::Max(100.f, EverydayRoamRadiusCm),
+			Candidate)
+			&& FVector::DistSquared2D(GetActorLocation(), Candidate.Location) > FMath::Square(150.f))
+		{
+			bFoundDestination = true;
+			break;
+		}
+	}
+
+	if (!bFoundDestination)
+	{
+		EverydayActivityTimer = EverydayRandomStream.FRandRange(MinIdle, MaxIdle);
+		return;
+	}
+
+	bEverydayRoaming = true;
+	EverydayDestination = Candidate.Location;
+	EverydayActivityTimer = FMath::Max(1.f, EverydayMaxRoamSeconds);
+	CurrentNavTarget = EverydayDestination;
+	Navigator->ClearPath();
+	Navigator->RequestPathAsync(EverydayDestination, 0);
+}
+
+void AYUFSEvacuationNPC::BeginEverydayIdle()
+{
+	bEverydayRoaming = false;
+	EverydayDestination = FVector::ZeroVector;
+	CurrentNavTarget = FVector::ZeroVector;
+	EverydayLookAnchorYaw = GetActorRotation().Yaw;
+	EverydayLookElapsed = 0.f;
+
+	const float MinIdle = FMath::Max(0.1f, FMath::Min(EverydayMinIdleSeconds, EverydayMaxIdleSeconds));
+	const float MaxIdle = FMath::Max(MinIdle, FMath::Max(EverydayMinIdleSeconds, EverydayMaxIdleSeconds));
+	EverydayActivityTimer = EverydayRandomStream.FRandRange(MinIdle, MaxIdle);
+
+	if (Navigator)
+	{
+		Navigator->ClearPath();
+	}
+	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+	{
+		Mv->StopMovementImmediately();
+	}
+}
+
+void AYUFSEvacuationNPC::StopEverydayBehavior()
+{
+	if (!bEverydayBehaviorActive && !bEverydayRoaming)
+	{
+		return;
+	}
+
+	bEverydayBehaviorActive = false;
+	bEverydayRoaming = false;
+	EverydayDestination = FVector::ZeroVector;
+	EverydayActivityTimer = 0.f;
+	CurrentNavTarget = FVector::ZeroVector;
+
+	if (Navigator)
+	{
+		Navigator->ClearPath();
+	}
+	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+	{
+		Mv->StopMovementImmediately();
+		Mv->MaxWalkSpeed = FMath::Max(1.f, SavedWalkSpeedBeforeEveryday);
+	}
+}
+
+void AYUFSEvacuationNPC::SetRoutePreference(EYUFSRoutePreference InPreference)
+{
+	RoutePreference = InPreference;
 }
 
 void AYUFSEvacuationNPC::UpdateStuckDetection(float DeltaTime)
@@ -285,6 +548,55 @@ int32 AYUFSEvacuationNPC::GetCurrentSimFrame() const
 	return BinaryManager ? BinaryManager->GetCurrentFrame() : 0;
 }
 
+void AYUFSEvacuationNPC::AssignRandomFamiliarExit()
+{
+	// 에디터 또는 SpawnActor 인자로 지정한 출구가 있으면 그 설정을 유지한다.
+	if (IsValid(FamiliarExitPoint))
+		return;
+
+	TArray<AYUFSExitPoint*> AvailableExits;
+	if (LevelDataMgr)
+	{
+		for (AYUFSExitPoint* ExitPoint : LevelDataMgr->GetExitPoints())
+		{
+			if (IsValid(ExitPoint))
+				AvailableExits.Add(ExitPoint);
+		}
+	}
+
+	// Actor의 BeginPlay 순서상 LevelDataManager의 캐시가 아직 비어 있을 수 있다.
+	if (AvailableExits.IsEmpty())
+	{
+		for (TActorIterator<AYUFSExitPoint> It(GetWorld()); It; ++It)
+		{
+			AvailableExits.Add(*It);
+		}
+	}
+
+	if (AvailableExits.IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning,
+			TEXT("[FamiliarExit] %s: 배정 가능한 YUFSExitPoint가 없어 기존 위치 기반 방식을 사용합니다."),
+			*GetName());
+		return;
+	}
+
+	FamiliarExitPoint = AvailableExits[FMath::RandRange(0, AvailableExits.Num() - 1)];
+	UE_LOG(LogTemp, Log,
+		TEXT("[FamiliarExit] %s -> %s (ExitID=%s)"),
+		*GetName(),
+		*FamiliarExitPoint->GetName(),
+		*FamiliarExitPoint->ExitID.ToString());
+}
+
+FVector AYUFSEvacuationNPC::GetAssignedFamiliarExitLocation() const
+{
+	if (IsValid(FamiliarExitPoint))
+		return FamiliarExitPoint->GetActorLocation();
+
+	return LevelDataMgr ? LevelDataMgr->GetFamiliarExit(SpawnLocation) : SpawnLocation;
+}
+
 void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 {
 	Out = FYUFSNPCObservation{};
@@ -313,7 +625,7 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 	const FVector Pos   = GetActorLocation();
 	const int32 Frame   = GetCurrentSimFrame();
 	const FVector NExit = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
-	const FVector FExit = LevelDataMgr->GetFamiliarExit(SpawnLocation);
+	const FVector FExit = GetAssignedFamiliarExitLocation();
 
 	Out.DistToNearestExit    = FVector::Dist(Pos, NExit);
 	Out.DistToFamiliarExit   = FVector::Dist(Pos, FExit);
@@ -345,6 +657,7 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 	Snapshot.Location = GetActorLocation();
 	Snapshot.Rotation = GetActorRotation();
 	Snapshot.CurrentAction = CurrentAction;
+	Snapshot.RoutePreference = RoutePreference;
 	Snapshot.bVisible = !IsHidden();
 	Snapshot.bEvacuated = false;
 	Snapshot.bIncapacitated = false;
@@ -370,11 +683,28 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot)
 {
 	// 관찰 모드에서는 물리 이동이 아니라 기록된 위치로 직접 배치합니다.
-	SetActorLocationAndRotation(Snapshot.Location, Snapshot.Rotation, false, nullptr, ETeleportType::TeleportPhysics);
+	// Transform/가시성 변경은 렌더 프록시와 Ray Tracing Scene 갱신을 유발하므로,
+	// 스냅샷이 현재 상태와 실제로 다를 때만 적용합니다.
+	constexpr float LocationToleranceCm = 1.0f;
+	constexpr float RotationToleranceDeg = 0.1f;
+	if (!GetActorLocation().Equals(Snapshot.Location, LocationToleranceCm) ||
+		!GetActorRotation().Equals(Snapshot.Rotation, RotationToleranceDeg))
+	{
+		SetActorLocationAndRotation(Snapshot.Location, Snapshot.Rotation, false, nullptr, ETeleportType::TeleportPhysics);
+	}
 
-	SetActorHiddenInGame(!Snapshot.bVisible);
-	SetActorEnableCollision(Snapshot.bVisible);
+	const bool bShouldBeHidden = !Snapshot.bVisible;
+	if (IsHidden() != bShouldBeHidden)
+	{
+		SetActorHiddenInGame(bShouldBeHidden);
+	}
 
+	if (GetActorEnableCollision() != Snapshot.bVisible)
+	{
+		SetActorEnableCollision(Snapshot.bVisible);
+	}
+
+	RoutePreference = Snapshot.RoutePreference;
 	CurrentAction = Snapshot.CurrentAction;
 
 	if (Navigator)
@@ -457,7 +787,7 @@ void AYUFSEvacuationNPC::FlushLearningTransition(const FYUFSNPCObservation& Next
 
 // ── MLP 정책 실행 메서드 ────────────────────────────────────────────────────
 
-void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
+void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation)
 {
 	if (!BehaviorSM) return;
 	if (BehaviorSM->IsIncapacitated()) return;
@@ -471,16 +801,27 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
 	{
 		PolicyTickAccumulator = 0.f;
 
-		FYUFSNPCObservation Obs{};
-		BuildObservation(Obs);
-		const EYUFSAction NewAction = MLPolicy.SelectAction(Obs);
+		EYUFSAction NewAction = MLPolicy.SelectAction(Observation);
 
-		if (Obs.CurrentState == EYUFSBehaviorState::Milling)
+		// 경로 성향은 정책의 행동 공간과 분리한다. 이렇게 하면 기존 28입력/11행동
+		// ONNX 모델을 깨뜨리지 않으면서 70:20:10 집단 배정을 적용할 수 있다.
+		if (Observation.CurrentState == EYUFSBehaviorState::Evacuating)
+		{
+			NewAction = bReceivedStaffGuidance
+				? EYUFSAction::EvacuateToNearestExit
+				: SelectRouteActionFromPreference();
+		}
+		else if (Observation.CurrentState == EYUFSBehaviorState::Crawling)
+		{
+			NewAction = EYUFSAction::EvacuateToNearestExit;
+		}
+
+		if (Observation.CurrentState == EYUFSBehaviorState::Milling)
 			++MillingActionCount;
 
 		// PADM 상태 전이가 발생하면 즉시 반응, 아니면 최소 유지 시간 보장
 		// (RuleBasedPolicy의 FMath::FRand() 매 틱 재추첨으로 인한 떨림 방지)
-		const bool bStateChanged   = Obs.CurrentState != LastPolicyBehaviorState;
+		const bool bStateChanged   = Observation.CurrentState != LastPolicyBehaviorState;
 		const bool bHeldLongEnough = ActionHoldTimer >= MinActionHoldDuration;
 
 		if (NewAction != CurrentAction && (bStateChanged || bHeldLongEnough))
@@ -490,7 +831,7 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime)
 			CurrentAction = NewAction;
 		}
 
-		LastPolicyBehaviorState = Obs.CurrentState;
+		LastPolicyBehaviorState = Observation.CurrentState;
 	}
 
 	ExecuteCurrentAction(DeltaTime);
@@ -599,18 +940,35 @@ FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 	case EYUFSAction::EvacuateToNearestExit:
 		if (bReceivedStaffGuidance && !StaffGuidedExitLocation.IsZero())
 			return StaffGuidedExitLocation;
-		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+		{
+			const FVector SafeExit = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+			return LevelDataMgr->IsLocationDangerous(SafeExit, Frame) ? FVector::ZeroVector : SafeExit;
+		}
 
 	case EYUFSAction::EvacuateToFamiliarExit:
-		return LevelDataMgr->GetFamiliarExit(SpawnLocation);
+		{
+			const FVector FamiliarExit = GetAssignedFamiliarExitLocation();
+			if (!LevelDataMgr->IsLocationDangerous(FamiliarExit, Frame))
+				return FamiliarExit;
+
+			const FVector SafeFallback = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+			return LevelDataMgr->IsLocationDangerous(SafeFallback, Frame)
+				? FVector::ZeroVector
+				: SafeFallback;
+		}
 
 	case EYUFSAction::FollowCrowd:
 		if (SocialComp)
 		{
 			const FVector Avg = SocialComp->GetAverageEvacuationDestination();
-			if (!Avg.IsZero()) return Avg;
+			if (!Avg.IsZero() && !LevelDataMgr->IsLocationDangerous(Avg, Frame)) return Avg;
 		}
-		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+		{
+			const FVector SafeFallback = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
+			return LevelDataMgr->IsLocationDangerous(SafeFallback, Frame)
+				? FVector::ZeroVector
+				: SafeFallback;
+		}
 
 	case EYUFSAction::HelpOther:
 		if (SocialComp)
@@ -622,6 +980,50 @@ FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 
 	default:
 		return FVector::ZeroVector;
+	}
+}
+
+EYUFSAction AYUFSEvacuationNPC::SelectRouteActionFromPreference() const
+{
+	switch (RoutePreference)
+	{
+	case EYUFSRoutePreference::FamiliarExit:
+		return EYUFSAction::EvacuateToFamiliarExit;
+	case EYUFSRoutePreference::SocialFollowing:
+		return EYUFSAction::FollowCrowd;
+	case EYUFSRoutePreference::NearestSafeExit:
+	default:
+		return EYUFSAction::EvacuateToNearestExit;
+	}
+}
+
+FLinearColor AYUFSEvacuationNPC::GetRoutePreferenceColor(EYUFSRoutePreference Preference) const
+{
+	switch (Preference)
+	{
+	case EYUFSRoutePreference::FamiliarExit:
+		return FamiliarExitDebugColor;
+	case EYUFSRoutePreference::SocialFollowing:
+		return SocialFollowingDebugColor;
+	case EYUFSRoutePreference::NearestSafeExit:
+	default:
+		return NearestSafeExitDebugColor;
+	}
+}
+
+FLinearColor AYUFSEvacuationNPC::GetActiveRouteDebugColor() const
+{
+	// 대피 경로 행동이 시작되면 실제 행동을 표시하고, 대피 전에는 배정된 집단 색을 표시한다.
+	switch (CurrentAction)
+	{
+	case EYUFSAction::EvacuateToFamiliarExit:
+		return GetRoutePreferenceColor(EYUFSRoutePreference::FamiliarExit);
+	case EYUFSAction::FollowCrowd:
+		return GetRoutePreferenceColor(EYUFSRoutePreference::SocialFollowing);
+	case EYUFSAction::EvacuateToNearestExit:
+		return GetRoutePreferenceColor(EYUFSRoutePreference::NearestSafeExit);
+	default:
+		return GetRoutePreferenceColor(RoutePreference);
 	}
 }
 

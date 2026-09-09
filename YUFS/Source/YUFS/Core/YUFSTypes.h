@@ -22,6 +22,18 @@ enum class EYUFSBehaviorState : uint8
 	Incapacitated    // 행동 불능 (연기 흡입 임계값 초과)
 };
 
+// ── 시뮬레이션 시작 시 배정하는 경로 선택 성향 ─────────────────────────
+// 보고서의 70:20:10은 매 정책 Tick마다 다시 추첨하는 확률이 아니라
+// 전체 NPC 집단에 한 번 배정하는 보정 목표다. 실제 경로가 위험하거나
+// 후보가 없으면 이 성향보다 안전 폴백이 우선한다.
+UENUM(BlueprintType)
+enum class EYUFSRoutePreference : uint8
+{
+	FamiliarExit,       // 70%: 친숙한 출구
+	SocialFollowing,    // 20%: 군중/리더 추종
+	NearestSafeExit     // 10%: 표지 또는 최근접 안전 출구
+};
+
 // ── NPC가 선택 가능한 구체적 행동 ────────────────────────────────────
 // IYUFSDecisionPolicy::SelectAction()의 반환 타입
 UENUM(BlueprintType)

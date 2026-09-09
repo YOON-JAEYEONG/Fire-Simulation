@@ -35,6 +35,9 @@ protected:
 	void PlayDebugAnimation();
 
 public:
+
+	void SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolume);
+
 	bool GetSmokeDensityAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutDensity);
 	bool GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature);
 	
@@ -59,7 +62,7 @@ private:
 	int32 TotalFrames = 0;
 	
 	UPROPERTY(EditAnywhere, Category="Fire")
-	int32 ChunkSize = 50; 
+	int32 ChunkSize = 24; 
 	
 	int32 CurrentDebugFrame = 0;
 	FTimerHandle DebugTimerHandle;
@@ -69,6 +72,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");
+
 	
 	// true로 설정하면 매 100ms마다 복셀 디버그 박스를 월드에 그림 (에디터 전용)
 	UPROPERTY(EditAnywhere, Category="Fire|Debug")
@@ -89,7 +93,7 @@ private:
 	int32 DimZ = 0;
 
 	// 동적 스트리밍 관련 변수
-	const int32 MaxBufferSize = 400; // 앞뒤 200프레임 (여유롭게 400 고정)
+	const int32 MaxBufferSize = 192;
 	bool bIsLoadingChunk = false;
 	int32 LoadGeneration = 0;
 	int32 LastCurrentFrame = -1;

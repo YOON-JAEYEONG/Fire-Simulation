@@ -39,12 +39,12 @@ void AYUFSBinaryManager::BeginPlay()
 	const int32 GridSize = DimX * DimY * DimZ;
 	for (int32 i = 0; i < MaxBufferSize; i++)
 	{
-		FramesBuffer[i].DensityGrid.SetNumZeroed(GridSize);
-		FramesBuffer[i].TemperatureGrid.SetNumZeroed(GridSize);
+		FramesBuffer[i].DensityGrid.SetNumUninitialized(GridSize);
+		FramesBuffer[i].TemperatureGrid.SetNumUninitialized(GridSize);
 	}
 
 	HeterogeneousVolume = Cast<AYUFSHeterogeneousVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSHeterogeneousVolume::StaticClass()));
-	
+
 	if (bDrawVoxelDebug)
 	{
 		GetWorld()->GetTimerManager().SetTimer(DebugTimerHandle, this, &AYUFSBinaryManager::PlayDebugAnimation, 0.1f, true);
@@ -59,7 +59,6 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 	{
 		CurrentDebugFrame = HeterogeneousVolume->GetFrame();
 	}
-
 	// 프레임 점프 감지 (에디터 조작 등)
 	if (FMath::Abs(CurrentDebugFrame - LastCurrentFrame) > 50)
 	{
@@ -71,8 +70,8 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 	// 필요한 프레임 찾기 및 백그라운드 로드 요청
 	if (!bIsLoadingChunk && TotalFrames > 0)
 	{
-		int32 LookBehind = 50; // 지나간 프레임 여유분
-		int32 LookAhead = 200; // 다가올 프레임 미리 로드
+		int32 LookBehind = 24; // 지나간 프레임 여유분
+		int32 LookAhead = 120; // 다가올 프레임 미리 로드
 		
 		int32 StartF = FMath::Max(0, CurrentDebugFrame - LookBehind);
 		int32 EndF = FMath::Min(TotalFrames, CurrentDebugFrame + LookAhead);
@@ -94,6 +93,14 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 			LoadDynamicChunkAsync(MissingStart, MissingEnd, LoadGeneration);
 		}
 	}
+}
+
+void AYUFSBinaryManager::SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolume)
+{
+	HeterogeneousVolume = InVolume;
+
+	UE_LOG(LogTemp, Warning, TEXT("[BinaryManager] HeterogeneousVolume manually linked: %s"),
+		HeterogeneousVolume ? *HeterogeneousVolume->GetName() : TEXT("NULL"));
 }
 
 void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation)
@@ -132,7 +139,9 @@ void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame,
 			}
 			delete FileHandle;
 
-			// 메인 스레드로 넘겨서 버퍼 갱신 (MoveTemp 사용)
+			// 메인 스레드에서 미리 할당한 순환 버퍼에 복사한다.
+			// 여기서 MoveTemp로 슬롯 배열을 교체하면 다음 순환 시 해당 슬롯의
+			// 대형 grid 배열을 다시 할당해야 하므로, 버퍼의 용량을 유지한다.
 			AsyncTask(ENamedThreads::GameThread, [this, StartFrame, EndFrame, Generation, TempData = MoveTemp(TempFrames)]() mutable
 			{
 				// 해당 로드 작업이 취소/무효화되지 않은 경우에만 버퍼에 덮어쓰기
@@ -142,7 +151,13 @@ void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame,
 					{
 						int32 f = StartFrame + i;
 						int32 Idx = f % MaxBufferSize;
-						this->FramesBuffer[Idx] = MoveTemp(TempData[i]);
+						FFrameData& Destination = this->FramesBuffer[Idx];
+						const FFrameData& Source = TempData[i];
+
+						check(Destination.DensityGrid.Num() == Source.DensityGrid.Num());
+						check(Destination.TemperatureGrid.Num() == Source.TemperatureGrid.Num());
+						FMemory::Memcpy(Destination.DensityGrid.GetData(), Source.DensityGrid.GetData(), Source.DensityGrid.Num());
+						FMemory::Memcpy(Destination.TemperatureGrid.GetData(), Source.TemperatureGrid.GetData(), Source.TemperatureGrid.Num());
 						this->LoadedFrameIndices[Idx] = f;
 					}
 				}
@@ -169,9 +184,12 @@ void AYUFSBinaryManager::PlayDebugAnimation()
 		return;
 	}
 
+	if (!HeterogeneousVolume) return;
+
 	FlushPersistentDebugLines(GetWorld());
 
-	int32 SafeDebugStep = FMath::Max(DebugStep, 4); 
+	const float LocalVoxelSize = VoxelSize / FMath::Abs(HeterogeneousVolume->GetActorScale3D().X);
+	int32 SafeDebugStep = FMath::Max(DebugStep, 4);
 
 	for (int32 x = 0; x < DimX; x += SafeDebugStep)
 	{
@@ -181,12 +199,8 @@ void AYUFSBinaryManager::PlayDebugAnimation()
 			{
 				int32 FlatIndex = (x * DimY * DimZ) + (y * DimZ) + z;
 
-				// 하드코딩된 GetSmokeDensityAtLocation의 완벽한 역연산
-				FVector WorldPos(
-					-x * VoxelSize,
-					-((DimY - 1) - y) * VoxelSize,
-					z * VoxelSize
-				);
+							FVector LocalPos(x * LocalVoxelSize, y * LocalVoxelSize, z * LocalVoxelSize);
+				FVector WorldPos = HeterogeneousVolume->GetActorTransform().TransformPosition(LocalPos);
 
 				FVector BaseExtent = FVector(VoxelSize * 0.5f * SafeDebugStep);
 
@@ -222,21 +236,21 @@ bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector WorldLocation, int32 
 		return false;
 	}
 
-	float LocalX = -WorldLocation.X; 
-	float LocalY = -WorldLocation.Y; 
-	float LocalZ = WorldLocation.Z;
+	if (!HeterogeneousVolume) return false;
 
-	int32 IndexX = FMath::FloorToInt(LocalX / VoxelSize);
-	int32 BaseIndexY = FMath::FloorToInt(LocalY / VoxelSize);
-	int32 IndexZ = FMath::FloorToInt(LocalZ / VoxelSize);
-	int32 IndexY = (DimY - 1) - BaseIndexY;
+	const float LocalVoxelSize = VoxelSize / FMath::Abs(HeterogeneousVolume->GetActorScale3D().X);
+	FVector LocalPos = HeterogeneousVolume->GetActorTransform().InverseTransformPosition(WorldLocation);
+
+	int32 IndexX = FMath::FloorToInt(LocalPos.X / LocalVoxelSize);
+	int32 IndexY = FMath::FloorToInt(LocalPos.Y / LocalVoxelSize);
+	int32 IndexZ = FMath::FloorToInt(LocalPos.Z / LocalVoxelSize);
 
 	if (IndexX >= 0 && IndexX < DimX &&
 		IndexY >= 0 && IndexY < DimY &&
 		IndexZ >= 0 && IndexZ < DimZ)
 	{
 		int32 FlatIndex = (IndexX * DimY * DimZ) + (IndexY * DimZ) + IndexZ;
-        
+
 		OutDensity = FramesBuffer[FrameIndex % MaxBufferSize].DensityGrid[FlatIndex];
 		return true;
 	}
@@ -247,8 +261,8 @@ bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector WorldLocation, int32 
 bool AYUFSBinaryManager::GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature)
 {
 	OutTemperature = 0;
-	
-	if (FrameIndex < 0 || FrameIndex >= TotalFrames) 
+
+	if (FrameIndex < 0 || FrameIndex >= TotalFrames)
 	{
 		return false;
 	}
@@ -258,14 +272,14 @@ bool AYUFSBinaryManager::GetTemperatureAtLocation(FVector WorldLocation, int32 F
 		return false;
 	}
 
-	float LocalX = -WorldLocation.X; 
-	float LocalY = -WorldLocation.Y; 
-	float LocalZ = WorldLocation.Z;
+	if (!HeterogeneousVolume) return false;
 
-	int32 IndexX = FMath::FloorToInt(LocalX / VoxelSize);
-	int32 BaseIndexY = FMath::FloorToInt(LocalY / VoxelSize);
-	int32 IndexZ = FMath::FloorToInt(LocalZ / VoxelSize);
-	int32 IndexY = (DimY - 1) - BaseIndexY;
+	const float LocalVoxelSize = VoxelSize / FMath::Abs(HeterogeneousVolume->GetActorScale3D().X);
+	FVector LocalPos = HeterogeneousVolume->GetActorTransform().InverseTransformPosition(WorldLocation);
+
+	int32 IndexX = FMath::FloorToInt(LocalPos.X / LocalVoxelSize);
+	int32 IndexY = FMath::FloorToInt(LocalPos.Y / LocalVoxelSize);
+	int32 IndexZ = FMath::FloorToInt(LocalPos.Z / LocalVoxelSize);
 
 	if (IndexX >= 0 && IndexX < DimX &&
 		IndexY >= 0 && IndexY < DimY &&

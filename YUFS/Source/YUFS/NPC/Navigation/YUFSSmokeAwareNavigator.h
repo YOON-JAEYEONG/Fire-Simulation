@@ -60,4 +60,6 @@ private:
 	int32 CurrentWaypointIndex = 0;
 	FVector CurrentDestination = FVector::ZeroVector;
 	float RerouteTimer = 0.f;
+	// ClearPath 이후 늦게 도착한 비동기 결과가 취소된 경로를 되살리지 않게 한다.
+	uint32 PathRequestGeneration = 0;
 };
