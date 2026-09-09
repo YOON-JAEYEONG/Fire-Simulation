@@ -52,6 +52,19 @@ public:
 	UFUNCTION(BlueprintPure, Category="Fire")
 	bool IsPlaying() const;
 
+	/** Existing authored ignition point, in this actor's local coordinates. No fire actor is spawned. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fire|Interaction")
+	bool bHasInteractionTarget = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Fire|Interaction", meta=(MakeEditWidget="true"))
+	FVector InteractionTargetLocal = FVector::ZeroVector;
+
+	UFUNCTION(BlueprintPure, Category="Fire|Interaction")
+	bool GetInteractionTarget(FVector& OutWorldLocation) const;
+	virtual void Tick(float DeltaSeconds) override;
+	bool IsLocalFireBurning() const { return bLocalFireActive && LocalFireStrength > 0.f; }
+	void ApplyLocalSuppression(float Amount);
+
 protected:
 	UPROPERTY(EditAnywhere, Category="Fire")
 	UHeterogeneousVolumeComponent* HeterogeneousVolumeComponent;
@@ -70,4 +83,15 @@ public:
 	// false로 설정하면 SimulationController의 StartFire() 호출 전까지 정지 상태 유지
 	UPROPERTY(EditAnywhere, Category="Fire")
 	bool bAutoPlayOnBeginPlay = false;
+
+private:
+	void CreateLocalEffects();
+	void RefreshLocalEffects();
+	UPROPERTY(Transient) TArray<TObjectPtr<class UStaticMeshComponent>> LocalEffectPlanes;
+	UPROPERTY(Transient) TArray<TObjectPtr<class UMaterialInstanceDynamic>> LocalEffectMaterials;
+	UPROPERTY(Transient) TObjectPtr<class UPointLightComponent> LocalFireLight;
+	float LocalFireStrength = 1.f;
+	float LocalEffectTime = 0.f;
+	bool bLocalFireActive = false;
+	bool bLocalEffectsPlaying = false;
 };

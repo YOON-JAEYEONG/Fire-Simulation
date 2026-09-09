@@ -7,6 +7,7 @@
 #include "Core/YUFSTypes.h"
 #include "GameFramework/Character.h"
 #include "NPC/Decision/YUFSOnnxPolicy.h"
+#include "NPC/Integration/YUFSTeamIntegrationTypes.h"
 #include "Simulation/YUFSTimelineTypes.h"
 #include "YUFSEvacuationNPC.generated.h"
 
@@ -20,7 +21,12 @@ class UYUFSBeliefComponent;
 class UYUFSIntentComponent;
 class UYUFSActionTaskComponent;
 class UYUFSActionAnimationComponent;
+class UYUFSHumanCognitionComponent;
+class UYUFSHumanBehaviorSelectorComponent;
+class UYUFSTeamIntegrationComponent;
 class UYUFSNPCDebugComponent;
+class UYUFSNpcEnvironmentInteraction;
+class UYUFSNpcSuppressionComponent;
 class UYUFSNPCPerceptionComponent;
 class AYUFSSimulationController;
 
@@ -59,6 +65,17 @@ public:
 	UPROPERTY(EditAnywhere, Category="AI|Evidence Decision")
 	bool bLogDecisionTrace = true;
 
+	UPROPERTY(EditAnywhere, Category="AI|Human Behavior")
+	bool bEnableHumanCognitionModel = true;
+
+	/** Enable only after the route-finding team binds to NavigationDirective. */
+	UPROPERTY(EditAnywhere, Category="AI|Team Integration")
+	bool bUseExternalNavigationDriver = false;
+
+	/** Enable only after the motion team binds to MotionDirective. */
+	UPROPERTY(EditAnywhere, Category="AI|Team Integration")
+	bool bUseExternalMotionDriver = false;
+
 	// 배치 NPC는 에디터에서 명시할 수 있고, 미지정 시 Actor 경로 CRC로 결정한다.
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="AI|Determinism")
 	int32 StableNPCId = INDEX_NONE;
@@ -79,7 +96,7 @@ public:
 	float TransitionLogIntervalSeconds = 0.1f;
 
 	// ── 이동 보조 API ──────────────────────────────────────────────────
-	void DriveMovementToward(FVector Target);
+	void DriveMovementToward(FVector Target, float AcceptanceRadius = 80.f);
 	void SetMovementSpeed(float Speed);
 
 	// ── 컴포넌트 접근자 ────────────────────────────────────────────────
@@ -93,6 +110,18 @@ public:
 	UYUFSIntentComponent*        GetIntentComponent()       const { return IntentComp; }
 	UYUFSActionTaskComponent*    GetActionTaskComponent()   const { return ActionTaskComp; }
 	UYUFSActionAnimationComponent* GetActionAnimationComponent() const { return ActionAnimationComp; }
+	UYUFSHumanCognitionComponent* GetHumanCognitionComponent() const { return HumanCognitionComp; }
+	UYUFSHumanBehaviorSelectorComponent* GetHumanBehaviorSelector() const { return HumanBehaviorSelector; }
+	UYUFSTeamIntegrationComponent* GetTeamIntegrationComponent() const { return TeamIntegrationComp; }
+	UYUFSNpcSuppressionComponent* GetSuppressionComponent() const { return SuppressionComp; }
+	UPROPERTY(VisibleAnywhere, Category="NPC|Interaction")
+	TObjectPtr<UYUFSNpcSuppressionComponent> SuppressionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="NPC|Interaction")
+	TObjectPtr<UYUFSNpcEnvironmentInteraction> EnvironmentInteraction;
+	// Opt-in visual fixture only: replaces decision input, never interaction outcomes.
+	bool bInteractionPreviewControlled = false;
+	EYUFSHighLevelBehavior InteractionPreviewBehavior = EYUFSHighLevelBehavior::WaitObserve;
+	FVector InteractionPreviewDestination = FVector::ZeroVector;
 	EYUFSIntent GetCurrentIntent() const;
 	int32 GetStableNPCId() const { return StableNPCId; }
 	bool RollSocialProbability(float Probability);
@@ -152,6 +181,12 @@ private:
 	UYUFSActionTaskComponent* ActionTaskComp;
 	UPROPERTY(VisibleAnywhere)
 	UYUFSActionAnimationComponent* ActionAnimationComp;
+	UPROPERTY(VisibleAnywhere)
+	UYUFSHumanCognitionComponent* HumanCognitionComp;
+	UPROPERTY(VisibleAnywhere)
+	UYUFSHumanBehaviorSelectorComponent* HumanBehaviorSelector;
+	UPROPERTY(VisibleAnywhere)
+	UYUFSTeamIntegrationComponent* TeamIntegrationComp;
 
 	UPROPERTY(VisibleAnywhere)
 	AYUFSBinaryManager* BinaryManager = nullptr;
@@ -201,6 +236,7 @@ private:
 	FYUFSDeterministicRngSet DeterministicRng;
 	bool bHasSafeExit = false;
 	FVector LastSafeExit = FVector::ZeroVector;
+	int64 LastTeamFeedbackGeneration = 0;
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
 	EYUFSAction CurrentAction            = EYUFSAction::Idle;
@@ -227,6 +263,8 @@ private:
 	void TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation);
 	EYUFSAction ConstrainActionForIntent(EYUFSAction ProposedAction) const;
 	void UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCObservation& Observation);
+	void ProcessTeamFeedback();
+	void PublishTeamDirectives(const FYUFSNPCObservation& Observation);
 	void TraceIntentTransition() const;
 	void TraceTaskEvent(EYUFSActionTask Task, EYUFSTaskCancelReason Reason, const FString& Trigger) const;
 	FString GetScenarioHash() const;

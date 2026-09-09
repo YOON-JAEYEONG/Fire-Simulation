@@ -14,6 +14,10 @@ class YUFS_API UYUFSGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
+	virtual void OnStart() override;
+	// Called for every play world, including Stop/Reset level reloads. Idempotent.
+	void SetupBuildingInteractions(UWorld* World);
+
 	// 다음 레벨 시작 시 SimulationController가 읽어갈 배치 상태
 	bool bHasPendingBatchRun = false;
 	int32 PendingRunIndex = 1;
@@ -22,4 +26,7 @@ public:
 
 	void SetupNextRun(int32 NextRunIndex, int32 TotalRuns, const TArray<FSimRunResult>& PreviousResults);
 	void ClearBatchState();
+
+private:
+	TWeakObjectPtr<UWorld> BuildingInteractionSetupWorld;
 };

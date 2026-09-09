@@ -23,6 +23,69 @@ void UYUFSActionTaskComponent::UpdateTask(
 		bHasObservedContext = true;
 	}
 
+	const bool bIntentAllowsTask =
+		Intent == EYUFSIntent::Observe || Intent == EYUFSIntent::Prepare || Intent == EYUFSIntent::Help;
+	EYUFSActionTask DesiredTask = bIntentAllowsTask ? MapActionToTask(Action) : EYUFSActionTask::None;
+	if (DesiredTask == CompletedTask)
+	{
+		DesiredTask = EYUFSActionTask::None;
+	}
+
+	UpdateResolvedTask(
+		DeltaTime,
+		DesiredTask,
+		bImmediateLifeRisk,
+		bOfficialInstruction,
+		RandomSource);
+}
+
+void UYUFSActionTaskComponent::UpdateDesiredTask(
+	float DeltaTime,
+	EYUFSActionTask DesiredTask,
+	int64 BehaviorDecisionRevision,
+	EYUFSIntent Intent,
+	bool bImmediateLifeRisk,
+	bool bOfficialInstruction,
+	FYUFSDeterministicRngSet& RandomSource)
+{
+	if (!bHasObservedContext
+		|| Intent != LastObservedIntent
+		|| BehaviorDecisionRevision != LastBehaviorDecisionRevision)
+	{
+		CompletedTask = EYUFSActionTask::None;
+		LastObservedIntent = Intent;
+		LastBehaviorDecisionRevision = BehaviorDecisionRevision;
+		bHasObservedContext = true;
+	}
+
+	const bool bIntentAllowsTask =
+		Intent == EYUFSIntent::Observe || Intent == EYUFSIntent::Prepare || Intent == EYUFSIntent::Help;
+	if (!bIntentAllowsTask)
+	{
+		if (!(Intent == EYUFSIntent::CommitEvac && DesiredTask == EYUFSActionTask::InitialExtinguish))
+			DesiredTask = EYUFSActionTask::None;
+	}
+	if (DesiredTask == CompletedTask)
+	{
+		DesiredTask = EYUFSActionTask::None;
+	}
+
+	UpdateResolvedTask(
+		DeltaTime,
+		DesiredTask,
+		bImmediateLifeRisk,
+		bOfficialInstruction,
+		RandomSource);
+}
+
+void UYUFSActionTaskComponent::UpdateResolvedTask(
+	float DeltaTime,
+	EYUFSActionTask DesiredTask,
+	bool bImmediateLifeRisk,
+	bool bOfficialInstruction,
+	FYUFSDeterministicRngSet& RandomSource)
+{
+
 	if (bImmediateLifeRisk)
 	{
 		CancelTask(EYUFSTaskCancelReason::LifeRisk);
@@ -33,14 +96,6 @@ void UYUFSActionTaskComponent::UpdateTask(
 	{
 		CancelTask(EYUFSTaskCancelReason::OfficialInstruction);
 		return;
-	}
-
-	const bool bIntentAllowsTask =
-		Intent == EYUFSIntent::Observe || Intent == EYUFSIntent::Prepare || Intent == EYUFSIntent::Help;
-	EYUFSActionTask DesiredTask = bIntentAllowsTask ? MapActionToTask(Action) : EYUFSActionTask::None;
-	if (DesiredTask == CompletedTask)
-	{
-		DesiredTask = EYUFSActionTask::None;
 	}
 
 	if (DesiredTask != CurrentTask)
@@ -61,7 +116,9 @@ void UYUFSActionTaskComponent::UpdateTask(
 	}
 
 	ElapsedSeconds += DeltaTime;
-	if (ElapsedSeconds >= PlannedDurationSeconds)
+	// Object execution owns suppression completion; a duration draw is not a
+	// successful extinguishing operation. The runtime adapter reports feedback.
+	if (ElapsedSeconds >= PlannedDurationSeconds && CurrentTask != EYUFSActionTask::InitialExtinguish)
 	{
 		CompletedTask = CurrentTask;
 		CancelTask(EYUFSTaskCancelReason::Completed);

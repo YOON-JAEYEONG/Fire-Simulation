@@ -2,6 +2,7 @@
 
 #include "Components/ActorComponent.h"
 #include "CoreMinimal.h"
+#include "NPC/Cognition/YUFSHumanCognitionTypes.h"
 #include "YUFSBeliefComponent.generated.h"
 
 struct FYUFSNPCObservation;
@@ -16,12 +17,14 @@ public:
 	UYUFSBeliefComponent();
 
 	void UpdateBelief(const FYUFSNPCObservation& Observation);
+	void SetCognitiveContext(float NormalcyBias, float SocialConformity, float AuthorityTrust);
 
 	float GetCommitProbability() const { return CommitProbability; }
 	uint32 GetActiveCueMask() const { return ActiveCueMask; }
 	bool HasEmergencyCue() const { return bHasEmergencyCue; }
 	bool HasImmediateLifeRisk() const { return bImmediateLifeRisk; }
 	bool HasVerifiedOfficialInstruction() const { return bVerifiedOfficialInstruction; }
+	EYUFSPerceivedPhysicalSeverity GetPhysicalSeverity() const { return PhysicalSeverity; }
 	FString GetPolicyHash() const;
 
 	UPROPERTY(EditAnywhere, Category="Belief|Traits")
@@ -48,6 +51,18 @@ public:
 	UPROPERTY(EditAnywhere, Category="Belief|Likelihood Ratio", meta=(ClampMin="0.01"))
 	float MovingCrowdLikelihoodRatio = 1.5f;
 
+	UPROPERTY(EditAnywhere, Category="Belief|Likelihood Ratio", meta=(ClampMin="0.01"))
+	float StationaryCrowdLikelihoodRatio = 0.75f;
+
+	UPROPERTY(EditAnywhere, Category="Belief|Likelihood Ratio", meta=(ClampMin="0.01"))
+	float NormalcyLikelihoodRatio = 0.65f;
+
+	UPROPERTY(EditAnywhere, Category="Belief|Clamp", meta=(ClampMin="0.001", ClampMax="0.5"))
+	float MinimumCommitProbability = 0.02f;
+
+	UPROPERTY(EditAnywhere, Category="Belief|Clamp", meta=(ClampMin="0.5", ClampMax="0.999"))
+	float MaximumCommitProbability = 0.95f;
+
 	UPROPERTY(EditAnywhere, Category="Belief|Threshold", meta=(ClampMin="0.0", ClampMax="1.0"))
 	float ConfirmedSmokeThreshold = 0.15f;
 
@@ -63,4 +78,8 @@ private:
 	bool bHasEmergencyCue = false;
 	bool bImmediateLifeRisk = false;
 	bool bVerifiedOfficialInstruction = false;
+	EYUFSPerceivedPhysicalSeverity PhysicalSeverity = EYUFSPerceivedPhysicalSeverity::None;
+	float CognitiveNormalcyBias = 0.f;
+	float CognitiveSocialConformity = 1.f;
+	float CognitiveAuthorityTrust = 1.f;
 };

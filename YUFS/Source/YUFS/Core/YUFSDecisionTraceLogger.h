@@ -27,8 +27,11 @@ public:
 		int32 PreActionTargetCount,
 		uint64 DecisionDrawCount,
 		uint64 DurationDrawCount,
+		uint64 TaskChoiceDrawCount,
 		uint64 RouteDrawCount,
-		uint64 SocialDrawCount);
+		uint64 SocialDrawCount,
+		uint64 InteractionErrorDrawCount,
+		uint64 TraitDrawCount);
 
 	static FString GetLogFilePath();
 

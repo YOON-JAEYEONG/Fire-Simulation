@@ -39,6 +39,16 @@ public:
 		bool bOfficialInstruction,
 		FYUFSDeterministicRngSet& RandomSource);
 
+	/** Decision-team path. A revision change explicitly permits a repeated semantic task. */
+	void UpdateDesiredTask(
+		float DeltaTime,
+		EYUFSActionTask DesiredTask,
+		int64 BehaviorDecisionRevision,
+		EYUFSIntent Intent,
+		bool bImmediateLifeRisk,
+		bool bOfficialInstruction,
+		FYUFSDeterministicRngSet& RandomSource);
+
 	EYUFSActionTask GetCurrentTask() const { return CurrentTask; }
 	float GetProgress01() const;
 	bool ConsumeTaskEvent(EYUFSActionTask& OutFrom, EYUFSActionTask& OutTo, EYUFSTaskCancelReason& OutReason);
@@ -68,6 +78,12 @@ private:
 	static float DrawLogNormal(const FYUFSLogNormalDurationModel& Model, FYUFSDeterministicRngSet& RandomSource);
 	static float DrawTriangular(const FVector& MinModeMax, FYUFSDeterministicRngSet& RandomSource);
 	float DrawDuration(EYUFSActionTask Task, FYUFSDeterministicRngSet& RandomSource) const;
+	void UpdateResolvedTask(
+		float DeltaTime,
+		EYUFSActionTask DesiredTask,
+		bool bImmediateLifeRisk,
+		bool bOfficialInstruction,
+		FYUFSDeterministicRngSet& RandomSource);
 	void StartTask(EYUFSActionTask NewTask, FYUFSDeterministicRngSet& RandomSource);
 	void CancelTask(EYUFSTaskCancelReason Reason);
 
@@ -75,6 +91,7 @@ private:
 	EYUFSActionTask CompletedTask = EYUFSActionTask::None;
 	EYUFSAction LastObservedAction = EYUFSAction::Idle;
 	EYUFSIntent LastObservedIntent = EYUFSIntent::Observe;
+	int64 LastBehaviorDecisionRevision = 0;
 	TArray<FTaskEvent> PendingEvents;
 	float ElapsedSeconds = 0.f;
 	float PlannedDurationSeconds = 0.f;

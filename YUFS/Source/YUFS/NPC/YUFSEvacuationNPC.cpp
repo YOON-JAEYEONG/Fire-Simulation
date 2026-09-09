@@ -21,7 +21,12 @@
 #include "Navigation/YUFSSmokeAwareNavigator.h"
 #include "NavigationSystem.h"
 #include "NPC/Decision/YUFSBeliefComponent.h"
+#include "NPC/Decision/YUFSHumanBehaviorSelectorComponent.h"
 #include "NPC/Decision/YUFSIntentComponent.h"
+#include "NPC/Cognition/YUFSHumanCognitionComponent.h"
+#include "NPC/Integration/YUFSTeamIntegrationComponent.h"
+#include "NPC/Integration/YUFSNpcSuppressionComponent.h"
+#include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
 #include "NPC/Tasks/YUFSActionTaskComponent.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
 #include "Simulation/YUFSSimulationController.h"
@@ -44,6 +49,11 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 	IntentComp     = CreateDefaultSubobject<UYUFSIntentComponent>(TEXT("YUFSIntentComponent"));
 	ActionTaskComp = CreateDefaultSubobject<UYUFSActionTaskComponent>(TEXT("YUFSActionTaskComponent"));
 	ActionAnimationComp = CreateDefaultSubobject<UYUFSActionAnimationComponent>(TEXT("YUFSActionAnimationComponent"));
+	HumanCognitionComp = CreateDefaultSubobject<UYUFSHumanCognitionComponent>(TEXT("YUFSHumanCognitionComponent"));
+	HumanBehaviorSelector = CreateDefaultSubobject<UYUFSHumanBehaviorSelectorComponent>(TEXT("YUFSHumanBehaviorSelectorComponent"));
+	TeamIntegrationComp = CreateDefaultSubobject<UYUFSTeamIntegrationComponent>(TEXT("YUFSTeamIntegrationComponent"));
+	SuppressionComp = CreateDefaultSubobject<UYUFSNpcSuppressionComponent>(TEXT("NpcSuppression"));
+	EnvironmentInteraction = CreateDefaultSubobject<UYUFSNpcEnvironmentInteraction>(TEXT("EnvironmentInteraction"));
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw   = false;
@@ -78,6 +88,19 @@ void AYUFSEvacuationNPC::BeginPlay()
 		StableNPCId = static_cast<int32>(FCrc::StrCrc32(*GetPathName()) & 0x7fffffffu);
 	}
 	DeterministicRng.Initialize(ScenarioSeed, StableNPCId);
+	if (HumanCognitionComp)
+	{
+		HumanCognitionComp->Initialize(StableNPCId, DeterministicRng);
+		if (HumanBehaviorSelector && !HumanBehaviorSelector->PolicyAsset)
+		{
+			HumanBehaviorSelector->PolicyAsset = HumanCognitionComp->PolicyAsset;
+		}
+		if (BeliefComp)
+		{
+			BeliefComp->bTrainingCompleted = BeliefComp->bTrainingCompleted
+				|| HumanCognitionComp->GetTraits().FireTraining >= 0.55f;
+		}
+	}
 	MLPolicy.SetFallbackRandomSource(&DeterministicRng);
 	if (ActionAnimationComp)
 	{
@@ -111,6 +134,51 @@ void AYUFSEvacuationNPC::BeginPlay()
 void AYUFSEvacuationNPC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (bInteractionPreviewControlled)
+	{
+		EnvironmentInteraction->Observe(DeltaTime);
+		FYUFSBehaviorDecision Preview;
+		Preview.Behavior = InteractionPreviewBehavior;
+		Preview.LegacyAction = InteractionPreviewBehavior == EYUFSHighLevelBehavior::AssistOther ? EYUFSAction::HelpOther
+			: InteractionPreviewBehavior == EYUFSHighLevelBehavior::EvacuateNearest ? EYUFSAction::EvacuateToNearestExit : EYUFSAction::WaitForInfo;
+		Preview.Reason = TEXT("ExplicitVisualPreview");
+		TeamIntegrationComp->PublishDecision(StableNPCId, Preview, EYUFSIntent::CommitEvac, EYUFSBehaviorState::Normal,
+			InteractionPreviewDestination, true, FYUFSCognitiveState());
+		if (EnvironmentInteraction->IsReceivingContactAssistance())
+		{
+			GetCharacterMovement()->StopMovementImmediately();
+			if (!bUseExternalMotionDriver)
+			{
+				const auto* Helper = EnvironmentInteraction->GetAssistingNPC();
+				SetActorRotation(FRotator(0, (Helper->GetActorLocation()-GetActorLocation()).Rotation().Yaw, 0));
+				ActionAnimationComp->ApplyAction(EYUFSAction::AlertNearbyOccupants,EYUFSBehaviorState::Normal);
+			}
+			return;
+		}
+		CurrentAction = Preview.LegacyAction;
+		ExecuteCurrentAction(DeltaTime);
+		if (!EnvironmentInteraction->IsActive())
+		{
+			if (InteractionPreviewBehavior == EYUFSHighLevelBehavior::EvacuateNearest)
+			{
+				if (!bUseExternalNavigationDriver && Navigator)
+				{
+					// Navigator stores a floor-projected destination, while this hint can
+					// be at capsule height. Height alone must not restart the same path.
+					if (!Navigator->bIsPathfinding && (Navigator->GetCurrentPathPoints().IsEmpty()
+						|| FVector::DistSquared2D(Navigator->GetCurrentDestination(),InteractionPreviewDestination)>FMath::Square(40.f)))
+						Navigator->RequestPathAsync(InteractionPreviewDestination,GetCurrentSimFrame());
+					GetCharacterMovement()->MaxWalkSpeed = 150.f;
+					DriveMovementToward(InteractionPreviewDestination,35.f);
+				}
+				if (!bUseExternalMotionDriver && ActionAnimationComp)
+					ActionAnimationComp->ApplyAction(GetVelocity().Size2D()>5.f?EYUFSAction::HelpOther:EYUFSAction::Idle,EYUFSBehaviorState::Normal);
+			}
+			else if (!bUseExternalMotionDriver && ActionAnimationComp)
+				ActionAnimationComp->ApplyAction(EYUFSAction::WaitForInfo,EYUFSBehaviorState::Normal);
+		}
+		return;
+	}
 
 	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
 	// 관찰 모드에서는 AI 판단, 경로 탐색, 이동 입력을 다시 계산하면 안 됩니다.
@@ -164,6 +232,9 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// ── Observation은 Tick당 한 번만 생성해 상태머신/정책/기록이 공유한다. ──
 	FYUFSNPCObservation CurrentObs{};
 	BuildObservation(CurrentObs);
+	if (SuppressionComp) SuppressionComp->Observe(DeltaTime, CurrentFrame, CurrentObs);
+	if (EnvironmentInteraction) EnvironmentInteraction->Observe(DeltaTime);
+	ProcessTeamFeedback();
 
 	// ── PADM 상태머신 갱신 ───────────────────────────────────────────────
 	if (BehaviorSM)
@@ -183,13 +254,28 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 
 	if (bEnableEvidenceDecisionModel && ActionTaskComp && BeliefComp && IntentComp)
 	{
-		ActionTaskComp->UpdateTask(
-			DeltaTime,
-			CurrentAction,
-			IntentComp->GetCurrentIntent(),
-			BeliefComp->HasImmediateLifeRisk(),
-			BeliefComp->HasVerifiedOfficialInstruction(),
-			DeterministicRng);
+		if (bEnableHumanCognitionModel && HumanBehaviorSelector)
+		{
+			const FYUFSBehaviorDecision& Decision = HumanBehaviorSelector->GetCurrentDecision();
+			ActionTaskComp->UpdateDesiredTask(
+				DeltaTime,
+				Decision.DesiredTask,
+				Decision.Revision,
+				IntentComp->GetCurrentIntent(),
+				BeliefComp->HasImmediateLifeRisk(),
+				BeliefComp->HasVerifiedOfficialInstruction(),
+				DeterministicRng);
+		}
+		else
+		{
+			ActionTaskComp->UpdateTask(
+				DeltaTime,
+				CurrentAction,
+				IntentComp->GetCurrentIntent(),
+				BeliefComp->HasImmediateLifeRisk(),
+				BeliefComp->HasVerifiedOfficialInstruction(),
+				DeterministicRng);
+		}
 
 		EYUFSActionTask FromTask = EYUFSActionTask::None;
 		EYUFSActionTask ToTask = EYUFSActionTask::None;
@@ -200,6 +286,10 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 			TraceTaskEvent(EventTask, Reason, ToTask != EYUFSActionTask::None ? TEXT("TaskStarted") : TEXT("TaskEnded"));
 			if (Reason == EYUFSTaskCancelReason::Completed)
 			{
+				if (HumanBehaviorSelector)
+				{
+					HumanBehaviorSelector->NotifyTaskFinished(EventTask);
+				}
 				IntentComp->NotifyPreActionCompleted(bHasSafeExit);
 				BehaviorSM->ApplyIntentProjection(IntentComp->GetCurrentIntent());
 				if (IntentComp->DidIntentChange())
@@ -210,6 +300,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 			}
 		}
 	}
+	PublishTeamDirectives(CurrentObs);
 	CurrentObs.MillingActionCount = MillingActionCount;
 
 	// ── 이동 속도 제한 (Crawl / Incapacitated) ───────────────────────────
@@ -264,7 +355,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 
 }
 
-void AYUFSEvacuationNPC::DriveMovementToward(FVector Target)
+void AYUFSEvacuationNPC::DriveMovementToward(FVector Target, float AcceptanceRadius)
 {
 	if (!Navigator || Target.IsZero()) return;
 
@@ -276,7 +367,7 @@ void AYUFSEvacuationNPC::DriveMovementToward(FVector Target)
 			Mv->MaxWalkSpeed = 300.f;
 	}
 
-	Navigator->UpdateWaypoint(GetActorLocation(), 80.f);
+	Navigator->UpdateWaypoint(GetActorLocation(), AcceptanceRadius);
 	const FVector SteeringTarget = Navigator->GetSteeringTarget(GetActorLocation(), 120.f);
 
 	FVector Dir = SteeringTarget - GetActorLocation();
@@ -431,6 +522,21 @@ void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCOb
 		return;
 	}
 
+	if (bEnableHumanCognitionModel && HumanCognitionComp)
+	{
+		HumanCognitionComp->UpdateCognition(DeltaTime, Observation);
+		const FYUFSCognitiveState& Cognition = HumanCognitionComp->GetCognitiveState();
+		const FYUFSHumanTraits& Traits = HumanCognitionComp->GetTraits();
+		Observation.StressLevel = Cognition.Stress;
+		BeliefComp->SetCognitiveContext(
+			Cognition.NormalcyBias,
+			Traits.SocialConformity,
+			Traits.AuthorityTrust);
+		if (HumanCognitionComp->DidEvidenceChange() && HumanBehaviorSelector)
+		{
+			HumanBehaviorSelector->RequestReselection(Cognition.LastEvidenceTrigger);
+		}
+	}
 	BeliefComp->UpdateBelief(Observation);
 	bHasSafeExit = LevelDataMgr && LevelDataMgr->TryGetNearestSafeExit(
 		GetActorLocation(),
@@ -441,7 +547,16 @@ void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCOb
 		LastSafeExit = FVector::ZeroVector;
 	}
 
-	IntentComp->UpdateIntent(DeltaTime, Observation, *BeliefComp, bHasSafeExit, DeterministicRng);
+	const int64 EvidenceRevision = bEnableHumanCognitionModel && HumanCognitionComp
+		? HumanCognitionComp->GetCognitiveState().EvidenceRevision
+		: 0;
+	IntentComp->UpdateIntent(
+		DeltaTime,
+		Observation,
+		*BeliefComp,
+		bHasSafeExit,
+		DeterministicRng,
+		EvidenceRevision);
 	BehaviorSM->ApplyIntentProjection(IntentComp->GetCurrentIntent());
 
 	// 기존 UI/ONNX V1은 호환 투영된 BehaviorState를 계속 읽는다.
@@ -451,8 +566,109 @@ void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCOb
 
 	if (IntentComp->DidIntentChange())
 	{
+		if (HumanCognitionComp)
+		{
+			HumanCognitionComp->NotifyPlanChanged();
+		}
+		if (HumanBehaviorSelector)
+		{
+			HumanBehaviorSelector->RequestReselection(TEXT("IntentChanged"));
+		}
 		TraceIntentTransition();
 	}
+}
+
+void AYUFSEvacuationNPC::ProcessTeamFeedback()
+{
+	if (!TeamIntegrationComp
+		|| TeamIntegrationComp->GetFeedbackGeneration() == LastTeamFeedbackGeneration)
+	{
+		return;
+	}
+
+	LastTeamFeedbackGeneration = TeamIntegrationComp->GetFeedbackGeneration();
+	auto IsTerminalFeedback = [](const FYUFSTeamRequestFeedback& Feedback)
+	{
+		return Feedback.Status == EYUFSTeamRequestStatus::Completed
+			|| Feedback.Status == EYUFSTeamRequestStatus::Failed
+			|| Feedback.Status == EYUFSTeamRequestStatus::Blocked
+			|| Feedback.Status == EYUFSTeamRequestStatus::Cancelled;
+	};
+
+	FName Trigger = NAME_None;
+	const FYUFSTeamRequestFeedback& InteractionFeedback = TeamIntegrationComp->GetInteractionFeedback();
+	const FYUFSTeamRequestFeedback& NavigationFeedback = TeamIntegrationComp->GetNavigationFeedback();
+	if (IsTerminalFeedback(InteractionFeedback))
+	{
+		Trigger = InteractionFeedback.Reason.IsNone()
+			? TEXT("InteractionFeedback")
+			: InteractionFeedback.Reason;
+	}
+	else if (NavigationFeedback.Status == EYUFSTeamRequestStatus::Failed
+		|| NavigationFeedback.Status == EYUFSTeamRequestStatus::Blocked)
+	{
+		Trigger = NavigationFeedback.Reason.IsNone()
+			? TEXT("NavigationBlocked")
+			: NavigationFeedback.Reason;
+	}
+
+	if (!Trigger.IsNone())
+	{
+		if (HumanBehaviorSelector)
+		{
+			HumanBehaviorSelector->RequestReselection(Trigger);
+		}
+		if (IntentComp)
+		{
+			IntentComp->RequestReappraisal(Trigger);
+		}
+	}
+}
+
+void AYUFSEvacuationNPC::PublishTeamDirectives(const FYUFSNPCObservation& Observation)
+{
+	if (!TeamIntegrationComp)
+	{
+		return;
+	}
+
+	FYUFSBehaviorDecision FallbackDecision;
+	const FYUFSBehaviorDecision* Decision = HumanBehaviorSelector
+		? &HumanBehaviorSelector->GetCurrentDecision()
+		: &FallbackDecision;
+	if (Decision->Behavior == EYUFSHighLevelBehavior::None)
+	{
+		FallbackDecision.LegacyAction = CurrentAction;
+		FallbackDecision.Reason = TEXT("LegacyFallback");
+		switch (CurrentAction)
+		{
+		case EYUFSAction::EvacuateToFamiliarExit: FallbackDecision.Behavior = EYUFSHighLevelBehavior::EvacuateFamiliar; break;
+		case EYUFSAction::EvacuateToNearestExit: FallbackDecision.Behavior = EYUFSHighLevelBehavior::EvacuateNearest; break;
+		case EYUFSAction::FollowCrowd: FallbackDecision.Behavior = EYUFSHighLevelBehavior::FollowCrowd; break;
+		case EYUFSAction::HelpOther: FallbackDecision.Behavior = EYUFSHighLevelBehavior::AssistOther; break;
+		case EYUFSAction::GatherBelongings: FallbackDecision.Behavior = EYUFSHighLevelBehavior::RetrieveBelongings; break;
+		case EYUFSAction::SeekInformation: FallbackDecision.Behavior = EYUFSHighLevelBehavior::SeekInformation; break;
+		case EYUFSAction::Film: FallbackDecision.Behavior = EYUFSHighLevelBehavior::ObserveOrRecord; break;
+		default: FallbackDecision.Behavior = EYUFSHighLevelBehavior::WaitObserve; break;
+		}
+		Decision = &FallbackDecision;
+	}
+
+	const FYUFSCognitiveState DefaultCognition;
+	const FYUFSCognitiveState& Cognition = HumanCognitionComp
+		? HumanCognitionComp->GetCognitiveState()
+		: DefaultCognition;
+	const FVector DestinationHint = IsNavigationAction(CurrentAction)
+		? ResolveNavigationTarget(CurrentAction)
+		: FVector::ZeroVector;
+	TeamIntegrationComp->PublishDecision(
+		StableNPCId,
+		*Decision,
+		IntentComp ? IntentComp->GetCurrentIntent() : EYUFSIntent::Observe,
+		BehaviorSM ? BehaviorSM->GetCurrentState() : Observation.CurrentState,
+		DestinationHint,
+		bHasSafeExit,
+		Cognition);
 }
 
 EYUFSIntent AYUFSEvacuationNPC::GetCurrentIntent() const
@@ -513,8 +729,11 @@ void AYUFSEvacuationNPC::TraceIntentTransition() const
 		IntentComp->GetPreActionTargetCount(),
 		DeterministicRng.GetDrawCount(EYUFSRngStream::Decision),
 		DeterministicRng.GetDrawCount(EYUFSRngStream::TaskDuration),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::TaskChoice),
 		DeterministicRng.GetDrawCount(EYUFSRngStream::Route),
-		DeterministicRng.GetDrawCount(EYUFSRngStream::Social));
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Social),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::InteractionError),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Traits));
 }
 
 void AYUFSEvacuationNPC::TraceTaskEvent(
@@ -547,8 +766,11 @@ void AYUFSEvacuationNPC::TraceTaskEvent(
 		IntentComp->GetPreActionTargetCount(),
 		DeterministicRng.GetDrawCount(EYUFSRngStream::Decision),
 		DeterministicRng.GetDrawCount(EYUFSRngStream::TaskDuration),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::TaskChoice),
 		DeterministicRng.GetDrawCount(EYUFSRngStream::Route),
-		DeterministicRng.GetDrawCount(EYUFSRngStream::Social));
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Social),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::InteractionError),
+		DeterministicRng.GetDrawCount(EYUFSRngStream::Traits));
 }
 
 FString AYUFSEvacuationNPC::GetScenarioHash() const
@@ -684,6 +906,8 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)
 {
+	if (SuppressionComp) SuppressionComp->Cancel();
+	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	if (!bHasPendingTransition) return;
 
 	FYUFSNPCObservation TerminalObs{};
@@ -729,7 +953,25 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& 
 	{
 		PolicyTickAccumulator = 0.f;
 
-		const EYUFSAction NewAction = ConstrainActionForIntent(MLPolicy.SelectAction(Observation));
+		const EYUFSAction ProposedAction = ConstrainActionForIntent(MLPolicy.SelectAction(Observation));
+		EYUFSAction NewAction = ProposedAction;
+		if (bEnableHumanCognitionModel && HumanBehaviorSelector && HumanCognitionComp && IntentComp)
+		{
+			const FYUFSInteractionOpportunitySnapshot EmptyOpportunities;
+			const FYUFSInteractionOpportunitySnapshot& Opportunities = TeamIntegrationComp
+				? TeamIntegrationComp->GetInteractionOpportunities()
+				: EmptyOpportunities;
+			const FYUFSBehaviorDecision& Decision = HumanBehaviorSelector->ResolveDecision(
+				ProposedAction,
+				IntentComp->GetCurrentIntent(),
+				Observation,
+				HumanCognitionComp->GetCognitiveState(),
+				HumanCognitionComp->GetTraits(),
+				Opportunities,
+				HumanCognitionComp->ConsumeFreezeCue(),
+				DeterministicRng);
+			NewAction = Decision.LegacyAction;
+		}
 
 		if (Observation.CurrentState == EYUFSBehaviorState::Milling)
 			++MillingActionCount;
@@ -790,14 +1032,14 @@ void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
 	LookAnchorYaw = GetActorRotation().Yaw;
 	LookElapsed   = 0.f;
 
-	if (!IsNavigationAction(NewAction))
+	if (!bUseExternalNavigationDriver && !IsNavigationAction(NewAction))
 	{
 		if (Navigator) Navigator->ClearPath();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 			Mv->StopMovementImmediately();
 		CurrentNavTarget = FVector::ZeroVector;
 	}
-	else
+	else if (!bUseExternalNavigationDriver)
 	{
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 			if (Mv->MaxWalkSpeed < 1.f) Mv->MaxWalkSpeed = 400.f;
@@ -811,7 +1053,7 @@ void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
 		}
 	}
 
-	if (!bActionAnimationPreviewActive && ActionAnimationComp)
+	if (!bUseExternalMotionDriver && !bActionAnimationPreviewActive && ActionAnimationComp)
 	{
 		const EYUFSBehaviorState State = BehaviorSM
 			? BehaviorSM->GetCurrentState()
@@ -822,7 +1064,12 @@ void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
 
 void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 {
-	if (!ActionAnimationComp)
+	const bool bLiveInteraction = !bTimelinePlaybackMode
+		&& (!SimulationController || SimulationController->IsNPCSimulationEnabled());
+	if (bLiveInteraction && EnvironmentInteraction
+		&& (EnvironmentInteraction->IsActive() || EnvironmentInteraction->IsReceivingContactAssistance())) return;
+	if (SuppressionComp && SuppressionComp->IsActive()) return;
+	if (bUseExternalMotionDriver || !ActionAnimationComp)
 	{
 		return;
 	}
@@ -855,9 +1102,19 @@ void AYUFSEvacuationNPC::ClearActionAnimationPreview()
 
 void AYUFSEvacuationNPC::SetAnimationShowcaseDebugSuppressed(bool bSuppressed)
 {
-	if (DebugComp)
+	TArray<UYUFSNPCDebugComponent*> DebugComponents;
+	GetComponents<UYUFSNPCDebugComponent>(DebugComponents);
+	for (UYUFSNPCDebugComponent* Component : DebugComponents)
 	{
-		DebugComp->SetTemporarilySuppressed(bSuppressed);
+		if (!Component)
+		{
+			continue;
+		}
+		Component->SetTemporarilySuppressed(bSuppressed);
+		// The close-up interaction showcase must never inherit the regular NPC
+		// overlay. Suppress every inherited/Blueprint component instance instead
+		// of assuming the native pointer is the only debug renderer.
+		Component->SetComponentTickEnabled(!bSuppressed);
 	}
 }
 
@@ -868,13 +1125,78 @@ FString AYUFSEvacuationNPC::GetCurrentActionAnimationName() const
 
 void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 {
+	// Only suppress locomotion during contact. The normal Tick has already
+	// updated perception, risk and intent, and pause/replay guards still apply.
+	if (EnvironmentInteraction && EnvironmentInteraction->IsReceivingContactAssistance())
+	{
+		auto* Helper=EnvironmentInteraction->GetAssistingNPC();
+		if (BeliefComp && (BeliefComp->HasImmediateLifeRisk() || BeliefComp->HasVerifiedOfficialInstruction()))
+		{
+			// A recipient must remain able to break contact when its own situation changes.
+			if (Helper && Helper->EnvironmentInteraction) Helper->EnvironmentInteraction->Cancel();
+		}
+		else
+		{
+			GetCharacterMovement()->StopMovementImmediately();
+			if (!bUseExternalMotionDriver && Helper)
+			{
+				const FRotator Facing(0,(Helper->GetActorLocation()-GetActorLocation()).Rotation().Yaw,0);
+				SetActorRotation(FMath::RInterpConstantTo(GetActorRotation(),Facing,DeltaTime,180.f));
+				if (ActionAnimationComp) ActionAnimationComp->ApplyAction(EYUFSAction::AlertNearbyOccupants,EYUFSBehaviorState::Normal);
+			}
+			return;
+		}
+	}
+	if (EnvironmentInteraction && EnvironmentInteraction->Execute(DeltaTime, GetCurrentSimFrame())) return;
+	if (EnvironmentInteraction && EnvironmentInteraction->NeedsMovement())
+	{
+		const FVector Target = EnvironmentInteraction->GetTarget();
+		if (!bUseExternalNavigationDriver && Navigator)
+		{
+			Navigator->CheckAndReroute(GetCurrentSimFrame());
+			if (!Navigator->bIsPathfinding && (Navigator->GetCurrentPathPoints().IsEmpty()
+				|| FVector::DistSquared(Target, CurrentNavTarget) > FMath::Square(100.f)))
+			{
+				CurrentNavTarget = Target;
+				Navigator->RequestPathAsync(Target, GetCurrentSimFrame());
+			}
+			if (!Navigator->GetCurrentPathPoints().IsEmpty())
+			{
+				GetCharacterMovement()->MaxWalkSpeed = 180.f;
+				DriveMovementToward(Target, 100.f);
+			}
+		}
+		return;
+	}
+	if (bInteractionPreviewControlled) return;
+	if (SuppressionComp && SuppressionComp->Execute(DeltaTime, GetCurrentSimFrame())) return;
+	if (SuppressionComp && SuppressionComp->IsActive())
+	{
+		const FVector Target = SuppressionComp->GetMovementTarget();
+		if (!bUseExternalNavigationDriver && Navigator)
+		{
+			Navigator->CheckAndReroute(GetCurrentSimFrame());
+			if (!Navigator->bIsPathfinding && (Navigator->GetCurrentPathPoints().IsEmpty()
+				|| FVector::DistSquared(Target, CurrentNavTarget) > FMath::Square(100.f)))
+			{
+				CurrentNavTarget = Target;
+				Navigator->RequestPathAsync(Target, GetCurrentSimFrame());
+			}
+			if (!Navigator->GetCurrentPathPoints().IsEmpty())
+			{
+				GetCharacterMovement()->MaxWalkSpeed = 180.f;
+				DriveMovementToward(Target, 20.f);
+			}
+		}
+		return;
+	}
 	if (!BehaviorSM || BehaviorSM->IsIncapacitated()) return;
 
 	switch (CurrentAction)
 	{
 	case EYUFSAction::SeekInformation:
 	case EYUFSAction::AlertNearbyOccupants:
-		if (BehaviorSM->Config)
+		if (!bUseExternalMotionDriver && BehaviorSM->Config)
 		{
 			LookElapsed += DeltaTime;
 			const float Osc = FMath::Sin(LookElapsed * 2.f * PI * BehaviorSM->Config->LookAroundFrequencyHz);
@@ -906,14 +1228,15 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 	case EYUFSAction::EvacuateToFamiliarExit:
 	case EYUFSAction::FollowCrowd:
 	case EYUFSAction::HelpOther:
-		if (Navigator)
+		if (!bUseExternalNavigationDriver && Navigator)
 		{
 			const FVector Target = ResolveNavigationTarget(CurrentAction);
 			if (Target.IsZero()) break;
 
 			Navigator->CheckAndReroute(GetCurrentSimFrame());
 
-			if (!Navigator->bIsPathfinding && FVector::Dist(Target, CurrentNavTarget) > 500.f)
+			if (!Navigator->bIsPathfinding && (Navigator->GetCurrentPathPoints().IsEmpty()
+				|| FVector::Dist(Target, CurrentNavTarget) > 500.f))
 			{
 				CurrentNavTarget = Target;
 				Navigator->ClearPath();

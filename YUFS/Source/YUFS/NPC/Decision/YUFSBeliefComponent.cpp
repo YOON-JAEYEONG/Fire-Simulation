@@ -13,13 +13,24 @@ enum EYUFSCueBits : uint32
 	CueOfficial = 1u << 3,
 	CueMovingCrowd = 1u << 4,
 	CueTraining = 1u << 5,
-	CueAnnouncement = 1u << 6
+	CueAnnouncement = 1u << 6,
+	CueStationaryCrowd = 1u << 7
 };
 }
 
 UYUFSBeliefComponent::UYUFSBeliefComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UYUFSBeliefComponent::SetCognitiveContext(
+	float NormalcyBias,
+	float SocialConformity,
+	float AuthorityTrust)
+{
+	CognitiveNormalcyBias = FMath::Clamp(NormalcyBias, 0.f, 1.f);
+	CognitiveSocialConformity = FMath::Clamp(SocialConformity, 0.f, 1.f);
+	CognitiveAuthorityTrust = FMath::Clamp(AuthorityTrust, 0.f, 1.f);
 }
 
 void UYUFSBeliefComponent::UpdateBelief(const FYUFSNPCObservation& Observation)
@@ -35,22 +46,28 @@ void UYUFSBeliefComponent::UpdateBelief(const FYUFSNPCObservation& Observation)
 		Observation.SmokeDensityAtSelf >= ImmediateLifeRiskSmokeThreshold ||
 		Observation.TemperatureAtSelf >= ImmediateLifeRiskTemperatureThreshold;
 	const bool bMovingCrowd = Observation.NearbyEvacuatingRatio >= 0.30f;
+	const bool bStationaryCrowd = Observation.NearbyNPCCount >= 3
+		&& Observation.NearbyEvacuatingRatio <= 0.10f;
 
 	float BaseProbability = NoCueBaseProbability;
+	PhysicalSeverity = EYUFSPerceivedPhysicalSeverity::None;
 	if (Observation.bAlarmSounding)
 	{
 		ActiveCueMask |= CueAlarm;
 		BaseProbability = FMath::Max(BaseProbability, AlarmBaseProbability);
+		PhysicalSeverity = EYUFSPerceivedPhysicalSeverity::AmbiguousAlarm;
 	}
 	if (bConfirmedSmoke)
 	{
 		ActiveCueMask |= CueSmoke;
 		BaseProbability = FMath::Max(BaseProbability, ConfirmedSmokeBaseProbability);
+		PhysicalSeverity = EYUFSPerceivedPhysicalSeverity::ConfirmedSmoke;
 	}
 	if (bHighHeat)
 	{
 		ActiveCueMask |= CueHighHeat;
 		BaseProbability = FMath::Max(BaseProbability, HighHeatBaseProbability);
+		PhysicalSeverity = EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat;
 	}
 	if (bVerifiedOfficialInstruction)
 	{
@@ -64,12 +81,16 @@ void UYUFSBeliefComponent::UpdateBelief(const FYUFSNPCObservation& Observation)
 	{
 		ActiveCueMask |= CueMovingCrowd;
 	}
+	if (bStationaryCrowd)
+	{
+		ActiveCueMask |= CueStationaryCrowd;
+	}
 	if (bTrainingCompleted)
 	{
 		ActiveCueMask |= CueTraining;
 	}
 
-	bHasEmergencyCue = (ActiveCueMask & ~CueTraining) != 0;
+	bHasEmergencyCue = (ActiveCueMask & ~(CueTraining | CueStationaryCrowd)) != 0;
 	bImmediateLifeRisk = bHighHeat;
 	if (bVerifiedOfficialInstruction)
 	{
@@ -87,20 +108,36 @@ void UYUFSBeliefComponent::UpdateBelief(const FYUFSNPCObservation& Observation)
 	if (Observation.bReceivedPreRecordedMsg)
 	{
 		// 사전 방송은 개인 리더가 아니므로 leader LR의 절반만 보수적으로 적용한다.
-		Odds *= FMath::Sqrt(FMath::Max(LeaderLikelihoodRatio, 0.01f));
+		Odds *= FMath::Pow(
+			FMath::Sqrt(FMath::Max(LeaderLikelihoodRatio, 0.01f)),
+			CognitiveAuthorityTrust);
 	}
 	if (bMovingCrowd)
 	{
-		Odds *= FMath::Max(MovingCrowdLikelihoodRatio, 0.01f);
+		Odds *= FMath::Pow(
+			FMath::Max(MovingCrowdLikelihoodRatio, 0.01f),
+			CognitiveSocialConformity);
 	}
+	if (bStationaryCrowd && Observation.bAlarmSounding)
+	{
+		Odds *= FMath::Pow(
+			FMath::Max(StationaryCrowdLikelihoodRatio, 0.01f),
+			CognitiveSocialConformity);
+	}
+	const float NormalcyExponent = CognitiveNormalcyBias
+		* (PhysicalSeverity == EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat ? 0.f : 1.f);
+	Odds *= FMath::Pow(FMath::Max(NormalcyLikelihoodRatio, 0.01f), NormalcyExponent);
 
-	CommitProbability = FMath::Clamp(Odds / (1.f + Odds), 0.001f, 0.999f);
+	CommitProbability = FMath::Clamp(
+		Odds / (1.f + Odds),
+		FMath::Min(MinimumCommitProbability, MaximumCommitProbability),
+		FMath::Max(MinimumCommitProbability, MaximumCommitProbability));
 }
 
 FString UYUFSBeliefComponent::GetPolicyHash() const
 {
 	const FString Canonical = FString::Printf(
-		TEXT("belief|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%d"),
+		TEXT("belief|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%.6f|%d"),
 		NoCueBaseProbability,
 		AlarmBaseProbability,
 		ConfirmedSmokeBaseProbability,
@@ -108,6 +145,10 @@ FString UYUFSBeliefComponent::GetPolicyHash() const
 		TrainingLikelihoodRatio,
 		LeaderLikelihoodRatio,
 		MovingCrowdLikelihoodRatio,
+		StationaryCrowdLikelihoodRatio,
+		NormalcyLikelihoodRatio,
+		MinimumCommitProbability,
+		MaximumCommitProbability,
 		ConfirmedSmokeThreshold,
 		ImmediateLifeRiskSmokeThreshold,
 		ImmediateLifeRiskTemperatureThreshold,

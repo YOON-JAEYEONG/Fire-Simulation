@@ -2,6 +2,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Simulation/YUFSGameInstance.h"
+#include "Debug/YUFSInteractionPreview.h"
 #include "Simulation/YUFSTimelineRecorder.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "Camera/CameraActor.h"
@@ -21,6 +22,8 @@
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NavigationSystem.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 #include "Styling/CoreStyle.h"
 #include "Widgets/SOverlay.h"
 #include "Widgets/Layout/SBorder.h"
@@ -38,6 +41,13 @@ AYUFSSimulationController::AYUFSSimulationController()
 void AYUFSSimulationController::BeginPlay()
 {
 	Super::BeginPlay();
+	bWaitForInteractionPreview = FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions"))
+		&& FParse::Param(FCommandLine::Get(), TEXT("YUFSInteractionPreview"));
+	if (FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions")))
+	{
+		bPreviewAllNPCActionAnimations = false;
+		bAutoFocusNPCActionAnimationShowcase = false;
+	}
 
 	// 씬에서 필요한 액터들 캐싱
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
@@ -82,6 +92,7 @@ void AYUFSSimulationController::BeginPlay()
 	// 레벨 리로드 후 배치 실험 복원 — GameInstance에 저장된 회차 상태를 읽어옴
 	if (UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
 	{
+		GI->SetupBuildingInteractions(GetWorld());
 		if (GI->bHasPendingBatchRun)
 		{
 			CurrentRunIndex = GI->PendingRunIndex;
@@ -150,6 +161,13 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 void AYUFSSimulationController::StartSimulation()
 {
 	if (CurrentPhase != ESimPhase::WaitingToStart) return;
+	if (IsWaitingForInteractionPreview())
+	{
+		bStartRequestedBeforePreviewReady = true;
+		UE_LOG(LogTemp, Display, TEXT("[InteractionPreview] Start queued until building NPC distribution and preview setup finish."));
+		return;
+	}
+	bStartRequestedBeforePreviewReady = false;
 
 	StopNPCActionAnimationShowcase();
 
@@ -179,9 +197,20 @@ void AYUFSSimulationController::StartSimulation()
 	ResolvedNPCs.Empty();
 
 	SetPhase(ESimPhase::FireStartDelay);
+	// Both HUD implementations enter here. Start exactly one visual sequence.
+	for (TActorIterator<AYUFSInteractionPreview> It(GetWorld()); It; ++It)
+		It->StartSequence();
 
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation Run %d/%d started. Fire in %.0f seconds."),
 		CurrentRunIndex, TotalRunCount, FireStartDelaySeconds);
+}
+
+void AYUFSSimulationController::NotifyInteractionPreviewReady(bool bReady)
+{
+	bInteractionPreviewReady = bReady;
+	UE_LOG(LogTemp, Display, TEXT("[InteractionPreview] Setup %s; queued start=%d."),
+		bReady ? TEXT("ready") : TEXT("FAILED"), bStartRequestedBeforePreviewReady);
+	if (bReady && bStartRequestedBeforePreviewReady) StartSimulation();
 }
 
 void AYUFSSimulationController::PauseSimulation()
@@ -191,8 +220,15 @@ void AYUFSSimulationController::PauseSimulation()
 		PauseTimeline();
 		return;
 	}
+	if (CurrentPhase == ESimPhase::WaitingToStart)
+	{
+		bStartRequestedBeforePreviewReady = false;
+		return;
+	}
 
 	bIsPaused = true;
+	for (TActorIterator<AYUFSInteractionPreview> It(GetWorld()); It; ++It)
+		It->SetSimulationPaused(true);
 
 	if (HeterogeneousVolume)
 	{
@@ -224,7 +260,10 @@ void AYUFSSimulationController::ResumeSimulation()
 		return;
 	}
 
+	if (!bIsPaused) return;
 	bIsPaused = false;
+	for (TActorIterator<AYUFSInteractionPreview> It(GetWorld()); It; ++It)
+		It->SetSimulationPaused(false);
 
 	if (HeterogeneousVolume && CurrentPhase == ESimPhase::FireActive)
 	{
@@ -233,7 +272,7 @@ void AYUFSSimulationController::ResumeSimulation()
 
 	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
 	{
-		if (!IsValid(NPC)) continue;
+		if (!IsValid(NPC) || ResolvedNPCs.Contains(NPC)) continue;
 
 		NPC->SetActorTickEnabled(true);
 

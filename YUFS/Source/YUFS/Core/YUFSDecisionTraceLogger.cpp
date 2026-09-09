@@ -36,8 +36,11 @@ void FYUFSDecisionTraceLogger::LogEvent(
 	int32 PreActionTargetCount,
 	uint64 DecisionDrawCount,
 	uint64 DurationDrawCount,
+	uint64 TaskChoiceDrawCount,
 	uint64 RouteDrawCount,
-	uint64 SocialDrawCount)
+	uint64 SocialDrawCount,
+	uint64 InteractionErrorDrawCount,
+	uint64 TraitDrawCount)
 {
 	FScopeLock Lock(&DecisionTraceMutex);
 	if (!EnsureLogFile())
@@ -52,7 +55,7 @@ void FYUFSDecisionTraceLogger::LogEvent(
 		TEXT("\"pCommit\":%s,\"cueMask\":%u,\"hasSafeExit\":%s,")
 		TEXT("\"task\":\"%s\",\"cancelReason\":\"%s\",")
 		TEXT("\"preActionCompleted\":%d,\"preActionTarget\":%d,")
-		TEXT("\"rngDraws\":{\"decision\":%s,\"duration\":%s,\"route\":%s,\"social\":%s},")
+		TEXT("\"rngDraws\":{\"decision\":%s,\"duration\":%s,\"taskChoice\":%s,\"route\":%s,\"social\":%s,\"interactionError\":%s,\"traits\":%s},")
 		TEXT("\"sourceIds\":[\"B:initial\",\"D:p8-10\",\"E:p23-26\",\"PROJECT:decision-draft\"]}\n"),
 		RunIndex,
 		StableNpcId,
@@ -73,8 +76,11 @@ void FYUFSDecisionTraceLogger::LogEvent(
 		PreActionTargetCount,
 		*LexToString(DecisionDrawCount),
 		*LexToString(DurationDrawCount),
+		*LexToString(TaskChoiceDrawCount),
 		*LexToString(RouteDrawCount),
-		*LexToString(SocialDrawCount));
+		*LexToString(SocialDrawCount),
+		*LexToString(InteractionErrorDrawCount),
+		*LexToString(TraitDrawCount));
 
 	WriteLine(Line);
 }

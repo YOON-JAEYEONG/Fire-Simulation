@@ -2,3 +2,6 @@
 *.onnx filter=lfs diff=lfs merge=lfs -text
 *.pkl filter=lfs diff=lfs merge=lfs -text
 *.pt filter=lfs diff=lfs merge=lfs -text
+
+# Preserve the downloaded CC0 model bytes for the recorded SHA-256.
+YUFS/SourceAssets/FireExtinguisher/OpenGameArt_JamesWhite_2015/fire_extinguisher_model.obj -text

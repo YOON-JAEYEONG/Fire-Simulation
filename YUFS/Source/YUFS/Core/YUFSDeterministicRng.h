@@ -7,8 +7,11 @@ enum class EYUFSRngStream : uint8
 {
 	Decision,
 	TaskDuration,
+	TaskChoice,
 	Route,
 	Social,
+	InteractionError,
+	Traits,
 	Count
 };
 

@@ -14,7 +14,8 @@ void UYUFSIntentComponent::UpdateIntent(
 	const FYUFSNPCObservation& Observation,
 	const UYUFSBeliefComponent& Belief,
 	bool bHasSafeExit,
-	FYUFSDeterministicRngSet& RandomSource)
+	FYUFSDeterministicRngSet& RandomSource,
+	int64 EvidenceRevision)
 {
 	bIntentChanged = false;
 	PreviousIntent = CurrentIntent;
@@ -40,7 +41,7 @@ void UYUFSIntentComponent::UpdateIntent(
 		return;
 	}
 
-	if (Observation.bNearbyNPCNeedsHelp)
+	if (bForceHelpIntentOnObservedNeed && Observation.bNearbyNPCNeedsHelp)
 	{
 		SetIntent(EYUFSIntent::Help, TEXT("NearbyPersonNeedsHelp"));
 		return;
@@ -74,14 +75,23 @@ void UYUFSIntentComponent::UpdateIntent(
 
 	const uint32 CueMask = Belief.GetActiveCueMask();
 	const bool bCueChanged = CueMask != LastCueMask;
-	if (!bCueChanged && !bReappraisalRequested)
+	const bool bEvidenceChanged = EvidenceRevision > 0
+		? EvidenceRevision != LastEvidenceRevision
+		: bCueChanged;
+	if (!bEvidenceChanged && !bReappraisalRequested)
 	{
 		return;
 	}
 
 	LastCueMask = CueMask;
+	if (EvidenceRevision > 0)
+	{
+		LastEvidenceRevision = EvidenceRevision;
+	}
 	ReassessmentAccumulator = 0.f;
 	bReappraisalRequested = false;
+	const FName AppraisalTrigger = PendingReappraisalTrigger;
+	PendingReappraisalTrigger = NAME_None;
 
 	// APPRAISE에서만 1회 추첨한다. 정기 tick은 재추첨하지 않고,
 	// cue 변화 또는 대피 전 행동 완료가 다음 APPRAISE를 명시적으로 요청한다.
@@ -92,29 +102,53 @@ void UYUFSIntentComponent::UpdateIntent(
 	}
 	else
 	{
-		if (PreActionTargetCount <= 0)
+		if (!bUsePreActionCountAsCalibrationOnly && PreActionTargetCount <= 0)
 		{
 			PreActionTargetCount = SamplePreActionTargetCount(RandomSource);
 			PreActionCompletedCount = 0;
+		}
+		else if (bUsePreActionCountAsCalibrationOnly)
+		{
+			PreActionTargetCount = 0;
 		}
 
 		SetIntent(
 			Belief.GetCommitProbability() >= PrepareProbabilityThreshold
 				? EYUFSIntent::Prepare
 				: EYUFSIntent::Observe,
-			TEXT("PreActionRequired"));
+			AppraisalTrigger.IsNone() ? TEXT("PreActionRequired") : *AppraisalTrigger.ToString());
 	}
 }
 
 void UYUFSIntentComponent::NotifyPreActionCompleted(bool bHasSafeExit)
 {
-	if (PreActionTargetCount <= 0 || CurrentIntent == EYUFSIntent::CommitEvac
+	if (CurrentIntent == EYUFSIntent::CommitEvac
 		|| CurrentIntent == EYUFSIntent::Shelter || CurrentIntent == EYUFSIntent::Incapacitated)
 	{
 		return;
 	}
 
-	PreActionCompletedCount = FMath::Min(PreActionCompletedCount + 1, PreActionTargetCount);
+	++PreActionCompletedCount;
+	if (bUsePreActionCountAsCalibrationOnly)
+	{
+		if (PreActionCompletedCount >= FMath::Max(MaxPreActionLoopGuard, 1))
+		{
+			SetIntent(
+				bHasSafeExit ? EYUFSIntent::CommitEvac : EYUFSIntent::Shelter,
+				bHasSafeExit ? TEXT("PreActionLoopGuard") : TEXT("PreActionLoopGuardNoSafeRoute"));
+			return;
+		}
+		RequestReappraisal(TEXT("PreActionCompleted"));
+		return;
+	}
+
+	if (PreActionTargetCount <= 0)
+	{
+		RequestReappraisal(TEXT("PreActionCompletedWithoutTarget"));
+		return;
+	}
+
+	PreActionCompletedCount = FMath::Min(PreActionCompletedCount, PreActionTargetCount);
 	if (PreActionCompletedCount >= PreActionTargetCount)
 	{
 		SetIntent(
@@ -123,7 +157,20 @@ void UYUFSIntentComponent::NotifyPreActionCompleted(bool bHasSafeExit)
 		return;
 	}
 
+	RequestReappraisal(TEXT("PreActionCompleted"));
+}
+
+void UYUFSIntentComponent::RequestReappraisal(FName Trigger)
+{
 	bReappraisalRequested = true;
+	PendingReappraisalTrigger = Trigger;
+}
+
+void UYUFSIntentComponent::ResumeEvacuationAfterInteraction(bool bHasSafeExit)
+{
+	if (CurrentIntent == EYUFSIntent::Incapacitated) return;
+	SetIntent(bHasSafeExit ? EYUFSIntent::CommitEvac : EYUFSIntent::Shelter,
+		TEXT("InteractionEndedReturnToEvacuation"));
 }
 
 int32 UYUFSIntentComponent::SamplePreActionTargetCount(FYUFSDeterministicRngSet& RandomSource) const

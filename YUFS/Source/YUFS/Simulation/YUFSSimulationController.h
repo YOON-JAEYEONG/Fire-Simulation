@@ -79,6 +79,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Simulation")
 	void StopAndResetSimulation();
 
+	// The visual fixture must be ready before Start leaves the distribution phase.
+	void NotifyInteractionPreviewReady(bool bReady);
+	bool IsWaitingForInteractionPreview() const { return bWaitForInteractionPreview && !bInteractionPreviewReady; }
+	bool IsSimulationPaused() const { return bIsPaused; }
+
 	// 대기 화면에서 대표 NPC를 근접 촬영하며 모든 행동 애니메이션을
 	// 자동 순환한다. 레벨 BP/HUD에서도 수동으로 켜고 끌 수 있다.
 	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
@@ -301,6 +306,9 @@ private:
 	// ── 내부 상태 ─────────────────────────────────────────────────────
 	ESimPhase CurrentPhase = ESimPhase::WaitingToStart;
 	bool bIsPaused = false;
+	bool bWaitForInteractionPreview = false;
+	bool bInteractionPreviewReady = false;
+	bool bStartRequestedBeforePreviewReady = false;
 
 	float ElapsedSimTime = 0.f;    // 현재 회차 경과 시간
 	float FirePhaseTimer = 0.f;    // FireStartDelay 단계 타이머

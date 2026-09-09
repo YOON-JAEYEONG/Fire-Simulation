@@ -96,3 +96,16 @@ YUFS/Content/Fires/vdb/Scenario_03/vdb/fire.uasset
 
 # Claude Code 임시 작업 폴더
 YUFS/.claude/worktrees/
+
+# Codex/local asset inspection scratch space
+.tmp/
+
+# Local Unreal verification logs and screenshots (not part of the project).
+/Logs/
+
+# Evaluated locally but not redistributable as source assets; keep out of Git.
+YUFS/SourceAssets/FireExtinguisher/Polyfork_95dca1/
+YUFS/Content/Props/FireExtinguisher/Polyfork_95dca1/
+
+# CC0 source used by the reproducible Unreal importer.
+!YUFS/SourceAssets/FireExtinguisher/OpenGameArt_JamesWhite_2015/fire_extinguisher_model.obj

@@ -6,8 +6,11 @@ constexpr uint32 StreamTags[] =
 {
 	0xA341316Cu, // Decision
 	0xC8013EA4u, // TaskDuration
+	0x9E3779B9u, // TaskChoice
 	0xAD90777Du, // Route
-	0x7E95761Eu  // Social
+	0x7E95761Eu, // Social
+	0xD1B54A35u, // InteractionError
+	0x94D049BBu  // Traits
 };
 static_assert(UE_ARRAY_COUNT(StreamTags) == static_cast<int32>(EYUFSRngStream::Count));
 }
