@@ -109,7 +109,7 @@ public:
 	void SelectFireScenario(EFireScenario NewScenario);
 
 	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
-	EFireScenario GetActiveFireScenario() const { return ActiveScenario; }
+	EFireScenario GetActiveFireScenario() const { return CurrentActiveScenario; }
 
 	// ── 상태 조회 (HUD가 읽음) ───────────────────────────────────────────
 	UFUNCTION(BlueprintPure, Category="Simulation")
@@ -294,7 +294,7 @@ private:
 	// ── 화재 시나리오 A/B 각각의 실제 데이터 쌍 ───────────────────────────
 	// 레벨에는 이름이 "..._A" / "..._B"로 끝나는 AYUFSHeterogeneousVolume, AYUFSBinaryManager
 	// 액터를 각각 배치합니다 (WBP_SimHUD의 FindFirePoints()와 동일한 명명 규칙).
-	EFireScenario ActiveScenario = EFireScenario::ScenarioA;
+	EFireScenario CurrentActiveScenario = EFireScenario::ScenarioA;
 
 	AYUFSBinaryManager* BinaryManagerA = nullptr;
 	AYUFSBinaryManager* BinaryManagerB = nullptr;
@@ -321,7 +321,7 @@ private:
 
 	// 레벨에서 "_A"/"_B" 이름 규칙의 BinaryManager/HeterogeneousVolume 쌍을 찾아 서로 링크합니다.
 	void FindFireScenarioActors();
-	// ActiveScenario에 맞춰 BinaryManager/HeterogeneousVolume 캐시를 갱신하고,
-	// 선택되지 않은 쪽 볼륨은 숨김 처리합니다.
-	void ApplyActiveScenario();
+	// CurrentActiveScenario(화재 A/B 선택)에 맞춰 BinaryManager/HeterogeneousVolume 캐시를
+	// 갱신하고, 선택되지 않은 쪽 볼륨은 숨김 처리합니다.
+	void ApplyCurrentActiveScenario();
 };

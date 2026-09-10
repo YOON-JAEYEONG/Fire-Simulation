@@ -41,7 +41,7 @@ void AYUFSSimulationController::BeginPlay()
 	// 화재 시나리오 A/B 쌍(BinaryManager + HeterogeneousVolume)을 찾아 링크하고,
 	// 기본 시나리오(A)를 활성화합니다.
 	FindFireScenarioActors();
-	ApplyActiveScenario();
+	ApplyCurrentActiveScenario();
 
 	// 씬에 이미 배치된 NPC들 자동 수집
 	for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
@@ -233,13 +233,13 @@ void AYUFSSimulationController::SelectFireScenario(EFireScenario NewScenario)
 		return;
 	}
 
-	if (ActiveScenario == NewScenario)
+	if (CurrentActiveScenario == NewScenario)
 	{
 		return;
 	}
 
-	ActiveScenario = NewScenario;
-	ApplyActiveScenario();
+	CurrentActiveScenario = NewScenario;
+	ApplyCurrentActiveScenario();
 
 	UE_LOG(LogTemp, Warning, TEXT("[YUFS] 화재 시나리오 전환 → %s"),
 		NewScenario == EFireScenario::ScenarioA ? TEXT("A") : TEXT("B"));
@@ -273,6 +273,8 @@ void AYUFSSimulationController::ApplyActiveScenario()
 
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] 시나리오 적용: '%s' | 화재지연 %.0fs"),
 		*ActiveScenario.DisplayName.ToString(), FireStartDelaySeconds);
+}
+
 void AYUFSSimulationController::FindFireScenarioActors()
 {
 	if (!GetWorld()) return;
@@ -345,9 +347,9 @@ void AYUFSSimulationController::FindFireScenarioActors()
 	}
 }
 
-void AYUFSSimulationController::ApplyActiveScenario()
+void AYUFSSimulationController::ApplyCurrentActiveScenario()
 {
-	const bool bIsA = (ActiveScenario == EFireScenario::ScenarioA);
+	const bool bIsA = (CurrentActiveScenario == EFireScenario::ScenarioA);
 
 	BinaryManager = bIsA ? BinaryManagerA : BinaryManagerB;
 	HeterogeneousVolume = bIsA ? HeterogeneousVolumeA : HeterogeneousVolumeB;
