@@ -5,11 +5,13 @@
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Simulation/YUFSGameInstance.h"
+#include "Fire/YUFSHeterogeneousVolume.h"
 
 void UYUFSSimHUD::NativeConstruct()
 {
 	Super::NativeConstruct();
 	FindSimController();
+	FindFirePoints();
 }
 
 void UYUFSSimHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -30,6 +32,48 @@ void UYUFSSimHUD::FindSimController()
 	{
 		SimController = *It;
 		break;
+	}
+}
+
+void UYUFSSimHUD::FindFirePoints()
+{
+	if (!GetWorld()) return;
+
+	// 레벨에 배치된 YUFSHeterogeneousVolume 액터들 중, 에디터 표시 이름(Actor Label)이
+	// "_A"/"_B"로 끝나는 액터를 각각 FirePointA / FirePointB로 매칭합니다.
+	// 주의: GetName()(내부 오브젝트 이름)이 아니라 GetActorLabel()(에디터에 보이는 이름)을
+	// 써야 합니다 — 월드 파티션 액터는 GetName()이 "_UAID_..." 형태의 자동 생성된
+	// GUID라서 "_A"/"_B" 매칭이 안 됩니다.
+	for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
+	{
+		AYUFSHeterogeneousVolume* Volume = *It;
+		if (!Volume) continue;
+
+#if WITH_EDITOR
+		const FString Name = Volume->GetActorLabel();
+#else
+		const FString Name = Volume->GetName();
+#endif
+		// 디버그: 월드에서 발견된 HeterogeneousVolume 액터 이름을 전부 찍어봅니다.
+		UE_LOG(LogTemp, Warning, TEXT("[YUFSSimHUD] Found HeterogeneousVolume: Label='%s' Name='%s'"), *Name, *Volume->GetName());
+
+		if (Name.EndsWith(TEXT("_A")))
+		{
+			FirePointA = Volume;
+		}
+		else if (Name.EndsWith(TEXT("_B")))
+		{
+			FirePointB = Volume;
+		}
+	}
+
+	if (!FirePointA)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFSSimHUD] FirePointA를 월드에서 찾지 못했습니다."));
+	}
+	if (!FirePointB)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFSSimHUD] FirePointB를 월드에서 찾지 못했습니다."));
 	}
 }
 
@@ -68,6 +112,32 @@ void UYUFSSimHUD::OnMainMenuButtonClicked()
 	{
 		GI->ReturnToMainMenu();
 	}
+}
+
+void UYUFSSimHUD::OnFireSceneAButtonClicked()
+{
+	if (SimController)
+	{
+		SimController->SelectFireScenario(EFireScenario::ScenarioA);
+	}
+}
+
+void UYUFSSimHUD::OnFireSceneBButtonClicked()
+{
+	if (SimController)
+	{
+		SimController->SelectFireScenario(EFireScenario::ScenarioB);
+	}
+}
+
+bool UYUFSSimHUD::IsFireSceneASelected() const
+{
+	return SimController && SimController->GetActiveFireScenario() == EFireScenario::ScenarioA;
+}
+
+bool UYUFSSimHUD::IsFireSceneBSelected() const
+{
+	return SimController && SimController->GetActiveFireScenario() == EFireScenario::ScenarioB;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

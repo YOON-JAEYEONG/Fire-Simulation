@@ -27,6 +27,14 @@ enum class ESimPhase : uint8
 	Completed,        // 시뮬레이션 종료 (성공/실패)
 };
 
+// ── 화재 시나리오 (Fire_A / Fire_B 버튼으로 전환) ─────────────────────────
+UENUM(BlueprintType)
+enum class EFireScenario : uint8
+{
+	ScenarioA,
+	ScenarioB,
+};
+
 // ── 한 회차 결과 요약 ──────────────────────────────────────────────────────
 USTRUCT(BlueprintType)
 struct FSimRunResult
@@ -93,6 +101,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Simulation")
 	void StopAndResetSimulation();
+
+	// ── 화재 시나리오 선택 (HUD의 Fire_A / Fire_B 버튼 → 이 함수 호출) ───
+	// 서로 다른 화재 데이터(각각의 AYUFSBinaryManager + AYUFSHeterogeneousVolume 쌍)를 전환합니다.
+	// 시뮬레이션이 이미 진행 중(WaitingToStart가 아님)이면 전환하지 않습니다 — 먼저 Stop 하세요.
+	UFUNCTION(BlueprintCallable, Category="Simulation|Fire")
+	void SelectFireScenario(EFireScenario NewScenario);
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	EFireScenario GetActiveFireScenario() const { return ActiveScenario; }
 
 	// ── 상태 조회 (HUD가 읽음) ───────────────────────────────────────────
 	UFUNCTION(BlueprintPure, Category="Simulation")
@@ -267,12 +284,22 @@ private:
 	// 대피/행동불능 처리를 이미 끝낸 NPC를 기억해서 카운트 중복 증가를 막습니다.
 	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;
 
-	// 캐싱
+	// 캐싱 — 현재 선택된(Active) 시나리오의 쌍을 가리킵니다. 나머지 로직은 전부 이 두 포인터만 사용합니다.
 	AYUFSBinaryManager* BinaryManager = nullptr;
 	AYUFSEmergencyCommSystem* CommSystem = nullptr;
 	AYUFSHeterogeneousVolume* HeterogeneousVolume = nullptr;
 	AYUFSLevelDataManager* CachedLDM = nullptr;
 	UUserWidget* HUDWidgetInstance = nullptr;
+
+	// ── 화재 시나리오 A/B 각각의 실제 데이터 쌍 ───────────────────────────
+	// 레벨에는 이름이 "..._A" / "..._B"로 끝나는 AYUFSHeterogeneousVolume, AYUFSBinaryManager
+	// 액터를 각각 배치합니다 (WBP_SimHUD의 FindFirePoints()와 동일한 명명 규칙).
+	EFireScenario ActiveScenario = EFireScenario::ScenarioA;
+
+	AYUFSBinaryManager* BinaryManagerA = nullptr;
+	AYUFSBinaryManager* BinaryManagerB = nullptr;
+	AYUFSHeterogeneousVolume* HeterogeneousVolumeA = nullptr;
+	AYUFSHeterogeneousVolume* HeterogeneousVolumeB = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category="Simulation|Timeline")
 	UYUFSTimelineRecorder* TimelineRecorder = nullptr;
@@ -291,4 +318,10 @@ private:
 	void FinalizeRun();
 	void UpdateLiveCounts();
 	void SpawnHUD();
+
+	// 레벨에서 "_A"/"_B" 이름 규칙의 BinaryManager/HeterogeneousVolume 쌍을 찾아 서로 링크합니다.
+	void FindFireScenarioActors();
+	// ActiveScenario에 맞춰 BinaryManager/HeterogeneousVolume 캐시를 갱신하고,
+	// 선택되지 않은 쪽 볼륨은 숨김 처리합니다.
+	void ApplyActiveScenario();
 };
