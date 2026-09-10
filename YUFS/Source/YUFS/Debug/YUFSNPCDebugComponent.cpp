@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "NPC/YUFSEvacuationNPC.h"
+#include "Simulation/YUFSGameInstance.h"
 
 UYUFSNPCDebugComponent::UYUFSNPCDebugComponent()
 {
@@ -39,6 +40,15 @@ bool UYUFSNPCDebugComponent::ShouldDraw() const
 	if (!bEnabled || !OwnerNPC.IsValid() || !GetWorld())
 	{
 		return false;
+	}
+
+	// 설정 화면의 전역 토글 — 꺼져 있으면 개별 bEnabled와 상관없이 표시하지 않습니다.
+	if (const UYUFSGameInstance* GI = GetWorld()->GetGameInstance<UYUFSGameInstance>())
+	{
+		if (!GI->bNPCDebugOverlayEnabled)
+		{
+			return false;
+		}
 	}
 
 	AActor* OwnerActor = OwnerNPC.Get();

@@ -32,6 +32,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category="YUFS|HUD")
 	void OnStopButtonClicked();
 
+	// 시뮬레이션을 벗어나 메인 메뉴 레벨로 돌아갑니다.
+	UFUNCTION(BlueprintCallable, Category="YUFS|HUD")
+	void OnMainMenuButtonClicked();
+
 	// ── 카메라 제어 버튼 바인딩 ───────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category = "YUFS|HUD|Camera")
 	void OnCameraOverviewButtonClicked();

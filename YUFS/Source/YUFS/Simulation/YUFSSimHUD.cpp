@@ -4,6 +4,7 @@
 
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "Simulation/YUFSGameInstance.h"
 
 void UYUFSSimHUD::NativeConstruct()
 {
@@ -61,6 +62,14 @@ void UYUFSSimHUD::OnStopButtonClicked()
 	if (SimController) SimController->StopAndResetSimulation();
 }
 
+void UYUFSSimHUD::OnMainMenuButtonClicked()
+{
+	if (UYUFSGameInstance* GI = Cast<UYUFSGameInstance>(GetGameInstance()))
+	{
+		GI->ReturnToMainMenu();
+	}
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 데이터 조회 (UMG 바인딩용)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -115,7 +124,6 @@ FText UYUFSSimHUD::GetRunProgressText() const
 	if (!SimController) return FText::FromString(TEXT(""));
 
 	const int32 Current = SimController->GetCurrentRunIndex();
-	// TotalRunCount는 공개 프로퍼티이므로 직접 접근
 	return FText::FromString(FString::Printf(TEXT("실험 %d회차"), Current));
 }
 

@@ -54,6 +54,19 @@ void AYUFSSimulationController::BeginPlay()
 		RegisterNPC(*It);
 	}
 	InitialNPCCount = RegisteredNPCs.Num();
+
+	// "이 회차 재현" 요청이 있으면 Start 버튼을 누르기 전, 레벨이 열리자마자 NPC 배치를
+	// 복원합니다(부족한 NPC는 재스폰). 시드 소비/실제 실행 시작은 여전히 StartSimulation()의
+	// InitializeRunSeed()가 담당하므로 여기서는 플래그를 지우지 않습니다.
+	if (const UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
+	{
+		if (GI->bHasPendingReplaySeed)
+		{
+			ApplyReplayNPCTransforms(GI->PendingReplayNPCTransforms, GI->PendingReplayNPCClasses);
+			InitialNPCCount = RegisteredNPCs.Num();
+		}
+	}
+
 	if (BinaryManager && HeterogeneousVolume)
 	{
 		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
@@ -63,22 +76,11 @@ void AYUFSSimulationController::BeginPlay()
 		TimelineRecorder->Initialize(this, HeterogeneousVolume);
 	}
 
+	// 메인 메뉴에서 넘어온 시나리오 설정을 먼저 반영합니다.
+	// (배치 회차마다 레벨이 리로드되므로 매 BeginPlay에서 다시 적용)
+	ApplyActiveScenario();
+
 	SpawnHUD();
-
-	// 레벨 리로드 후 배치 실험 복원 — GameInstance에 저장된 회차 상태를 읽어옴
-	if (UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
-	{
-		if (GI->bHasPendingBatchRun)
-		{
-			CurrentRunIndex = GI->PendingRunIndex;
-			TotalRunCount   = GI->PendingTotalRuns;
-			AllRunResults   = GI->AccumulatedResults;
-			GI->ClearBatchState();
-
-			UE_LOG(LogTemp, Log, TEXT("[YUFS] Batch resume: Run %d/%d"), CurrentRunIndex, TotalRunCount);
-			SetPhase(ESimPhase::FireStartDelay);
-		}
-	}
 }
 
 void AYUFSSimulationController::Tick(float DeltaTime)
@@ -138,10 +140,12 @@ void AYUFSSimulationController::StartSimulation()
 	AllRunResults.Empty();
 	ResolvedNPCs.Empty();
 
+	// 결과 화면의 "이 회차 재현" 요청이 있으면 그 시드로, 아니면 새 랜덤 시드로 시작합니다.
+	InitializeRunSeed();
+
 	SetPhase(ESimPhase::FireStartDelay);
 
-	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation Run %d/%d started. Fire in %.0f seconds."),
-		CurrentRunIndex, TotalRunCount, FireStartDelaySeconds);
+	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation started. Fire in %.0f seconds."), FireStartDelaySeconds);
 }
 
 void AYUFSSimulationController::PauseSimulation()
@@ -211,6 +215,14 @@ void AYUFSSimulationController::StopAndResetSimulation()
 {
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation STOPPED. Reloading level..."));
 
+	// 회차가 실제로 진행 중일 때(화재 대기/진행)만 중단 시점 기준으로 결과를 저장합니다.
+	// Completed/TimelineReview는 FinalizeRun()/EnterTimelineReviewMode()에서 이미 저장했으므로
+	// 여기서 또 저장하면 같은 회차가 기록에 중복으로 쌓입니다.
+	if (CurrentPhase == ESimPhase::FireStartDelay || CurrentPhase == ESimPhase::FireActive)
+	{
+		StoreRunResult(BuildRunResult());
+	}
+
 	// TimeDilation을 먼저 정상화한 뒤 레벨을 리로드해야 다음 실행 시 정상 속도로 시작됨
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 
@@ -221,6 +233,32 @@ void AYUFSSimulationController::StopAndResetSimulation()
 // ─────────────────────────────────────────────────────────────────────────────
 // 내부 로직
 // ─────────────────────────────────────────────────────────────────────────────
+
+void AYUFSSimulationController::ApplyActiveScenario()
+{
+	UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>();
+	if (!GI || !GI->bHasActiveScenario)
+	{
+		return;
+	}
+
+	bHasActiveScenario = true;
+	ActiveScenario = GI->ActiveScenario;
+
+	// 스칼라 파라미터 반영 (NPC 수/정책/배치 프리셋은 NPC 스폰 시스템이 ActiveScenario에서 직접 읽습니다.)
+	FireStartDelaySeconds          = ActiveScenario.FireStartDelaySeconds;
+	MaxSimDurationSeconds          = ActiveScenario.MaxSimDurationSeconds;
+	AlarmTriggerOffsetSeconds      = ActiveScenario.AlarmTriggerOffsetSeconds;
+	PreRecordedMsgOffsetSeconds    = ActiveScenario.PreRecordedMsgOffsetSeconds;
+	LiveAnnouncementOffsetSeconds  = ActiveScenario.LiveAnnouncementOffsetSeconds;
+	StaffGuidanceOffsetSeconds     = ActiveScenario.StaffGuidanceOffsetSeconds;
+	bEnableTimelineRecording       = ActiveScenario.bEnableTimelineRecording;
+	TimelineRecordEndFireSeconds   = ActiveScenario.TimelineRecordEndFireSeconds;
+	TimelineRecordIntervalSeconds  = FMath::Max(0.05f, ActiveScenario.TimelineRecordIntervalSeconds);
+
+	UE_LOG(LogTemp, Log, TEXT("[YUFS] 시나리오 적용: '%s' | 화재지연 %.0fs"),
+		*ActiveScenario.DisplayName.ToString(), FireStartDelaySeconds);
+}
 
 void AYUFSSimulationController::SetPhase(ESimPhase NewPhase)
 {
@@ -432,6 +470,130 @@ void AYUFSSimulationController::CheckCompletionCondition()
 	}
 }
 
+FSimRunResult AYUFSSimulationController::BuildRunResult() const
+{
+	FSimRunResult Result;
+	Result.RunIndex = CurrentRunIndex;
+	Result.TotalNPCCount = FMath::Max(InitialNPCCount, LiveEvacuatedCount + LiveIncapacitatedCount + RegisteredNPCs.Num());
+	Result.EvacuatedCount = LiveEvacuatedCount;
+	Result.IncapacitatedCount = LiveIncapacitatedCount;
+	Result.EvacuationRate = Result.TotalNPCCount > 0
+		? (float)Result.EvacuatedCount / (float)Result.TotalNPCCount
+		: 0.f;
+	Result.SimDurationSeconds = ElapsedSimTime;
+	Result.AverageEvacuationTime = Result.EvacuatedCount > 0
+		? TotalEvacuationTime / static_cast<float>(Result.EvacuatedCount)
+		: 0.f;
+	Result.RandomSeed = CurrentRunSeed;
+	Result.Timestamp = FDateTime::Now();
+	Result.ScenarioConfig = CaptureScenarioSnapshot();
+	Result.InitialNPCTransforms = InitialNPCTransforms;
+	Result.InitialNPCClasses = InitialNPCClasses;
+	return Result;
+}
+
+FYUFSScenarioConfig AYUFSSimulationController::CaptureScenarioSnapshot() const
+{
+	// 메뉴에서 넘어온 시나리오가 있으면 그걸 베이스로(맵/NPC수/정책 등 포함),
+	// 없으면(메뉴 없이 바로 PIE) 빈 기본값에서 시작합니다.
+	FYUFSScenarioConfig Snapshot = bHasActiveScenario ? ActiveScenario : FYUFSScenarioConfig();
+
+	// 스칼라 파라미터는 항상 이 회차가 실제로 사용한 현재 값으로 덮어써서,
+	// 메뉴 없이 시작한 경우에도(EditAnywhere 기본값 사용 시) 정확한 값이 들어가게 합니다.
+	Snapshot.FireStartDelaySeconds         = FireStartDelaySeconds;
+	Snapshot.MaxSimDurationSeconds         = MaxSimDurationSeconds;
+	Snapshot.AlarmTriggerOffsetSeconds     = AlarmTriggerOffsetSeconds;
+	Snapshot.PreRecordedMsgOffsetSeconds   = PreRecordedMsgOffsetSeconds;
+	Snapshot.LiveAnnouncementOffsetSeconds = LiveAnnouncementOffsetSeconds;
+	Snapshot.StaffGuidanceOffsetSeconds    = StaffGuidanceOffsetSeconds;
+	Snapshot.bEnableTimelineRecording      = bEnableTimelineRecording;
+	Snapshot.TimelineRecordEndFireSeconds  = TimelineRecordEndFireSeconds;
+	Snapshot.TimelineRecordIntervalSeconds = TimelineRecordIntervalSeconds;
+
+	if (!bHasActiveScenario)
+	{
+		Snapshot.NPCCount = InitialNPCCount;
+	}
+
+	return Snapshot;
+}
+
+void AYUFSSimulationController::InitializeRunSeed()
+{
+	UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>();
+
+	if (GI && GI->bHasPendingReplaySeed)
+	{
+		// 결과 화면에서 "이 회차 재현"으로 넘어온 경우: 그 회차의 시드를 그대로 씁니다.
+		CurrentRunSeed = GI->PendingReplaySeed;
+		ApplyReplayNPCTransforms(GI->PendingReplayNPCTransforms, GI->PendingReplayNPCClasses);
+		GI->bHasPendingReplaySeed = false;
+		GI->PendingReplayNPCTransforms.Reset();
+		GI->PendingReplayNPCClasses.Reset();
+	}
+	else
+	{
+		CurrentRunSeed = FMath::RandRange(0, MAX_int32 - 1);
+	}
+
+	FMath::RandInit(CurrentRunSeed);
+
+	// 재현으로 위치를 되돌린 경우 그 값을, 아니면 레벨에 배치된 현재 값을 이번 회차의
+	// "시작 시점" 스냅샷으로 캡처합니다. BuildRunResult()가 이걸 그대로 결과에 담습니다.
+	CaptureInitialNPCTransforms();
+}
+
+void AYUFSSimulationController::CaptureInitialNPCTransforms()
+{
+	InitialNPCTransforms.Reset(RegisteredNPCs.Num());
+	InitialNPCClasses.Reset(RegisteredNPCs.Num());
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		InitialNPCTransforms.Add(IsValid(NPC) ? NPC->GetActorTransform() : FTransform::Identity);
+		InitialNPCClasses.Add(IsValid(NPC) ? NPC->GetClass() : nullptr);
+	}
+}
+
+void AYUFSSimulationController::ApplyReplayNPCTransforms(const TArray<FTransform>& Transforms, const TArray<TSubclassOf<AYUFSEvacuationNPC>>& Classes)
+{
+	// 레벨에 원래부터 배치된(=레벨 리로드 후에도 살아남는) NPC는 여기 먼저 등록되어 있으므로
+	// 그 범위까지는 위치만 되돌립니다.
+	const int32 ExistingCount = FMath::Min(Transforms.Num(), RegisteredNPCs.Num());
+	for (int32 Index = 0; Index < ExistingCount; ++Index)
+	{
+		if (IsValid(RegisteredNPCs[Index]))
+		{
+			RegisteredNPCs[Index]->SetActorTransform(Transforms[Index], false, nullptr, ETeleportType::TeleportPhysics);
+		}
+	}
+
+	// 배치 도구로 런타임에 추가 배치했던 NPC는 레벨 자체엔 저장되지 않아 리로드 후
+	// 존재하지 않으므로, 저장해둔 클래스로 다시 스폰해서 채워 넣습니다.
+	// (스폰된 NPC는 자신의 BeginPlay에서 RegisterNPC()를 호출해 자동으로 등록됩니다.)
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	for (int32 Index = RegisteredNPCs.Num(); Index < Transforms.Num(); ++Index)
+	{
+		if (TSubclassOf<AYUFSEvacuationNPC> NPCClass = Classes.IsValidIndex(Index) ? Classes[Index] : nullptr)
+		{
+			GetWorld()->SpawnActor<AYUFSEvacuationNPC>(NPCClass, Transforms[Index], Params);
+		}
+	}
+}
+
+void AYUFSSimulationController::StoreRunResult(const FSimRunResult& Result)
+{
+	AllRunResults.Add(Result);
+	OnRunCompleted.Broadcast(Result);
+
+	// 결과 화면(UYUFSResultsWidget 등)이 읽을 수 있도록 GameInstance에 회차 결과를 보존합니다.
+	if (UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
+	{
+		GI->StoreRunResults(AllRunResults);
+	}
+}
+
 void AYUFSSimulationController::FinalizeRun()
 {
 	if (!RegisteredNPCs.IsEmpty())
@@ -453,52 +615,15 @@ void AYUFSSimulationController::FinalizeRun()
 
 	SetPhase(ESimPhase::Completed);
 
-	// 결과 요약 구성
-	FSimRunResult Result;
-	Result.RunIndex = CurrentRunIndex;
-	Result.TotalNPCCount = FMath::Max(InitialNPCCount, LiveEvacuatedCount + LiveIncapacitatedCount + RegisteredNPCs.Num());
-	Result.EvacuatedCount = LiveEvacuatedCount;
-	Result.IncapacitatedCount = LiveIncapacitatedCount;
-	Result.EvacuationRate = Result.TotalNPCCount > 0
-		? (float)Result.EvacuatedCount / (float)Result.TotalNPCCount
-		: 0.f;
-	Result.SimDurationSeconds = ElapsedSimTime;
-	Result.AverageEvacuationTime = Result.EvacuatedCount > 0
-		? TotalEvacuationTime / static_cast<float>(Result.EvacuatedCount)
-		: 0.f;
-
-	AllRunResults.Add(Result);
-	OnRunCompleted.Broadcast(Result);
+	const FSimRunResult Result = BuildRunResult();
+	StoreRunResult(Result);
 
 	UE_LOG(LogTemp, Warning,
-		TEXT("[YUFS] Run %d/%d Done | Evacuated: %d/%d (%.1f%%) | Incapacitated: %d | Duration: %.1fs"),
-		CurrentRunIndex, TotalRunCount,
+		TEXT("[YUFS] Run Done | Evacuated: %d/%d (%.1f%%) | Incapacitated: %d | Duration: %.1fs"),
 		Result.EvacuatedCount, Result.TotalNPCCount,
 		Result.EvacuationRate * 100.f,
 		Result.IncapacitatedCount,
 		Result.SimDurationSeconds);
-
-	// 배치 실험: 다음 회차 진행
-	if (CurrentRunIndex < TotalRunCount)
-	{
-		FTimerHandle NextRunTimer;
-		GetWorld()->GetTimerManager().SetTimer(NextRunTimer, this,
-			&AYUFSSimulationController::StartNextRun,
-			DelayBetweenRunsSeconds, false);
-	}
-}
-
-void AYUFSSimulationController::StartNextRun()
-{
-	// 레벨 리로드 전에 다음 회차 상태를 GameInstance에 보존
-	// OpenLevel 이후 이 액터는 파괴되므로 멤버 변수에 저장해봐야 소용 없음
-	if (UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
-	{
-		GI->SetupNextRun(CurrentRunIndex + 1, TotalRunCount, AllRunResults);
-	}
-
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
-	UGameplayStatics::OpenLevel(GetWorld(), *GetWorld()->GetName());
 }
 
 
@@ -519,6 +644,11 @@ void AYUFSSimulationController::EnterTimelineReviewMode()
 	{
 		return;
 	}
+
+	// 타임라인 기록 종료 시점의 대피 결과를 결과 화면용으로 확정해 둡니다.
+	// (기록 모드에서는 FinalizeRun()이 호출되지 않고 곧바로 관찰 모드로 들어가므로,
+	//  여기서 저장하지 않으면 LastRunResults가 비어 있어 결과 화면에 아무것도 뜨지 않습니다.)
+	StoreRunResult(BuildRunResult());
 
 	bIsPaused = false;
 
