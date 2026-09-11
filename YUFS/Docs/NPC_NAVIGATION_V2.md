@@ -1,6 +1,6 @@
 # NPC 경로 탐색 v2 — 개인별 인지와 통행 조정
 
-2026-09-08. 기준 `IT_YOON_JAEYEONG@4293ca3`, 작업 브랜치 `jjw/navigation-foundation`.
+2026-09-08 구현, 2026-09-11 실행본 복원 및 화재 머티리얼 연결 반영. 현재 로컬·GitHub 브랜치는 모두 `JJW_NPC_BEHAVIOR`이다. NPC v2 소스는 `204a8d3`에 포함되어 있고, 이번 커밋은 그 위에 화재 연결과 복원 안내를 추가한다. `IT_YOON_JAEYEONG@4293ca3`은 구현의 출발 기준이며, `jjw/navigation-foundation`은 과거 로컬 작업 브랜치 이름이다.
 프로젝트 위치와 실행 파일은 이전과 같다. `YUFS.uproject`를 열어 `Prototype` 맵을 에디터에서 재생한다.
 이 문서가 현재 동작 설명이며, `NAVIGATION_HAZARDS.md`의 9월 8일 첫 구현 설명을 갱신한다.
 

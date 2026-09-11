@@ -1,5 +1,13 @@
 # 경로 탐색 작업 인계 — 2026-09-08 v2
 
+## 2026-09-11 실행 폴더 복원
+
+실행 위치는 `outputs/Fire-Simulation/YUFS/YUFS.uproject`이다. `204a8d3`의 소스·맵·에셋을 이 기존 폴더에 복원했으며, 이번 화재 연결 수정도 `JJW_NPC_BEHAVIOR`에 포함한다. 로컬 작업 브랜치와 GitHub 게시 브랜치는 모두 `JJW_NPC_BEHAVIOR`이며 main은 변경하지 않았다. 이전 맵에만 존재하고 `e514c56`과 내용이 일치하는 에셋 13개를 제거했다.
+
+`Prototype`의 화재 볼륨에 `/Game/Fires/Fire/SparseVolumeMaterial_Inst`를 재연결해 저장했다. 연결된 텍스처는 `untitled_v1`이다. BIN은 기존 `Content/Fires/Scenario_01/smoke_data.bin`을 그대로 사용하며 Git에 포함하지 않으므로 새 클론에서는 별도로 배치해야 한다. 마지막 사용자 설정 전체를 자동 저장본으로 복구한 것은 아니다.
+
+이 경로에서 Editor Development 빌드 성공 및 NPC 자동화 테스트 16개 성공, 실패 0개를 다시 확인했다. 복원 후 60초 NullRHI 맵 실행은 오류 없이 종료됐으며 20명 중 17명 대피, BIN Ready를 확인했다. 그래픽 출력이나 BIN/SVT 대응까지 검증한 것은 아니다. 이번 검증 파일은 작업 폴더의 `work/restored-*`에 있다. 아래 9월 8일 실행 수치는 당시 기록이다.
+
 ## 먼저 읽을 문서
 
 - 현재 기능·설정·한계·검증: [YUFS/Docs/NPC_NAVIGATION_V2.md](YUFS/Docs/NPC_NAVIGATION_V2.md)
