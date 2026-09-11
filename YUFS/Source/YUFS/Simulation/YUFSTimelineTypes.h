@@ -31,10 +31,6 @@ struct FYUFSTimelineNPCSnapshot
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	EYUFSAction CurrentAction = EYUFSAction::Idle;
 
-	// 타임라인 재생에서도 70:20:10 집단 색상/표식을 동일하게 복원한다.
-	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
-	EYUFSRoutePreference RoutePreference = EYUFSRoutePreference::FamiliarExit;
-
 	// HUD/디버그 표시용 최소 위험 정보입니다.
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	float RiskPerception = 0.f;

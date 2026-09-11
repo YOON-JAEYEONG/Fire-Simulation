@@ -23,34 +23,15 @@ void AYUFSLevelDataManager::BeginPlay()
 
 void AYUFSLevelDataManager::CollectLevelActors()
 {
-	CachedExits.Reset();
 	TArray<AActor*> FoundExits;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AYUFSExitPoint::StaticClass(), FoundExits);
 	for (AActor* Actor : FoundExits)
 	{
-		if (AYUFSExitPoint* ExitPoint = Cast<AYUFSExitPoint>(Actor))
-		{
-			CachedExits.AddUnique(ExitPoint);
-		}
+		CachedExits.Add(Cast<AYUFSExitPoint>(Actor));
 	}
 	CachedDangerFrame = INDEX_NONE;
 	CachedExitDangerStates.Reset();
-}
 
-void AYUFSLevelDataManager::RegisterExitPoint(AYUFSExitPoint* ExitPoint)
-{
-	if (!IsValid(ExitPoint)) return;
-
-	CachedExits.AddUnique(ExitPoint);
-	CachedDangerFrame = INDEX_NONE;
-	CachedExitDangerStates.Reset();
-}
-
-void AYUFSLevelDataManager::UnregisterExitPoint(AYUFSExitPoint* ExitPoint)
-{
-	CachedExits.Remove(ExitPoint);
-	CachedDangerFrame = INDEX_NONE;
-	CachedExitDangerStates.Reset();
 }
 
 void AYUFSLevelDataManager::RefreshExitDangerCache(int32 Frame) const

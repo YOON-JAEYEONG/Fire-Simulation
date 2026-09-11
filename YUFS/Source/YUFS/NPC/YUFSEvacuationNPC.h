@@ -10,7 +10,6 @@
 #include "YUFSEvacuationNPC.generated.h"
 
 class UAnimMontage;
-class AYUFSExitPoint;
 class AYUFSLevelDataManager;
 class AYUFSBinaryManager;
 class UYUFSSocialInfluenceComponent;
@@ -47,32 +46,6 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="AI|Logging")
 	bool bLogTransitions = true;
-
-	// ── 70:20:10 경로 집단 배정 ───────────────────────────────────────
-	// 스포너에서 명시하지 않으면 SimulationController가 이름 순으로 안정 ID를 부여한다.
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="AI|Route", meta=(ExposeOnSpawn="true"))
-	int32 StableNpcId = INDEX_NONE;
-
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category="AI|Route")
-	EYUFSRoutePreference RoutePreference = EYUFSRoutePreference::FamiliarExit;
-
-	// 생성 시 레벨의 출구 중 하나가 무작위로 지정된다.
-	// 스폰 시 명시하거나 인스턴스에서 직접 지정한 값은 덮어쓰지 않는다.
-	UPROPERTY(EditInstanceOnly, BlueprintReadWrite, Category="AI|Route", meta=(ExposeOnSpawn="true"))
-	AYUFSExitPoint* FamiliarExitPoint = nullptr;
-
-	// 경로 성향을 NPC 디버그 구체의 상단 반구 색으로 표시한다.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Route|Debug")
-	bool bVisualizeRoutePreference = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Route|Debug")
-	FLinearColor FamiliarExitDebugColor = FLinearColor(0.05f, 0.25f, 1.f, 1.f);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Route|Debug")
-	FLinearColor SocialFollowingDebugColor = FLinearColor(1.f, 0.35f, 0.03f, 1.f);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Route|Debug")
-	FLinearColor NearestSafeExitDebugColor = FLinearColor(0.05f, 0.85f, 0.15f, 1.f);
 
 	// 비용이 큰 감지/근접 NPC 탐색은 렌더 프레임마다 수행하지 않는다.
 	// NPC별 초기 위상을 달리해 같은 프레임에 갱신이 몰리지 않게 한다.
@@ -111,7 +84,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="1.0"))
 	float EverydayMaxRoamSeconds = 18.f;
 
-	// 같은 NPC 이름과 seed 조합은 실행마다 같은 초기 행동 순서를 만든다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior")
 	int32 EverydayBehaviorSeed = 2026;
 
@@ -130,7 +102,6 @@ public:
 	UYUFSSocialInfluenceComponent* GetSocialComponent()     const { return SocialComp; }
 	AYUFSLevelDataManager*       GetLevelDataManager()      const { return LevelDataMgr; }
 	AYUFSBinaryManager*          GetBinaryManager()         const { return BinaryManager; }
-	AYUFSExitPoint*              GetFamiliarExitPoint()     const { return FamiliarExitPoint; }
 
 	// ── 통신 상태 접근자 ──────────────────────────────────────────────
 	bool    IsAlarmSounding()           const { return bAlarmSounding; }
@@ -142,11 +113,6 @@ public:
 
 	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
-	EYUFSRoutePreference GetRoutePreference() const { return RoutePreference; }
-	int32 GetStableNpcId() const { return StableNpcId; }
-	void SetStableNpcId(int32 InStableNpcId) { StableNpcId = InStableNpcId; }
-	void SetRoutePreference(EYUFSRoutePreference InPreference);
-	FLinearColor GetActiveRouteDebugColor() const;
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
 	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
@@ -243,8 +209,6 @@ private:
 
 	// ── 내부 함수 ─────────────────────────────────────────────────────
 	int32 GetCurrentSimFrame() const;
-	void AssignRandomFamiliarExit();
-	FVector GetAssignedFamiliarExitLocation() const;
 	void BuildObservation(FYUFSNPCObservation& Out) const;
 	void FlushLearningTransition(const FYUFSNPCObservation& NextObs, EYUFSTerminalReason TerminalReason);
 	EYUFSTerminalReason GetCurrentTerminalReason() const;
@@ -259,7 +223,5 @@ private:
 	void OnActionChanged(EYUFSAction NewAction);
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
-	EYUFSAction SelectRouteActionFromPreference() const;
-	FLinearColor GetRoutePreferenceColor(EYUFSRoutePreference Preference) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

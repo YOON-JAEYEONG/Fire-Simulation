@@ -6,8 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "YUFSExitPoint.generated.h"
 
-class AYUFSLevelDataManager;
-
 UCLASS()
 class YUFS_API AYUFSExitPoint : public AActor
 {
@@ -15,10 +13,6 @@ class YUFS_API AYUFSExitPoint : public AActor
 	
 public:
 	AYUFSExitPoint();
-
-protected:
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	// 에디터에서 각 출구마다 설정
@@ -31,7 +25,4 @@ public:
 	UPROPERTY(EditAnywhere, Category="Exit")
 	bool bIsFamiliarEntry = false; // NPC 진입 시 사용한 출구인지
 
-private:
-	UPROPERTY(Transient)
-	AYUFSLevelDataManager* RegisteredLevelDataManager = nullptr;
 };

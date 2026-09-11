@@ -15,7 +15,6 @@
 #include "Fire/YUFSBinaryManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Level/YUFSExitPoint.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "Navigation/YUFSSmokeAwareNavigator.h"
 #include "NavigationSystem.h"
@@ -89,7 +88,6 @@ void AYUFSEvacuationNPC::BeginPlay()
 
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)  { BinaryManager = *It; break; }
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It){ LevelDataMgr  = *It; break; }
-	AssignRandomFamiliarExit();
 
 	for (TActorIterator<AYUFSSimulationController> It(GetWorld()); It; ++It)
 	{
@@ -102,13 +100,6 @@ void AYUFSEvacuationNPC::BeginPlay()
 void AYUFSEvacuationNPC::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	// 월드 파티션 또는 런타임 스폰으로 출구가 늦게 등록된 경우에만 다시 배정한다.
-	// 이미 지정된 친숙한 출구는 새 출구가 추가되어도 유지된다.
-	if (!IsValid(FamiliarExitPoint) && LevelDataMgr && !LevelDataMgr->GetExitPoints().IsEmpty())
-	{
-		AssignRandomFamiliarExit();
-	}
 
 	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
 	// 관찰 모드에서는 AI 판단, 경로 탐색, 이동 입력을 다시 계산하면 안 됩니다.
@@ -179,13 +170,13 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 
 	// ── 일상 행동 또는 MLP 정책 실행 ─────────────────────────────────────
 	// 화재가 시작됐더라도 단서를 아직 인식하지 못한 Normal 상태에서는 산책을 계속한다.
-	// 상태가 바뀐 바로 그 Tick에 일상 경로를 취소하고 기존 비상 행동 정책으로 넘긴다.
 	if (BehaviorSM && BehaviorSM->GetCurrentState() == EYUFSBehaviorState::Normal)
 	{
 		TickEverydayBehavior(DeltaTime);
 	}
 	else
 	{
+		// 인식 상태로 바뀐 바로 그 Tick에 일상 경로를 취소하고 기존 정책으로 넘긴다.
 		StopEverydayBehavior();
 		TickPolicy(DeltaTime, CurrentObs);
 	}
@@ -317,7 +308,6 @@ void AYUFSEvacuationNPC::TickEverydayBehavior(float DeltaTime)
 			return;
 		}
 
-		// 비동기 탐색이 끝났는데 경로가 없다면 잠시 대기 후 새 목적지를 고른다.
 		if (!Navigator->bIsPathfinding && Navigator->GetCurrentPathPoints().IsEmpty())
 		{
 			BeginEverydayIdle();
@@ -453,11 +443,6 @@ void AYUFSEvacuationNPC::StopEverydayBehavior()
 	}
 }
 
-void AYUFSEvacuationNPC::SetRoutePreference(EYUFSRoutePreference InPreference)
-{
-	RoutePreference = InPreference;
-}
-
 void AYUFSEvacuationNPC::UpdateStuckDetection(float DeltaTime)
 {
 	UCharacterMovementComponent* Mv = GetCharacterMovement();
@@ -548,55 +533,6 @@ int32 AYUFSEvacuationNPC::GetCurrentSimFrame() const
 	return BinaryManager ? BinaryManager->GetCurrentFrame() : 0;
 }
 
-void AYUFSEvacuationNPC::AssignRandomFamiliarExit()
-{
-	// 에디터 또는 SpawnActor 인자로 지정한 출구가 있으면 그 설정을 유지한다.
-	if (IsValid(FamiliarExitPoint))
-		return;
-
-	TArray<AYUFSExitPoint*> AvailableExits;
-	if (LevelDataMgr)
-	{
-		for (AYUFSExitPoint* ExitPoint : LevelDataMgr->GetExitPoints())
-		{
-			if (IsValid(ExitPoint))
-				AvailableExits.Add(ExitPoint);
-		}
-	}
-
-	// Actor의 BeginPlay 순서상 LevelDataManager의 캐시가 아직 비어 있을 수 있다.
-	if (AvailableExits.IsEmpty())
-	{
-		for (TActorIterator<AYUFSExitPoint> It(GetWorld()); It; ++It)
-		{
-			AvailableExits.Add(*It);
-		}
-	}
-
-	if (AvailableExits.IsEmpty())
-	{
-		UE_LOG(LogTemp, Warning,
-			TEXT("[FamiliarExit] %s: 배정 가능한 YUFSExitPoint가 없어 기존 위치 기반 방식을 사용합니다."),
-			*GetName());
-		return;
-	}
-
-	FamiliarExitPoint = AvailableExits[FMath::RandRange(0, AvailableExits.Num() - 1)];
-	UE_LOG(LogTemp, Log,
-		TEXT("[FamiliarExit] %s -> %s (ExitID=%s)"),
-		*GetName(),
-		*FamiliarExitPoint->GetName(),
-		*FamiliarExitPoint->ExitID.ToString());
-}
-
-FVector AYUFSEvacuationNPC::GetAssignedFamiliarExitLocation() const
-{
-	if (IsValid(FamiliarExitPoint))
-		return FamiliarExitPoint->GetActorLocation();
-
-	return LevelDataMgr ? LevelDataMgr->GetFamiliarExit(SpawnLocation) : SpawnLocation;
-}
-
 void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 {
 	Out = FYUFSNPCObservation{};
@@ -625,7 +561,7 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 	const FVector Pos   = GetActorLocation();
 	const int32 Frame   = GetCurrentSimFrame();
 	const FVector NExit = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
-	const FVector FExit = GetAssignedFamiliarExitLocation();
+	const FVector FExit = LevelDataMgr->GetFamiliarExit(SpawnLocation);
 
 	Out.DistToNearestExit    = FVector::Dist(Pos, NExit);
 	Out.DistToFamiliarExit   = FVector::Dist(Pos, FExit);
@@ -639,8 +575,14 @@ EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
 	if (BehaviorSM && BehaviorSM->IsIncapacitated())
 		return EYUFSTerminalReason::Incapacitated;
 
-	if (LevelDataMgr)
+	if (LevelDataMgr && BehaviorSM)
 	{
+		const EYUFSBehaviorState State = BehaviorSM->GetCurrentState();
+		if (State != EYUFSBehaviorState::Evacuating && State != EYUFSBehaviorState::Crawling)
+		{
+			return EYUFSTerminalReason::None;
+		}
+
 		const FVector Exit = LevelDataMgr->GetNearestSafeExit(GetActorLocation(), false, GetCurrentSimFrame());
 		if (FVector::Dist(GetActorLocation(), Exit) < 150.f)
 			return EYUFSTerminalReason::ReachedExit;
@@ -657,7 +599,6 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 	Snapshot.Location = GetActorLocation();
 	Snapshot.Rotation = GetActorRotation();
 	Snapshot.CurrentAction = CurrentAction;
-	Snapshot.RoutePreference = RoutePreference;
 	Snapshot.bVisible = !IsHidden();
 	Snapshot.bEvacuated = false;
 	Snapshot.bIncapacitated = false;
@@ -704,7 +645,6 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 		SetActorEnableCollision(Snapshot.bVisible);
 	}
 
-	RoutePreference = Snapshot.RoutePreference;
 	CurrentAction = Snapshot.CurrentAction;
 
 	if (Navigator)
@@ -801,20 +741,7 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& 
 	{
 		PolicyTickAccumulator = 0.f;
 
-		EYUFSAction NewAction = MLPolicy.SelectAction(Observation);
-
-		// 경로 성향은 정책의 행동 공간과 분리한다. 이렇게 하면 기존 28입력/11행동
-		// ONNX 모델을 깨뜨리지 않으면서 70:20:10 집단 배정을 적용할 수 있다.
-		if (Observation.CurrentState == EYUFSBehaviorState::Evacuating)
-		{
-			NewAction = bReceivedStaffGuidance
-				? EYUFSAction::EvacuateToNearestExit
-				: SelectRouteActionFromPreference();
-		}
-		else if (Observation.CurrentState == EYUFSBehaviorState::Crawling)
-		{
-			NewAction = EYUFSAction::EvacuateToNearestExit;
-		}
+		const EYUFSAction NewAction = MLPolicy.SelectAction(Observation);
 
 		if (Observation.CurrentState == EYUFSBehaviorState::Milling)
 			++MillingActionCount;
@@ -940,35 +867,18 @@ FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 	case EYUFSAction::EvacuateToNearestExit:
 		if (bReceivedStaffGuidance && !StaffGuidedExitLocation.IsZero())
 			return StaffGuidedExitLocation;
-		{
-			const FVector SafeExit = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
-			return LevelDataMgr->IsLocationDangerous(SafeExit, Frame) ? FVector::ZeroVector : SafeExit;
-		}
+		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
 
 	case EYUFSAction::EvacuateToFamiliarExit:
-		{
-			const FVector FamiliarExit = GetAssignedFamiliarExitLocation();
-			if (!LevelDataMgr->IsLocationDangerous(FamiliarExit, Frame))
-				return FamiliarExit;
-
-			const FVector SafeFallback = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
-			return LevelDataMgr->IsLocationDangerous(SafeFallback, Frame)
-				? FVector::ZeroVector
-				: SafeFallback;
-		}
+		return LevelDataMgr->GetFamiliarExit(SpawnLocation);
 
 	case EYUFSAction::FollowCrowd:
 		if (SocialComp)
 		{
 			const FVector Avg = SocialComp->GetAverageEvacuationDestination();
-			if (!Avg.IsZero() && !LevelDataMgr->IsLocationDangerous(Avg, Frame)) return Avg;
+			if (!Avg.IsZero()) return Avg;
 		}
-		{
-			const FVector SafeFallback = LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
-			return LevelDataMgr->IsLocationDangerous(SafeFallback, Frame)
-				? FVector::ZeroVector
-				: SafeFallback;
-		}
+		return LevelDataMgr->GetNearestSafeExit(Pos, true, Frame);
 
 	case EYUFSAction::HelpOther:
 		if (SocialComp)
@@ -980,50 +890,6 @@ FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 
 	default:
 		return FVector::ZeroVector;
-	}
-}
-
-EYUFSAction AYUFSEvacuationNPC::SelectRouteActionFromPreference() const
-{
-	switch (RoutePreference)
-	{
-	case EYUFSRoutePreference::FamiliarExit:
-		return EYUFSAction::EvacuateToFamiliarExit;
-	case EYUFSRoutePreference::SocialFollowing:
-		return EYUFSAction::FollowCrowd;
-	case EYUFSRoutePreference::NearestSafeExit:
-	default:
-		return EYUFSAction::EvacuateToNearestExit;
-	}
-}
-
-FLinearColor AYUFSEvacuationNPC::GetRoutePreferenceColor(EYUFSRoutePreference Preference) const
-{
-	switch (Preference)
-	{
-	case EYUFSRoutePreference::FamiliarExit:
-		return FamiliarExitDebugColor;
-	case EYUFSRoutePreference::SocialFollowing:
-		return SocialFollowingDebugColor;
-	case EYUFSRoutePreference::NearestSafeExit:
-	default:
-		return NearestSafeExitDebugColor;
-	}
-}
-
-FLinearColor AYUFSEvacuationNPC::GetActiveRouteDebugColor() const
-{
-	// 대피 경로 행동이 시작되면 실제 행동을 표시하고, 대피 전에는 배정된 집단 색을 표시한다.
-	switch (CurrentAction)
-	{
-	case EYUFSAction::EvacuateToFamiliarExit:
-		return GetRoutePreferenceColor(EYUFSRoutePreference::FamiliarExit);
-	case EYUFSAction::FollowCrowd:
-		return GetRoutePreferenceColor(EYUFSRoutePreference::SocialFollowing);
-	case EYUFSAction::EvacuateToNearestExit:
-		return GetRoutePreferenceColor(EYUFSRoutePreference::NearestSafeExit);
-	default:
-		return GetRoutePreferenceColor(RoutePreference);
 	}
 }
 

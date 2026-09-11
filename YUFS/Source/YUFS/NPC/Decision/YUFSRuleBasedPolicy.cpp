@@ -38,8 +38,20 @@ EYUFSAction FYUFSRuleBasedPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 		return EYUFSAction::AlertNearbyOccupants;
 
 	case EYUFSBehaviorState::Evacuating:
-		// 구체적인 경로 행동은 NPC에 한 번 배정된 70:20:10 RoutePreference 계층에서
-		// 결정한다. 여기서 매 정책 Tick마다 확률을 다시 굴리면 집단 비율과 재현성이 깨진다.
+		// 군중 휩쓸리기 (Herd Instinct)
+		if (Obs.NearbyNPCCount > 2 && Obs.NearbyEvacuatingRatio >= 0.5f)
+		{
+			// 70% 확률로 주변 군중의 평균 목적지로 따라감
+			if (FMath::FRand() < 0.7f)
+			{
+				return EYUFSAction::FollowCrowd;
+			}
+		}
+
+		// 논문(Sime, Affiliative): 친숙한 출구 선호
+		if (Obs.DistToFamiliarExit < Obs.DistToNearestExit * 1.5f
+			&& Obs.bNearestExitSmokeFree)
+			return EYUFSAction::EvacuateToFamiliarExit;
 		return EYUFSAction::EvacuateToNearestExit;
 
 	case EYUFSBehaviorState::Helping:

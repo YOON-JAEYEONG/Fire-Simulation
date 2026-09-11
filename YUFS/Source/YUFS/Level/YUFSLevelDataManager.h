@@ -39,9 +39,6 @@ private:
 	void RefreshExitDangerCache(int32 Frame) const;
 
 public:
-	void RegisterExitPoint(AYUFSExitPoint* ExitPoint);
-	void UnregisterExitPoint(AYUFSExitPoint* ExitPoint);
-	const TArray<AYUFSExitPoint*>& GetExitPoints() const { return CachedExits; }
 	FVector GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const;
 	FVector GetFamiliarExit(FVector NPCSpawnLocation) const;
 	bool IsLocationDangerous(FVector Location, int32 Frame) const;

@@ -81,62 +81,6 @@ FColor UYUFSNPCDebugComponent::GetRiskColor(float NormalizedRisk) const
 	return FLinearColor::LerpUsingHSV(FLinearColor::Yellow, FLinearColor::Red, (ClampedRisk - 0.5f) * 2.f).ToFColor(true);
 }
 
-void UYUFSNPCDebugComponent::DrawDebugHemisphere(
-	const FVector& Center,
-	float Radius,
-	bool bUpper,
-	const FColor& Color,
-	float Thickness) const
-{
-	if (!GetWorld() || Radius <= 0.f)
-	{
-		return;
-	}
-
-	constexpr int32 LongitudeSegments = 16;
-	constexpr int32 LatitudeSegments = 4;
-	constexpr int32 ArcSegments = 8;
-	const float VerticalSign = bUpper ? 1.f : -1.f;
-
-	// 위도 링: 적도에서 극점 직전까지 반구의 가로 윤곽을 만든다.
-	for (int32 LatitudeIndex = 0; LatitudeIndex < LatitudeSegments; ++LatitudeIndex)
-	{
-		const float Elevation = HALF_PI * static_cast<float>(LatitudeIndex) / static_cast<float>(LatitudeSegments);
-		const float RingRadius = Radius * FMath::Cos(Elevation);
-		const float Height = VerticalSign * Radius * FMath::Sin(Elevation);
-
-		FVector PreviousPoint = Center + FVector(RingRadius, 0.f, Height);
-		for (int32 SegmentIndex = 1; SegmentIndex <= LongitudeSegments; ++SegmentIndex)
-		{
-			const float Angle = TWO_PI * static_cast<float>(SegmentIndex) / static_cast<float>(LongitudeSegments);
-			const FVector CurrentPoint = Center + FVector(
-				RingRadius * FMath::Cos(Angle),
-				RingRadius * FMath::Sin(Angle),
-				Height);
-			DrawDebugLine(GetWorld(), PreviousPoint, CurrentPoint, Color, false, 0.f, 0, Thickness);
-			PreviousPoint = CurrentPoint;
-		}
-	}
-
-	// 경도 호: 적도에서 상단/하단 극점까지 이어지는 세로 윤곽을 만든다.
-	for (int32 LongitudeIndex = 0; LongitudeIndex < LongitudeSegments; ++LongitudeIndex)
-	{
-		const float Longitude = TWO_PI * static_cast<float>(LongitudeIndex) / static_cast<float>(LongitudeSegments);
-		const FVector HorizontalDirection(FMath::Cos(Longitude), FMath::Sin(Longitude), 0.f);
-		FVector PreviousPoint = Center + HorizontalDirection * Radius;
-
-		for (int32 ArcIndex = 1; ArcIndex <= ArcSegments; ++ArcIndex)
-		{
-			const float Elevation = HALF_PI * static_cast<float>(ArcIndex) / static_cast<float>(ArcSegments);
-			const FVector CurrentPoint = Center
-				+ HorizontalDirection * (Radius * FMath::Cos(Elevation))
-				+ FVector::UpVector * (VerticalSign * Radius * FMath::Sin(Elevation));
-			DrawDebugLine(GetWorld(), PreviousPoint, CurrentPoint, Color, false, 0.f, 0, Thickness);
-			PreviousPoint = CurrentPoint;
-		}
-	}
-}
-
 FString UYUFSNPCDebugComponent::BuildStateText(const FYUFSNPCObservation& Obs) const
 {
 	const UEnum* StateEnum = StaticEnum<EYUFSBehaviorState>();
@@ -217,23 +161,19 @@ void UYUFSNPCDebugComponent::DrawDebugOverlay(const FYUFSNPCObservation& Obs)
 			true);
 	}
 
-	if (bShowRiskLevel || OwnerNPC->bVisualizeRoutePreference)
+	if (bShowRiskLevel)
 	{
 		const float SphereRadius = RiskRingRadius + (Obs.RiskPerception * 25.f);
-		const FVector SphereCenter = ActorLocation + FVector(0.f, 0.f, 40.f);
-
-		if (bShowRiskLevel)
-		{
-			// 하단 반구는 기존처럼 현재 위험도를 초록→노랑→빨강으로 표시한다.
-			DrawDebugHemisphere(SphereCenter, SphereRadius, false, RiskColor, 2.f);
-		}
-
-		if (OwnerNPC->bVisualizeRoutePreference)
-		{
-			// 상단 반구는 70:20:10 경로 행동을 파랑/주황/초록으로 표시한다.
-			const FColor RouteColor = OwnerNPC->GetActiveRouteDebugColor().ToFColor(true);
-			DrawDebugHemisphere(SphereCenter, SphereRadius, true, RouteColor, 3.f);
-		}
+		DrawDebugSphere(
+			GetWorld(),
+			ActorLocation + FVector(0.f, 0.f, 40.f),
+			SphereRadius,
+			12,
+			RiskColor,
+			false,
+			0.f,
+			0,
+			2.f);
 	}
 
 	if (!bShowPath)
