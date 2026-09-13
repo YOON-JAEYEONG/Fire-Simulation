@@ -10,6 +10,7 @@
 #include "YUFSEvacuationNPC.generated.h"
 
 class UAnimMontage;
+class UYUFSLocalMovementComponent;
 class AYUFSLevelDataManager;
 class AYUFSBinaryManager;
 class UYUFSSocialInfluenceComponent;
@@ -55,35 +56,23 @@ public:
 	UPROPERTY(EditAnywhere, Category="AI|Optimization", meta=(ClampMin="0.05"))
 	float SocialUpdateIntervalSeconds = 0.2f;
 
-	// ── 화재 인식 전 일상 행동 ─────────────────────────────────────────
-	// WaitingToStart/FireStartDelay와 FireActive의 Normal 상태에서만 동작한다.
+	// 화재 인식 전에는 배치 위치 주변을 산책하거나 잠시 대기한다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior")
 	bool bEnableEverydayBehavior = true;
-
-	// 최초 배치 위치를 중심으로 산책할 수 있는 최대 반경 (cm)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="100.0"))
 	float EverydayRoamRadiusCm = 800.f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="1.0"))
 	float EverydayWalkSpeedCmPerSecond = 140.f;
-
-	// 새 활동을 고를 때 산책을 선택할 확률. 나머지는 제자리 대기/둘러보기다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="0.0", ClampMax="1.0"))
 	float EverydayRoamChance = 0.72f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="0.1"))
 	float EverydayMinIdleSeconds = 1.5f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="0.1"))
-	float EverydayMaxIdleSeconds = 4.0f;
-
+	float EverydayMaxIdleSeconds = 4.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="10.0"))
 	float EverydayDestinationAcceptanceRadiusCm = 90.f;
-
-	// 막힌 경로 등으로 목적지에 도달하지 못할 때 다음 행동으로 넘어가는 제한 시간
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="1.0"))
 	float EverydayMaxRoamSeconds = 18.f;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior")
 	int32 EverydayBehaviorSeed = 2026;
 
@@ -92,9 +81,10 @@ public:
 	float TransitionLogIntervalSeconds = 0.1f;
 
 	// ── 이동 보조 API ──────────────────────────────────────────────────
-	void DriveMovementToward(FVector Target);
+	void DriveMovementToward(FVector Target, float DeltaTime);
 	void SetMovementSpeed(float Speed);
 
+	UYUFSLocalMovementComponent* GetLocalMovement() const { return LocalMovement; }
 	// ── 컴포넌트 접근자 ────────────────────────────────────────────────
 	UYUFSBehaviorStateMachine*   GetBehaviorStateMachine() const { return BehaviorSM; }
 	UYUFSSmokeAwareNavigator*    GetNavigator()             const { return Navigator; }
@@ -111,7 +101,7 @@ public:
 	FVector GetStaffGuidedExitLocation()const { return StaffGuidedExitLocation; }
 	FVector GetSpawnLocation()          const { return SpawnLocation; }
 
-	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
+	const FYUFSNPCObservation& GetLastObservation() const { return LiveObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
 
@@ -137,6 +127,8 @@ private:
 	UYUFSSocialInfluenceComponent* SocialComp;
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCDebugComponent* DebugComp;
+	UPROPERTY(VisibleAnywhere) UYUFSLocalMovementComponent* LocalMovement;
+	float BaseWalkSpeed = 400.f;
 
 	UPROPERTY(VisibleAnywhere)
 	AYUFSBinaryManager* BinaryManager = nullptr;
@@ -165,6 +157,7 @@ private:
 
 	// ── CSV 로깅 ──────────────────────────────────────────────────────
 	FYUFSNPCObservation PrevObservation{};
+	FYUFSNPCObservation LiveObservation{};
 	bool bHasPendingTransition = false;
 	int32 TransitionStepIndex = 0;
 	float PerceptionUpdateAccumulator = 0.f;
@@ -173,9 +166,7 @@ private:
 
 	// ── 스턱 감지 ─────────────────────────────────────────────────────
 	float StuckTimer = 0.f;
-	float PositionStuckTimer = 0.f;
 	FVector LastMovementSampleLocation = FVector::ZeroVector;
-	FVector LastPositionCheckLocation  = FVector::ZeroVector;
 	bool bHasMovementSample = false;
 
 	// ── Milling 누적 카운터 (정책 틱 단위) ────────────────────────────
@@ -193,16 +184,14 @@ private:
 	float LookAnchorYaw                  = 0.f;
 	float LookElapsed                    = 0.f;
 
-	// ── 화재 인식 전 일상 행동 상태 ───────────────────────────────────
 	FRandomStream EverydayRandomStream;
-	FVector EverydayRoamOrigin           = FVector::ZeroVector;
-	FVector EverydayDestination          = FVector::ZeroVector;
-	float EverydayActivityTimer          = 0.f;
-	float EverydayLookElapsed            = 0.f;
-	float EverydayLookAnchorYaw          = 0.f;
-	float SavedWalkSpeedBeforeEveryday   = 300.f;
-	bool bEverydayBehaviorActive         = false;
-	bool bEverydayRoaming                = false;
+	FVector EverydayRoamOrigin = FVector::ZeroVector;
+	FVector EverydayDestination = FVector::ZeroVector;
+	float EverydayActivityTimer = 0.f;
+	float EverydayLookElapsed = 0.f;
+	float EverydayLookAnchorYaw = 0.f;
+	bool bEverydayBehaviorActive = false;
+	bool bEverydayRoaming = false;
 
 	static constexpr float PolicyTickInterval    = 0.1f;
 	static constexpr float MinActionHoldDuration = 2.0f;
@@ -222,6 +211,7 @@ private:
 	void TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation);
 	void OnActionChanged(EYUFSAction NewAction);
 	void ExecuteCurrentAction(float DeltaTime);
+	FVector ChooseKnownExit() const;
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

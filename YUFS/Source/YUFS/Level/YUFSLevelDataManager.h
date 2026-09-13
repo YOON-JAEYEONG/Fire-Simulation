@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Fire/YUFSHazardField.h"
 #include "YUFSLevelDataManager.generated.h"
 
 class AYUFSBinaryManager;
@@ -40,7 +41,10 @@ private:
 
 public:
 	FVector GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const;
+	TArray<FVector> GetExitLocations() const;
 	FVector GetFamiliarExit(FVector NPCSpawnLocation) const;
 	bool IsLocationDangerous(FVector Location, int32 Frame) const;
 	float GetPathDangerScore(const TArray<FVector>& Path, int32 Frame) const;
+	FYUFSHazardSnapshot GetHazardSnapshot(int32 Frame) const;
+	int32 GetCurrentHazardFrame() const;
 };

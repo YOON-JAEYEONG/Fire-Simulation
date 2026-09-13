@@ -27,5 +27,8 @@ public:
 	UPROPERTY(EditAnywhere) int32 UpperVisionYawRayCount = 3;
 	UPROPERTY(EditAnywhere) float OverheadProbePitchDegrees = 75.f;
 	UPROPERTY(EditAnywhere) float OverheadProbeRange = 350.f;
+	// Normalized heat data, not rendered flame recognition. Near probes cannot cross collision walls/floors.
+	UPROPERTY(EditAnywhere) float NearHeatRange = 180.f;
+	UPROPERTY(EditAnywhere) float MaxProbeStepCm = 40.f;
 	UPROPERTY(EditAnywhere) bool bDrawVisionDebug          = false;
 };

@@ -8,6 +8,9 @@
 #include "GameFramework/PlayerController.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "NPC/YUFSEvacuationNPC.h"
+#include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "NPC/Perception/YUFSNPCPerceptionComponent.h"
+#include "NPC/Navigation/YUFSLocalMovementComponent.h"
 
 UYUFSNPCDebugComponent::UYUFSNPCDebugComponent()
 {
@@ -97,7 +100,14 @@ FString UYUFSNPCDebugComponent::BuildStateText(const FYUFSNPCObservation& Obs) c
 	const FString DestinationText = Navigator
 		? Navigator->GetCurrentDestination().ToCompactString()
 		: FString(TEXT("None"));
-	const FString PathStatus = (Navigator && Navigator->bIsPathfinding) ? TEXT("Repathing") : TEXT("Stable");
+	const FString PathStatus = Navigator
+		? FString::Printf(TEXT("%s | %s | %s\nData: %s | Path smoke/heat: %.2f / %.2f"),
+			*StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(static_cast<int64>(Navigator->GetNavigationStatus())),
+			*StaticEnum<EYUFSRepathReason>()->GetNameStringByValue(static_cast<int64>(Navigator->GetLastRepathReason())),
+			*StaticEnum<EYUFSNavigationFailure>()->GetNameStringByValue(static_cast<int64>(Navigator->GetLastFailure())),
+			*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(Navigator->GetHazardDataStatus())),
+			Navigator->GetPathSmoke(), Navigator->GetPathHeat())
+		: TEXT("None");
 
 	return FString::Printf(
 		TEXT("%s\nState: %s\nAction: %s\nRisk: %.2f | Env: %.2f\nDest: %s\nPath: %s"),
@@ -107,7 +117,11 @@ FString UYUFSNPCDebugComponent::BuildStateText(const FYUFSNPCObservation& Obs) c
 		Obs.RiskPerception,
 		Obs.RiskLevel,
 		*DestinationText,
-		*PathStatus);
+		*PathStatus) + FString::Printf(TEXT("\nCue: %s | Alarm trust: %.2f\nTraffic: %s | Yield to: %s\nHeat sight/near: %.2f/%.2f | Known cells: %d"),
+		*StaticEnum<EYUFSEvacuationCue>()->GetNameStringByValue(int64(OwnerNPC->GetBehaviorStateMachine()->GetDecisionCue())),
+		OwnerNPC->GetBehaviorStateMachine()->GetAlarmTrust(),
+		*StaticEnum<EYUFSLocalMovementState>()->GetNameStringByValue(int64(OwnerNPC->GetLocalMovement()->GetState())),
+		*OwnerNPC->GetLocalMovement()->GetYieldingTo(),Obs.HeatInSight,Obs.NearbyHeat,OwnerNPC->GetNPCPerceptionComponent()->GetKnownCellCount());
 }
 
 FString UYUFSNPCDebugComponent::BuildObservationText(const FYUFSNPCObservation& Obs) const

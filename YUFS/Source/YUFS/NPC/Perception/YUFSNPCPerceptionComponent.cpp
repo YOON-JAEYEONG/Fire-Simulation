@@ -1,181 +1,134 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "NPC/Perception/YUFSNPCPerceptionComponent.h"
-
 #include "DrawDebugHelpers.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
 #include "Fire/YUFSBinaryManager.h"
-#include "GameFramework/Actor.h"
-#include "GameFramework/Pawn.h"
-#include "Math/RotationMatrix.h"
+#include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
 
-UYUFSNPCPerceptionComponent::UYUFSNPCPerceptionComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
-
+UYUFSNPCPerceptionComponent::UYUFSNPCPerceptionComponent() { PrimaryComponentTick.bCanEverTick = false; }
 void UYUFSNPCPerceptionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
-	{
-		BinaryManager = *It;
-		break;
-	}
+	if (!Config) Config = NewObject<UYUFSPerceptionConfig>(this);
+	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It) { BinaryManager = *It; break; }
 }
-
-void UYUFSNPCPerceptionComponent::UpdatePerception(int32 CurrentFrame)
+void UYUFSNPCPerceptionComponent::UpdatePerception(int32 Frame)
 {
-	if (!BinaryManager || !Config || !GetOwner())
+	UpdateFromSnapshot(BinaryManager ? BinaryManager->GetHazardSnapshot(Frame) : FYUFSHazardSnapshot(), GetWorld()->GetTimeSeconds());
+}
+FYUFSHazardSnapshot UYUFSNPCPerceptionComponent::RestrictToKnowledge(FYUFSHazardSnapshot Snapshot) const
+{
+	Snapshot.KnownCells = PublishedKnowledge.IsValid() ? PublishedKnowledge
+		: MakeShared<const TMap<int32, FYUFSHazardSample>, ESPMode::ThreadSafe>();
+	return Snapshot;
+}
+void UYUFSNPCPerceptionComponent::UpdateFromSnapshot(const FYUFSHazardSnapshot& Snapshot, float Now)
+{
+	CachedSmokeDensity = CachedTemperature = CachedSmokeInFrontNormalized = CachedSmokeAboveNormalized = 0.f;
+	CachedHeatInSight = CachedNearbyHeat = CachedRiskLevel = 0.f;
+	DataStatus = Snapshot.Status;
+	if (!Config || !GetOwner() || !GetWorld()) return;
+	if (Snapshot.Grid && (LastGridDimensions != Snapshot.Grid->Dimensions || !LastGridTransform.Equals(Snapshot.GridToWorld) || Snapshot.Frame < LastFrame))
 	{
-		CachedSmokeDensity = 0.f;
-		CachedTemperature = 0.f;
-		CachedSmokeInFrontNormalized = 0.f;
-		CachedSmokeAboveNormalized = 0.f;
-		CachedRiskLevel = 0.f;
-		return;
+		KnownCells.Reset(); LastObservedAt.Reset();
+		LastGridDimensions = Snapshot.Grid->Dimensions; LastGridTransform = Snapshot.GridToWorld;
 	}
-
-	const FVector MyPos = GetOwner()->GetActorLocation();
-
-	uint8 RawDensity = 0;
-	if (BinaryManager->GetSmokeDensityAtLocation(MyPos, CurrentFrame, RawDensity))
+	LastFrame = Snapshot.Frame;
+	for (auto It = LastObservedAt.CreateIterator(); It; ++It)
 	{
-		CachedSmokeDensity = FMath::Clamp(RawDensity / 255.f, 0.f, 1.f);
+		if (Now - It.Value() > FMath::Max(1.f, HazardMemorySeconds)) { KnownCells.Remove(It.Key()); It.RemoveCurrent(); }
 	}
-	else
+	if (Snapshot.Status == EYUFSHazardDataStatus::Ready)
 	{
-		CachedSmokeDensity = 0.f;
-	}
-
-	uint8 RawTemp = 0;
-	if (BinaryManager->GetTemperatureAtLocation(MyPos, CurrentFrame, RawTemp))
-	{
-		CachedTemperature = FMath::Clamp(RawTemp / 255.f, 0.f, 1.f);
-	}
-	else
-	{
-		CachedTemperature = 0.f;
-	}
-
-	CachedSmokeInFrontNormalized = 0.f;
-	CachedSmokeAboveNormalized = 0.f;
-
-	APawn* PawnOwner = Cast<APawn>(GetOwner());
-	const FVector ViewOrigin = PawnOwner ? PawnOwner->GetPawnViewLocation() : MyPos;
-	FRotator BaseFacing = GetOwner()->GetActorRotation();
-	BaseFacing.Pitch = 0.f;
-	BaseFacing.Roll = 0.f;
-
-	const int32 SafeFrontRayCount = FMath::Max(1, Config->VisionRayCount);
-	const int32 SafeUpperYawRayCount = FMath::Max(1, Config->UpperVisionYawRayCount);
-	const int32 SafeSampleCount = FMath::Max(1, Config->VisionSamplesPerRay);
-	const float FrontHalfFOV = Config->FieldOfViewDegrees * 0.5f;
-	const float FrontSampleStep = Config->VisionRange / static_cast<float>(SafeSampleCount);
-	const float OverheadSampleStep = Config->OverheadProbeRange / static_cast<float>(SafeSampleCount);
-
-	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(YUFSVisionTrace), false, GetOwner());
-
-	auto ScanRay = [this, &QueryParams, &ViewOrigin, CurrentFrame, SafeSampleCount](
-		const FVector& RayDirection,
-		float Range,
-		float SampleStep,
-		float& Accumulator,
-		bool bDrawDebug) -> void
-	{
-		const FVector RayEnd = ViewOrigin + (RayDirection * Range);
-
-		FHitResult Hit;
-		const bool bHit = GetWorld()->LineTraceSingleByChannel(
-			Hit,
-			ViewOrigin,
-			RayEnd,
-			ECC_Visibility,
-			QueryParams);
-
-		const float VisibleDistance = bHit
-			? FMath::Max(0.f, Hit.Distance - Config->OcclusionSampleMarginCm)
-			: Range;
-
-		float RayMaxSmoke = 0.f;
-		for (int32 SampleIndex = 1; SampleIndex <= SafeSampleCount; ++SampleIndex)
+		ACharacter* Character = Cast<ACharacter>(GetOwner());
+		const FVector Pos = GetOwner()->GetActorLocation();
+		const FVector Eye = Character ? Character->GetPawnViewLocation() : Pos;
+		const float HalfHeight = Character ? Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight() : 90.f;
+		const FVector Feet = Pos - FVector(0,0,HalfHeight);
+		FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSHazardPerception), false, GetOwner());
+		auto Observe = [&](const FVector& P)
 		{
-			const float SampleDistance = SampleStep * static_cast<float>(SampleIndex);
-			if (SampleDistance > VisibleDistance)
+			const auto Value = Snapshot.Sample(P);
+			const int32 Index = Snapshot.CellIndex(P);
+			if (Value.Status == EYUFSHazardDataStatus::Ready && Index != INDEX_NONE)
 			{
-				break;
+				// Clear observations erase obsolete hazards. Store only positive cells to bound copies.
+				if (Value.Smoke > 0.01f || Value.Heat > 0.01f)
+				{
+					if (KnownCells.Num() < 8192 || KnownCells.Contains(Index)) { KnownCells.Add(Index,Value); LastObservedAt.Add(Index,Now); }
+				}
+				else { KnownCells.Remove(Index); LastObservedAt.Remove(Index); }
 			}
-
-			const FVector SamplePoint = ViewOrigin + (RayDirection * SampleDistance);
-			RayMaxSmoke = FMath::Max(RayMaxSmoke, SampleSmokeAtPoint(SamplePoint, CurrentFrame));
-		}
-
-		Accumulator = FMath::Max(Accumulator, RayMaxSmoke);
-
-		if (bDrawDebug)
+			return Value;
+		};
+		const auto Self = Observe(Eye);
+		CachedSmokeDensity = Self.Smoke; CachedTemperature = Self.Heat;
+		for (float H : {20.f, HalfHeight, 120.f})
 		{
-			const FVector DebugEnd = bHit ? Hit.ImpactPoint : RayEnd;
-			const FColor RayColor = FLinearColor::LerpUsingHSV(FLinearColor::Green, FLinearColor::Red, RayMaxSmoke).ToFColor(true);
-			DrawDebugLine(GetWorld(), ViewOrigin, DebugEnd, RayColor, false, 0.f, 0, 1.5f);
-
-			if (bHit)
+			const FVector P = Feet + FVector(0,0,H);
+			if (!GetWorld()->LineTraceTestByChannel(Eye,P,ECC_Visibility,Params))
+				CachedNearbyHeat = FMath::Max(CachedNearbyHeat,Observe(P).Heat);
+		}
+		auto Scan = [&](FVector Origin, FVector Direction, float Range, float& Smoke, float& Heat)
+		{
+			Range = FMath::Clamp(Range, 1.f, 3000.f);
+			FHitResult Hit;
+			const bool bHit = GetWorld()->LineTraceSingleByChannel(Hit,Origin,Origin+Direction*Range,ECC_Visibility,Params);
+			const float Visible = bHit ? FMath::Max(0.f,Hit.Distance-Config->OcclusionSampleMarginCm) : Range;
+			const int32 Count = FMath::Clamp(FMath::CeilToInt(Range / FMath::Clamp(Config->MaxProbeStepCm,10.f,80.f)),1,300);
+			for (int32 I=1; I<=Count; ++I)
 			{
-				DrawDebugPoint(GetWorld(), Hit.ImpactPoint, 8.f, FColor::White, false, 0.f);
+				const float D = Range*I/Count;
+				if (D > Visible) break;
+				const auto V = Observe(Origin + Direction*D);
+				// Nearby cues are stronger; distance never turns a high reading into zero.
+				const float Weight = FMath::Lerp(1.f,0.65f,D/Range);
+				Smoke = FMath::Max(Smoke,V.Smoke*Weight); Heat = FMath::Max(Heat,V.Heat*Weight);
+			}
+			if (Config->bDrawVisionDebug) DrawDebugLine(GetWorld(),Origin,Origin+Direction*Visible,FColor::Cyan,false,0.21f);
+		};
+		const float Yaw = GetOwner()->GetActorRotation().Yaw;
+		const int32 Rays = FMath::Clamp(Config->VisionRayCount,1,15);
+		for (int32 I=0; I<Rays; ++I)
+		{
+			const float Offset = Rays==1 ? 0.f : FMath::Lerp(-Config->FieldOfViewDegrees/2,Config->FieldOfViewDegrees/2,float(I)/(Rays-1));
+			Scan(Eye,FRotator(0,Yaw+Offset,0).Vector(),Config->VisionRange,CachedSmokeInFrontNormalized,CachedHeatInSight);
+			Scan(Eye,FRotator(-25,Yaw+Offset,0).Vector(),Config->VisionRange,CachedSmokeInFrontNormalized,CachedHeatInSight);
+		}
+		for (float Pitch : {Config->UpperVisionPitchLowDegrees,Config->UpperVisionPitchHighDegrees})
+		{
+			const int32 Count = FMath::Clamp(Config->UpperVisionYawRayCount,1,9);
+			for (int32 I=0; I<Count; ++I)
+			{
+				float Offset = Count==1 ? 0.f : FMath::Lerp(-Config->UpperVisionYawHalfSpreadDegrees,Config->UpperVisionYawHalfSpreadDegrees,float(I)/(Count-1));
+				Scan(Eye,FRotator(Pitch,Yaw+Offset,0).Vector(),Config->VisionRange,CachedSmokeAboveNormalized,CachedHeatInSight);
 			}
 		}
-	};
-
-	for (int32 RayIndex = 0; RayIndex < SafeFrontRayCount; ++RayIndex)
-	{
-		const float Alpha = SafeFrontRayCount == 1
-			? 0.f
-			: static_cast<float>(RayIndex) / static_cast<float>(SafeFrontRayCount - 1);
-		const float YawOffset = FMath::Lerp(-FrontHalfFOV, FrontHalfFOV, Alpha);
-		const FVector RayDirection = FRotationMatrix(BaseFacing + FRotator(0.f, YawOffset, 0.f)).GetUnitAxis(EAxis::X);
-		ScanRay(RayDirection, Config->VisionRange, FrontSampleStep, CachedSmokeInFrontNormalized, Config->bDrawVisionDebug);
+		Scan(Eye,FRotator(Config->OverheadProbePitchDegrees,Yaw,0).Vector(),Config->OverheadProbeRange,CachedSmokeAboveNormalized,CachedHeatInSight);
+		// Local heat exposure is omnidirectional, but probes stop at walls and floor slabs.
+		float UnusedSmoke = 0.f;
+		for (int32 I=0; I<8; ++I)
+			Scan(Feet+FVector(0,0,60),FRotator(0,I*45.f,0).Vector(),Config->NearHeatRange,UnusedSmoke,CachedNearbyHeat);
+		CachedRiskLevel = ComputeRiskLevel(CachedSmokeDensity,FMath::Max(CachedTemperature,CachedNearbyHeat));
 	}
-
-	const float UpperHalfYaw = Config->UpperVisionYawHalfSpreadDegrees;
-	const float UpperPitches[] = {Config->UpperVisionPitchLowDegrees, Config->UpperVisionPitchHighDegrees};
-	for (const float UpperPitch : UpperPitches)
-	{
-		for (int32 RayIndex = 0; RayIndex < SafeUpperYawRayCount; ++RayIndex)
-		{
-			const float Alpha = SafeUpperYawRayCount == 1
-				? 0.f
-				: static_cast<float>(RayIndex) / static_cast<float>(SafeUpperYawRayCount - 1);
-			const float YawOffset = FMath::Lerp(-UpperHalfYaw, UpperHalfYaw, Alpha);
-			const FVector RayDirection = FRotationMatrix(BaseFacing + FRotator(UpperPitch, YawOffset, 0.f)).GetUnitAxis(EAxis::X);
-			ScanRay(RayDirection, Config->VisionRange, FrontSampleStep, CachedSmokeAboveNormalized, Config->bDrawVisionDebug);
-		}
-	}
-
-	const FVector OverheadDirection =
-		FRotationMatrix(BaseFacing + FRotator(Config->OverheadProbePitchDegrees, 0.f, 0.f)).GetUnitAxis(EAxis::X);
-	ScanRay(
-		OverheadDirection,
-		Config->OverheadProbeRange,
-		OverheadSampleStep,
-		CachedSmokeAboveNormalized,
-		Config->bDrawVisionDebug);
-
-	CachedRiskLevel = ComputeRiskLevel(CachedSmokeDensity, CachedTemperature);
+	PublishedKnowledge = MakeShared<const TMap<int32,FYUFSHazardSample>,ESPMode::ThreadSafe>(KnownCells);
+}
+float UYUFSNPCPerceptionComponent::SampleSmokeAtPoint(FVector P, int32 Frame) const
+{
+	return BinaryManager ? BinaryManager->GetHazardSnapshot(Frame).Sample(P).Smoke : 0.f;
 }
 
-float UYUFSNPCPerceptionComponent::SampleSmokeAtPoint(FVector WorldPos, int32 Frame) const
+void UYUFSNPCPerceptionComponent::ReceiveHazardReport(const UYUFSNPCPerceptionComponent& Other)
 {
-	if (!BinaryManager)
+	if (LastGridDimensions!=Other.LastGridDimensions || !LastGridTransform.Equals(Other.LastGridTransform)) return;
+	int32 Count=0;
+	for (const auto& Pair:Other.KnownCells)
 	{
-		return 0.f;
+		if (++Count>256 || KnownCells.Num()>=8192) break;
+		const float* At=Other.LastObservedAt.Find(Pair.Key);
+		if (!At) continue;
+		const float* Existing=LastObservedAt.Find(Pair.Key);
+		if (!Existing || *Existing < *At) { KnownCells.Add(Pair.Key,Pair.Value); LastObservedAt.Add(Pair.Key,*At); }
 	}
-
-	uint8 RawDensity = 0;
-	if (BinaryManager->GetSmokeDensityAtLocation(WorldPos, Frame, RawDensity))
-	{
-		return FMath::Clamp(RawDensity / 255.f, 0.f, 1.f);
-	}
-
-	return 0.f;
 }

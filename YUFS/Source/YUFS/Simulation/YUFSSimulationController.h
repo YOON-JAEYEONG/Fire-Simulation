@@ -149,8 +149,13 @@ public:
 	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
 	bool IsTimelinePlaying() const;
 
-	// ── NPC 등록 (NPC의 BeginPlay에서 자동 호출) ─────────────────────
+	// ── NPC 등록 (NPC의 BeginPlay 또는 런타임 스폰 후 호출) ──────────
+	UFUNCTION(BlueprintCallable, Category="Simulation")
 	void RegisterNPC(AYUFSEvacuationNPC* NPC);
+
+	// ── NPC 등록 해제 (배치 취소 시 호출) ────────────────────────────
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void UnregisterNPC(AYUFSEvacuationNPC* NPC);
 
 	// ── 이벤트 ────────────────────────────────────────────────────────
 	UPROPERTY(BlueprintAssignable)

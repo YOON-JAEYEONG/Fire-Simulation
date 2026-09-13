@@ -622,6 +622,19 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 	}
 }
 
+void AYUFSSimulationController::UnregisterNPC(AYUFSEvacuationNPC* NPC)
+{
+	if (IsValid(NPC) && RegisteredNPCs.Contains(NPC))
+	{
+		RegisteredNPCs.Remove(NPC);
+		ResolvedNPCs.Remove(NPC);
+		if (CurrentPhase == ESimPhase::WaitingToStart)
+		{
+			InitialNPCCount = RegisteredNPCs.Num();
+		}
+	}
+}
+
 float AYUFSSimulationController::GetFireStartCountdown() const
 {
 	if (CurrentPhase == ESimPhase::FireStartDelay)
@@ -635,6 +648,9 @@ void AYUFSSimulationController::SpawnHUD()
 {
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC || !HUDWidgetClass) return;
+
+	PC->bShowMouseCursor = true;
+	PC->SetInputMode(FInputModeGameAndUI());
 
 	HUDWidgetInstance = CreateWidget<UUserWidget>(PC, HUDWidgetClass);
 	if (HUDWidgetInstance)

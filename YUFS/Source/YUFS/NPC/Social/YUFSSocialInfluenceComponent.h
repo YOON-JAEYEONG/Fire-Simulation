@@ -20,6 +20,7 @@ public:
 	void UpdateSocialContext();
 
 	// Observation 빌드 시 읽어감
+	bool HasPeerWarning() const { return bPeerWarning; }
 	float GetNearbyEvacuatingRatio() const;
 	int32 GetNearbyNPCCount() const;
 	FVector GetAverageEvacuationDestination() const;
@@ -34,7 +35,8 @@ public:
 	UPROPERTY(EditAnywhere) float SocialDelayPerMember    = 1.2f;
 
 private:
-	TArray<ACharacter*> NearbyNPCs;
+	bool bPeerWarning = false;
+	TArray<TWeakObjectPtr<ACharacter>> NearbyNPCs;
 	TArray<AActor*> OverlappingActors;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
 	TArray<AActor*> ActorsToIgnore;

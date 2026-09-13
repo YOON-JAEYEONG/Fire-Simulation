@@ -1,16 +1,13 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 
-#include "Async/Async.h"
 #include "EngineUtils.h"
-#include "Fire/YUFSBinaryManager.h"
-#include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Level/YUFSLevelDataManager.h"
-#include "NavFilters/NavigationQueryFilter.h"
-#include "NavigationPath.h"
-#include "NavigationSystem.h"
+#include "NavigationData.h"
+#include "NPC/Perception/YUFSNPCPerceptionComponent.h"
+#include "NPC/Navigation/YUFSSmokeNavigationQueryFilter.h"
 
 UYUFSSmokeAwareNavigator::UYUFSSmokeAwareNavigator()
 {
@@ -20,246 +17,335 @@ UYUFSSmokeAwareNavigator::UYUFSSmokeAwareNavigator()
 void UYUFSSmokeAwareNavigator::BeginPlay()
 {
 	Super::BeginPlay();
-
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It)
 	{
 		LevelDataMgr = *It;
 		break;
 	}
+}
 
-	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
+void UYUFSSmokeAwareNavigator::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	CancelPendingRequest();
+	Super::EndPlay(EndPlayReason);
+}
+
+void UYUFSSmokeAwareNavigator::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	RerouteTimer += DeltaTime;
+	TimeSinceRequest += DeltaTime;
+	if (NavigationStatus == EYUFSNavigationStatus::WaitingForHazardData && TimeSinceRequest >= 0.5f)
 	{
-		BinaryManager = *It;
-		break;
+		StartPathRequest(RequestedDestination,
+			IsValid(LevelDataMgr) ? LevelDataMgr->GetCurrentHazardFrame() : RequestFrame, LastRepathReason);
 	}
 }
 
-void UYUFSSmokeAwareNavigator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UYUFSSmokeAwareNavigator::CancelPendingRequest()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	// Abort only removes queued queries. A running query may still call back.
+	++RequestGeneration;
+	if (ActiveQueryId != INVALID_NAVQUERYID && PendingNavigationSystem.IsValid())
+	{
+		PendingNavigationSystem->AbortAsyncFindPathRequest(ActiveQueryId);
+	}
+	ActiveQueryId = INVALID_NAVQUERYID;
+	PendingNavigationSystem.Reset();
+	bIsPathfinding = false;
+}
 
-	RerouteTimer += DeltaTime;
+void UYUFSSmokeAwareNavigator::StopOwnerMovement()
+{
+	if (ACharacter* Character = Cast<ACharacter>(GetOwner()))
+	{
+		Character->ConsumeMovementInputVector();
+		Character->GetCharacterMovement()->StopMovementImmediately();
+	}
+}
+
+void UYUFSSmokeAwareNavigator::SetNavigationStatus(EYUFSNavigationStatus Status,
+	EYUFSNavigationFailure Failure)
+{
+	NavigationStatus = Status;
+	LastFailure = Failure;
+	bIsPathfinding = Status == EYUFSNavigationStatus::Pathfinding;
+	UE_LOG(LogTemp, Log,
+		TEXT("[YUFS][Nav] agent=%s request=%u status=%s reason=%s failure=%s requested=%s destination=%s frame=%d data=%s smoke=%.3f heat=%.3f"),
+		*GetNameSafe(GetOwner()), RequestGeneration,
+		*StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(static_cast<int64>(Status)),
+		*StaticEnum<EYUFSRepathReason>()->GetNameStringByValue(static_cast<int64>(LastRepathReason)),
+		*StaticEnum<EYUFSNavigationFailure>()->GetNameStringByValue(static_cast<int64>(Failure)),
+		*RequestedDestination.ToCompactString(), *CurrentDestination.ToCompactString(), RequestFrame,
+		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(HazardDataStatus)),
+		LastPathScore.MaxSmoke, LastPathScore.MaxHeat);
+	OnNavigationStateChanged.Broadcast(Status, RequestedDestination, Failure);
 }
 
 void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame)
 {
-	if (bIsPathfinding)
+	FailedPathRetries = 0;
+	StartPathRequest(Destination, Frame, EYUFSRepathReason::DestinationRequested);
+}
+
+void UYUFSSmokeAwareNavigator::ReplanPath(int32 Frame, EYUFSRepathReason Reason)
+{
+	if (NavigationStatus == EYUFSNavigationStatus::Idle ||
+		NavigationStatus == EYUFSNavigationStatus::Arrived || bIsPathfinding) return;
+	if (Reason == EYUFSRepathReason::Retry)
 	{
-		return;
+		if (!ShouldRetryPath()) return;
+		++FailedPathRetries;
 	}
+	StartPathRequest(RequestedDestination, Frame, Reason);
+}
 
-	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
-	if (!NavSys)
-	{
-		return;
-	}
+bool UYUFSSmokeAwareNavigator::ShouldRetryPath() const
+{
+	const bool bChangedHazard = (LastFailure == EYUFSNavigationFailure::UnsafePath ||
+		LastFailure == EYUFSNavigationFailure::HazardDataUnavailable) &&
+		IsValid(LevelDataMgr) && LevelDataMgr->GetCurrentHazardFrame() != RequestFrame;
+	return NavigationStatus == EYUFSNavigationStatus::Failed &&
+		TimeSinceRequest >= FMath::Max(0.1f, FailedPathRetryInterval) &&
+		(FailedPathRetries < FMath::Max(0, MaxFailedPathRetries) || bChangedHazard);
+}
 
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-	if (!OwnerCharacter)
-	{
-		return;
-	}
-
-	const FNavAgentProperties& AgentProps = OwnerCharacter->GetNavAgentPropertiesRef();
-	ANavigationData* NavData = NavSys->GetNavDataForProps(AgentProps, OwnerCharacter->GetActorLocation());
-	if (!NavData)
-	{
-		NavData = NavSys->GetDefaultNavDataInstance();
-	}
-
-	if (!NavData)
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("[Nav] Failed to find NavData!"));
-		}
-		return;
-	}
-
-	// 목적지를 NavMesh에 투영 — 실패하면 벽 안쪽으로 경로 탐색하므로 중단
-	FNavLocation ProjectedDestination;
-	if (!NavSys->ProjectPointToNavigation(Destination, ProjectedDestination, FVector(500.f, 500.f, 500.f), &AgentProps, nullptr))
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
-				FString::Printf(TEXT("[Nav] Destination NavMesh projection failed: %s"), *Destination.ToString()));
-		}
-		return;
-	}
-	Destination = ProjectedDestination.Location;
-
-	// 시작점도 NavMesh에 투영 — NPC가 약간 NavMesh 밖에 있으면 경로가 깨짐
-	FVector StartLocation = OwnerCharacter->GetActorLocation();
-	FNavLocation ProjectedStart;
-	if (NavSys->ProjectPointToNavigation(StartLocation, ProjectedStart, FVector(200.f, 200.f, 400.f), &AgentProps, nullptr))
-	{
-		StartLocation = ProjectedStart.Location;
-	}
-
-	FPathFindingQuery Query(
-		OwnerCharacter,
-		*NavData,
-		StartLocation,
-		Destination,
-		UNavigationQueryFilter::GetQueryFilter(*NavData, OwnerCharacter, UYUFSSmokeNavigationQueryFilter::StaticClass()));
-
-	bIsPathfinding = true;
+void UYUFSSmokeAwareNavigator::StartPathRequest(FVector Destination, int32 Frame, EYUFSRepathReason Reason)
+{
+	CancelPendingRequest();
+	StopOwnerMovement();
+	CurrentPath.Reset();
+	CurrentWaypointIndex = 0;
+	RequestedDestination = Destination;
 	CurrentDestination = Destination;
-	const uint32 RequestGeneration = ++PathRequestGeneration;
+	RequestFrame = Frame;
+	LastRepathReason = Reason;
+	TimeSinceRequest = 0.f;
+	RerouteTimer = 0.f;
+	QueryHazardSnapshot = FYUFSHazardSnapshot();
 
-	TWeakObjectPtr<UYUFSSmokeAwareNavigator> WeakThis(this);
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [WeakThis, NavSys, Query, RequestGeneration]()
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	if (!Character)
 	{
-		if (!NavSys)
+		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::InvalidOwner);
+		return;
+	}
+	if (Destination.ContainsNaN())
+	{
+		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::InvalidDestination);
+		return;
+	}
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
+	const FNavAgentProperties& AgentProps = Character->GetNavAgentPropertiesRef();
+	ANavigationData* NavData = NavSys ? NavSys->GetNavDataForProps(AgentProps, Character->GetActorLocation()) : nullptr;
+	if (!NavData)
+	{
+		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::NoNavigationData);
+		return;
+	}
+
+	FNavLocation ProjectedDestination;
+	if (!NavSys->ProjectPointToNavigation(Destination, ProjectedDestination,
+		FVector(100.f, 100.f, 200.f), NavData))
+	{
+		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::DestinationOffNavMesh);
+		return;
+	}
+	CurrentDestination = ProjectedDestination.Location;
+	FNavLocation ProjectedStart;
+	// Start at the feet and use a tight projection: do not snap a trapped NPC onto another floor.
+	if (!NavSys->ProjectPointToNavigation(GetOwnerFeetLocation(), ProjectedStart,
+		FVector(60.f, 60.f, 100.f), NavData))
+	{
+		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::StartOffNavMesh);
+		return;
+	}
+
+	QueryHazardSnapshot = GetPerceivedHazardSnapshot(Frame);
+	HazardDataStatus = QueryHazardSnapshot.Status;
+	if (HazardDataStatus != EYUFSHazardDataStatus::Ready)
+	{
+		const auto Status = HazardDataStatus == EYUFSHazardDataStatus::Loading
+			? EYUFSNavigationStatus::WaitingForHazardData : EYUFSNavigationStatus::Failed;
+		SetNavigationStatus(Status, EYUFSNavigationFailure::HazardDataUnavailable);
+		return;
+	}
+	const auto Filter = UYUFSSmokeNavigationQueryFilter::CreateQueryFilter(
+		*NavData, Character, QueryHazardSnapshot, GetHazardSettings());
+	if (!Filter.IsValid())
+	{
+		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::UnsupportedNavData);
+		return;
+	}
+	FPathFindingQuery Query(Character, *NavData, ProjectedStart.Location, CurrentDestination, Filter);
+	Query.SetAllowPartialPaths(false);
+	PendingNavigationSystem = NavSys;
+	ActiveQueryId = NavSys->FindPathAsync(AgentProps, Query,
+		FNavPathQueryDelegate::CreateUObject(this, &UYUFSSmokeAwareNavigator::OnPathFound, RequestGeneration));
+	if (ActiveQueryId == INVALID_NAVQUERYID)
+	{
+		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::NoPath);
+		return;
+	}
+	SetNavigationStatus(EYUFSNavigationStatus::Pathfinding);
+}
+
+void UYUFSSmokeAwareNavigator::OnPathFound(uint32 QueryId, ENavigationQueryResult::Type Result,
+	FNavPathSharedPtr Path, uint32 Generation)
+{
+	if (Generation != RequestGeneration || QueryId != ActiveQueryId || !bIsPathfinding) return;
+	ActiveQueryId = INVALID_NAVQUERYID;
+	PendingNavigationSystem.Reset();
+	if (Result != ENavigationQueryResult::Success || !Path.IsValid() ||
+		!Path->IsValid() || Path->GetPathPoints().Num() < 2 || Path->IsPartial())
+	{
+		CurrentPath.Reset();
+		StopOwnerMovement();
+		SetNavigationStatus(EYUFSNavigationStatus::Failed,
+			Path.IsValid() && Path->IsPartial() ? EYUFSNavigationFailure::PartialPath : EYUFSNavigationFailure::NoPath);
+		return;
+	}
+	for (const FNavPathPoint& Point : Path->GetPathPoints()) CurrentPath.Add(Point.Location);
+	// String pulling can cross a hazard within one large NavMesh polygon. Validate the final geometry too.
+	FYUFSHazardSnapshot LatestSnapshot = QueryHazardSnapshot;
+	int32 LatestFrame = RequestFrame;
+	if (IsValid(LevelDataMgr))
+	{
+		LatestFrame = LevelDataMgr->GetCurrentHazardFrame();
+		LatestSnapshot = GetPerceivedHazardSnapshot(LatestFrame);
+		HazardDataStatus = LatestSnapshot.Status;
+		if (LatestSnapshot.Status != EYUFSHazardDataStatus::Ready)
 		{
+			StartPathRequest(RequestedDestination, LatestFrame, EYUFSRepathReason::Smoke);
 			return;
 		}
-
-		FPathFindingResult PathResult = NavSys->FindPathSync(Query);
-		TArray<FVector> ResultPathPoints;
-		bool bSuccess = false;
-
-		if (PathResult.IsSuccessful() && PathResult.Path.IsValid())
+	}
+	LastPathScore = LatestSnapshot.ScorePath(CurrentPath, GetHazardSettings());
+	if (LastPathScore.bUnsafeAhead)
+	{
+		if (LatestFrame != RequestFrame && !QueryHazardSnapshot.ScorePath(CurrentPath,GetHazardSettings()).bUnsafeAhead)
 		{
-			bSuccess = true;
-			for (const FNavPathPoint& Point : PathResult.Path->GetPathPoints())
-			{
-				ResultPathPoints.Add(Point.Location);
-			}
+			StartPathRequest(RequestedDestination, LatestFrame, EYUFSRepathReason::Smoke);
+			return;
 		}
+		CurrentPath.Reset();
+		StopOwnerMovement();
+		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::UnsafePath);
+		return;
+	}
+	CurrentWaypointIndex = 1;
+	FailedPathRetries = 0;
+	SetNavigationStatus(EYUFSNavigationStatus::Moving);
+}
 
-		AsyncTask(ENamedThreads::GameThread, [WeakThis, bSuccess, ResultPathPoints, RequestGeneration]()
-		{
-			if (UYUFSSmokeAwareNavigator* NavComp = WeakThis.Get())
-			{
-				if (NavComp->PathRequestGeneration != RequestGeneration)
-				{
-					return;
-				}
-
-				NavComp->bIsPathfinding = false;
-				// 경로 탐색 완료 후 연기 패널티 초기화 — 다음 정상 탐색에 영향 없도록
-				UYUFSSmokeNavigationQueryFilter::ResetSmokeCosts();
-
-				if (bSuccess)
-				{
-					NavComp->CurrentPath = ResultPathPoints;
-					NavComp->CurrentWaypointIndex = NavComp->CurrentPath.Num() > 1 ? 1 : 0;
-				}
-				else
-				{
-					if (GEngine)
-					{
-						GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("[Nav] Custom Async Path Failed!"));
-					}
-					NavComp->ClearPath();
-				}
-			}
-		});
-	});
+TArray<FVector> UYUFSSmokeAwareNavigator::BuildRemainingPath() const
+{
+	TArray<FVector> Remaining;
+	if (GetOwner()) Remaining.Add(GetOwnerFeetLocation());
+	for (int32 Index = CurrentWaypointIndex; Index < CurrentPath.Num(); ++Index)
+	{
+		Remaining.Add(CurrentPath[Index]);
+	}
+	return Remaining;
 }
 
 void UYUFSSmokeAwareNavigator::CheckAndReroute(int32 Frame)
 {
-	if (CurrentPath.IsEmpty() || bIsPathfinding)
+	if (!IsFollowingPath() || !IsValid(LevelDataMgr) ||
+		RerouteTimer < FMath::Max(0.1f, RerouteCheckInterval)) return;
+	RerouteTimer = 0.f;
+	// Include the segment from the NPC to its next waypoint, even on the final leg.
+	const auto Snapshot = GetPerceivedHazardSnapshot(Frame);
+	HazardDataStatus = Snapshot.Status;
+	if (Snapshot.Status != EYUFSHazardDataStatus::Ready)
 	{
+		ReplanPath(Frame, EYUFSRepathReason::Smoke);
 		return;
 	}
-
-	if (RerouteTimer >= RerouteCheckInterval)
-	{
-		RerouteTimer = 0.f;
-
-		TArray<FVector> RemainingPath;
-		for (int32 PathIndex = CurrentWaypointIndex; PathIndex < CurrentPath.Num(); ++PathIndex)
-		{
-			RemainingPath.Add(CurrentPath[PathIndex]);
-		}
-
-		const float DangerScore = LevelDataMgr ? LevelDataMgr->GetPathDangerScore(RemainingPath, Frame) : 0.f;
-		if (DangerScore > SmokeBlockThreshold)
-		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(
-					-1,
-					0.0f,
-					FColor::Orange,
-					FString::Printf(TEXT("[Nav] Rerouting due to Smoke! Danger Score: %f"), DangerScore));
-			}
-			// 재탐색 전 NavArea_Obstacle 비용을 높여 연기 구역을 우회하도록 유도
-			// (레벨에 NavModifierVolume + NavArea_Obstacle 배치 시 실제 우회 경로 생성)
-			UYUFSSmokeNavigationQueryFilter::UpdateSmokeCosts(BinaryManager, Frame);
-			RequestPathAsync(CurrentDestination, Frame);
-		}
-	}
+	LastPathScore = Snapshot.ScorePath(BuildRemainingPath(), GetHazardSettings());
+	// Compare the same remaining geometry in old/new data to avoid re-requesting an identical route every tick.
+	const auto PreviousScore = QueryHazardSnapshot.ScorePath(BuildRemainingPath(), GetHazardSettings());
+	if (LastPathScore.bUnsafeAhead || LastPathScore.MaxSmoke > FMath::Max(SmokeBlockThreshold, PreviousScore.MaxSmoke + 0.1f) ||
+		LastPathScore.MaxHeat > FMath::Max(SmokeBlockThreshold, PreviousScore.MaxHeat + 0.1f))
+		ReplanPath(Frame, EYUFSRepathReason::Smoke);
 }
 
 void UYUFSSmokeAwareNavigator::ClearPath()
 {
-	++PathRequestGeneration;
-	bIsPathfinding = false;
-	CurrentPath.Empty();
+	if (NavigationStatus == EYUFSNavigationStatus::Idle && ActiveQueryId == INVALID_NAVQUERYID) return;
+	CancelPendingRequest();
+	StopOwnerMovement();
+	CurrentPath.Reset();
 	CurrentWaypointIndex = 0;
+	RequestedDestination = FVector::ZeroVector;
 	CurrentDestination = FVector::ZeroVector;
+	QueryHazardSnapshot = FYUFSHazardSnapshot();
+	LastPathScore = FYUFSHazardPathScore();
+	FailedPathRetries = 0;
+	SetNavigationStatus(EYUFSNavigationStatus::Idle);
 }
 
 FVector UYUFSSmokeAwareNavigator::GetNextWaypoint() const
 {
-	if (CurrentPath.Num() > 0 && CurrentWaypointIndex < CurrentPath.Num())
-	{
-		return CurrentPath[CurrentWaypointIndex];
-	}
-
-	return GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
+	return IsFollowingPath() && CurrentPath.IsValidIndex(CurrentWaypointIndex)
+		? CurrentPath[CurrentWaypointIndex] : (GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector);
 }
 
 FVector UYUFSSmokeAwareNavigator::GetSteeringTarget(FVector ActorLocation, float LookAheadDistance) const
 {
-	if (CurrentPath.IsEmpty() || CurrentWaypointIndex >= CurrentPath.Num())
-	{
-		return ActorLocation;
-	}
-
-	// 현재 웨이포인트까지만 룩어헤드를 허용 — 그 이상 넘어가면 코너를 직선으로 관통하는
-	// 방향벡터가 생겨 벽 돌진 현상이 발생하므로 현재 세그먼트 안으로 클램프
+	if (!IsFollowingPath() || !CurrentPath.IsValidIndex(CurrentWaypointIndex)) return ActorLocation;
 	FVector NextWaypoint = CurrentPath[CurrentWaypointIndex];
 	NextWaypoint.Z = ActorLocation.Z;
-
-	const float DistToNext = FVector::Dist2D(ActorLocation, NextWaypoint);
-
-	// 웨이포인트가 룩어헤드 거리 안에 있으면 그냥 웨이포인트를 직접 목표로 사용
-	if (DistToNext <= LookAheadDistance || DistToNext <= KINDA_SMALL_NUMBER)
-	{
-		return NextWaypoint;
-	}
-
-	// 웨이포인트까지 충분히 멀면 현재 세그먼트 안에서 룩어헤드 보간
-	const FVector Dir = (NextWaypoint - ActorLocation).GetSafeNormal2D();
-	FVector SteeringTarget = ActorLocation + Dir * LookAheadDistance;
-	SteeringTarget.Z = ActorLocation.Z;
-	return SteeringTarget;
+	const float Distance = FVector::Dist2D(ActorLocation, NextWaypoint);
+	if (Distance <= LookAheadDistance || Distance <= KINDA_SMALL_NUMBER) return NextWaypoint;
+	return ActorLocation + (NextWaypoint - ActorLocation).GetSafeNormal2D() * FMath::Max(0.f, LookAheadDistance);
 }
 
 void UYUFSSmokeAwareNavigator::UpdateWaypoint(FVector ActorLocation, float AcceptanceRadius)
 {
-	if (CurrentPath.Num() == 0 || CurrentWaypointIndex >= CurrentPath.Num())
+	if (!IsFollowingPath()) return;
+	while (CurrentPath.IsValidIndex(CurrentWaypointIndex))
 	{
-		return;
-	}
-
-	const float AcceptanceRadiusSq = FMath::Square(AcceptanceRadius);
-	while (CurrentWaypointIndex < CurrentPath.Num())
-	{
-		FVector CurrentWaypoint = CurrentPath[CurrentWaypointIndex];
-		CurrentWaypoint.Z = ActorLocation.Z;
-
-		if (FVector::DistSquared2D(ActorLocation, CurrentWaypoint) > AcceptanceRadiusSq)
-		{
-			break;
-		}
-
+		const FVector& Waypoint = CurrentPath[CurrentWaypointIndex];
+		if (FVector::DistSquared2D(ActorLocation, Waypoint) > FMath::Square(AcceptanceRadius) ||
+			FMath::Abs(ActorLocation.Z - Waypoint.Z) > WaypointHeightTolerance) break;
 		++CurrentWaypointIndex;
 	}
+	if (CurrentWaypointIndex >= CurrentPath.Num())
+	{
+		StopOwnerMovement();
+		SetNavigationStatus(EYUFSNavigationStatus::Arrived);
+	}
+}
+
+FVector UYUFSSmokeAwareNavigator::GetOwnerFeetLocation() const
+{
+	const ACharacter* Character = Cast<ACharacter>(GetOwner());
+	return Character ? Character->GetActorLocation() - FVector(0, 0, Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight())
+		: (GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector);
+}
+
+FYUFSHazardSettings UYUFSSmokeAwareNavigator::GetHazardSettings() const
+{
+	FYUFSHazardSettings Settings;
+	Settings.SmokeCost = SmokeTravelCost;
+	Settings.HeatCost = HeatTravelCost;
+	Settings.BlockSmoke = FMath::Clamp(UnsafeSmokeThreshold, 0.01f, 1.f);
+	Settings.BlockHeat = FMath::Clamp(UnsafeHeatThreshold, 0.01f, 1.f);
+	Settings.SampleHeightCm = HazardSampleHeightCm;
+	return Settings;
+}
+
+FYUFSHazardSnapshot UYUFSSmokeAwareNavigator::GetPerceivedHazardSnapshot(int32 Frame) const
+{
+	auto Snapshot=IsValid(LevelDataMgr) ? LevelDataMgr->GetHazardSnapshot(Frame) : FYUFSHazardSnapshot();
+	if (GetOwner()) if (auto* Perception=GetOwner()->FindComponentByClass<UYUFSNPCPerceptionComponent>())
+		Snapshot=Perception->RestrictToKnowledge(Snapshot);
+	return Snapshot;
+}
+bool UYUFSSmokeAwareNavigator::IsLocalRecoverySafe(const FVector& FromFeet,const FVector& ToFeet,int32 Frame) const
+{
+	const auto Snapshot=GetPerceivedHazardSnapshot(Frame);
+	return Snapshot.Status==EYUFSHazardDataStatus::Ready && !Snapshot.ScorePath({FromFeet,ToFeet},GetHazardSettings()).bUnsafeAhead;
 }
