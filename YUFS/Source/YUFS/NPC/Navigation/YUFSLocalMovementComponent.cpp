@@ -66,7 +66,7 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSTrafficSight),false,NPC); Params.AddIgnoredActor(Other);
 		if (GetWorld()->LineTraceTestByChannel(A,B,ECC_Visibility,Params)) continue;
 		const auto* Nav=Other->GetNavigator();
-		const bool Moving=Nav && Nav->IsFollowingPath();
+		const bool Moving=IsMovingPeer(Nav && Nav->IsFollowingPath(),Other->IsInteractionHoldingPosition());
 		const FVector OtherDir=Moving ? (Nav->GetSteeringTarget(B,120.f)-B).GetSafeNormal2D() : FVector::ZeroVector;
 		if (!TrajectoriesConflict(A,Desired,Radius,B,OtherDir,Other->GetCapsuleComponent()->GetScaledCapsuleRadius(),LookAheadCm)) continue;
 		// A stationary person is a real obstacle. Moving agents use a stable right of way.

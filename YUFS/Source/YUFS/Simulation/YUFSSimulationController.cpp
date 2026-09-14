@@ -2,6 +2,7 @@
 
 #include "Blueprint/UserWidget.h"
 #include "Simulation/YUFSGameInstance.h"
+#include "Debug/YUFSInteractionPreview.h"
 #include "Simulation/YUFSTimelineRecorder.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "EngineUtils.h"
@@ -12,6 +13,8 @@
 #include "Level/YUFSLevelDataManager.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
@@ -25,6 +28,13 @@ AYUFSSimulationController::AYUFSSimulationController()
 void AYUFSSimulationController::BeginPlay()
 {
 	Super::BeginPlay();
+	bWaitForInteractionPreview = FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions"))
+		&& FParse::Param(FCommandLine::Get(), TEXT("YUFSInteractionPreview"));
+	// Old serialized defaults must not reactivate relocation/camera takeover.
+	// JJW's palette is the only runtime author of NPC placement.
+	bDistributeOverlappingNPCs = false;
+	bPreviewAllNPCActionAnimations = false;
+	bAutoFocusNPCActionAnimationShowcase = false;
 
 	// 씬에서 필요한 액터들 캐싱
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
@@ -40,6 +50,11 @@ void AYUFSSimulationController::BeginPlay()
 	for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
 	{
 		HeterogeneousVolume = *It;
+		const auto* VolumeComponent = It->FindComponentByClass<UHeterogeneousVolumeComponent>();
+		if (!VolumeComponent || !VolumeComponent->GetMaterial(0))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS][Merge] Recorded fire volume '%s' has no material. JJW Scenario_04 requires /Game/Fires/vdb/Scenario_04/vdb/SparseVolumeMaterial_Inst_Scenario_04; obtain the matching external assets. No substitute fire or material is created."), *It->GetName());
+		}
 		break;
 	}
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It)
@@ -68,6 +83,7 @@ void AYUFSSimulationController::BeginPlay()
 	// 레벨 리로드 후 배치 실험 복원 — GameInstance에 저장된 회차 상태를 읽어옴
 	if (UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
 	{
+		GI->SetupBuildingInteractions(GetWorld());
 		if (GI->bHasPendingBatchRun)
 		{
 			CurrentRunIndex = GI->PendingRunIndex;
@@ -79,6 +95,16 @@ void AYUFSSimulationController::BeginPlay()
 			SetPhase(ESimPhase::FireStartDelay);
 		}
 	}
+}
+
+void AYUFSSimulationController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	if (HUDWidgetInstance)
+	{
+		HUDWidgetInstance->RemoveFromParent();
+		HUDWidgetInstance = nullptr;
+	}
+	Super::EndPlay(EndPlayReason);
 }
 
 void AYUFSSimulationController::Tick(float DeltaTime)
@@ -96,8 +122,13 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 		return;
 	}
 
+	if (CurrentPhase == ESimPhase::WaitingToStart)
+	{
+		return;
+	}
+
 	if (bIsPaused) return;
-	if (CurrentPhase == ESimPhase::WaitingToStart || CurrentPhase == ESimPhase::Completed) return;
+	if (CurrentPhase == ESimPhase::Completed) return;
 
 	ElapsedSimTime += DeltaTime;
 
@@ -122,6 +153,15 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 void AYUFSSimulationController::StartSimulation()
 {
 	if (CurrentPhase != ESimPhase::WaitingToStart) return;
+	if (IsWaitingForInteractionPreview())
+	{
+		bStartRequestedBeforePreviewReady = true;
+		UE_LOG(LogTemp, Display, TEXT("[InteractionPreview] Start queued until the explicitly requested interaction fixture is ready. NPC positions remain user-authored."));
+		return;
+	}
+	bStartRequestedBeforePreviewReady = false;
+
+	StopNPCActionAnimationShowcase();
 
 	CurrentRunIndex = 1;
 	bIsPaused = false;
@@ -139,9 +179,20 @@ void AYUFSSimulationController::StartSimulation()
 	ResolvedNPCs.Empty();
 
 	SetPhase(ESimPhase::FireStartDelay);
+	// Both HUD implementations enter here. Start exactly one visual sequence.
+	for (TActorIterator<AYUFSInteractionPreview> It(GetWorld()); It; ++It)
+		It->StartSequence();
 
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation Run %d/%d started. Fire in %.0f seconds."),
 		CurrentRunIndex, TotalRunCount, FireStartDelaySeconds);
+}
+
+void AYUFSSimulationController::NotifyInteractionPreviewReady(bool bReady)
+{
+	bInteractionPreviewReady = bReady;
+	UE_LOG(LogTemp, Display, TEXT("[InteractionPreview] Setup %s; queued start=%d."),
+		bReady ? TEXT("ready") : TEXT("FAILED"), bStartRequestedBeforePreviewReady);
+	if (bReady && bStartRequestedBeforePreviewReady) StartSimulation();
 }
 
 void AYUFSSimulationController::PauseSimulation()
@@ -151,8 +202,15 @@ void AYUFSSimulationController::PauseSimulation()
 		PauseTimeline();
 		return;
 	}
+	if (CurrentPhase == ESimPhase::WaitingToStart)
+	{
+		bStartRequestedBeforePreviewReady = false;
+		return;
+	}
 
 	bIsPaused = true;
+	for (TActorIterator<AYUFSInteractionPreview> It(GetWorld()); It; ++It)
+		It->SetSimulationPaused(true);
 
 	if (HeterogeneousVolume)
 	{
@@ -184,7 +242,10 @@ void AYUFSSimulationController::ResumeSimulation()
 		return;
 	}
 
+	if (!bIsPaused) return;
 	bIsPaused = false;
+	for (TActorIterator<AYUFSInteractionPreview> It(GetWorld()); It; ++It)
+		It->SetSimulationPaused(false);
 
 	if (HeterogeneousVolume && CurrentPhase == ESimPhase::FireActive)
 	{
@@ -193,7 +254,7 @@ void AYUFSSimulationController::ResumeSimulation()
 
 	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
 	{
-		if (!IsValid(NPC)) continue;
+		if (!IsValid(NPC) || ResolvedNPCs.Contains(NPC)) continue;
 
 		NPC->SetActorTickEnabled(true);
 
@@ -210,6 +271,7 @@ void AYUFSSimulationController::ResumeSimulation()
 void AYUFSSimulationController::StopAndResetSimulation()
 {
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation STOPPED. Reloading level..."));
+	StopNPCActionAnimationShowcase();
 
 	// TimeDilation을 먼저 정상화한 뒤 레벨을 리로드해야 다음 실행 시 정상 속도로 시작됨
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
@@ -441,6 +503,7 @@ void AYUFSSimulationController::CheckCompletionCondition()
 
 void AYUFSSimulationController::FinalizeRun()
 {
+	if (CurrentPhase == ESimPhase::Completed) return;
 	if (!RegisteredNPCs.IsEmpty())
 	{
 		for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
@@ -463,7 +526,9 @@ void AYUFSSimulationController::FinalizeRun()
 	// 결과 요약 구성
 	FSimRunResult Result;
 	Result.RunIndex = CurrentRunIndex;
-	Result.TotalNPCCount = FMath::Max(InitialNPCCount, LiveEvacuatedCount + LiveIncapacitatedCount + RegisteredNPCs.Num());
+	// Resolved NPCs remain registered for timeline playback, so they are not
+	// additional participants. Removed unresolved NPCs are excluded on unregister.
+	Result.TotalNPCCount = FMath::Max(InitialNPCCount, LiveEvacuatedCount + LiveIncapacitatedCount);
 	Result.EvacuatedCount = LiveEvacuatedCount;
 	Result.IncapacitatedCount = LiveIncapacitatedCount;
 	Result.EvacuationRate = Result.TotalNPCCount > 0
@@ -619,19 +684,31 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 		{
 			InitialNPCCount = RegisteredNPCs.Num();
 		}
+		else if (CurrentPhase == ESimPhase::FireStartDelay || CurrentPhase == ESimPhase::FireActive)
+		{
+			++InitialNPCCount;
+		}
 	}
 }
 
 void AYUFSSimulationController::UnregisterNPC(AYUFSEvacuationNPC* NPC)
 {
-	if (IsValid(NPC) && RegisteredNPCs.Contains(NPC))
+	if (NPC && RegisteredNPCs.Contains(NPC))
 	{
 		RegisteredNPCs.Remove(NPC);
-		ResolvedNPCs.Remove(NPC);
 		if (CurrentPhase == ESimPhase::WaitingToStart)
 		{
+			ResolvedNPCs.Remove(NPC);
 			InitialNPCCount = RegisteredNPCs.Num();
 		}
+		else if (!ResolvedNPCs.Contains(NPC))
+		{
+			// Deletion/cancellation is not an evacuation or an injury. Exclude
+			// unresolved withdrawals so they cannot prevent completion forever.
+			InitialNPCCount = FMath::Max(LiveEvacuatedCount + LiveIncapacitatedCount, InitialNPCCount - 1);
+		}
+		// Keep resolved identities as historical results if their render actor
+		// is later deleted; this set is compared only, never dereferenced.
 	}
 }
 
@@ -647,7 +724,16 @@ float AYUFSSimulationController::GetFireStartCountdown() const
 void AYUFSSimulationController::SpawnHUD()
 {
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (!PC || !HUDWidgetClass) return;
+	if (!PC || HUDWidgetInstance) return;
+	if (!HUDWidgetClass)
+	{
+		HUDWidgetClass = LoadClass<UUserWidget>(nullptr, TEXT("/Game/Blueprint/UI/WBP_SimHUD.WBP_SimHUD_C"));
+	}
+	if (!HUDWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS][Merge] Missing JJW HUD /Game/Blueprint/UI/WBP_SimHUD. Preserve JJW UI assets and their redirectors; no legacy simulation HUD is substituted."));
+		return;
+	}
 
 	PC->bShowMouseCursor = true;
 	PC->SetInputMode(FInputModeGameAndUI());
@@ -656,5 +742,18 @@ void AYUFSSimulationController::SpawnHUD()
 	if (HUDWidgetInstance)
 	{
 		HUDWidgetInstance->AddToViewport();
+	}
+}
+
+void AYUFSSimulationController::StartNPCActionAnimationShowcase()
+{
+	UE_LOG(LogTemp, Display, TEXT("[YUFS][Merge] Legacy animation showcase is disabled. NPC placement and camera remain under JJW/player control."));
+}
+
+void AYUFSSimulationController::StopNPCActionAnimationShowcase()
+{
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (IsValid(NPC)) NPC->ClearActionAnimationPreview();
 	}
 }

@@ -27,6 +27,7 @@ void UYUFSNPCPerceptionComponent::UpdateFromSnapshot(const FYUFSHazardSnapshot& 
 {
 	CachedSmokeDensity = CachedTemperature = CachedSmokeInFrontNormalized = CachedSmokeAboveNormalized = 0.f;
 	CachedHeatInSight = CachedNearbyHeat = CachedRiskLevel = 0.f;
+	bSelfHazardSampleAvailable = false;
 	DataStatus = Snapshot.Status;
 	if (!Config || !GetOwner() || !GetWorld()) return;
 	if (Snapshot.Grid && (LastGridDimensions != Snapshot.Grid->Dimensions || !LastGridTransform.Equals(Snapshot.GridToWorld) || Snapshot.Frame < LastFrame))
@@ -63,6 +64,7 @@ void UYUFSNPCPerceptionComponent::UpdateFromSnapshot(const FYUFSHazardSnapshot& 
 			return Value;
 		};
 		const auto Self = Observe(Eye);
+		bSelfHazardSampleAvailable = Self.Status == EYUFSHazardDataStatus::Ready;
 		CachedSmokeDensity = Self.Smoke; CachedTemperature = Self.Heat;
 		for (float H : {20.f, HalfHeight, 120.f})
 		{
@@ -131,4 +133,63 @@ void UYUFSNPCPerceptionComponent::ReceiveHazardReport(const UYUFSNPCPerceptionCo
 		const float* Existing=LastObservedAt.Find(Pair.Key);
 		if (!Existing || *Existing < *At) { KnownCells.Add(Pair.Key,Pair.Value); LastObservedAt.Add(Pair.Key,*At); }
 	}
+}
+
+void UYUFSNPCPerceptionComponent::ResetKnowledge()
+{
+	KnownCells.Reset();
+	LastObservedAt.Reset();
+	PublishedKnowledge = MakeShared<const TMap<int32, FYUFSHazardSample>, ESPMode::ThreadSafe>();
+	LastGridTransform = FTransform::Identity;
+	LastGridDimensions = FIntVector::ZeroValue;
+	LastFrame = INDEX_NONE;
+	bSelfHazardSampleAvailable = false;
+	CachedSmokeDensity = CachedTemperature = CachedSmokeInFrontNormalized = CachedSmokeAboveNormalized = 0.f;
+	CachedHeatInSight = CachedNearbyHeat = CachedRiskLevel = 0.f;
+	DataStatus = EYUFSHazardDataStatus::MissingData;
+}
+
+bool UYUFSNPCPerceptionComponent::SampleObservedHazard(
+	const FVector& WorldPos, int32 Frame, float& OutSmoke, float& OutHeat)
+{
+	OutSmoke = OutHeat = 0.f;
+	if (!IsValid(BinaryManager) || !Config || !GetOwner() || !GetWorld() || WorldPos.ContainsNaN()) return false;
+	const ACharacter* Character = Cast<ACharacter>(GetOwner());
+	const FVector Eye = Character ? Character->GetPawnViewLocation() : GetOwner()->GetActorLocation();
+	if (FVector::DistSquared(Eye, WorldPos) > FMath::Square(FMath::Clamp(Config->VisionRange, 1.f, 3000.f))) return false;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSInteractionHazardSight), false, GetOwner());
+	if (GetWorld()->LineTraceTestByChannel(Eye, WorldPos, ECC_Visibility, Params)) return false;
+
+	// Inspect one actually visible point in an immutable frame, then publish it through
+	// the existing personal-cell map used by JJW pathfinding and eyewitness reports.
+	const FYUFSHazardSnapshot Snapshot = BinaryManager->GetHazardSnapshot(Frame);
+	if (Snapshot.Status != EYUFSHazardDataStatus::Ready || !Snapshot.Grid) return false;
+	const FYUFSHazardSample Value = Snapshot.Sample(WorldPos);
+	const int32 Index = Snapshot.CellIndex(WorldPos);
+	if (Value.Status != EYUFSHazardDataStatus::Ready || Index == INDEX_NONE) return false;
+	if (LastGridDimensions != Snapshot.Grid->Dimensions || !LastGridTransform.Equals(Snapshot.GridToWorld) || Snapshot.Frame < LastFrame)
+	{
+		ResetKnowledge();
+		LastGridDimensions = Snapshot.Grid->Dimensions;
+		LastGridTransform = Snapshot.GridToWorld;
+	}
+	LastFrame = Snapshot.Frame;
+	const float Now = GetWorld()->GetTimeSeconds();
+	if (Value.Smoke > 0.01f || Value.Heat > 0.01f)
+	{
+		if (KnownCells.Num() < 8192 || KnownCells.Contains(Index))
+		{
+			KnownCells.Add(Index, Value);
+			LastObservedAt.Add(Index, Now);
+		}
+	}
+	else
+	{
+		KnownCells.Remove(Index);
+		LastObservedAt.Remove(Index);
+	}
+	PublishedKnowledge = MakeShared<const TMap<int32, FYUFSHazardSample>, ESPMode::ThreadSafe>(KnownCells);
+	OutSmoke = Value.Smoke;
+	OutHeat = Value.Heat;
+	return true;
 }

@@ -42,6 +42,8 @@ private:
 public:
 	FVector GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const;
 	TArray<FVector> GetExitLocations() const;
+	// Map geometry alias only; interaction callers evaluate personal knowledge separately.
+	TArray<FVector> GetKnownExitLocations() const { return GetExitLocations(); }
 	FVector GetFamiliarExit(FVector NPCSpawnLocation) const;
 	bool IsLocationDangerous(FVector Location, int32 Frame) const;
 	float GetPathDangerScore(const TArray<FVector>& Path, int32 Frame) const;

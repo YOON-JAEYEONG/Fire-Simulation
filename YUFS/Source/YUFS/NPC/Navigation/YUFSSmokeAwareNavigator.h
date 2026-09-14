@@ -79,6 +79,16 @@ public:
 	const TArray<FVector>& GetCurrentPathPoints() const { return CurrentPath; }
 	int32 GetCurrentWaypointIndex() const { return CurrentWaypointIndex; }
 
+	// Compatibility for interaction task lifetime tracking; the JJW planner owns generations.
+	uint32 GetRequestGeneration() const { return RequestGeneration; }
+	// These are conservative interaction gates, not a claim that unseen space is safe.
+	// Floor paths use the same height/body samples and escape rule as the JJW planner.
+	bool IsKnownPathDangerous(const TArray<FVector>& FloorPoints) const;
+	// WorldLocation is already at the caller's intended exposure height.
+	bool IsKnownLocationDangerous(const FVector& WorldLocation) const;
+	// One authoritative memory store, in JJW perception (no parallel hazard-patch model).
+	void ResetObservedHazards();
+
 	UPROPERTY(BlueprintAssignable, Category="YUFS|Navigation")
 	FYUFSNavigationStateChanged OnNavigationStateChanged;
 
@@ -145,4 +155,5 @@ private:
 	// Regression tests deliver out-of-order engine callbacks without timing races.
 	friend struct FYUFSNavigationTestAccess;
 	friend struct FYUFSCrowdIntegrationAccess;
+	friend struct FYUFSInteractionNavigationTestAccess;
 };

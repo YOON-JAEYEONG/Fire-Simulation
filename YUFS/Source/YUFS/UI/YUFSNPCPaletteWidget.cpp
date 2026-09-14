@@ -1,4 +1,5 @@
 #include "UI/YUFSNPCPaletteWidget.h"
+#include "NPC/YUFSEvacuationNPC.h"
 
 #include "Components/ScrollBox.h"
 #include "NPC/YUFSEvacuationNPC.h"

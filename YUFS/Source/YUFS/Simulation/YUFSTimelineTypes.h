@@ -31,6 +31,21 @@ struct FYUFSTimelineNPCSnapshot
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	EYUFSAction CurrentAction = EYUFSAction::Idle;
 
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	EYUFSIntent Intent = EYUFSIntent::Observe;
+
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	EYUFSActionTask ActionTask = EYUFSActionTask::None;
+
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	float CommitProbability = 0.f;
+
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	int32 PreActionCompletedCount = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	int32 PreActionTargetCount = 0;
+
 	// HUD/디버그 표시용 최소 위험 정보입니다.
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	float RiskPerception = 0.f;

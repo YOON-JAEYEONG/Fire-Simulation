@@ -349,3 +349,31 @@ bool UYUFSSmokeAwareNavigator::IsLocalRecoverySafe(const FVector& FromFeet,const
 	const auto Snapshot=GetPerceivedHazardSnapshot(Frame);
 	return Snapshot.Status==EYUFSHazardDataStatus::Ready && !Snapshot.ScorePath({FromFeet,ToFeet},GetHazardSettings()).bUnsafeAhead;
 }
+
+bool UYUFSSmokeAwareNavigator::IsKnownPathDangerous(const TArray<FVector>& FloorPoints) const
+{
+	if (FloorPoints.Num() < 2) return true;
+	for (const FVector& Point : FloorPoints) if (Point.ContainsNaN()) return true;
+	const int32 Frame = IsValid(LevelDataMgr) ? LevelDataMgr->GetCurrentHazardFrame() : RequestFrame;
+	const FYUFSHazardSnapshot Snapshot = GetPerceivedHazardSnapshot(Frame);
+	if (Snapshot.Status != EYUFSHazardDataStatus::Ready || !Snapshot.Grid.IsValid()) return true;
+	const FYUFSHazardPathScore Score = Snapshot.ScorePath(FloorPoints, GetHazardSettings());
+	return Score.bUnsafeAhead || Score.OutsideSamples > 0;
+}
+
+bool UYUFSSmokeAwareNavigator::IsKnownLocationDangerous(const FVector& WorldLocation) const
+{
+	const int32 Frame = IsValid(LevelDataMgr) ? LevelDataMgr->GetCurrentHazardFrame() : RequestFrame;
+	const FYUFSHazardSnapshot Snapshot = GetPerceivedHazardSnapshot(Frame);
+	const FYUFSHazardSample Sample = Snapshot.Sample(WorldLocation);
+	const FYUFSHazardSettings Settings = GetHazardSettings();
+	return Sample.Status != EYUFSHazardDataStatus::Ready ||
+		Sample.Smoke >= Settings.BlockSmoke || Sample.Heat >= Settings.BlockHeat;
+}
+
+void UYUFSSmokeAwareNavigator::ResetObservedHazards()
+{
+	if (GetOwner())
+		if (auto* Perception = GetOwner()->FindComponentByClass<UYUFSNPCPerceptionComponent>())
+			Perception->ResetKnowledge();
+}

@@ -27,6 +27,12 @@ public:
 	void UpdateFromSnapshot(const FYUFSHazardSnapshot& Snapshot, float Now);
 	FYUFSHazardSnapshot RestrictToKnowledge(FYUFSHazardSnapshot Snapshot) const;
 	void ReceiveHazardReport(const UYUFSNPCPerceptionComponent& Other);
+	// Interaction adapters reuse the same JJW cell knowledge; no second hazard memory.
+	bool SampleObservedHazard(const FVector& WorldPos, int32 Frame, float& OutSmoke, float& OutHeat);
+	bool HasHazardSample() const { return bSelfHazardSampleAvailable; }
+	void ResetKnowledge();
+	float GetHeatInSightNormalized() const { return GetHeatInSight(); }
+	float GetNearbyHeatNormalized() const { return GetNearbyHeat(); }
 	float GetHeatInSight() const { return CachedHeatInSight; }
 	float GetNearbyHeat() const { return CachedNearbyHeat; }
 	int32 GetKnownCellCount() const { return KnownCells.Num(); }
@@ -54,6 +60,7 @@ private:
 	float CachedRiskLevel = 0.f;
 	float CachedHeatInSight = 0.f;
 	float CachedNearbyHeat = 0.f;
+	bool bSelfHazardSampleAvailable = false;
 	EYUFSHazardDataStatus DataStatus = EYUFSHazardDataStatus::MissingData;
 	TMap<int32, FYUFSHazardSample> KnownCells;
 	TMap<int32, float> LastObservedAt;

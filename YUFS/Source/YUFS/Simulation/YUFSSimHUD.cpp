@@ -71,7 +71,8 @@ FText UYUFSSimHUD::GetPhaseText() const
 
 	switch (SimController->GetCurrentPhase())
 	{
-	case ESimPhase::WaitingToStart: return FText::FromString(TEXT("대기 중"));
+	case ESimPhase::WaitingToStart: return FText::FromString(SimController->IsWaitingForInteractionPreview()
+		? TEXT("상호작용 준비 중 · 시작 클릭 예약 가능") : TEXT("대기 중"));
 	case ESimPhase::FireStartDelay: return FText::FromString(TEXT("화재 발생 전"));
 	case ESimPhase::FireActive:     return FText::FromString(TEXT("🔥 화재 진행 중"));
 	case ESimPhase::TimelineReview: return FText::FromString(TEXT("타임라인 관찰 모드"));

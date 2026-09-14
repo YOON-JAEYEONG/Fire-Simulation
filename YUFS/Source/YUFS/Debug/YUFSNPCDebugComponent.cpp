@@ -39,7 +39,7 @@ void UYUFSNPCDebugComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 bool UYUFSNPCDebugComponent::ShouldDraw() const
 {
-	if (!bEnabled || !OwnerNPC.IsValid() || !GetWorld())
+	if (bTemporarilySuppressed || !bEnabled || !OwnerNPC.IsValid() || !GetWorld())
 	{
 		return false;
 	}
@@ -92,9 +92,14 @@ FString UYUFSNPCDebugComponent::BuildStateText(const FYUFSNPCObservation& Obs) c
 	const FString StateName = StateEnum
 		? StateEnum->GetNameStringByValue(static_cast<int64>(Obs.CurrentState))
 		: FString::FromInt(static_cast<int32>(Obs.CurrentState));
+	const EYUFSAction DisplayedAction = OwnerNPC->GetDisplayedAction();
 	const FString ActionName = ActionEnum
-		? ActionEnum->GetNameStringByValue(static_cast<int64>(OwnerNPC->GetLastAction()))
-		: FString::FromInt(static_cast<int32>(OwnerNPC->GetLastAction()));
+		? ActionEnum->GetNameStringByValue(static_cast<int64>(DisplayedAction))
+		: FString::FromInt(static_cast<int32>(DisplayedAction));
+	const FString PreviewSuffix = OwnerNPC->IsActionAnimationPreviewActive()
+		? TEXT(" [ANIM PREVIEW]")
+		: TEXT("");
+	const FString AnimationName = OwnerNPC->GetCurrentActionAnimationName();
 
 	const UYUFSSmokeAwareNavigator* Navigator = OwnerNPC->GetNavigator();
 	const FString DestinationText = Navigator
@@ -110,10 +115,12 @@ FString UYUFSNPCDebugComponent::BuildStateText(const FYUFSNPCObservation& Obs) c
 		: TEXT("None");
 
 	return FString::Printf(
-		TEXT("%s\nState: %s\nAction: %s\nRisk: %.2f | Env: %.2f\nDest: %s\nPath: %s"),
+		TEXT("%s\nState: %s\nAction: %s%s\nAnim: %s\nRisk: %.2f | Env: %.2f\nDest: %s\nPath: %s"),
 		*OwnerNPC->GetName(),
 		*StateName,
 		*ActionName,
+		*PreviewSuffix,
+		*AnimationName,
 		Obs.RiskPerception,
 		Obs.RiskLevel,
 		*DestinationText,

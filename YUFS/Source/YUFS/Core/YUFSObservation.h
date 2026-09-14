@@ -69,6 +69,14 @@ struct YUFS_API FYUFSNPCObservation
 	UPROPERTY() bool bHeardPeerWarning = false;
 	UPROPERTY() float IndividualRoutePreference = 0.5f;
 
+	// Runtime-only integration aliases. BuildObservation mirrors the authoritative JJW cues.
+	// These fields must never be appended to the existing 28-float model input.
+	UPROPERTY() float HeatInSightNormalized = 0.f;
+	UPROPERTY() float NearbyHeatNormalized = 0.f;
+	UPROPERTY() bool bHazardSampleAvailable = false;
+	// Read-only runtime projection of JJW commitment/preparation/emergency priority.
+	UPROPERTY() bool bSuppressionAllowedByBehavior = false;
+
 	static constexpr int32 FeatureCount = 28;
 	void FillFloatArray(TArray<float>& OutArray) const;
 };

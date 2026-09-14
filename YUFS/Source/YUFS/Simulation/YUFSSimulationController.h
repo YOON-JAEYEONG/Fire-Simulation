@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Blueprint/UserWidget.h"
+#include "TimerManager.h"
 #include "YUFSSimulationController.generated.h"
 
 class AYUFSLevelDataManager;
@@ -56,6 +57,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -72,6 +74,19 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Simulation")
 	void StopAndResetSimulation();
+
+	// The visual fixture must be ready before Start leaves the distribution phase.
+	void NotifyInteractionPreviewReady(bool bReady);
+	bool IsWaitingForInteractionPreview() const { return bWaitForInteractionPreview && !bInteractionPreviewReady; }
+	bool IsSimulationPaused() const { return bIsPaused; }
+
+	// Deprecated compatibility entry points. JJW manual placement and the user's
+	// camera are authoritative; this controller never starts the old showcase.
+	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview", meta=(DeprecatedFunction, DeprecationMessage="Automatic showcase is disabled; observe normal NPC behavior from the player camera."))
+	void StartNPCActionAnimationShowcase();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
+	void StopNPCActionAnimationShowcase();
 
 	// ── 상태 조회 (HUD가 읽음) ───────────────────────────────────────────
 	UFUNCTION(BlueprintPure, Category="Simulation")
@@ -219,10 +234,92 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.05"))
 	float TimelineRecordIntervalSeconds = 0.25f;
 
+	// Legacy serialization fields only. Automatic distribution/showcase code is
+	// intentionally retired; old map defaults cannot move JJW palette placements.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bDistributeOverlappingNPCs = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="50.0"))
+	float NPCDistributionClusterRadiusCm = 180.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="80.0"))
+	float NPCDistributionSpacingCm = 300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="64", ClampMax="1024"))
+	int32 NPCDistributionMaxPlacementAttempts = 256;
+
+	// 감지된 실내 바닥 높이 중 몇 개 층에 NPC를 균등 분배할지 지정한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="1", ClampMax="8"))
+	int32 NPCDistributionTargetFloorCount = 2;
+
+	// CAD 슬래브의 수 cm 높이 차이를 같은 층으로 묶는 허용치다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="20.0"))
+	float IndoorFloorGroupingToleranceCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="100.0"))
+	float IndoorFloorSurfaceMinExtentCm = 200.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="10.0"))
+	float IndoorFloorSurfaceMaxHalfThicknessCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="200.0"))
+	float NPCDistributionMaxRadiusCm = 3000.f;
+
+	// 외부 NavMesh를 제외하기 위해 정적 바닥과 천장이 모두 있는 지점만 사용한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bRequireIndoorNPCPlacement = true;
+
+	// CAD 천장에 충돌이 있으면 천장이 확인된 후보를 먼저 사용한다.
+	// 충돌이 없는 건물은 동일 층의 정적 바닥 후보로 자동 폴백한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bPreferCeilingCollisionForIndoorPlacement = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="200.0"))
+	float IndoorCeilingTraceHeightCm = 1500.f;
+
+	// 천장 충돌이 없는 CAD 건물에서는 동·서·남·북 모두 벽에 막힌 지점만 실내로 인정한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="500.0"))
+	float IndoorEnclosureTraceDistanceCm = 5000.f;
+
+	// 후보가 할당된 층이 아닌 다른 슬래브로 스냅되는 것을 막는 높이 허용치다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="10.0"))
+	float NPCDistributionMaxFloorDeltaCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="0.0"))
+	float NPCDistributionDelaySeconds = 0.25f;
+
+	// 대기 화면에서 NPC들을 11개 행동에 순서대로 배정해 애니메이션과
+	// 머리 위 Action/Anim 라벨을 검수할 수 있게 한다. 시뮬레이션 시작 시
+	// 자동 해제되므로 AI 결정에는 영향을 주지 않는다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bPreviewAllNPCActionAnimations = false;
+
+	// 분산 배치가 끝나면 대표 NPC 앞으로 카메라를 이동하고 11개 행동을
+	// 자동 순환한다. Start Simulation을 누르면 원래 카메라로 복귀한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bAutoFocusNPCActionAnimationShowcase = false;
+
+	// 근접 검수에서는 대표 NPC 한 명만 보여 행동 차이를 명확히 한다.
+	// 시뮬레이션 시작 시 숨겼던 NPC를 모두 즉시 복원한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bIsolateFocusedNPCInAnimationShowcase = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="1.0", ClampMax="15.0"))
+	float NPCActionPreviewSecondsPerAction = 4.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="80.0", ClampMax="600.0"))
+	float NPCActionPreviewCameraDistanceCm = 240.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="30.0", ClampMax="180.0"))
+	float NPCActionPreviewLookAtHeightCm = 90.f;
+
 private:
 	// ── 내부 상태 ─────────────────────────────────────────────────────
 	ESimPhase CurrentPhase = ESimPhase::WaitingToStart;
 	bool bIsPaused = false;
+	bool bWaitForInteractionPreview = false;
+	bool bInteractionPreviewReady = false;
+	bool bStartRequestedBeforePreviewReady = false;
 
 	float ElapsedSimTime = 0.f;    // 현재 회차 경과 시간
 	float FirePhaseTimer = 0.f;    // FireStartDelay 단계 타이머
@@ -249,7 +346,8 @@ private:
 	AYUFSEmergencyCommSystem* CommSystem = nullptr;
 	AYUFSHeterogeneousVolume* HeterogeneousVolume = nullptr;
 	AYUFSLevelDataManager* CachedLDM = nullptr;
-	UUserWidget* HUDWidgetInstance = nullptr;
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> HUDWidgetInstance = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category="Simulation|Timeline")
 	UYUFSTimelineRecorder* TimelineRecorder = nullptr;
@@ -262,4 +360,5 @@ private:
 	void StartNextRun();
 	void UpdateLiveCounts();
 	void SpawnHUD();
+	friend struct FYUFSJJWControllerTestAccess;
 };

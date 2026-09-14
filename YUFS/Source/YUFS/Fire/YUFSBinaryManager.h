@@ -40,6 +40,8 @@ public:
 	FString GetHazardDiagnostics() const;
 	
 	int32 GetCurrentFrame() const { return CurrentDebugFrame; }
+	// Provenance gate for optional FDS-targeted interactions; navigation keeps the JJW diagnostics contract.
+	bool IsDatasetAlignmentConfirmed() const { return bDatasetAlignmentConfirmed; }
 	AYUFSHeterogeneousVolume* GetHeterogeneousVolume() const { return HeterogeneousVolume; }
 
 private:

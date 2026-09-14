@@ -109,6 +109,11 @@ FVector UYUFSSocialInfluenceComponent::GetAverageEvacuationDestination() const
 	{
 		const auto* NPC=Cast<AYUFSEvacuationNPC>(Weak.Get());
 		if (!IsValid(NPC) || NPC->IsHidden() || !NPC->GetNavigator() || !NPC->GetNavigator()->IsFollowingPath()) continue;
+		// Interaction travel is not an evacuation destination. In particular, never
+		// make a crowd follow a helper or an extinguisher carrier toward the fire.
+		const EYUFSAction Action = NPC->GetLastAction();
+		if (Action != EYUFSAction::EvacuateToNearestExit && Action != EYUFSAction::EvacuateToFamiliarExit
+			&& Action != EYUFSAction::FollowCrowd) continue;
 		const float D=FVector::DistSquared(GetOwner()->GetActorLocation(),NPC->GetActorLocation());
 		if (D<Best) { Best=D; Target=NPC->GetNavigator()->GetRequestedDestination(); }
 	}

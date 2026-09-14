@@ -24,6 +24,8 @@ public:
 	float GetNearbyEvacuatingRatio() const;
 	int32 GetNearbyNPCCount() const;
 	FVector GetAverageEvacuationDestination() const;
+	// Compatibility alias: JJW already selects an actual visible neighbor's destination, never an average.
+	FVector GetObservedEvacuationDestination() const { return GetAverageEvacuationDestination(); }
 	FVector GetNearestNPCNeedingHelpLocation() const;
 
 	bool  ShouldHelpNearbyNPC()      const;

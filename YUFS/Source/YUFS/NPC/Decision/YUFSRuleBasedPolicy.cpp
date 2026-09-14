@@ -65,3 +65,11 @@ EYUFSAction FYUFSRuleBasedPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 		return EYUFSAction::Idle;
 	}
 }
+
+bool FYUFSRuleBasedPolicy::Roll(EYUFSRngStream Stream, float Probability)
+{
+	// NPC가 초기화되기 전 단위 호출에서도 전역 난수를 사용하지 않는다.
+	return RandomSource
+		? RandomSource->Roll(Stream, Probability)
+		: Probability >= 0.5f;
+}
