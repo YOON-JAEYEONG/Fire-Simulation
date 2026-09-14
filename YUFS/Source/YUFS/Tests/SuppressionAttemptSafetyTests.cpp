@@ -14,7 +14,32 @@
 #include "NPC/Integration/YUFSTeamIntegrationComponent.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "NPC/Behavior/YUFSBehaviorConfig.h"
+#include "NPC/Perception/YUFSNPCPerceptionComponent.h"
+#include "NPC/Decision/YUFSHumanBehaviorSelectorComponent.h"
+#include "Core/YUFSDeterministicRng.h"
 #include "NPC/Decision/YUFSIntentComponent.h"
+
+namespace
+{
+FYUFSNPCObservation EligibleSuppressionObservation()
+{
+    FYUFSNPCObservation O;
+    O.CurrentState=EYUFSBehaviorState::Evacuating;
+    O.bSuppressionAllowedByBehavior=true;
+    return O;
+}
+void ProjectJjwSuppressionReadiness(FYUFSNPCObservation& O, const UYUFSBehaviorStateMachine* State)
+{
+    O.CurrentState=State->GetCurrentState();
+    O.RiskPerception=State->GetRiskPerception();
+    O.bSuppressionAllowedByBehavior=State->Config && State->HasCommittedToEvacuation()
+        && (O.CurrentState==EYUFSBehaviorState::Evacuating || O.CurrentState==EYUFSBehaviorState::Helping)
+        && !FYUFSSuppressionSafety::ImmediateDanger(O,
+            State->Config->SmokeAwarenessThreshold*State->Config->EmergencyOverrideMultiplier,
+            State->Config->EmergencyHeatThreshold);
+}
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSSuppressionRiskHysteresisTest,
     "YUFS.NPC.Suppression.PersonalRiskAndHysteresis",
@@ -24,7 +49,7 @@ bool FYUFSSuppressionRiskHysteresisTest::RunTest(const FString& Parameters)
 {
     FYUFSHumanTraits Trained;
     Trained.FireTraining=.85f;
-    FYUFSNPCObservation Observation;
+    FYUFSNPCObservation Observation=EligibleSuppressionObservation();
     FYUFSCognitiveState Cognition;
     const float Start=FYUFSSuppressionSafety::StartRisk(Trained);
     const float Stop=FYUFSSuppressionSafety::StopRisk(Trained);
@@ -83,10 +108,11 @@ bool FYUFSSuppressionEmergencyPriorityTest::RunTest(const FString& Parameters)
 {
     FYUFSHumanTraits Traits;
     Traits.RiskTolerance=Traits.FireTraining=1.f; Traits.StressSensitivity=0.f;
-    FYUFSNPCObservation Observation;
+    FYUFSNPCObservation Observation=EligibleSuppressionObservation();
     FYUFSCognitiveState Cognition;
     auto ExpectBlocked=[&](const TCHAR* Label)
     {
+        Observation.bSuppressionAllowedByBehavior=!FYUFSSuppressionSafety::ImmediateDanger(Observation);
         TestFalse(FString(Label)+TEXT(" prevents starting"),FYUFSSuppressionSafety::CanAttempt(Observation,Cognition,Traits,false));
         TestFalse(FString(Label)+TEXT(" interrupts an active attempt"),FYUFSSuppressionSafety::CanAttempt(Observation,Cognition,Traits,true));
     };
@@ -95,28 +121,93 @@ bool FYUFSSuppressionEmergencyPriorityTest::RunTest(const FString& Parameters)
     Observation.NearbyHeatNormalized=.65f;
     TestTrue(TEXT("normalized nearby heat 0.65 is emergency"),FYUFSSuppressionSafety::ImmediateDanger(Observation));
     ExpectBlocked(TEXT("nearby heat"));
-    Observation={}; Observation.TemperatureAtSelf=.65f;
+    Observation=EligibleSuppressionObservation(); Observation.TemperatureAtSelf=.65f;
     ExpectBlocked(TEXT("self heat"));
-    Observation={}; Observation.SmokeDensityAtSelf=.699f;
-    TestFalse(TEXT("self smoke below 0.70 is not an immediate override"),FYUFSSuppressionSafety::ImmediateDanger(Observation));
-    Observation.SmokeDensityAtSelf=.70f;
-    TestTrue(TEXT("self smoke exactly 0.70 is emergency"),FYUFSSuppressionSafety::ImmediateDanger(Observation));
+    Observation=EligibleSuppressionObservation(); Observation.SmokeDensityAtSelf=.30f;
+    TestFalse(TEXT("JJW self smoke exactly 0.30 retains the strict greater-than boundary"),FYUFSSuppressionSafety::ImmediateDanger(Observation));
+    Observation.SmokeDensityAtSelf=.301f;
+    TestTrue(TEXT("JJW self smoke over 0.30 is emergency"),FYUFSSuppressionSafety::ImmediateDanger(Observation));
     ExpectBlocked(TEXT("dense smoke"));
 
-    Observation={}; Observation.CurrentState=EYUFSBehaviorState::Incapacitated;
+    Observation=EligibleSuppressionObservation(); Observation.CurrentState=EYUFSBehaviorState::Incapacitated;
     ExpectBlocked(TEXT("incapacity"));
     Observation.CurrentState=EYUFSBehaviorState::Crawling;
     ExpectBlocked(TEXT("crawling"));
-    Observation={}; Observation.bReceivedStaffGuidance=true;
+    Observation=EligibleSuppressionObservation(); Observation.bReceivedStaffGuidance=true;
     ExpectBlocked(TEXT("staff guidance"));
-    Observation={}; Observation.bReceivedLiveAnnouncement=true;
+    Observation=EligibleSuppressionObservation(); Observation.bReceivedLiveAnnouncement=true;
     ExpectBlocked(TEXT("live official announcement"));
-    Observation={}; Cognition.PhysicalSeverity=EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat;
+    Observation=EligibleSuppressionObservation(); Cognition.PhysicalSeverity=EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat;
     ExpectBlocked(TEXT("perceived immediate life threat"));
-    Cognition={}; Observation.bAlarmSounding=true;
-    TestTrue(TEXT("alarm alone is not equivalent to an evacuation order"),FYUFSSuppressionSafety::CanAttempt(Observation,Cognition,Traits,false));
+    Cognition={}; Observation=EligibleSuppressionObservation(); Observation.bAlarmSounding=true;
+    TestTrue(TEXT("an already committed evacuee may consider suppression with an alarm sounding"),FYUFSSuppressionSafety::CanAttempt(Observation,Cognition,Traits,false));
     Observation.bReceivedPreRecordedMsg=true;
     TestTrue(TEXT("a recorded cue alone does not bypass personal judgment"),FYUFSSuppressionSafety::CanAttempt(Observation,Cognition,Traits,false));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSSuppressionJjwPriorityTest,
+    "YUFS.NPC.Suppression.JjwCommitPreparationAndConfiguredEmergency",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::CommandletContext | EAutomationTestFlags::EngineFilter)
+
+bool FYUFSSuppressionJjwPriorityTest::RunTest(const FString& Parameters)
+{
+    auto* State=NewObject<UYUFSBehaviorStateMachine>();
+    State->Config=NewObject<UYUFSBehaviorConfig>(State);
+    State->Config->RiskPerceptionThreshold=.01f;
+    State->Config->PreparationDuration=1000.f;
+    State->InitializePersonality(19);
+    FYUFSNPCObservation O;
+    FYUFSCognitiveState Cognition;
+    FYUFSHumanTraits Traits; Traits.FireTraining=1.f;
+    ProjectJjwSuppressionReadiness(O,State);
+    TestFalse(TEXT("uncommitted JJW state cannot begin suppression"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,false));
+    O.bReceivedPreRecordedMsg=true;
+    for (int32 Tick=0; Tick<40; ++Tick) State->TickStateMachine(.1f,O);
+    ProjectJjwSuppressionReadiness(O,State);
+    TestTrue(TEXT("real corroborated observation leads to JJW commitment"),State->HasCommittedToEvacuation());
+    TestEqual(TEXT("JJW's preparation stage is preserved"),O.CurrentState,EYUFSBehaviorState::Preparing);
+    TestFalse(TEXT("being committed does not bypass unfinished preparation"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,false));
+    TestFalse(TEXT("unfinished preparation also blocks continuation"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,true));
+    State->Config->PreparationDuration=0.f;
+    State->TickStateMachine(.1f,O);
+    ProjectJjwSuppressionReadiness(O,State);
+    TestEqual(TEXT("JJW itself completes preparation"),O.CurrentState,EYUFSBehaviorState::Evacuating);
+    TestTrue(TEXT("low-risk committed evacuee can then consider a tool"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,false));
+
+    State->Config->SmokeAwarenessThreshold=.20f;
+    State->Config->EmergencyOverrideMultiplier=2.f;
+    State->Config->EmergencyHeatThreshold=.80f;
+    O.SmokeDensityAtSelf=.35f;
+    ProjectJjwSuppressionReadiness(O,State);
+    TestTrue(TEXT("custom JJW smoke threshold is not overwritten by the old fixed 0.30 gate"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,false));
+    O.SmokeDensityAtSelf=.401f;
+    ProjectJjwSuppressionReadiness(O,State);
+    TestFalse(TEXT("configured smoke emergency blocks a pending attempt"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,false));
+    TestFalse(TEXT("configured smoke emergency cancels an active attempt"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,true));
+    O.SmokeDensityAtSelf=0.f; O.NearbyHeat=O.NearbyHeatNormalized=.79f;
+    ProjectJjwSuppressionReadiness(O,State);
+    TestTrue(TEXT("configured nearby heat boundary is used without a hidden fixed override"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,false));
+    O.NearbyHeat=O.NearbyHeatNormalized=.80f;
+    ProjectJjwSuppressionReadiness(O,State);
+    TestFalse(TEXT("configured inclusive nearby heat boundary blocks continuation"),FYUFSSuppressionSafety::CanAttempt(O,Cognition,Traits,true));
+
+    auto* Selector=NewObject<UYUFSHumanBehaviorSelectorComponent>();
+    Selector->SuppressionProbabilityOverride=1.f;
+    Selector->bDemonstrateSuppressionWhenEligible=true;
+    FYUFSInteractionOpportunitySnapshot Opportunity;
+    Opportunity.bExtinguisherKnownAvailable=Opportunity.bSuppressibleFireKnown=Opportunity.bSafeRetreatKnown=true;
+    Opportunity.ExtinguisherStableId=TEXT("KnownTool"); Opportunity.FireStableId=TEXT("FdsSource");
+    FYUFSDeterministicRngSet Rng; Rng.Initialize(173,19);
+    O={}; O.bAlarmSounding=true;
+    const auto Before=Selector->ResolveDecision(EYUFSAction::Idle,EYUFSIntent::Observe,O,Cognition,Traits,Opportunity,false,Rng);
+    TestTrue(TEXT("even 100 percent demonstration cannot bypass JJW's uncommitted state"),Before.Behavior!=EYUFSHighLevelBehavior::AttemptSuppression);
+    O.CurrentState=EYUFSBehaviorState::Preparing;
+    const auto Preparing=Selector->ResolveDecision(EYUFSAction::GatherBelongings,EYUFSIntent::Prepare,O,Cognition,Traits,Opportunity,false,Rng);
+    TestTrue(TEXT("probability override cannot turn preparation into suppression"),Preparing.Behavior!=EYUFSHighLevelBehavior::AttemptSuppression);
+    O=EligibleSuppressionObservation(); O.bAlarmSounding=true;
+    const auto After=Selector->ResolveDecision(EYUFSAction::EvacuateToNearestExit,EYUFSIntent::CommitEvac,O,Cognition,Traits,Opportunity,false,Rng);
+    TestEqual(TEXT("the same configured choice is available only once JJW is ready"),After.Behavior,EYUFSHighLevelBehavior::AttemptSuppression);
     return true;
 }
 
@@ -152,6 +243,7 @@ bool FYUFSSuppressionObservationContractTest::RunTest(const FString& Parameters)
     Observation.HeatInSightNormalized=.98f;
     Observation.NearbyHeatNormalized=.99f;
     Observation.bHazardSampleAvailable=true;
+    Observation.bSuppressionAllowedByBehavior=true;
     TArray<float> After;
     Observation.FillFloatArray(After);
     TestEqual(TEXT("runtime-only evidence never extends the model input"),After.Num(),28);
@@ -245,8 +337,18 @@ bool FYUFSSuppressionCancellationIntegrationTest::RunTest(const FString& Paramet
         Executor->Npc=Owner; Executor->Fire=RecordedFire;
         Executor->bActive=Executor->bSpraying=Executor->bHasAttackPoint=true;
         Executor->bRetreatReachable=false;
-        Executor->SavedWalkSpeed=400.f;
-        Executor->LatestObservation={};
+        auto* State=Owner->GetBehaviorStateMachine();
+        if (!State->Config)
+        {
+            State->Config=NewObject<UYUFSBehaviorConfig>(State);
+            State->InitializePersonality(10);
+        }
+        FYUFSNPCObservation VisibleSmoke;
+        VisibleSmoke.SmokeInFrontNormalized=.60f;
+        for (int32 Tick=0; Tick<10; ++Tick) State->TickStateMachine(.1f,VisibleSmoke);
+        ProjectJjwSuppressionReadiness(VisibleSmoke,State);
+        Executor->LatestObservation=VisibleSmoke;
+        Owner->SetMovementSpeed(400.f);
         Owner->bUseExternalNavigationDriver=false;
         Owner->GetCharacterMovement()->MaxWalkSpeed=180.f;
         auto* Team=Owner->GetTeamIntegrationComponent();
@@ -259,9 +361,12 @@ bool FYUFSSuppressionCancellationIntegrationTest::RunTest(const FString& Paramet
         return Executor;
     };
     auto* Suppression=ArmAttempt(Npc);
-    // Use the public cognition projection: ReassessSafety reads the owner's
-    // current risk, not only the cached observation passed when the task began.
-    Npc->GetBehaviorStateMachine()->ApplyCognitiveRisk(.95f);
+    // Accumulate actual JJW eyewitness evidence. Never write risk or commitment directly.
+    FYUFSNPCObservation PersistentEvidence;
+    PersistentEvidence.SmokeInFrontNormalized=.60f;
+    for (int32 Tick=0; Tick<100; ++Tick) Npc->GetBehaviorStateMachine()->TickStateMachine(.1f,PersistentEvidence);
+    TestTrue(TEXT("JJW evidence accumulation produced genuinely high personal risk"),Npc->GetBehaviorStateMachine()->GetRiskPerception()>.90f);
+    const float ExpectedJjwSpeed=Npc->GetDesiredWalkingSpeed();
     const FVector OriginalLocation=Npc->GetActorLocation();
     const auto FeedbackGenerationBeforeStop=Npc->GetTeamIntegrationComponent()->GetFeedbackGeneration();
     TestTrue(TEXT("high personal risk invokes real cancellation"),Suppression->ReassessSafety(0));
@@ -272,8 +377,9 @@ bool FYUFSSuppressionCancellationIntegrationTest::RunTest(const FString& Paramet
     TestFalse(TEXT("handoff clears available fire attempt snapshot"),Stopped.bSuppressibleFireKnown);
     TestFalse(TEXT("handoff clears approach snapshot"),Stopped.bSuppressionApproachKnown);
     TestTrue(TEXT("handoff clears stale approach coordinate"),Stopped.SuppressionApproachLocation.IsZero());
-    TestEqual(TEXT("ordinary movement speed is restored from before the attempt"),Npc->GetCharacterMovement()->MaxWalkSpeed,400.f);
-    TestTrue(TEXT("no verified retreat yields Shelter rather than fabricated escape"),Npc->GetCurrentIntent()==EYUFSIntent::Shelter);
+    TestEqual(TEXT("return uses current JJW personality/social movement speed"),Npc->GetCharacterMovement()->MaxWalkSpeed,ExpectedJjwSpeed);
+    TestTrue(TEXT("failed optional retreat preserves authoritative JJW evacuation commitment"),
+        Npc->GetBehaviorStateMachine()->HasCommittedToEvacuation() && Npc->GetCurrentIntent()==EYUFSIntent::CommitEvac);
     TestFalse(TEXT("no stale approach continues after cancellation"),Npc->GetNavigator()->IsFollowingPath());
     TestFalse(TEXT("cancellation has no pending approach request"),Npc->GetNavigator()->bIsPathfinding);
     TestTrue(TEXT("cancellation does not teleport"),Npc->GetActorLocation().Equals(OriginalLocation));
@@ -287,13 +393,14 @@ bool FYUFSSuppressionCancellationIntegrationTest::RunTest(const FString& Paramet
     TestTrue(TEXT("personal risk cancellation does not extinguish recorded fire playback"),RecordedFire->IsPlaying());
 
     Suppression=ArmAttempt(Npc);
-    Npc->GetBehaviorStateMachine()->ApplyCognitiveRisk(0.f);
     Suppression->LatestObservation.NearbyHeatNormalized=.65f;
+    Suppression->LatestObservation.NearbyHeat=.65f;
+    Npc->GetBehaviorStateMachine()->TickStateMachine(.1f,Suppression->LatestObservation);
     TestTrue(TEXT("near heat emergency reaches the same real cancellation path"),Suppression->ReassessSafety(0));
     TestEqual(TEXT("near heat records immediate danger"),Suppression->GetLastStopReason(),
         FName(TEXT("ImmediateObservedDanger")));
     TestFalse(TEXT("near heat cancellation stops execution"),Suppression->IsActive());
-    TestEqual(TEXT("near heat cancellation restores speed"),Npc->GetCharacterMovement()->MaxWalkSpeed,400.f);
+    TestEqual(TEXT("near heat cancellation retains JJW personality speed"),Npc->GetCharacterMovement()->MaxWalkSpeed,Npc->GetDesiredWalkingSpeed());
 
     auto* Lifecycle=ArmAttempt(LifecycleNpc);
     const auto IntentBeforeStop=LifecycleNpc->GetCurrentIntent();
@@ -307,7 +414,7 @@ bool FYUFSSuppressionCancellationIntegrationTest::RunTest(const FString& Paramet
     TestEqual(TEXT("lifecycle cancellation must not republish a movement request"),
         LifecycleNpc->GetTeamIntegrationComponent()->GetNavigationDirective().Revision,NavigationRevisionBeforeStop);
     TestFalse(TEXT("lifecycle cancellation does not restart navigation"),LifecycleNpc->GetNavigator()->bIsPathfinding);
-    TestEqual(TEXT("lifecycle cancellation still restores owned movement settings"),LifecycleNpc->GetCharacterMovement()->MaxWalkSpeed,400.f);
+    TestEqual(TEXT("lifecycle cancellation still restores current JJW movement settings"),LifecycleNpc->GetCharacterMovement()->MaxWalkSpeed,LifecycleNpc->GetDesiredWalkingSpeed());
     TestTrue(TEXT("tried-fire memory exists until an episode reset"),Lifecycle->FinishedFires.Contains(RecordedFire->GetFName()));
     Lifecycle->LastFireSeenAt=Lifecycle->LastToolSeenAt=Lifecycle->LastHazardSampleAt=10.f;
     Lifecycle->AttemptSeconds=4.f; Lifecycle->UseSeconds=2.f;
@@ -327,7 +434,10 @@ bool FYUFSSuppressionCancellationIntegrationTest::RunTest(const FString& Paramet
     TestTrue(TEXT("episode reset does not start a new intent"),LifecycleNpc->GetCurrentIntent()==IntentBeforeStop);
 
     auto* Incapacitated=ArmAttempt(IncapacitatedNpc);
-    IncapacitatedNpc->GetBehaviorStateMachine()->ApplyIntentProjection(EYUFSIntent::Incapacitated);
+    IncapacitatedNpc->GetBehaviorStateMachine()->Config->SmokeExposureAccumRate=1.f;
+    FYUFSNPCObservation DenseSmoke;
+    DenseSmoke.SmokeDensityAtSelf=1.f;
+    for (int32 Tick=0; Tick<20; ++Tick) IncapacitatedNpc->GetBehaviorStateMachine()->TickStateMachine(.1f,DenseSmoke);
     TestTrue(TEXT("incapacity interrupts a real active attempt"),Incapacitated->ReassessSafety(0));
     TestTrue(TEXT("handoff cannot revive an incapacitated NPC"),IncapacitatedNpc->GetBehaviorStateMachine()->IsIncapacitated());
     TestEqual(TEXT("incapacity overrides restored native speed with zero"),IncapacitatedNpc->GetCharacterMovement()->MaxWalkSpeed,0.f);

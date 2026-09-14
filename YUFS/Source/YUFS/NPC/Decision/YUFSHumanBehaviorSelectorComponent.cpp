@@ -45,8 +45,8 @@ const FYUFSBehaviorDecision& UYUFSHumanBehaviorSelectorComponent::ResolveDecisio
 	{
 		RequestReselection(TEXT("SuppressionNoLongerSafe"));
 	}
-	if ((Intent == EYUFSIntent::CommitEvac || ((bDemonstrateSuppressionWhenEligible || SuppressionProbabilityOverride >= 0.f)
-		&& (Intent == EYUFSIntent::Observe || Intent == EYUFSIntent::Prepare))) && bSuppressionSafe)
+	// Probability changes willingness among eligible JJW evacuees, never readiness/commitment.
+	if ((Intent == EYUFSIntent::CommitEvac || Intent == EYUFSIntent::Help) && bSuppressionSafe)
 	{
 		// Changing to another nearby extinguisher is not another chance at the same fire.
 		const FString Pair = Opportunities.FireStableId.ToString();
@@ -231,11 +231,9 @@ FYUFSBehaviorDecision UYUFSHumanBehaviorSelectorComponent::SelectPreAction(
 	const float WaitWeight = Policy ? Policy->WaitOrContinueWeight : 0.20f;
 	const float BelongingsWeight = Policy ? Policy->RetrieveBelongingsWeight : 0.20f;
 	const float WarnWeight = Policy ? Policy->WarnOrAssistWeight : 0.10f;
-	const float SuppressWeight = Policy ? Policy->AttemptSuppressionWeight : 0.05f;
 	const float RecordWeight = Policy ? Policy->ObserveOrRecordWeight : 0.03f;
 	const float RepeatPenalty = Policy ? Policy->RepetitionPenalty : 0.45f;
 	const bool bLegacyBelongings = Policy ? Policy->bUseLegacyBelongingsAssumption : true;
-	const float MinSuppressionTraining = Policy ? Policy->MinimumSuppressionTraining : 0.55f;
 
 	TArray<FCandidate, TInlineAllocator<8>> Candidates;
 	auto AddCandidate = [this, &Candidates, RepeatPenalty](
@@ -322,22 +320,8 @@ FYUFSBehaviorDecision UYUFSHumanBehaviorSelectorComponent::SelectPreAction(
 			TEXT("DistantObserver"));
 	}
 
-	const bool bSuppressionEligible = SuppressionProbabilityOverride < 0.f && Traits.FireTraining >= MinSuppressionTraining
-		&& (Opportunities.bExtinguisherKnownAvailable || Opportunities.bHoldingExtinguisher)
-		&& Opportunities.bSuppressibleFireKnown
-		&& Opportunities.bSafeRetreatKnown
-		&& Cognition.PhysicalSeverity != EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat
-		&& FYUFSSuppressionSafety::CanAttempt(Observation, Cognition, Traits, false)
-		&& !Observation.bReceivedLiveAnnouncement && !Observation.bReceivedStaffGuidance;
-	if (bSuppressionEligible)
-	{
-		AddCandidate(
-			EYUFSHighLevelBehavior::AttemptSuppression,
-			EYUFSAction::Idle,
-			EYUFSActionTask::InitialExtinguish,
-			SuppressWeight * (0.5f + Traits.FireTraining),
-			TEXT("SuppressionSafetyGatePassed"));
-	}
+	// Initial suppression is only offered by ResolveDecision after JJW commitment;
+	// a pre-action lottery must not bypass an individual's alarm verification delay.
 
 	if (Candidates.IsEmpty())
 	{

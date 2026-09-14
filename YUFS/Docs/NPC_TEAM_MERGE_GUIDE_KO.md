@@ -1,32 +1,36 @@
 # NPC 기능 팀 병합 계약 가이드
 
+현재 기준: [JJW_NPC_BEHAVIOR 우선 병합](JJW_PRIORITY_MERGE_KO.md). 행동·인지·경로는 JJW `204a8d3`가 우선하며, 과거 시연 이력과 현재 실행 계약을 구분한다.
+
 ## 1. 목적
 
 NPC 행동·경로 탐색·모션·상호작용을 서로 독립적으로 개발한 뒤 `zion-fs`에 병합하기 위한 코드 계약이다. 핵심 원칙은 **의사결정은 의미를 결정하고, 각 담당 모듈은 그 의미를 실행한 뒤 결과를 feedback으로 돌려주는 것**이다.
 
 ```text
 Observation + perceived knowledge
-  → Human Cognition
-  → Intent / Behavior / Task
+  → JJW BehaviorStateMachine (개인 성격·대피 결심·준비·신체 상태)
+  → 읽기 전용 Intent 투영 + 허용된 상태에서 선택적 상호작용 평가
   → UYUFSTeamIntegrationComponent
        ├─ NavigationDirective  → 경로 담당
        ├─ MotionDirective      → 모션 담당
        └─ InteractionDirective → 상호작용 담당
   ← status / completion / blocked feedback
-  → evidence revision과 재판단
+  → 상호작용 재평가 (JJW 상태·위험 강제 변경 금지)
 ```
 
 ## 2. 소유권
 
 | 담당 | 소유 파일 | 읽어도 되지만 직접 변경을 피할 파일 |
 |---|---|---|
-| NPC 행동·인지 | `NPC/Cognition/*`, `NPC/Decision/YUFSHumanBehaviorSelectorComponent.*`, belief/intent 정책 | `NPC/Navigation/*`, `NPC/Animation/*`, 구체 Door/Extinguisher Actor |
+| NPC 행동·인지 | JJW `NPC/Behavior/*`, `NPC/Perception/*`; 보조 `NPC/Cognition/*`, 상호작용 selector | `NPC/Navigation/*`, `NPC/Animation/*`, 구체 Door/Extinguisher Actor |
 | 경로 탐색 | `NPC/Navigation/*`, 신규 `YUFSTeamNavigationAdapter.*` | cognition/selector, animation, interaction 실행기 |
 | 모션 | `NPC/Animation/*`, 신규 `YUFSTeamMotionAdapter.*` | belief/intent, navigation, 상호작용 예약 |
 | 상호작용 | 신규 `Interaction/*`, `Fire/*`, `Door/*`, `YUFSTeamInteractionAdapter.*` | belief 계산, navigation 내부 경로, animation asset 매핑 |
 | 공통 계약 | `NPC/Integration/YUFSTeamIntegrationTypes.h`, `YUFSTeamIntegrationComponent.*` | 변경 시 네 담당자 동의 및 계약 테스트 갱신 |
 
 `AYUFSEvacuationNPC.h/.cpp`, `Core/YUFSTypes.h`, `Core/YUFSObservation.h`는 병합 충돌 가능성이 높은 파일이다. 새 기능은 우선 각 담당자의 adapter component로 추가하고, 이 파일의 수정이 꼭 필요하면 한 명이 통합 commit으로 처리한다.
+
+`IntentComponent::UpdateIntent`와 옛 사전 행동 완료 API는 독립 보정용으로 남아 있지만 현재 NPC의 판단 원본이 아니다. 실행 중에는 JJW 상태에서 Intent로 한 방향만 투영한다. 준비 동작의 모션 완료가 JJW 준비 시간을 단축하거나 대피를 강제해서는 안 된다.
 
 ## 3. 현재 제공되는 계약
 
@@ -64,6 +68,8 @@ void UYUFSTeamNavigationAdapter::ReportBlocked(FName Reason)
 
 연결 완료 전에는 `bUseExternalNavigationDriver=false`로 둔다. 연결·도착·차단 feedback 테스트가 통과한 뒤에만 true로 바꾼다.
 
+JJW의 `RequestPathAsync`는 새 호출마다 이전 요청을 취소한다. 동일 목적지의 계산 중/실패 상태를 매 틱 재요청하지 않는다. 새 목적지·Idle일 때 요청하고, 실패는 `ShouldRetryPath` 이후 재시도한다. 이동·양보·복구는 `LocalMovement` 한 곳이 담당하며 문 접촉·소화 중 정지는 stuck으로 처리하지 않는다. Observe/Prepare/Incapacitated에서는 외부 경로·상호작용 지시도 차단한다.
+
 ### 모션 담당 입력
 
 `FYUFSMotionDirective`는 `Walk`, `Run`, `LookAround`, `Wait`, `GatherBelongings`, `Warn`, `Assist`, `Record`, `Extinguish`, `OperateDoor`, `Crawl`, `Cough`, `Freeze` 의미를 제공한다.
@@ -74,6 +80,8 @@ void UYUFSTeamNavigationAdapter::ReportBlocked(FName Reason)
 - `LegacyAction`은 기존 11개 action/ONNX/갤러리 호환용이다.
 
 연결 완료 전에는 `bUseExternalMotionDriver=false`로 두며 기존 `UYUFSActionAnimationComponent`가 fallback으로 동작한다.
+
+외부 모션 드라이버를 사용하면 기본 애니메이션 초기화도 하지 않는다. 기본 모션과 스켈레톤이 호환되지 않는 NPC는 자신의 기존 AnimBlueprint를 유지해야 하며, 서로 다른 스켈레톤의 시퀀스를 강제로 재생하지 않는다. 실제 보행 속도는 JJW 성향·군집·신체 상태 계산을 따른다.
 
 ### 상호작용 담당의 양방향 계약
 
@@ -101,6 +109,7 @@ TeamIntegration->SubmitInteractionOpportunities(Snapshot);
 
 소화 행동은 다음 opportunity가 모두 참일 때만 후보가 된다.
 
+- JJW 대피 결심 및 준비 완료, 현재 설정의 긴급 연기·열 조건에 해당하지 않음
 - 교육 수준 충족
 - 사용 가능한 소화기를 NPC가 알고 있음
 - 초기 단계 화재를 NPC가 알고 있음
@@ -109,13 +118,13 @@ TeamIntegration->SubmitInteractionOpportunities(Snapshot);
 
 ## 4. 화재 발견 전 행동
 
-경보·연기·공식 안내가 없으면 의사결정 코어는 `ContinueRoutine`을 발행한다. 이 의미는 모션 담당이 대기, 걷기, 책상 사용 등 ambient 행동으로 표현할 수 있다. 경로 담당은 `NavigationGoal::None`일 때 기존 대피 목적지를 유지하지 않아야 한다. 상호작용 담당은 화재 전 일반 물체 행동을 추가할 수 있지만 emergency opportunity와 같은 구조에 섞지 않고 별도 태그로 구분한다.
+경보·연기·공식 안내가 없는 정상 상태에서는 JJW가 Idle을 유지한다. 현재 기본 팀 지시는 WaitObserve/NavigationGoal::None이다. `ContinueRoutine` 같은 ambient 행동은 계약에 남아 있지만 현재 런타임에서 강제 활성화하지 않는다. 경로 담당은 Goal::None을 이동 명령으로 해석하지 않는다.
 
-화재 단서가 생기면 `EvidenceRevision`이 증가하고 한 번만 appraisal한다. 같은 revision에서 task choice와 commit 확률을 반복 추첨하지 않는다.
+화재 단서와 개인 경보 신뢰도에 따른 대피 결심·준비 지연은 JJW 상태머신이 갱신한다. 소화 선택은 자격 조건을 충족한 같은 발화 대상에 대해 한 번 추첨한다. 확률 100%나 시연 플래그로 대피 결심 전·준비 중인 NPC를 강제로 소화시켜서는 안 된다.
 
 ## 5. 병합 순서
 
-1. 공통 계약과 cognition/selector를 먼저 병합한다.
+1. JJW의 상태머신·지각·경로·UI를 먼저 기준으로 고정하고 공통 계약을 연결한다. 기존 cognition/selector로 JJW를 덮어쓰지 않는다.
 2. 경로 담당 브랜치를 병합하고 `bUseExternalNavigationDriver=false`에서 directive 수신만 검증한다.
 3. 경로 feedback과 fallback 비교가 통과하면 navigation driver를 전환한다.
 4. 모션 담당 브랜치를 병합하고 기존 11개 animation fallback과 새 semantic mapping을 비교한다.
@@ -151,7 +160,7 @@ TeamIntegration->SubmitInteractionOpportunities(Snapshot);
 
 ## 8. Unreal 소화기 시연
 
-**현재 실행 안내 (2026-09-09):** 저장소 루트의 `Launch-NaturalNpcInteractions.ps1`을 사용한다.
+**실행 안내:** 일반 모드는 사용자가 배치한 NPC와 시작 버튼을 따른다. 아래 2026-09-09 런처는 개발 옵션이며, 최신 데이터 조건·제약은 [JJW 우선 병합 안내](JJW_PRIORITY_MERGE_KO.md)를 먼저 따른다. 저장소 루트의 `Launch-NaturalNpcInteractions.ps1`을 사용할 수 있다.
 문 열기·주변 사람 안내·두 사람의 연속 대피는 `Launch-InteractionPreview.ps1`과
 [상호작용 시각 확인 문서](INTERACTION_VISUAL_PREVIEW_KO.md)를 따른다.
 기존 `-YUFSExtinguisherDemo` 자동 생성 경로는 비활성화됐다. 현재는 기존 화재 볼륨과 기존 NPC를 사용한다.

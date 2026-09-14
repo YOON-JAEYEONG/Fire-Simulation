@@ -13,10 +13,6 @@ class AYUFSEvacuationNPC;
 class AYUFSBinaryManager;
 class AYUFSEmergencyCommSystem;
 class AYUFSHeterogeneousVolume;
-class ACameraActor;
-class STextBlock;
-class SWidget;
-class USpotLightComponent;
 class UYUFSSimHUD;
 class UYUFSTimelineRecorder;
 
@@ -84,9 +80,9 @@ public:
 	bool IsWaitingForInteractionPreview() const { return bWaitForInteractionPreview && !bInteractionPreviewReady; }
 	bool IsSimulationPaused() const { return bIsPaused; }
 
-	// 대기 화면에서 대표 NPC를 근접 촬영하며 모든 행동 애니메이션을
-	// 자동 순환한다. 레벨 BP/HUD에서도 수동으로 켜고 끌 수 있다.
-	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
+	// Deprecated compatibility entry points. JJW manual placement and the user's
+	// camera are authoritative; this controller never starts the old showcase.
+	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview", meta=(DeprecatedFunction, DeprecationMessage="Automatic showcase is disabled; observe normal NPC behavior from the player camera."))
 	void StartNPCActionAnimationShowcase();
 
 	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
@@ -158,8 +154,13 @@ public:
 	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
 	bool IsTimelinePlaying() const;
 
-	// ── NPC 등록 (NPC의 BeginPlay에서 자동 호출) ─────────────────────
+	// ── NPC 등록 (NPC의 BeginPlay 또는 런타임 스폰 후 호출) ──────────
+	UFUNCTION(BlueprintCallable, Category="Simulation")
 	void RegisterNPC(AYUFSEvacuationNPC* NPC);
+
+	// ── NPC 등록 해제 (배치 취소 시 호출) ────────────────────────────
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void UnregisterNPC(AYUFSEvacuationNPC* NPC);
 
 	// ── 이벤트 ────────────────────────────────────────────────────────
 	UPROPERTY(BlueprintAssignable)
@@ -223,10 +224,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.05"))
 	float TimelineRecordIntervalSeconds = 0.25f;
 
-	// 같은 지점 또는 너무 가까운 NPC를 건물 바닥 후보에 자동 분산한다.
-	// NavMesh가 있으면 XY 후보를 보정하고, 없으면 정적 바닥 충돌만으로 동작한다.
+	// Legacy serialization fields only. Automatic distribution/showcase code is
+	// intentionally retired; old map defaults cannot move JJW palette placements.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
-	bool bDistributeOverlappingNPCs = true;
+	bool bDistributeOverlappingNPCs = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="50.0"))
 	float NPCDistributionClusterRadiusCm = 180.f;
@@ -281,12 +282,12 @@ public:
 	// 머리 위 Action/Anim 라벨을 검수할 수 있게 한다. 시뮬레이션 시작 시
 	// 자동 해제되므로 AI 결정에는 영향을 주지 않는다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
-	bool bPreviewAllNPCActionAnimations = true;
+	bool bPreviewAllNPCActionAnimations = false;
 
 	// 분산 배치가 끝나면 대표 NPC 앞으로 카메라를 이동하고 11개 행동을
 	// 자동 순환한다. Start Simulation을 누르면 원래 카메라로 복귀한다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
-	bool bAutoFocusNPCActionAnimationShowcase = true;
+	bool bAutoFocusNPCActionAnimationShowcase = false;
 
 	// 근접 검수에서는 대표 NPC 한 명만 보여 행동 차이를 명확히 한다.
 	// 시뮬레이션 시작 시 숨겼던 NPC를 모두 즉시 복원한다.
@@ -329,32 +330,14 @@ private:
 
 	// 대피/행동불능 처리를 이미 끝낸 NPC를 기억해서 카운트 중복 증가를 막습니다.
 	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;
-	FTimerHandle NPCDistributionTimerHandle;
-
-	UPROPERTY(Transient)
-	TObjectPtr<AYUFSEvacuationNPC> NPCActionPreviewFocusNPC = nullptr;
-
-	UPROPERTY(Transient)
-	TObjectPtr<ACameraActor> NPCActionPreviewCamera = nullptr;
-
-	UPROPERTY(Transient)
-	TObjectPtr<USpotLightComponent> NPCActionPreviewLight = nullptr;
-
-	TWeakObjectPtr<AActor> SavedNPCActionPreviewViewTarget;
-	TArray<TWeakObjectPtr<AYUFSEvacuationNPC>> NPCActionPreviewTemporarilyHiddenNPCs;
-	TSharedPtr<SWidget> NPCActionPreviewOverlayWidget;
-	TSharedPtr<STextBlock> NPCActionPreviewOverlayText;
-	FRotator SavedNPCActionPreviewRotation = FRotator::ZeroRotator;
-	float NPCActionPreviewAccumulator = 0.f;
-	int32 NPCActionPreviewIndex = 0;
-	bool bNPCActionAnimationShowcaseActive = false;
 
 	// 캐싱
 	AYUFSBinaryManager* BinaryManager = nullptr;
 	AYUFSEmergencyCommSystem* CommSystem = nullptr;
 	AYUFSHeterogeneousVolume* HeterogeneousVolume = nullptr;
 	AYUFSLevelDataManager* CachedLDM = nullptr;
-	UUserWidget* HUDWidgetInstance = nullptr;
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> HUDWidgetInstance = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category="Simulation|Timeline")
 	UYUFSTimelineRecorder* TimelineRecorder = nullptr;
@@ -367,16 +350,5 @@ private:
 	void StartNextRun();
 	void UpdateLiveCounts();
 	void SpawnHUD();
-	void ScheduleNPCDistribution();
-	void DistributeRegisteredNPCs();
-	void ApplyNPCActionAnimationPreview(const TArray<AYUFSEvacuationNPC*>& NPCs);
-	void TickNPCActionAnimationShowcase(float DeltaTime);
-	void ApplyCurrentNPCActionAnimationShowcaseStep();
-	void UpdateNPCActionAnimationShowcaseCamera();
-	void DrawNPCActionAnimationShowcaseOverlay() const;
-	bool TryResolveIndoorNPCSpawnLocation(
-		const FVector& DesiredLocation,
-		AYUFSEvacuationNPC* NPC,
-		bool bRequireCeiling,
-		FVector& OutLocation) const;
+	friend struct FYUFSJJWControllerTestAccess;
 };

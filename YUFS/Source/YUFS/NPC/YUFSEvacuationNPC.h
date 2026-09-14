@@ -12,6 +12,7 @@
 #include "YUFSEvacuationNPC.generated.h"
 
 class UAnimMontage;
+class UYUFSLocalMovementComponent;
 class AYUFSLevelDataManager;
 class AYUFSBinaryManager;
 class UYUFSSocialInfluenceComponent;
@@ -38,6 +39,7 @@ class YUFS_API AYUFSEvacuationNPC : public ACharacter
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -96,9 +98,14 @@ public:
 	float TransitionLogIntervalSeconds = 0.1f;
 
 	// ── 이동 보조 API ──────────────────────────────────────────────────
-	void DriveMovementToward(FVector Target, float AcceptanceRadius = 80.f);
+	void DriveMovementToward(FVector Target, float DeltaTime);
 	void SetMovementSpeed(float Speed);
+	float GetDesiredWalkingSpeed() const;
+	bool AllowsOptionalInteractions() const;
+	void ReceivePeerGuidance();
+	bool IsInteractionHoldingPosition() const;
 
+	UYUFSLocalMovementComponent* GetLocalMovement() const { return LocalMovement; }
 	// ── 컴포넌트 접근자 ────────────────────────────────────────────────
 	UYUFSBehaviorStateMachine*   GetBehaviorStateMachine() const { return BehaviorSM; }
 	UYUFSSmokeAwareNavigator*    GetNavigator()             const { return Navigator; }
@@ -138,7 +145,7 @@ public:
 	FVector GetStaffGuidedExitLocation()const { return StaffGuidedExitLocation; }
 	FVector GetSpawnLocation()          const { return SpawnLocation; }
 
-	const FYUFSNPCObservation& GetLastObservation() const { return PrevObservation; }
+	const FYUFSNPCObservation& GetLastObservation() const { return LiveObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
 	EYUFSAction GetDisplayedAction() const { return bActionAnimationPreviewActive ? PreviewAction : CurrentAction; }
 	bool IsActionAnimationPreviewActive() const { return bActionAnimationPreviewActive; }
@@ -176,20 +183,15 @@ private:
 	UYUFSSocialInfluenceComponent* SocialComp;
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCDebugComponent* DebugComp;
-	UPROPERTY(VisibleAnywhere)
-	UYUFSBeliefComponent* BeliefComp;
-	UPROPERTY(VisibleAnywhere)
-	UYUFSIntentComponent* IntentComp;
-	UPROPERTY(VisibleAnywhere)
-	UYUFSActionTaskComponent* ActionTaskComp;
-	UPROPERTY(VisibleAnywhere)
-	UYUFSActionAnimationComponent* ActionAnimationComp;
-	UPROPERTY(VisibleAnywhere)
-	UYUFSHumanCognitionComponent* HumanCognitionComp;
-	UPROPERTY(VisibleAnywhere)
-	UYUFSHumanBehaviorSelectorComponent* HumanBehaviorSelector;
-	UPROPERTY(VisibleAnywhere)
-	UYUFSTeamIntegrationComponent* TeamIntegrationComp;
+	UPROPERTY(VisibleAnywhere) UYUFSLocalMovementComponent* LocalMovement;
+	float BaseWalkSpeed = 400.f;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSBeliefComponent> BeliefComp;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSIntentComponent> IntentComp;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSActionTaskComponent> ActionTaskComp;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSActionAnimationComponent> ActionAnimationComp;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSHumanCognitionComponent> HumanCognitionComp;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSHumanBehaviorSelectorComponent> HumanBehaviorSelector;
+	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSTeamIntegrationComponent> TeamIntegrationComp;
 
 	UPROPERTY(VisibleAnywhere)
 	AYUFSBinaryManager* BinaryManager = nullptr;
@@ -218,6 +220,7 @@ private:
 
 	// ── CSV 로깅 ──────────────────────────────────────────────────────
 	FYUFSNPCObservation PrevObservation{};
+	FYUFSNPCObservation LiveObservation{};
 	bool bHasPendingTransition = false;
 	int32 TransitionStepIndex = 0;
 	float PerceptionUpdateAccumulator = 0.f;
@@ -226,9 +229,7 @@ private:
 
 	// ── 스턱 감지 ─────────────────────────────────────────────────────
 	float StuckTimer = 0.f;
-	float PositionStuckTimer = 0.f;
 	FVector LastMovementSampleLocation = FVector::ZeroVector;
-	FVector LastPositionCheckLocation  = FVector::ZeroVector;
 	bool bHasMovementSample = false;
 
 	// ── Milling 누적 카운터 (정책 틱 단위) ────────────────────────────
@@ -250,7 +251,13 @@ private:
 	void RememberFailedExit() const;
 	void ResetRetreatKnowledge();
 	friend struct FYUFSPersonalRetreatTestAccess;
+	friend struct FYUFSJJWDecisionBridgeTestAccess;
 	int64 LastTeamFeedbackGeneration = 0;
+	FYUFSBehaviorDecision ActiveInteractionDecision;
+	bool bOptionalInteractionSelected = false;
+	bool bInteractionHoldingPosition = false;
+	float PeerGuidanceSecondsRemaining = 0.f;
+	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f);
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
 	EYUFSAction CurrentAction            = EYUFSAction::Idle;
@@ -285,6 +292,7 @@ private:
 	void OnActionChanged(EYUFSAction NewAction);
 	void UpdateActionAnimation(bool bForce = false);
 	void ExecuteCurrentAction(float DeltaTime);
+	FVector ChooseKnownExit() const;
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

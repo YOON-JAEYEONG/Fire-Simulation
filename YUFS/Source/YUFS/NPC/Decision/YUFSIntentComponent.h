@@ -36,6 +36,9 @@ public:
 	void NotifyPreActionCompleted(bool bHasSafeExit);
 	void ResumeEvacuationAfterInteraction(bool bHasSafeExit);
 	void RequestReappraisal(FName Trigger);
+	// Runtime NPC uses a one-way projection from the authoritative JJW state machine.
+	// Standalone evidence-model APIs remain available for offline calibration only.
+	void ApplyAuthoritativeIntent(EYUFSIntent Intent);
 
 	UPROPERTY(EditAnywhere, Category="Intent", meta=(ClampMin="0.1"))
 	float ReassessmentIntervalSeconds = 1.0f;

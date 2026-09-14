@@ -122,16 +122,15 @@ void AYUFSInteractionPreview::ReleaseToEvacuation(AYUFSEvacuationNPC* Npc)
  FVector Exit=FVector::ZeroVector;
  const int32 Frame=Npc->GetBinaryManager()?Npc->GetBinaryManager()->GetCurrentFrame():0;
  auto* Level=Npc->GetLevelDataManager();
- bool bSafe=Level && Level->TryGetNearestSafeExit(Npc->GetActorLocation(),Frame,Exit);
+ bool bSafe=Npc->TryGetNearestKnownExit(Exit);
  if(bSafe)
  {
   auto* Path=UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),Npc->GetActorLocation(),Exit,Npc);
   bSafe=Path && Path->IsValid() && !Path->IsPartial();
-  if(bSafe) for(const FVector& Point:Path->PathPoints)
-   if(Level->IsLocationDangerous(Point,Frame)) { bSafe=false; break; }
+  if(bSafe) bSafe=!Npc->GetNavigator()->IsKnownPathDangerous(Path->PathPoints);
  }
- Npc->GetIntentComponent()->ResumeEvacuationAfterInteraction(bSafe);
- Npc->GetBehaviorStateMachine()->ApplyIntentProjection(Npc->GetIntentComponent()->GetCurrentIntent());
+ Npc->ReceivePeerGuidance();
+ // The opt-in fixture cannot write the authoritative JJW behavior state.
  Npc->GetHumanBehaviorSelector()->RequestReselection(TEXT("InteractionEndedReturnToEvacuation"));
  // No teleport, hide, destroy or fake exit success. Normal policy/navigation and
  // SimulationController keep responsibility for the entire remaining evacuation.

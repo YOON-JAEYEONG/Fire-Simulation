@@ -12,6 +12,7 @@ public class YUFS : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "NavigationSystem", "Navmesh", "UMG", "NNE", "Projects", "AIModule", "Slate", "SlateCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "NNERuntimeORT", "Json" });
+		PublicDependencyModuleNames.Add("Navmesh");
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

@@ -91,6 +91,14 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 		NextNavigation.TargetStableId = InteractionOpportunities.AssistPersonStableId;
 		NextNavigation.DestinationHint = InteractionOpportunities.AssistPersonLocation;
 	}
+	const bool bMovementHeldByJJW = Intent == EYUFSIntent::Observe || Intent == EYUFSIntent::Prepare
+		|| Intent == EYUFSIntent::Incapacitated;
+	if (bMovementHeldByJJW)
+	{
+		NextNavigation.Goal = EYUFSNavigationGoal::None;
+		NextNavigation.TargetStableId = NAME_None;
+		NextNavigation.DestinationHint = FVector::ZeroVector;
+	}
 	if (!SameNavigationDirective(NextNavigation, NavigationDirective))
 	{
 		NextNavigation.Revision = ++NavigationRevision;
@@ -102,6 +110,9 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	FYUFSMotionDirective NextMotion;
 	NextMotion.StableNpcId = StableNpcId;
 	NextMotion.Semantic = MapMotionSemantic(Decision.Behavior, BehaviorState);
+	if (bMovementHeldByJJW && Decision.Behavior == EYUFSHighLevelBehavior::AttemptSuppression)
+		NextMotion.Semantic = Intent == EYUFSIntent::Prepare ? EYUFSMotionSemantic::GatherBelongings
+			: Intent == EYUFSIntent::Incapacitated ? EYUFSMotionSemantic::Cough : EYUFSMotionSemantic::Wait;
 	NextMotion.LegacyAction = Decision.LegacyAction;
 	NextMotion.BehaviorState = BehaviorState;
 	NextMotion.SpeedScale = BehaviorState == EYUFSBehaviorState::Crawling
@@ -123,6 +134,12 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	}
 
 	FYUFSInteractionDirective NextInteraction = BuildInteractionDirective(StableNpcId, Decision);
+	if (bMovementHeldByJJW)
+	{
+		NextInteraction.Goal = EYUFSInteractionGoal::None;
+		NextInteraction.TargetStableId = NAME_None;
+		NextInteraction.bRequiresReservation = false;
+	}
 	if (!SameInteractionDirective(NextInteraction, InteractionDirective))
 	{
 		NextInteraction.Revision = ++InteractionRevision;

@@ -48,8 +48,36 @@ void UYUFSActionAnimationComponent::Initialize(USkeletalMeshComponent* InMesh, i
 {
 	Mesh = InMesh;
 	StableId = StableNpcId;
-	bInitialized = IsValid(Mesh);
+	ActiveAnimation = nullptr;
+	bInitialized = CanUseNativeAnimations(InMesh);
+	if (!bInitialized)
+	{
+		// Check BEFORE setting AnimationMode or starting a sequence. In particular,
+		// preserve JJW's Manny AnimBP rather than feeding it the other NPC skeleton.
+		UE_LOG(LogTemp, Display, TEXT("[YUFS][Animation] %s: native action bindings unavailable/incompatible; preserving the configured animation driver."),
+			*GetNameSafe(GetOwner()));
+		return;
+	}
 	ApplyAction(EYUFSAction::Idle, EYUFSBehaviorState::Normal, true);
+}
+
+bool UYUFSActionAnimationComponent::CanUseNativeAnimations(USkeletalMeshComponent* InMesh) const
+{
+	const USkeletalMesh* SkeletalMesh = IsValid(InMesh) ? InMesh->GetSkeletalMeshAsset() : nullptr;
+	if (!SkeletalMesh || !SkeletalMesh->GetSkeleton()) return false;
+	const auto Compatible = [SkeletalMesh](const TSoftObjectPtr<UAnimationAsset>& Reference)
+	{
+		const UAnimationAsset* Animation = Reference.LoadSynchronous();
+		return Animation && Animation->GetSkeleton() && Animation->GetSkeleton() == SkeletalMesh->GetSkeleton();
+	};
+	// Match FindBinding/ApplyAction exactly. Unused duplicate array entries do not
+	// override the effective first binding, and explicit compatible assets are kept.
+	for (uint8 Index = 0; Index <= static_cast<uint8>(EYUFSAction::Film); ++Index)
+	{
+		const FYUFSActionAnimationBinding* Binding = FindBinding(static_cast<EYUFSAction>(Index));
+		if (!Binding || !Compatible(Binding->Animation)) return false;
+	}
+	return Compatible(CrawlingAnimation) && Compatible(IncapacitatedAnimation);
 }
 
 void UYUFSActionAnimationComponent::ApplyAction(

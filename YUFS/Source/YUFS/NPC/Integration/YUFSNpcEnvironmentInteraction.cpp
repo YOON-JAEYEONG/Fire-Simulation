@@ -150,8 +150,8 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  auto* Team=Npc->GetTeamIntegrationComponent(); const auto& Directive=Team->GetInteractionDirective();
  // A usable door on the evacuation route remains necessary during emergency
  // escape. Risk interrupts optional helping/suppression, not the escape door.
- if (Directive.Goal!=EYUFSInteractionGoal::OpenDoor
-     && (Npc->GetBehaviorStateMachine()->IsCrawling() || Npc->GetBeliefComponent()->HasImmediateLifeRisk()))
+ if (Directive.Goal!=EYUFSInteractionGoal::OpenDoor && !Npc->AllowsOptionalInteractions()
+     && !Npc->bInteractionPreviewControlled)
  { Cancel(); return false; }
  if (bActive)
  {
@@ -241,7 +241,7 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
   }
   if (!Safe) { Finish(false,TEXT("NoKnownExitForGuidance")); return true; }
   Other->bNeedsAssistance=false;
-  Person->GetIntentComponent()->ResumeEvacuationAfterInteraction(true);
+  Person->ReceivePeerGuidance(); // The recipient's JJW state machine decides; this is not an official command.
   Person->GetHumanBehaviorSelector()->RequestReselection(TEXT("ReceivedNearbyGuidance"));
   Finish(true,TEXT("PersonGuidedToEvacuate"));
  }

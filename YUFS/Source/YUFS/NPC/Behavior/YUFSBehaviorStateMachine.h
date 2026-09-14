@@ -10,6 +10,8 @@
 
 
 struct FYUFSNPCObservation;
+UENUM(BlueprintType)
+enum class EYUFSEvacuationCue : uint8 { None, Alarm, Smoke, Heat, PeerWarning, Crowd, Guidance };
 
 UCLASS(ClassGroup=(YUFS), meta=(BlueprintSpawnableComponent))
 class YUFS_API UYUFSBehaviorStateMachine : public UActorComponent
@@ -17,11 +19,17 @@ class YUFS_API UYUFSBehaviorStateMachine : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// With the cognition model enabled, legacy PADM is a projection, not a second accumulating risk model.
-	void ApplyCognitiveRisk(float Risk) { RiskPerception = FMath::Clamp(Risk, 0.f, 1.f); }
 	UYUFSBehaviorStateMachine();
 
 public:
+	virtual void BeginPlay() override;
+	void InitializePersonality(int32 Seed);
+	UFUNCTION(BlueprintPure) EYUFSEvacuationCue GetDecisionCue() const { return DecisionCue; }
+	UFUNCTION(BlueprintPure) float GetAlarmTrust() const { return AlarmTrust; }
+	UFUNCTION(BlueprintPure) bool HasRecentDirectEvidence() const { return DirectEvidenceAge < 5.f; }
+	float GetSpeedMultiplier() const { return SpeedMultiplier; }
+	float GetRoutePreference() const { return RoutePreference; }
+	bool HasCommittedToEvacuation() const { return bCommitted; }
 	void TickStateMachine(float DeltaTime, const FYUFSNPCObservation& Obs);
 
 	EYUFSBehaviorState GetCurrentState() const { return CurrentState; }
@@ -29,10 +37,6 @@ public:
 	float GetSmokeExposure() const { return SmokeExposureAccumulated; }
 	bool IsCrawling() const { return CurrentState == EYUFSBehaviorState::Crawling; }
 	bool IsIncapacitated() const { return CurrentState == EYUFSBehaviorState::Incapacitated; }
-
-	// V2 Intent를 기존 BehaviorState/UI/ONNX V1 입력으로 투영한다.
-	// Crawling/Incapacitated 신체 상태는 의도보다 우선하므로 덮어쓰지 않는다.
-	void ApplyIntentProjection(EYUFSIntent Intent);
 
 	// Communication System 이벤트 수신
 	void OnAlarmReceived();
@@ -44,6 +48,18 @@ public:
 	UYUFSBehaviorConfig* Config;
 
 private:
+	float AlarmTrust = 0.5f;
+	float Sensitivity = 1.f;
+	float ResponseDelay = 2.f;
+	float AlarmDecisionTime = 25.f;
+	float PreparationScale = 1.f;
+	float SpeedMultiplier = 1.f;
+	float RoutePreference = 0.5f;
+	float AlarmElapsed = 0.f;
+	float EvidenceTime = 0.f;
+	float DirectEvidenceAge = 10000.f;
+	bool bCommitted = false;
+	EYUFSEvacuationCue DecisionCue = EYUFSEvacuationCue::None;
 	EYUFSBehaviorState CurrentState = EYUFSBehaviorState::Normal;
 	float StateTimer = 0.f;
 	float RiskPerception = 0.f;

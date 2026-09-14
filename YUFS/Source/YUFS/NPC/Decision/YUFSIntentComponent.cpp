@@ -209,3 +209,10 @@ void UYUFSIntentComponent::SetIntent(EYUFSIntent NewIntent, const TCHAR* Trigger
 	++DecisionIndex;
 	bIntentChanged = true;
 }
+
+
+void UYUFSIntentComponent::ApplyAuthoritativeIntent(EYUFSIntent Intent)
+{
+	bIntentChanged = false;
+	SetIntent(Intent, TEXT("JJWStateProjection"));
+}

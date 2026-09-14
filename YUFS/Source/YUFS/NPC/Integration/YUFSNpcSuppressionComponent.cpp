@@ -13,6 +13,7 @@
 #include "NPC/Perception/YUFSNPCPerceptionComponent.h"
 #include "Fire/YUFSFireExtinguisher.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
+#include "Fire/YUFSBinaryManager.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -41,7 +42,8 @@ void UYUFSNpcSuppressionComponent::Observe(float DeltaTime, int32 SimFrame, cons
 	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
 	LatestObservation = Observation;
 	if (!Npc.IsValid() || !bEnabled) return;
-	if (Observation.bHazardSampleAvailable) LastHazardSampleAt = GetWorld()->GetTimeSeconds();
+	const bool bDatasetAligned = IsValid(Npc->GetBinaryManager()) && Npc->GetBinaryManager()->IsDatasetAlignmentConfirmed();
+	if (Observation.bHazardSampleAvailable && bDatasetAligned) LastHazardSampleAt = GetWorld()->GetTimeSeconds();
 	ScanTimer -= DeltaTime;
 	if (ScanTimer > 0.f) return;
 	ScanTimer = 0.5f + (Npc->GetStableNPCId() % 7) * 0.013f;
@@ -68,7 +70,7 @@ void UYUFSNpcSuppressionComponent::Observe(float DeltaTime, int32 SimFrame, cons
 		for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
 		{
 			FVector Target;
-			if (!It->IsFdsFireActive() || !It->GetInteractionTarget(Target)) continue;
+			if (!bDatasetAligned || !It->IsFdsFireActive() || !It->GetInteractionTarget(Target)) continue;
 			const float D = FVector::DistSquared(Target, Npc->GetActorLocation());
 			float Smoke = 0.f, Heat = 0.f;
 			// Metadata describes reality, not NPC knowledge. Require visible local evidence at the source.
@@ -79,7 +81,7 @@ void UYUFSNpcSuppressionComponent::Observe(float DeltaTime, int32 SimFrame, cons
 			{ Fire = *It; FirePoint = Target; BestFire = D; LastFireSeenAt = Now; }
 		}
 	}
-	if (Fire.IsValid() && InFieldOfView(FirePoint) && CanSeePoint(FirePoint + FVector(0,0,45), Fire.Get()))
+	if (bDatasetAligned && Fire.IsValid() && InFieldOfView(FirePoint) && CanSeePoint(FirePoint + FVector(0,0,45), Fire.Get()))
 	{
 		float Smoke = 0.f, Heat = 0.f;
 		if (Npc->GetNPCPerceptionComponent()->SampleObservedHazard(FirePoint + FVector(0,0,45), SimFrame, Smoke, Heat)
@@ -96,13 +98,13 @@ void UYUFSNpcSuppressionComponent::Observe(float DeltaTime, int32 SimFrame, cons
 	Next.ExtinguisherLocation = Tool.IsValid() ? Tool->GetActorLocation() : FVector::ZeroVector;
 	Next.bSuppressibleFireKnown = Fire.IsValid() && Fire->IsFdsFireActive()
 		&& !FinishedFires.Contains(Fire->GetFName()) && Now - LastFireSeenAt <= 15.f
-		&& Observation.bHazardSampleAvailable;
+		&& Observation.bHazardSampleAvailable && bDatasetAligned;
 	Next.FireStableId = Fire.IsValid() ? Fire->GetFName() : NAME_None;
 	Next.FireLocation = Fire.IsValid() ? FirePoint : FVector::ZeroVector;
 	Next.bSuppressionApproachKnown = bHasAttackPoint && bActive && Next.bHoldingExtinguisher;
 	Next.SuppressionApproachLocation = Next.bSuppressionApproachKnown ? AttackPoint : FVector::ZeroVector;
 	// "Known retreat" means reachable and not contradicted by observed hazards, not omniscient safety.
-	Next.bSafeRetreatKnown = bRetreatReachable && Observation.bHazardSampleAvailable;
+	Next.bSafeRetreatKnown = bRetreatReachable && Observation.bHazardSampleAvailable && bDatasetAligned;
 	if (Old.ExtinguisherStableId != Next.ExtinguisherStableId || Old.FireStableId != Next.FireStableId
 		|| Old.bHoldingExtinguisher != Next.bHoldingExtinguisher || Old.bExtinguisherKnownAvailable != Next.bExtinguisherKnownAvailable
 		|| Old.bSuppressibleFireKnown != Next.bSuppressibleFireKnown || Old.bSafeRetreatKnown != Next.bSafeRetreatKnown
@@ -144,10 +146,17 @@ bool UYUFSNpcSuppressionComponent::ReassessSafety(int32 SimFrame)
 	auto O = LatestObservation;
 	O.CurrentState = State->GetCurrentState();
 	O.RiskPerception = State->GetRiskPerception();
+	O.bSuppressionAllowedByBehavior = Npc->AllowsOptionalInteractions();
 	const auto& Traits = Cognition->GetTraits();
 	FName Reason = NAME_None;
 	if (!FYUFSSuppressionSafety::CanAttempt(O, C, Traits, true))
-		Reason = FYUFSSuppressionSafety::ImmediateDanger(O) ? TEXT("ImmediateObservedDanger") : TEXT("PerceivedRiskOrEvacuationPriority");
+	{
+		const float SmokeLimit = State->Config ? State->Config->SmokeAwarenessThreshold * State->Config->EmergencyOverrideMultiplier : 0.30f;
+		const float HeatLimit = State->Config ? State->Config->EmergencyHeatThreshold : 0.65f;
+		Reason = FYUFSSuppressionSafety::ImmediateDanger(O, SmokeLimit, HeatLimit) ? TEXT("ImmediateObservedDanger")
+			: !O.bSuppressionAllowedByBehavior ? TEXT("JjwBehaviorPriority") : TEXT("PerceivedRiskOrEvacuationPriority");
+	}
+	else if (!IsValid(Npc->GetBinaryManager()) || !Npc->GetBinaryManager()->IsDatasetAlignmentConfirmed()) Reason = TEXT("UnconfirmedHazardAlignment");
 	else if (!Fire.IsValid() || !Fire->IsFdsFireActive()) Reason = TEXT("FdsSourceUnavailable");
 	else if (!Tool.IsValid() || Tool->GetOwnerActor() != Npc.Get()) Reason = TEXT("ToolOwnershipLost");
 	else if (GetWorld()->GetTimeSeconds() - LastHazardSampleAt > 1.f) Reason = TEXT("HazardDataUnavailable");
@@ -167,12 +176,33 @@ bool UYUFSNpcSuppressionComponent::Execute(float DeltaTime, int32 SimFrame)
 {
 	if (!Npc.IsValid() || !bEnabled) { Cancel(); return false; }
 	if (ReassessSafety(SimFrame)) return true;
+	const auto* TeamDecision = Npc->GetTeamIntegrationComponent();
+	if (!TeamDecision || (TeamDecision->GetInteractionDirective().Goal != EYUFSInteractionGoal::AcquireExtinguisher
+		&& TeamDecision->GetInteractionDirective().Goal != EYUFSInteractionGoal::SuppressFire
+		&& !(bActive && TeamDecision->GetInteractionDirective().Goal == EYUFSInteractionGoal::OpenDoor)))
+	{
+		// Only the decision actually published by the JJW bridge may execute. A retained
+		// selector proposal is not permission after the feature or decision was withdrawn.
+		Cancel(); return false;
+	}
+	// Never let stale selector/directive state reserve a tool before JJW has committed,
+	// during preparation, or after its current physical emergency gate takes priority.
+	auto CurrentObservation = LatestObservation;
+	const auto* State = Npc->GetBehaviorStateMachine();
+	const auto* Cognition = Npc->GetHumanCognitionComponent();
+	if (!State || !Cognition || !Npc->AllowsOptionalInteractions()) { Cancel(); return false; }
+	CurrentObservation.CurrentState = State->GetCurrentState();
+	CurrentObservation.RiskPerception = State->GetRiskPerception();
+	CurrentObservation.bSuppressionAllowedByBehavior = true;
+	if (!FYUFSSuppressionSafety::CanAttempt(CurrentObservation, Cognition->GetCognitiveState(), Cognition->GetTraits(), bActive))
+	{ Cancel(); return false; }
 	if (Fire.IsValid() && FinishedFires.Contains(Fire->GetFName())) return false;
 	auto* Selector = Npc->GetHumanBehaviorSelector();
 	if (!Selector || Selector->GetCurrentDecision().Behavior != EYUFSHighLevelBehavior::AttemptSuppression)
 	{ Cancel(); return false; }
 	if (!Tool.IsValid() || !Fire.IsValid() || !Fire->IsFdsFireActive() || !bRetreatReachable
-		|| !LatestObservation.bHazardSampleAvailable)
+		|| !LatestObservation.bHazardSampleAvailable || !IsValid(Npc->GetBinaryManager())
+		|| !Npc->GetBinaryManager()->IsDatasetAlignmentConfirmed())
 	{ Finish(false, TEXT("AttemptPrerequisiteUnavailable")); return true; }
 	FVector CurrentFirePoint;
 	if (!Fire->GetInteractionTarget(CurrentFirePoint) || !CurrentFirePoint.Equals(FirePoint, 10.f))
@@ -181,7 +211,6 @@ bool UYUFSNpcSuppressionComponent::Execute(float DeltaTime, int32 SimFrame)
 	{
 		if (!Tool->TryReserve(Npc.Get())) { Finish(false, TEXT("ToolReservedByAnotherNpc")); return true; }
 		bActive = true; AttemptSeconds = UseSeconds = 0.f;
-		SavedWalkSpeed = Npc->GetCharacterMovement()->MaxWalkSpeed;
 		ExecutionRevision = Npc->GetTeamIntegrationComponent()->GetInteractionDirective().Revision;
 		Npc->GetNavigator()->ClearPath();
 		UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] %s attempts FDS source %s at %s; no fire mutation"),
@@ -292,7 +321,7 @@ void UYUFSNpcSuppressionComponent::Finish(bool bSuccess, FName Reason)
 	{
 		auto* Movement = Npc->GetCharacterMovement();
 		const auto* State = Npc->GetBehaviorStateMachine();
-		Movement->MaxWalkSpeed = SavedWalkSpeed;
+		Movement->MaxWalkSpeed = Npc->GetDesiredWalkingSpeed();
 		if (State && State->IsIncapacitated()) Movement->MaxWalkSpeed = 0.f;
 		else if (State && State->IsCrawling() && State->Config)
 			Movement->MaxWalkSpeed = FMath::Min(Movement->MaxWalkSpeed, State->Config->CrawlSpeed);

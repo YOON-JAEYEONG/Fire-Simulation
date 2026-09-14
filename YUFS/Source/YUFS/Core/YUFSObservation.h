@@ -19,13 +19,6 @@ struct YUFS_API FYUFSNPCObservation
 	float SmokeInFrontNormalized = 0.0f;
 	UPROPERTY()
 	float SmokeAboveNormalized = 0.0f;
-	// Runtime-only cues. FillFloatArray and FeatureCount remain the original 28-input model contract.
-	UPROPERTY()
-	float HeatInSightNormalized = 0.0f;
-	UPROPERTY()
-	float NearbyHeatNormalized = 0.0f;
-	UPROPERTY()
-	bool bHazardSampleAvailable = false;
 	UPROPERTY()
 	float RiskLevel = 0.0f;
 	UPROPERTY()
@@ -70,6 +63,19 @@ struct YUFS_API FYUFSNPCObservation
 	int32 MillingActionCount = 0;
 	UPROPERTY()
 	float SmokeExposureAccumulated = 0.0f; // 누적 연기 흡입량 [0,1] — 행동불능 결정 변수
+
+	UPROPERTY() float HeatInSight = 0.f;
+	UPROPERTY() float NearbyHeat = 0.f;
+	UPROPERTY() bool bHeardPeerWarning = false;
+	UPROPERTY() float IndividualRoutePreference = 0.5f;
+
+	// Runtime-only integration aliases. BuildObservation mirrors the authoritative JJW cues.
+	// These fields must never be appended to the existing 28-float model input.
+	UPROPERTY() float HeatInSightNormalized = 0.f;
+	UPROPERTY() float NearbyHeatNormalized = 0.f;
+	UPROPERTY() bool bHazardSampleAvailable = false;
+	// Read-only runtime projection of JJW commitment/preparation/emergency priority.
+	UPROPERTY() bool bSuppressionAllowedByBehavior = false;
 
 	static constexpr int32 FeatureCount = 28;
 	void FillFloatArray(TArray<float>& OutArray) const;

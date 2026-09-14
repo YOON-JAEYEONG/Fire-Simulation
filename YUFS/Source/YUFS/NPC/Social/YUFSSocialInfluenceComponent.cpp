@@ -7,6 +7,7 @@
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/World.h"
+#include "NPC/Perception/YUFSNPCPerceptionComponent.h"
 
 UYUFSSocialInfluenceComponent::UYUFSSocialInfluenceComponent()
 {
@@ -20,6 +21,7 @@ void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 	OverlappingActors.Reset();
 	ActorsToIgnore.Reset();
 	EvacuatingCount = 0;
+	bPeerWarning = false;
 	bHasNPCNeedingHelp = false;
 
 	if (!GetWorld() || !GetOwner()) return;
@@ -39,14 +41,21 @@ void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 	for (AActor* Actor : OverlappingActors)
 	{
 		AYUFSEvacuationNPC* NPC = Cast<AYUFSEvacuationNPC>(Actor);
-		if (IsValid(NPC) && !NPC->IsHidden() && NPC->GetActorEnableCollision())
+		if (IsValid(NPC) && !NPC->IsHidden())
 		{
-			const FVector OwnerLocation = GetOwner()->GetActorLocation();
-			if (FMath::Abs(NPC->GetActorLocation().Z - OwnerLocation.Z) > 120.f) continue;
-			FCollisionQueryParams Sight(SCENE_QUERY_STAT(YUFSSocialSight), false, GetOwner());
-			Sight.AddIgnoredActor(NPC);
-			if (GetWorld()->LineTraceTestByChannel(OwnerLocation, NPC->GetActorLocation(), ECC_Visibility, Sight)) continue;
+			// Do not see crowds or pass warnings through a wall or between storeys.
+			const FVector Origin=GetOwner()->GetActorLocation();
+			if (FMath::Abs(Origin.Z-NPC->GetActorLocation().Z)>150.f) continue;
+			FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSPeerSight),false,GetOwner()); Params.AddIgnoredActor(NPC);
+			if (GetWorld()->LineTraceTestByChannel(Origin,NPC->GetActorLocation(),ECC_Visibility,Params)) continue;
 			NearbyNPCs.Add(NPC);
+			if (NPC->GetBehaviorStateMachine() && NPC->GetBehaviorStateMachine()->HasRecentDirectEvidence())
+			{
+				bPeerWarning=true;
+				if (auto* OwnerNPC=Cast<AYUFSEvacuationNPC>(GetOwner()))
+					if (OwnerNPC->GetNPCPerceptionComponent() && NPC->GetNPCPerceptionComponent())
+						OwnerNPC->GetNPCPerceptionComponent()->ReceiveHazardReport(*NPC->GetNPCPerceptionComponent());
+			}
 
 			UYUFSBehaviorStateMachine* StateMachine = NPC->GetBehaviorStateMachine();
 			if (StateMachine)
@@ -76,10 +85,7 @@ void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 			1.0f - (CurrentCount * 0.1f * BystanderEffectStrength),
 			0.1f,
 			1.0f);
-		AYUFSEvacuationNPC* OwnerNPC = Cast<AYUFSEvacuationNPC>(GetOwner());
-		bCachedShouldHelpNearbyNPC = OwnerNPC
-			? OwnerNPC->RollSocialProbability(ProbabilityToHelp)
-			: ProbabilityToHelp >= 0.5f;
+		bCachedShouldHelpNearbyNPC = FMath::FRand() <= ProbabilityToHelp;
 		CachedNearbyNPCCount = CurrentCount;
 	}
 }
@@ -95,31 +101,23 @@ int32 UYUFSSocialInfluenceComponent::GetNearbyNPCCount() const
 	return NearbyNPCs.Num();
 }
 
-FVector UYUFSSocialInfluenceComponent::GetObservedEvacuationDestination() const
+// Compatibility name: return an actual nearby agent's exit, never the midpoint of two exits inside a wall.
+FVector UYUFSSocialInfluenceComponent::GetAverageEvacuationDestination() const
 {
-	if (!GetOwner() || !GetWorld()) return FVector::ZeroVector;
-	const FVector Position = GetOwner()->GetActorLocation();
-	const AYUFSEvacuationNPC* Best = nullptr;
-	double BestDistance = TNumericLimits<double>::Max();
-	for (ACharacter* Character : NearbyNPCs)
+	float Best=FLT_MAX; FVector Target=FVector::ZeroVector;
+	for (const auto& Weak:NearbyNPCs)
 	{
-		const auto* NPC = Cast<AYUFSEvacuationNPC>(Character);
+		const auto* NPC=Cast<AYUFSEvacuationNPC>(Weak.Get());
 		if (!IsValid(NPC) || NPC->IsHidden() || !NPC->GetNavigator() || !NPC->GetNavigator()->IsFollowingPath()) continue;
+		// Interaction travel is not an evacuation destination. In particular, never
+		// make a crowd follow a helper or an extinguisher carrier toward the fire.
 		const EYUFSAction Action = NPC->GetLastAction();
-		// A suppression/tool approach can also project to Evacuating; do not follow it toward the fire.
 		if (Action != EYUFSAction::EvacuateToNearestExit && Action != EYUFSAction::EvacuateToFamiliarExit
 			&& Action != EYUFSAction::FollowCrowd) continue;
-		if (FMath::Abs(NPC->GetActorLocation().Z - Position.Z) > 120.f) continue;
-		FCollisionQueryParams Sight(SCENE_QUERY_STAT(YUFSCrowdDestination), false, GetOwner());
-		Sight.AddIgnoredActor(NPC);
-		if (GetWorld()->LineTraceTestByChannel(Position, NPC->GetActorLocation(), ECC_Visibility, Sight)) continue;
-		const double Distance = FVector::DistSquared(Position, NPC->GetActorLocation());
-		if (!Best || Distance < BestDistance
-			|| (FMath::IsNearlyEqual(Distance, BestDistance, 1.0) && NPC->GetStableNPCId() < Best->GetStableNPCId()))
-		{ Best = NPC; BestDistance = Distance; }
+		const float D=FVector::DistSquared(GetOwner()->GetActorLocation(),NPC->GetActorLocation());
+		if (D<Best) { Best=D; Target=NPC->GetNavigator()->GetRequestedDestination(); }
 	}
-	// Preserve one observed real neighbour's destination; do not manufacture a mean position.
-	return Best ? Best->GetNavigator()->GetRequestedDestination() : FVector::ZeroVector;
+	return Target;
 }
 
 FVector UYUFSSocialInfluenceComponent::GetNearestNPCNeedingHelpLocation() const
@@ -128,9 +126,9 @@ FVector UYUFSSocialInfluenceComponent::GetNearestNPCNeedingHelpLocation() const
 	FVector BestLoc    = FVector::ZeroVector;
 	const FVector OwnerLoc = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
 
-	for (ACharacter* CharNPC : NearbyNPCs)
+	for (const auto& CharNPC : NearbyNPCs)
 	{
-		AYUFSEvacuationNPC* NPC = Cast<AYUFSEvacuationNPC>(CharNPC);
+		AYUFSEvacuationNPC* NPC = Cast<AYUFSEvacuationNPC>(CharNPC.Get());
 		if (!NPC) continue;
 
 		UYUFSBehaviorStateMachine* SM = NPC->GetBehaviorStateMachine();

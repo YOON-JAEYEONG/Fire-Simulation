@@ -4,19 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include <atomic>
+#include "Fire/YUFSHazardField.h"
 #include "YUFSBinaryManager.generated.h"
 
 class AYUFSHeterogeneousVolume;
-
-USTRUCT()
-struct FFrameData
-{
-	GENERATED_BODY()
-	
-	TArray<uint8> DensityGrid;
-	TArray<uint8> TemperatureGrid;
-};
 
 UCLASS()
 class YUFS_API AYUFSBinaryManager : public AActor
@@ -42,21 +33,22 @@ public:
 
 	bool GetSmokeDensityAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutDensity);
 	bool GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature);
+	FYUFSHazardSnapshot GetHazardSnapshot(int32 FrameIndex) const;
+	UFUNCTION(BlueprintPure, Category="Fire|Diagnostics")
+	EYUFSHazardDataStatus GetDataStatus() const { return GetHazardSnapshot(CurrentDebugFrame).Status; }
+	UFUNCTION(BlueprintPure, Category="Fire|Diagnostics")
+	FString GetHazardDiagnostics() const;
 	
 	int32 GetCurrentFrame() const { return CurrentDebugFrame; }
+	// Provenance gate for optional FDS-targeted interactions; navigation keeps the JJW diagnostics contract.
+	bool IsDatasetAlignmentConfirmed() const { return bDatasetAlignmentConfirmed; }
 	AYUFSHeterogeneousVolume* GetHeterogeneousVolume() const { return HeterogeneousVolume; }
-	// Must be confirmed against the FDS exporter; missing data/alignment is never clear air.
-	UPROPERTY(EditAnywhere, Category="Fire|Dataset") bool bDatasetAlignmentConfirmed = false;
 
 private:
-	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, uint64 Generation);
-	bool ResolveLoadedGridIndex(const FVector& WorldLocation, int32 FrameIndex, int32& OutSlot, int32& OutFlatIndex) const;
+	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation);
 
 protected:
-	UPROPERTY()
-	TArray<FFrameData> FramesBuffer;
-
-	UPROPERTY()
+	TArray<TSharedPtr<const FYUFSHazardGrid, ESPMode::ThreadSafe>> FramesBuffer;
 	TArray<int32> LoadedFrameIndices;
 
 	UPROPERTY()
@@ -74,6 +66,17 @@ private:
 	
 	UPROPERTY(EditAnywhere, Category="Fire")
 	float VoxelSize = 40.0f;
+
+	// Binary export metadata. Keep zero/one defaults compatible with the IT branch.
+	// These values must be checked against the export script; the file header does not contain them.
+	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
+	FVector GridOriginLocal = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment", meta=(ClampMin="0.001"))
+	float BinaryFramesPerVisualFrame = 1.f;
+	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
+	int32 BinaryFrameOffset = 0;
+	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
+	bool bDatasetAlignmentConfirmed = false;
 
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");
@@ -100,12 +103,8 @@ private:
 	// 동적 스트리밍 관련 변수
 	const int32 MaxBufferSize = 192;
 	bool bIsLoadingChunk = false;
-	bool bStreamingActive = false;
-	uint64 LoadGeneration = 0;
-	int32 GridSizeBytes = 0;
-	int64 ValidatedFileSize = 0;
-	double NextLoadRetryTime = 0.0;
-	FString ValidatedBinaryPath;
-	TSharedPtr<std::atomic<bool>, ESPMode::ThreadSafe> ActiveLoadCancellation;
+	int32 LoadGeneration = 0;
 	int32 LastCurrentFrame = -1;
+	bool bHeaderValid = false;
+	friend struct FYUFSHazardTestAccess;
 };

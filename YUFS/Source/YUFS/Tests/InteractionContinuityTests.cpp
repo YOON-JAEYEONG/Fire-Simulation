@@ -83,6 +83,8 @@ bool FYUFSInteractionContinuityTest::RunTest(const FString& Parameters)
     Preview->Elapsed = 1.f;
     Preview->StartHelp();
     TestEqual(TEXT("repeat help transition does not restart the stage"), Preview->Elapsed, 1.f);
+    const auto HelperIntentBeforeRelease = User->GetCurrentIntent();
+    const auto RecipientIntentBeforeRelease = Recipient->GetCurrentIntent();
     Preview->ReleaseResidentsToEvacuation();
     TestFalse(TEXT("helper is released to ordinary decisions"), User->bInteractionPreviewControlled);
     TestFalse(TEXT("recipient is released to ordinary decisions"), Recipient->bInteractionPreviewControlled);
@@ -91,8 +93,10 @@ bool FYUFSInteractionContinuityTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("recipient handoff does not teleport"), Recipient->GetActorLocation().Equals(RecipientPosition));
     TestFalse(TEXT("helper is not hidden to fake success"), User->IsHidden());
     TestFalse(TEXT("recipient is not hidden to fake success"), Recipient->IsHidden());
-    TestTrue(TEXT("no level or safe path yields helper shelter, not false evacuation"), User->GetCurrentIntent() == EYUFSIntent::Shelter);
-    TestTrue(TEXT("no level or safe path yields recipient shelter, not false evacuation"), Recipient->GetCurrentIntent() == EYUFSIntent::Shelter);
+    // JJW owns commitment: guidance adds a cue; the optional fixture cannot force Shelter or evacuation.
+    TestEqual(TEXT("helper handoff preserves the authoritative JJW intent"), User->GetCurrentIntent(), HelperIntentBeforeRelease);
+    TestEqual(TEXT("recipient handoff preserves the authoritative JJW intent"), Recipient->GetCurrentIntent(), RecipientIntentBeforeRelease);
+    TestEqual(TEXT("absent scenario data never fabricates commitment"), Recipient->GetCurrentIntent(), EYUFSIntent::Observe);
     TestTrue(TEXT("handoff starts monitoring rather than claiming completion"), Preview->Stage == EYUFSInteractionPreviewStage::Evacuating);
     TestTrue(TEXT("door persists after both residents are released"), IsValid(Door) && Preview->Door.Get() == Door && Door->IsOpen());
 

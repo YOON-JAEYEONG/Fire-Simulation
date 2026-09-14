@@ -5,6 +5,9 @@
 #include "NPC/Cognition/YUFSHumanCognitionComponent.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NPC/Behavior/YUFSBehaviorConfig.h"
+#include "NPC/Perception/YUFSNPCPerceptionComponent.h"
+#include "Engine/World.h"
+#include "GameFramework/Character.h"
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSUnknownHazardCognitionMemoryTest,
 	"YUFS.NPC.UnknownHazard.CognitionRetainsThreatUntilValidClearSample",
@@ -74,68 +77,86 @@ bool FYUFSUnknownHazardCommunicationTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSUnknownHazardExposureTest,
-	"YUFS.NPC.UnknownHazard.NoInventedExposureOrRecovery",
-	EAutomationTestFlags::EditorContext | EAutomationTestFlags::CommandletContext | EAutomationTestFlags::EngineFilter)
-
-bool FYUFSUnknownHazardExposureTest::RunTest(const FString& Parameters)
+// The authoritative JJW PADM no longer accepts our old ApplyCognitiveRisk
+// mutation or promises the retired legacy risk floor/exposure recovery policy.
+// Check missing-data provenance at the shared perception boundary instead.
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSUnknownHazardPerceptionStatusTest,
+    "YUFS.NPC.UnknownHazard.JJWPerceptionDistinguishesUnavailableAndClear",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSUnknownHazardPerceptionStatusTest::RunTest(const FString&)
 {
-	auto* State = NewObject<UYUFSBehaviorStateMachine>();
-	State->Config = NewObject<UYUFSBehaviorConfig>();
-	State->Config->SmokeExposureAccumRate = .1f;
-	State->Config->CrawlThreshold = .4f;
-	State->Config->IncapacitationThreshold = .9f;
-	FYUFSNPCObservation Observation;
-	State->TickStateMachine(20.f, Observation);
-	TestEqual(TEXT("initial unknown creates no exposure"), State->GetSmokeExposure(), 0.f);
-	TestEqual(TEXT("initial unknown does not create emergency behavior"), State->GetCurrentState(), EYUFSBehaviorState::Normal);
-	Observation.bHazardSampleAvailable = true;
-	Observation.SmokeDensityAtSelf = .5f;
-	State->TickStateMachine(10.f, Observation);
-	const float Exposure = State->GetSmokeExposure();
-	TestTrue(TEXT("valid smoke accumulates a test dose"), FMath::IsNearlyEqual(Exposure, .5f));
-	TestTrue(TEXT("valid dose enters crawling"), State->IsCrawling());
-	Observation = FYUFSNPCObservation{};
-	State->TickStateMachine(30.f, Observation);
-	TestEqual(TEXT("unknown zero is not fresh-air recovery"), State->GetSmokeExposure(), Exposure);
-	TestTrue(TEXT("unknown data does not restore walking"), State->IsCrawling());
-	Observation.SmokeDensityAtSelf = 1.f;
-	State->TickStateMachine(30.f, Observation);
-	TestEqual(TEXT("unavailable stale positive value does not invent additional injury"), State->GetSmokeExposure(), Exposure);
-	TestFalse(TEXT("missing data cannot fabricate incapacitation"), State->IsIncapacitated());
-	Observation = FYUFSNPCObservation{};
-	Observation.bHazardSampleAvailable = true;
-	State->TickStateMachine(20.f, Observation);
-	TestTrue(TEXT("actual clear data permits configured gradual recovery"), State->GetSmokeExposure() < Exposure);
-	TestFalse(TEXT("walking can resume once actual recovery crosses the threshold"), State->IsCrawling());
-	return true;
+    UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+    ACharacter* Actor = World->SpawnActor<ACharacter>();
+    Actor->SetActorLocation(FVector(100, 100, 100));
+    auto* Perception = NewObject<UYUFSNPCPerceptionComponent>(Actor);
+    Perception->RegisterComponent();
+    Perception->Config = NewObject<UYUFSPerceptionConfig>(Perception);
+    Perception->Config->VisionRayCount = 1;
+    Perception->Config->VisionRange = 500.f;
+
+    Perception->UpdateFromSnapshot(FYUFSHazardSnapshot(), 0.f);
+    TestEqual(TEXT("Absent data remains explicitly MissingData"), Perception->GetDataStatus(), EYUFSHazardDataStatus::MissingData);
+    TestEqual(TEXT("Missing data does not invent a fresh local reading"), Perception->GetTemperature(), 0.f);
+
+    auto HotGrid = MakeShared<FYUFSHazardGrid, ESPMode::ThreadSafe>();
+    HotGrid->Dimensions = FIntVector(20, 10, 10);
+    HotGrid->Density.Init(128, 2000);
+    HotGrid->Temperature.Init(255, 2000);
+    FYUFSHazardSnapshot Hot;
+    Hot.Grid = HotGrid;
+    Hot.GridToWorld = FTransform(FQuat::Identity, FVector::ZeroVector, FVector(40));
+    Hot.Status = EYUFSHazardDataStatus::Ready;
+    Hot.Frame = 1;
+    Perception->UpdateFromSnapshot(Hot, 1.f);
+    const auto InFlight = Perception->RestrictToKnowledge(Hot);
+    const int32 KnownCount = Perception->GetKnownCellCount();
+    TestTrue(TEXT("Measured heat becomes personal knowledge"), KnownCount > 0);
+    TestTrue(TEXT("Measured heat is available to the current observation"), Perception->GetNearbyHeat() > .5f);
+
+    FYUFSHazardSnapshot Loading = Hot;
+    Loading.Status = EYUFSHazardDataStatus::Loading;
+    Perception->UpdateFromSnapshot(Loading, 2.f);
+    TestEqual(TEXT("Streaming gap is not a measured clear frame"), Perception->GetDataStatus(), EYUFSHazardDataStatus::Loading);
+    TestEqual(TEXT("Unavailable readings are not copied into the next observation"), Perception->GetNearbyHeat(), 0.f);
+    TestEqual(TEXT("Short data gap preserves bounded personal memory"), Perception->GetKnownCellCount(), KnownCount);
+
+    auto ClearGrid = MakeShared<FYUFSHazardGrid, ESPMode::ThreadSafe>();
+    ClearGrid->Dimensions = HotGrid->Dimensions;
+    ClearGrid->Density.Init(0, 2000);
+    ClearGrid->Temperature.Init(0, 2000);
+    FYUFSHazardSnapshot Clear = Hot;
+    Clear.Grid = ClearGrid;
+    Clear.Frame = 2;
+    Perception->UpdateFromSnapshot(Clear, 3.f);
+    TestEqual(TEXT("Actual clear data has Ready status"), Perception->GetDataStatus(), EYUFSHazardDataStatus::Ready);
+    TestEqual(TEXT("Reobserved clear cells erase obsolete hazards"), Perception->GetKnownCellCount(), 0);
+    TestTrue(TEXT("An in-flight immutable snapshot retains its old observation"), InFlight.KnownCells.IsValid() && InFlight.KnownCells->Num() > 0);
+    World->DestroyWorld(false);
+    return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSUnknownHazardLegacyRiskTest,
-	"YUFS.NPC.UnknownHazard.LegacyRiskFloorAndSocialUpdates",
-	EAutomationTestFlags::EditorContext | EAutomationTestFlags::CommandletContext | EAutomationTestFlags::EngineFilter)
-
-bool FYUFSUnknownHazardLegacyRiskTest::RunTest(const FString& Parameters)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSUnknownHazardJJWCommunicationTest,
+    "YUFS.NPC.UnknownHazard.JJWCommunicationNeedsObservation",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSUnknownHazardJJWCommunicationTest::RunTest(const FString&)
 {
-	auto* State = NewObject<UYUFSBehaviorStateMachine>();
-	State->Config = NewObject<UYUFSBehaviorConfig>();
-	State->ApplyCognitiveRisk(.25f);
-	FYUFSNPCObservation Observation;
-	Observation.NearbyNPCCount = 6;
-	State->TickStateMachine(20.f, Observation);
-	TestEqual(TEXT("quiet crowd cannot erase known risk during an outage"), State->GetRiskPerception(), .25f);
-	Observation.bAlarmSounding = true;
-	State->TickStateMachine(2.f, Observation);
-	TestTrue(TEXT("alarm still raises the legacy risk projection"), State->GetRiskPerception() > .25f);
-	const float AlarmRisk = State->GetRiskPerception();
-	State->OnStaffGuidanceReceived();
-	TestTrue(TEXT("staff communication still raises risk"), State->GetRiskPerception() > AlarmRisk);
-	const float GuidedRisk = State->GetRiskPerception();
-	Observation = FYUFSNPCObservation{};
-	Observation.bHazardSampleAvailable = true;
-	State->TickStateMachine(2.f, Observation);
-	TestTrue(TEXT("a measured clear interval permits legacy risk decay"), State->GetRiskPerception() < GuidedRisk);
-	return true;
-}
+    auto* State = NewObject<UYUFSBehaviorStateMachine>();
+    State->Config = NewObject<UYUFSBehaviorConfig>(State);
+    State->InitializePersonality(40);
+    FYUFSNPCObservation Observation;
+    Observation.bAlarmSounding = true;
+    State->TickStateMachine(2.f, Observation);
+    const float AlarmRisk = State->GetRiskPerception();
+    TestTrue(TEXT("Alarm contributes without manufacturing physical samples"), AlarmRisk > 0.f);
+    TestFalse(TEXT("Hearing an alarm is not eyewitness evidence"), State->HasRecentDirectEvidence());
 
+    State->OnStaffGuidanceReceived();
+    TestEqual(TEXT("Legacy event callback cannot directly overwrite JJW risk"), State->GetRiskPerception(), AlarmRisk);
+    Observation.bReceivedStaffGuidance = true;
+    State->TickStateMachine(1.f, Observation);
+    TestTrue(TEXT("Actual observed guidance raises evidence-based risk"), State->GetRiskPerception() > AlarmRisk);
+    TestFalse(TEXT("Guidance never masquerades as own physical observation"), State->HasRecentDirectEvidence());
+    TestEqual(TEXT("Guidance retains its correct cause"), State->GetDecisionCue(), EYUFSEvacuationCue::Guidance);
+    return true;
+}
 #endif

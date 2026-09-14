@@ -8,6 +8,8 @@ AYUFSHeterogeneousVolume::AYUFSHeterogeneousVolume()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	HeterogeneousVolumeComponent = CreateDefaultSubobject<UHeterogeneousVolumeComponent>(TEXT("YUFSHeterogeneousVolumeComponent"));
+	RootComponent = HeterogeneousVolumeComponent;
+	// 생성자에서는 재생하지 않음 — SimulationController가 제어
 	HeterogeneousVolumeComponent->EndFrame = 0.f;
 	HeterogeneousVolumeComponent->bPlaying = false;
 }

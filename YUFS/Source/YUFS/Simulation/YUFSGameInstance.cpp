@@ -48,7 +48,8 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 				return;
 			}
 			int32 Placed = 0;
-			// Configurable training population and independent choice probability; no selected IDs.
+			// Optional interaction-only population parameters; JJW's PADM personality,
+			// movement, response timing and user-authored NPC placement remain untouched.
 			// Metadata readiness and activation are separate: a valid future ignition is not a setup error.
 			// Never advise restoring obsolete manually marked local targets or spawn a fallback fire.
 			FVector KnownFire = FVector::ZeroVector;
@@ -84,13 +85,15 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 				UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] Ignition metadata does not authorize sensor data: binary sampling independently requires bDatasetAlignmentConfirmed and a fully loaded valid frame."));
 			}
 			float TrainedFraction = 0.65f, ChoiceProbability = 0.35f;
+			bool bOverrideInteractionTraining = false;
+			GConfig->GetBool(TEXT("YUFS.NpcInteraction"), TEXT("OverrideInteractionTrainingPopulation"), bOverrideInteractionTraining, GGameIni);
 			GConfig->GetFloat(TEXT("YUFS.NpcInteraction"), TEXT("TrainedPopulationFraction"), TrainedFraction, GGameIni);
 			GConfig->GetFloat(TEXT("YUFS.NpcInteraction"), TEXT("SuppressionChoiceProbability"), ChoiceProbability, GGameIni);
 			for (TActorIterator<AYUFSEvacuationNPC> It(W); It; ++It)
 			{
 				FRandomStream PopulationRng(20260908 ^ It->GetStableNPCId());
 				const bool bTrained = PopulationRng.FRand() < FMath::Clamp(TrainedFraction, 0.f, 1.f);
-				if (It->GetHumanCognitionComponent())
+				if (bOverrideInteractionTraining && It->GetHumanCognitionComponent())
 					It->GetHumanCognitionComponent()->Traits.FireTraining = bTrained ? 0.85f : 0.2f;
 				if (It->GetHumanBehaviorSelector())
 				{
@@ -135,7 +138,10 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 				// Preserve the configured countdown; do not shift FDS events to accelerate a demo.
 				if (bPreviewMode)
 					It->NotifyInteractionPreviewReady(Preview && Preview->IsReady());
-				else
+				// The ordinary GUI remains in WaitingToStart so JJW's palette can
+				// place, rotate and delete NPCs. Auto-start is a separate opt-in for
+				// unattended tests, never a side effect of adding interaction props.
+				else if (FParse::Param(FCommandLine::Get(), TEXT("YUFSAutoStartSimulation")))
 					It->StartSimulation();
 			}
 		}), 4.f, false);

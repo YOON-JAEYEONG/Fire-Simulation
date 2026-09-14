@@ -96,14 +96,13 @@ YUFS/Content/Fires/vdb/Scenario_03/vdb/fire.uasset
 
 # Claude Code 임시 작업 폴더
 YUFS/.claude/worktrees/
+/YUFS/Content/Fires
 
-# Codex/local asset inspection scratch space
+# Local asset inspection and Unreal verification outputs are not source assets.
 .tmp/
-
-# Local Unreal verification logs and screenshots (not part of the project).
 /Logs/
 
-# Evaluated locally but not redistributable as source assets; keep out of Git.
+# Evaluated locally but not redistributable as source assets.
 YUFS/SourceAssets/FireExtinguisher/Polyfork_95dca1/
 YUFS/Content/Props/FireExtinguisher/Polyfork_95dca1/
 

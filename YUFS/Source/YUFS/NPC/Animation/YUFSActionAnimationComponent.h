@@ -29,10 +29,10 @@ struct FYUFSActionAnimationBinding
 /**
  * Data-driven bridge from the NPC decision action to a visible skeletal animation.
  *
- * The project does not currently contain an action-aware animation blueprint. This
- * component therefore uses single-node playback with sequences authored for the
- * current NPC skeleton. It changes the animation only when the semantic action/state changes,
- * validates skeleton compatibility, and keeps preview playback separate from AI.
+ * Optional single-node playback for compatible per-action sequences. JJW NPCs can
+ * instead retain their existing Animation Blueprint: this component takes control
+ * only when all effective action/crawl/incapacitation bindings match the mesh's
+ * skeleton. It never changes the character mesh, navigation, or behavior state.
  */
 UCLASS(ClassGroup=(YUFS), meta=(BlueprintSpawnableComponent))
 class YUFS_API UYUFSActionAnimationComponent : public UActorComponent
@@ -44,6 +44,10 @@ public:
 
 	void Initialize(USkeletalMeshComponent* InMesh, int32 StableNpcId);
 	void ApplyAction(EYUFSAction Action, EYUFSBehaviorState BehaviorState, bool bForce = false);
+
+	/** Read-only preflight of the actual configured bindings, including custom overrides. */
+	UFUNCTION(BlueprintPure, Category="NPC|Animation")
+	bool CanUseNativeAnimations(USkeletalMeshComponent* InMesh) const;
 
 	UFUNCTION(BlueprintPure, Category="NPC|Animation")
 	bool HasAnimationForAction(EYUFSAction Action) const;

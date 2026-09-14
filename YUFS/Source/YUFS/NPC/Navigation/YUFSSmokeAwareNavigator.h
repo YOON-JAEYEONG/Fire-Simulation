@@ -1,84 +1,159 @@
 #pragma once
+
 #include "Components/ActorComponent.h"
 #include "NavigationSystem.h"
-#include "NPC/Navigation/YUFSSmokeNavigationQueryFilter.h"
+#include "Fire/YUFSHazardField.h"
 #include "YUFSSmokeAwareNavigator.generated.h"
 
+class AYUFSLevelDataManager;
+
 UENUM(BlueprintType)
-enum class EYUFSNavigationStatus : uint8 { Idle, Pathfinding, Moving, Arrived, Failed };
+enum class EYUFSNavigationStatus : uint8
+{
+	Idle, Pathfinding, Moving, Arrived, Failed, WaitingForHazardData
+};
+
+UENUM(BlueprintType)
+enum class EYUFSRepathReason : uint8
+{
+	DestinationRequested, Smoke, Stuck, Retry
+};
+
 UENUM(BlueprintType)
 enum class EYUFSNavigationFailure : uint8
 {
- None, InvalidOwner, InvalidDestination, NoNavigationData, StartOffNavMesh,
- DestinationOffNavMesh, NoPath, PartialPath, UnsafeKnownPath, UnsupportedNavData, Blocked
+	None, InvalidOwner, InvalidDestination, NoNavigationData,
+	StartOffNavMesh, DestinationOffNavMesh, NoPath, PartialPath,
+	HazardDataUnavailable, UnsafePath, UnsupportedNavData
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FYUFSNavigationStateChanged,
+	EYUFSNavigationStatus, Status, FVector, Destination, EYUFSNavigationFailure, Failure);
+
 UCLASS(ClassGroup=(YUFS), meta=(BlueprintSpawnableComponent))
 class YUFS_API UYUFSSmokeAwareNavigator : public UActorComponent
 {
- GENERATED_BODY()
+	GENERATED_BODY()
+
 public:
- UYUFSSmokeAwareNavigator();
- virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
- // Latest request wins. Origin is valid. Interaction must not replace the requested goal.
- void RequestPathAsync(FVector Destination, int32 Frame);
- void CheckAndReroute(int32 Frame);
- void ClearPath();
- void ReportMovementBlocked();
- bool bIsPathfinding = false; // Compatibility; owned by this component.
- FVector GetNextWaypoint() const;
- FVector GetSteeringTarget(FVector ActorLocation, float LookAheadDistance = 250.f) const;
- void UpdateWaypoint(FVector ActorLocation, float AcceptanceRadius = 50.f);
- FVector GetCurrentDestination() const { return CurrentDestination; }
- FVector GetRequestedDestination() const { return RequestedDestination; }
- const TArray<FVector>& GetCurrentPathPoints() const { return CurrentPath; }
- int32 GetCurrentWaypointIndex() const { return CurrentWaypointIndex; }
- EYUFSNavigationStatus GetNavigationStatus() const { return Status; }
- EYUFSNavigationFailure GetLastFailure() const { return LastFailure; }
- uint32 GetRequestGeneration() const { return RequestGeneration; }
- bool IsFollowingPath() const { return Status == EYUFSNavigationStatus::Moving; }
- // Call only after real local/LOS observation. Never inject unseen global FDS data.
- void ReportObservedHazard(FVector WorldPosition, float Smoke01, float Heat01, float RadiusCm = 40.f);
- void ResetObservedHazards();
- FYUFSObservedHazardSnapshot GetObservedHazardSnapshot() const;
- bool IsKnownPathSafe(const TArray<FVector>& FloorPoints) const { return GetObservedHazardSnapshot().IsPathSafe(FloorPoints); }
- bool IsKnownLocationSafe(FVector Position) const { return GetObservedHazardSnapshot().IsLocationSafe(Position); }
- bool IsKnownPathDangerous(const TArray<FVector>& FloorPoints) const { return !IsKnownPathSafe(FloorPoints); }
- bool IsKnownLocationDangerous(FVector Position) const { return !IsKnownLocationSafe(Position); }
- UPROPERTY(EditAnywhere, Category="Navigation") float RerouteCheckInterval = 0.5f;
- UPROPERTY(EditAnywhere, Category="Navigation") float SmokeBlockThreshold = 0.4f;
- UPROPERTY(EditAnywhere, Category="Navigation") float UnsafeSmokeThreshold = 0.7f;
- UPROPERTY(EditAnywhere, Category="Navigation") float UnsafeHeatThreshold = 0.7f;
- UPROPERTY(EditAnywhere, Category="Navigation") float WaypointHeightTolerance = 150.f;
- UPROPERTY(EditAnywhere, Category="Navigation") float FailedPathRetryInterval = 2.f;
- UPROPERTY(EditAnywhere, Category="Navigation") int32 MaxFailedPathRetries = 2;
- UPROPERTY(EditAnywhere, Category="Navigation|Knowledge") float HazardMemorySeconds = 30.f;
+	UYUFSSmokeAwareNavigator();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
+		FActorComponentTickFunction* ThisTickFunction) override;
+
+	// A new destination replaces any pending request. (0,0,0) is a valid destination.
+	UFUNCTION(BlueprintCallable, Category="YUFS|Navigation")
+	void RequestPathAsync(FVector Destination, int32 Frame);
+
+	UFUNCTION(BlueprintCallable, Category="YUFS|Navigation")
+	void ReplanPath(int32 Frame, EYUFSRepathReason Reason);
+
+	UFUNCTION(BlueprintCallable, Category="YUFS|Navigation")
+	void ClearPath();
+
+	void CheckAndReroute(int32 Frame);
+	FVector GetNextWaypoint() const;
+	FVector GetSteeringTarget(FVector ActorLocation, float LookAheadDistance = 250.f) const;
+	void UpdateWaypoint(FVector ActorLocation, float AcceptanceRadius = 50.f);
+
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	EYUFSNavigationStatus GetNavigationStatus() const { return NavigationStatus; }
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	EYUFSNavigationFailure GetLastFailure() const { return LastFailure; }
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	EYUFSRepathReason GetLastRepathReason() const { return LastRepathReason; }
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	FVector GetCurrentDestination() const { return CurrentDestination; }
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	FVector GetRequestedDestination() const { return RequestedDestination; }
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	bool IsFollowingPath() const { return NavigationStatus == EYUFSNavigationStatus::Moving; }
+	bool ShouldRetryPath() const;
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	EYUFSHazardDataStatus GetHazardDataStatus() const { return HazardDataStatus; }
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	float GetPathSmoke() const { return LastPathScore.MaxSmoke; }
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	float GetPathHeat() const { return LastPathScore.MaxHeat; }
+	FYUFSHazardSnapshot GetPerceivedHazardSnapshot(int32 Frame) const;
+	bool IsLocalRecoverySafe(const FVector& FromFeet, const FVector& ToFeet, int32 Frame) const;
+	const TArray<FVector>& GetCurrentPathPoints() const { return CurrentPath; }
+	int32 GetCurrentWaypointIndex() const { return CurrentWaypointIndex; }
+
+	// Compatibility for interaction task lifetime tracking; the JJW planner owns generations.
+	uint32 GetRequestGeneration() const { return RequestGeneration; }
+	// These are conservative interaction gates, not a claim that unseen space is safe.
+	// Floor paths use the same height/body samples and escape rule as the JJW planner.
+	bool IsKnownPathDangerous(const TArray<FVector>& FloorPoints) const;
+	// WorldLocation is already at the caller's intended exposure height.
+	bool IsKnownLocationDangerous(const FVector& WorldLocation) const;
+	// One authoritative memory store, in JJW perception (no parallel hazard-patch model).
+	void ResetObservedHazards();
+
+	UPROPERTY(BlueprintAssignable, Category="YUFS|Navigation")
+	FYUFSNavigationStateChanged OnNavigationStateChanged;
+
+	// Kept for existing C++ callers; status changes are owned by this component.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="YUFS|Navigation")
+	bool bIsPathfinding = false;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="0.1"))
+	float RerouteCheckInterval = 0.5f;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="0.0"))
+	float SmokeBlockThreshold = 0.4f;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation|Hazard", meta=(ClampMin="0.0"))
+	float SmokeTravelCost = 30.f;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation|Hazard", meta=(ClampMin="0.0"))
+	float HeatTravelCost = 60.f;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation|Hazard", meta=(ClampMin="0.01", ClampMax="1.0"))
+	float UnsafeSmokeThreshold = 0.7f;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation|Hazard", meta=(ClampMin="0.01", ClampMax="1.0"))
+	float UnsafeHeatThreshold = 0.7f;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation|Hazard", meta=(ClampMin="0.0"))
+	float HazardSampleHeightCm = 120.f;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="0.1"))
+	float FailedPathRetryInterval = 2.f;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="0"))
+	int32 MaxFailedPathRetries = 2;
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="1.0"))
+	float WaypointHeightTolerance = 150.f;
+
 protected:
- virtual void EndPlay(const EEndPlayReason::Type Reason) override;
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 private:
- void CancelPendingRequest();
- void StopOwnerMovement();
- void SetStatus(EYUFSNavigationStatus NewStatus, EYUFSNavigationFailure Failure = EYUFSNavigationFailure::None);
- void OnPathFound(uint32 QueryId, ENavigationQueryResult::Type Result, FNavPathSharedPtr Path, uint32 Generation);
- void StartPathRequest(FVector Destination, int32 Frame);
- FVector GetOwnerFeetLocation() const;
- TArray<FVector> BuildRemainingPath() const;
- TWeakObjectPtr<UNavigationSystemV1> PendingNavigationSystem;
- uint32 ActiveQueryId = INVALID_NAVQUERYID, RequestGeneration = 0;
- TArray<FVector> CurrentPath;
- int32 CurrentWaypointIndex = 0;
- FVector RequestedDestination = FVector::ZeroVector, CurrentDestination = FVector::ZeroVector;
- FVector LastAttemptDestination = FVector::ZeroVector;
- bool bHasAttempted = false;
- int32 RequestFrame = 0, RetryCount = 0;
- uint32 KnowledgeRevision = 0, AttemptKnowledgeRevision = 0;
- float SinceAttempt = 0.f, RerouteTimer = 0.f;
- EYUFSNavigationStatus Status = EYUFSNavigationStatus::Idle;
- EYUFSNavigationFailure LastFailure = EYUFSNavigationFailure::None;
- bool bLastAttemptFailed = false;
- int32 RepeatedMovementBlocks = 0;
- FVector LastBlockedPosition = FVector::ZeroVector, LastBlockedGoal = FVector::ZeroVector;
- uint32 LastBlockedKnowledgeRevision = 0;
- TArray<FYUFSObservedHazard> ObservedHazards;
- FYUFSObservedHazardSnapshot QueryKnowledge;
- friend struct FYUFSInteractionNavigationTestAccess;
+	void StartPathRequest(FVector Destination, int32 Frame, EYUFSRepathReason Reason);
+	void CancelPendingRequest();
+	void OnPathFound(uint32 QueryId, ENavigationQueryResult::Type Result,
+		FNavPathSharedPtr Path, uint32 Generation);
+	void SetNavigationStatus(EYUFSNavigationStatus Status,
+		EYUFSNavigationFailure Failure = EYUFSNavigationFailure::None);
+	void StopOwnerMovement();
+	TArray<FVector> BuildRemainingPath() const;
+	FVector GetOwnerFeetLocation() const;
+	FYUFSHazardSettings GetHazardSettings() const;
+
+	UPROPERTY()
+	AYUFSLevelDataManager* LevelDataMgr = nullptr;
+	TWeakObjectPtr<UNavigationSystemV1> PendingNavigationSystem;
+	TArray<FVector> CurrentPath;
+	FVector RequestedDestination = FVector::ZeroVector;
+	FVector CurrentDestination = FVector::ZeroVector;
+	int32 CurrentWaypointIndex = 0;
+	uint32 ActiveQueryId = INVALID_NAVQUERYID;
+	uint32 RequestGeneration = 0;
+	int32 RequestFrame = 0;
+	int32 FailedPathRetries = 0;
+	float RerouteTimer = 0.f;
+	float TimeSinceRequest = 0.f;
+	FYUFSHazardSnapshot QueryHazardSnapshot;
+	FYUFSHazardPathScore LastPathScore;
+	EYUFSHazardDataStatus HazardDataStatus = EYUFSHazardDataStatus::MissingData;
+	EYUFSNavigationStatus NavigationStatus = EYUFSNavigationStatus::Idle;
+	EYUFSNavigationFailure LastFailure = EYUFSNavigationFailure::None;
+	EYUFSRepathReason LastRepathReason = EYUFSRepathReason::DestinationRequested;
+
+	// Regression tests deliver out-of-order engine callbacks without timing races.
+	friend struct FYUFSNavigationTestAccess;
+	friend struct FYUFSCrowdIntegrationAccess;
+	friend struct FYUFSInteractionNavigationTestAccess;
 };

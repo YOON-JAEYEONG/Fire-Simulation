@@ -5,29 +5,16 @@
 #include "Debug/YUFSInteractionPreview.h"
 #include "Simulation/YUFSTimelineRecorder.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
-#include "Camera/CameraActor.h"
-#include "Camera/CameraComponent.h"
-#include "Engine/Engine.h"
-#include "Engine/GameViewportClient.h"
 #include "EngineUtils.h"
-#include "Engine/StaticMeshActor.h"
 #include "Fire/YUFSBinaryManager.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/SpotLightComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
-#include "NavigationSystem.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
-#include "Styling/CoreStyle.h"
-#include "Widgets/SOverlay.h"
-#include "Widgets/Layout/SBorder.h"
-#include "Widgets/Text/STextBlock.h"
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
@@ -43,11 +30,11 @@ void AYUFSSimulationController::BeginPlay()
 	Super::BeginPlay();
 	bWaitForInteractionPreview = FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions"))
 		&& FParse::Param(FCommandLine::Get(), TEXT("YUFSInteractionPreview"));
-	if (FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions")))
-	{
-		bPreviewAllNPCActionAnimations = false;
-		bAutoFocusNPCActionAnimationShowcase = false;
-	}
+	// Old serialized defaults must not reactivate relocation/camera takeover.
+	// JJW's palette is the only runtime author of NPC placement.
+	bDistributeOverlappingNPCs = false;
+	bPreviewAllNPCActionAnimations = false;
+	bAutoFocusNPCActionAnimationShowcase = false;
 
 	// 씬에서 필요한 액터들 캐싱
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
@@ -63,6 +50,11 @@ void AYUFSSimulationController::BeginPlay()
 	for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
 	{
 		HeterogeneousVolume = *It;
+		const auto* VolumeComponent = It->FindComponentByClass<UHeterogeneousVolumeComponent>();
+		if (!VolumeComponent || !VolumeComponent->GetMaterial(0))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS][Merge] Recorded fire volume '%s' has no material. JJW Scenario_04 requires /Game/Fires/vdb/Scenario_04/vdb/SparseVolumeMaterial_Inst_Scenario_04; obtain the matching external assets. No substitute fire or material is created."), *It->GetName());
+		}
 		break;
 	}
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It)
@@ -77,7 +69,6 @@ void AYUFSSimulationController::BeginPlay()
 		RegisterNPC(*It);
 	}
 	InitialNPCCount = RegisteredNPCs.Num();
-	ScheduleNPCDistribution();
 	if (BinaryManager && HeterogeneousVolume)
 	{
 		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
@@ -108,9 +99,11 @@ void AYUFSSimulationController::BeginPlay()
 
 void AYUFSSimulationController::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	// PIE Stop, 레벨 전환, 에디터 종료 어느 경로에서도 검수용 Slate 위젯과
-	// 임시 카메라/숨김 상태가 다음 실행에 남지 않게 정리한다.
-	StopNPCActionAnimationShowcase();
+	if (HUDWidgetInstance)
+	{
+		HUDWidgetInstance->RemoveFromParent();
+		HUDWidgetInstance = nullptr;
+	}
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -131,7 +124,6 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 
 	if (CurrentPhase == ESimPhase::WaitingToStart)
 	{
-		TickNPCActionAnimationShowcase(DeltaTime);
 		return;
 	}
 
@@ -164,22 +156,12 @@ void AYUFSSimulationController::StartSimulation()
 	if (IsWaitingForInteractionPreview())
 	{
 		bStartRequestedBeforePreviewReady = true;
-		UE_LOG(LogTemp, Display, TEXT("[InteractionPreview] Start queued until building NPC distribution and preview setup finish."));
+		UE_LOG(LogTemp, Display, TEXT("[InteractionPreview] Start queued until the explicitly requested interaction fixture is ready. NPC positions remain user-authored."));
 		return;
 	}
 	bStartRequestedBeforePreviewReady = false;
 
 	StopNPCActionAnimationShowcase();
-
-	// The waiting-room animation gallery is presentation-only. Restore every
-	// NPC to its real policy action before the simulation clock starts.
-	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
-	{
-		if (IsValid(NPC))
-		{
-			NPC->ClearActionAnimationPreview();
-		}
-	}
 
 	CurrentRunIndex = 1;
 	bIsPaused = false;
@@ -514,6 +496,7 @@ void AYUFSSimulationController::CheckCompletionCondition()
 
 void AYUFSSimulationController::FinalizeRun()
 {
+	if (CurrentPhase == ESimPhase::Completed) return;
 	if (!RegisteredNPCs.IsEmpty())
 	{
 		for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
@@ -536,7 +519,9 @@ void AYUFSSimulationController::FinalizeRun()
 	// 결과 요약 구성
 	FSimRunResult Result;
 	Result.RunIndex = CurrentRunIndex;
-	Result.TotalNPCCount = FMath::Max(InitialNPCCount, LiveEvacuatedCount + LiveIncapacitatedCount + RegisteredNPCs.Num());
+	// Resolved NPCs remain registered for timeline playback, so they are not
+	// additional participants. Removed unresolved NPCs are excluded on unregister.
+	Result.TotalNPCCount = FMath::Max(InitialNPCCount, LiveEvacuatedCount + LiveIncapacitatedCount);
 	Result.EvacuatedCount = LiveEvacuatedCount;
 	Result.IncapacitatedCount = LiveIncapacitatedCount;
 	Result.EvacuationRate = Result.TotalNPCCount > 0
@@ -691,832 +676,33 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 		if (CurrentPhase == ESimPhase::WaitingToStart)
 		{
 			InitialNPCCount = RegisteredNPCs.Num();
-			ScheduleNPCDistribution();
+		}
+		else if (CurrentPhase == ESimPhase::FireStartDelay || CurrentPhase == ESimPhase::FireActive)
+		{
+			++InitialNPCCount;
 		}
 	}
 }
 
-void AYUFSSimulationController::ScheduleNPCDistribution()
+void AYUFSSimulationController::UnregisterNPC(AYUFSEvacuationNPC* NPC)
 {
-	if ((!bDistributeOverlappingNPCs && !bPreviewAllNPCActionAnimations)
-		|| !GetWorld()
-		|| CurrentPhase != ESimPhase::WaitingToStart)
+	if (NPC && RegisteredNPCs.Contains(NPC))
 	{
-		return;
-	}
-
-	GetWorldTimerManager().SetTimer(
-		NPCDistributionTimerHandle,
-		this,
-		&AYUFSSimulationController::DistributeRegisteredNPCs,
-		FMath::Max(NPCDistributionDelaySeconds, 0.01f),
-		false);
-}
-
-void AYUFSSimulationController::DistributeRegisteredNPCs()
-{
-	if (CurrentPhase != ESimPhase::WaitingToStart)
-	{
-		return;
-	}
-
-	TArray<AYUFSEvacuationNPC*> NPCs;
-	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
-	{
-		if (IsValid(NPC) && !NPC->IsHidden())
+		RegisteredNPCs.Remove(NPC);
+		if (CurrentPhase == ESimPhase::WaitingToStart)
 		{
-			NPCs.Add(NPC);
+			ResolvedNPCs.Remove(NPC);
+			InitialNPCCount = RegisteredNPCs.Num();
 		}
-	}
-
-	NPCs.Sort([](const AYUFSEvacuationNPC& Left, const AYUFSEvacuationNPC& Right)
-	{
-		if (Left.GetStableNPCId() != Right.GetStableNPCId())
+		else if (!ResolvedNPCs.Contains(NPC))
 		{
-			return Left.GetStableNPCId() < Right.GetStableNPCId();
+			// Deletion/cancellation is not an evacuation or an injury. Exclude
+			// unresolved withdrawals so they cannot prevent completion forever.
+			InitialNPCCount = FMath::Max(LiveEvacuatedCount + LiveIncapacitatedCount, InitialNPCCount - 1);
 		}
-		return Left.GetName() < Right.GetName();
-	});
-
-	if (!bDistributeOverlappingNPCs || NPCs.Num() < 2)
-	{
-		ApplyNPCActionAnimationPreview(NPCs);
-		return;
+		// Keep resolved identities as historical results if their render actor
+		// is later deleted; this set is compared only, never dereferenced.
 	}
-
-	UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-
-	TArray<float> RawIndoorFloorLevels;
-	for (TActorIterator<AStaticMeshActor> It(GetWorld()); It; ++It)
-	{
-		const UStaticMeshComponent* Component = It->GetStaticMeshComponent();
-		if (!Component || Component->GetCollisionEnabled() == ECollisionEnabled::NoCollision)
-		{
-			continue;
-		}
-
-		const FBoxSphereBounds Bounds = Component->Bounds;
-		const float TopZ = Bounds.Origin.Z + Bounds.BoxExtent.Z;
-		if (Bounds.BoxExtent.X >= IndoorFloorSurfaceMinExtentCm
-			&& Bounds.BoxExtent.Y >= IndoorFloorSurfaceMinExtentCm
-			&& Bounds.BoxExtent.Z <= IndoorFloorSurfaceMaxHalfThicknessCm
-			&& TopZ >= -200.f
-			&& TopZ <= 2000.f)
-		{
-			RawIndoorFloorLevels.Add(TopZ);
-		}
-	}
-
-	RawIndoorFloorLevels.Sort();
-	TArray<float> IndoorFloorLevels;
-	TArray<int32> IndoorFloorLevelSampleCounts;
-	for (const float SurfaceZ : RawIndoorFloorLevels)
-	{
-		if (IndoorFloorLevels.IsEmpty()
-			|| FMath::Abs(SurfaceZ - IndoorFloorLevels.Last()) > IndoorFloorGroupingToleranceCm)
-		{
-			IndoorFloorLevels.Add(SurfaceZ);
-			IndoorFloorLevelSampleCounts.Add(1);
-		}
-		else
-		{
-			const int32 LastIndex = IndoorFloorLevels.Num() - 1;
-			const int32 NewSampleCount = IndoorFloorLevelSampleCounts[LastIndex] + 1;
-			IndoorFloorLevels[LastIndex] =
-				(IndoorFloorLevels[LastIndex] * IndoorFloorLevelSampleCounts[LastIndex] + SurfaceZ)
-				/ static_cast<float>(NewSampleCount);
-			IndoorFloorLevelSampleCounts[LastIndex] = NewSampleCount;
-		}
-	}
-
-	if (IndoorFloorLevels.IsEmpty())
-	{
-		const float CapsuleHalfHeight = NPCs[0]->GetCapsuleComponent()
-			? NPCs[0]->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()
-			: 88.f;
-		IndoorFloorLevels.Add(NPCs[0]->GetActorLocation().Z - CapsuleHalfHeight);
-	}
-	IndoorFloorLevels.SetNum(FMath::Min(
-		IndoorFloorLevels.Num(),
-		FMath::Max(NPCDistributionTargetFloorCount, 1)));
-
-	FString FloorLevelSummary;
-	for (int32 FloorIndex = 0; FloorIndex < IndoorFloorLevels.Num(); ++FloorIndex)
-	{
-		FloorLevelSummary += FString::Printf(
-			TEXT("%s%dF=%.1fcm"),
-			FloorIndex > 0 ? TEXT(", ") : TEXT(""),
-			FloorIndex + 1,
-			IndoorFloorLevels[FloorIndex]);
-	}
-	UE_LOG(LogTemp, Log, TEXT("[YUFS] Indoor floor levels detected: %s."), *FloorLevelSummary);
-
-	const float ClusterRadiusSq = FMath::Square(FMath::Max(NPCDistributionClusterRadiusCm, 50.f));
-	const float Spacing = FMath::Max(NPCDistributionSpacingCm, 80.f);
-	const float MinimumSpacingSq = FMath::Square(Spacing * 0.8f);
-	const float MaxRadius = FMath::Max(NPCDistributionMaxRadiusCm, Spacing);
-	const FVector ProjectionExtent(Spacing, Spacing, 500.f);
-	constexpr float GoldenAngleRadians = 2.39996323f;
-	const int32 MaxPlacementAttempts = FMath::Max(NPCDistributionMaxPlacementAttempts, 64);
-	TArray<bool> Assigned;
-	Assigned.Init(false, NPCs.Num());
-	int32 TotalMoved = 0;
-	int32 NavProjectionSuccessCount = 0;
-	int32 FloorResolutionSuccessCount = 0;
-	int32 TeleportRejectionCount = 0;
-	int32 CeilingValidatedPlacementCount = 0;
-	int32 EnclosureFallbackPlacementCount = 0;
-	TArray<int32> FloorPlacementCounts;
-	FloorPlacementCounts.Init(0, IndoorFloorLevels.Num());
-
-	for (int32 SeedIndex = 0; SeedIndex < NPCs.Num(); ++SeedIndex)
-	{
-		if (Assigned[SeedIndex])
-		{
-			continue;
-		}
-
-		TArray<int32> ClusterIndices { SeedIndex };
-		Assigned[SeedIndex] = true;
-		for (int32 QueueIndex = 0; QueueIndex < ClusterIndices.Num(); ++QueueIndex)
-		{
-			const FVector QueueLocation = NPCs[ClusterIndices[QueueIndex]]->GetActorLocation();
-			for (int32 CandidateIndex = 0; CandidateIndex < NPCs.Num(); ++CandidateIndex)
-			{
-				if (!Assigned[CandidateIndex]
-					&& FVector::DistSquared2D(QueueLocation, NPCs[CandidateIndex]->GetActorLocation()) <= ClusterRadiusSq)
-				{
-					Assigned[CandidateIndex] = true;
-					ClusterIndices.Add(CandidateIndex);
-				}
-			}
-		}
-
-		if (ClusterIndices.Num() < 2)
-		{
-			continue;
-		}
-
-		FVector ClusterCenter = FVector::ZeroVector;
-		for (const int32 Index : ClusterIndices)
-		{
-			ClusterCenter += NPCs[Index]->GetActorLocation();
-		}
-		ClusterCenter /= static_cast<float>(ClusterIndices.Num());
-
-		TArray<FVector> AcceptedLocations;
-		for (int32 MemberIndex = 0; MemberIndex < ClusterIndices.Num(); ++MemberIndex)
-		{
-			AYUFSEvacuationNPC* NPC = NPCs[ClusterIndices[MemberIndex]];
-			const int32 TargetFloorIndex = ClusterIndices[MemberIndex] % IndoorFloorLevels.Num();
-			const float CapsuleHalfHeight = NPC->GetCapsuleComponent()
-				? NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()
-				: 88.f;
-			const float TargetActorZ = IndoorFloorLevels[TargetFloorIndex] + CapsuleHalfHeight + 2.f;
-			bool bPlaced = false;
-			const int32 PlacementPassCount = bRequireIndoorNPCPlacement && bPreferCeilingCollisionForIndoorPlacement ? 2 : 1;
-			for (int32 PlacementPass = 0; PlacementPass < PlacementPassCount && !bPlaced; ++PlacementPass)
-			{
-				const bool bRequireCeilingThisPass =
-					bRequireIndoorNPCPlacement && bPreferCeilingCollisionForIndoorPlacement && PlacementPass == 0;
-				for (int32 Attempt = 0; Attempt < MaxPlacementAttempts; ++Attempt)
-				{
-					// All members scan the same dense deterministic field. Accepted points
-					// reject later overlaps, so each member naturally continues outward.
-					const int32 SpiralIndex = Attempt;
-					const float Radius = FMath::Min(
-						Spacing * 0.55f * FMath::Sqrt(static_cast<float>(SpiralIndex)),
-						MaxRadius);
-					const float Angle = GoldenAngleRadians * static_cast<float>(SpiralIndex);
-					const FVector DesiredLocation = FVector(ClusterCenter.X, ClusterCenter.Y, TargetActorZ) + FVector(
-						FMath::Cos(Angle) * Radius,
-						FMath::Sin(Angle) * Radius,
-						0.f);
-
-					FVector CandidateLocation = DesiredLocation;
-					FNavLocation ProjectedLocation;
-					if (NavSystem && NavSystem->ProjectPointToNavigation(DesiredLocation, ProjectedLocation, ProjectionExtent))
-					{
-						CandidateLocation.X = ProjectedLocation.Location.X;
-						CandidateLocation.Y = ProjectedLocation.Location.Y;
-						++NavProjectionSuccessCount;
-					}
-
-					if (bRequireIndoorNPCPlacement
-						&& !TryResolveIndoorNPCSpawnLocation(CandidateLocation, NPC, bRequireCeilingThisPass, CandidateLocation))
-					{
-						continue;
-					}
-					if (bRequireIndoorNPCPlacement)
-					{
-						++FloorResolutionSuccessCount;
-					}
-					if (FMath::Abs(CandidateLocation.Z - TargetActorZ) > NPCDistributionMaxFloorDeltaCm)
-					{
-						continue;
-					}
-
-					bool bTooClose = false;
-					for (const FVector& AcceptedLocation : AcceptedLocations)
-					{
-						const bool bSameFloor =
-							FMath::Abs(CandidateLocation.Z - AcceptedLocation.Z) <= IndoorFloorGroupingToleranceCm;
-						if (bSameFloor
-							&& FVector::DistSquared2D(CandidateLocation, AcceptedLocation) < MinimumSpacingSq)
-						{
-							bTooClose = true;
-							break;
-						}
-					}
-					if (bTooClose)
-					{
-						continue;
-					}
-
-					FVector TeleportLocation = CandidateLocation;
-					if (!GetWorld()->FindTeleportSpot(NPC, TeleportLocation, NPC->GetActorRotation()))
-					{
-						++TeleportRejectionCount;
-						continue;
-					}
-
-					// FindTeleportSpot may move a valid indoor candidate onto the outdoor
-					// landscape. Treat its result as untrusted and validate it again.
-					if (bRequireIndoorNPCPlacement)
-					{
-						FVector RevalidatedLocation;
-						if (!TryResolveIndoorNPCSpawnLocation(
-							TeleportLocation,
-							NPC,
-							bRequireCeilingThisPass,
-							RevalidatedLocation))
-						{
-							continue;
-						}
-						TeleportLocation = RevalidatedLocation;
-						if (FMath::Abs(TeleportLocation.Z - TargetActorZ) > NPCDistributionMaxFloorDeltaCm)
-						{
-							continue;
-						}
-					}
-
-					bTooClose = false;
-					for (const FVector& AcceptedLocation : AcceptedLocations)
-					{
-						const bool bSameFloor =
-							FMath::Abs(TeleportLocation.Z - AcceptedLocation.Z) <= IndoorFloorGroupingToleranceCm;
-						if (bSameFloor
-							&& FVector::DistSquared2D(TeleportLocation, AcceptedLocation) < MinimumSpacingSq)
-						{
-							bTooClose = true;
-							break;
-						}
-					}
-					if (bTooClose)
-					{
-						continue;
-					}
-
-					AcceptedLocations.Add(TeleportLocation);
-					++FloorPlacementCounts[TargetFloorIndex];
-					if (bRequireCeilingThisPass)
-					{
-						++CeilingValidatedPlacementCount;
-					}
-					else
-					{
-						++EnclosureFallbackPlacementCount;
-					}
-					if (!NPC->GetActorLocation().Equals(TeleportLocation, 1.f))
-					{
-						NPC->ApplyDistributedSpawnLocation(TeleportLocation);
-						++TotalMoved;
-					}
-					bPlaced = true;
-					break;
-				}
-			}
-
-			if (!bPlaced)
-			{
-				AcceptedLocations.Add(NPC->GetActorLocation());
-				UE_LOG(
-					LogTemp,
-					Warning,
-					TEXT("[YUFS] No valid indoor spawn slot found for NPC %s on floor %d."),
-					*NPC->GetName(),
-					TargetFloorIndex + 1);
-			}
-		}
-	}
-
-	FString FloorPlacementSummary;
-	for (int32 FloorIndex = 0; FloorIndex < FloorPlacementCounts.Num(); ++FloorIndex)
-	{
-		FloorPlacementSummary += FString::Printf(
-			TEXT("%s%dF=%d"),
-			FloorIndex > 0 ? TEXT(", ") : TEXT(""),
-			FloorIndex + 1,
-			FloorPlacementCounts[FloorIndex]);
-	}
-
-	UE_LOG(
-		LogTemp,
-		Log,
-		TEXT("[YUFS] NPC spawn distribution complete: %d/%d moved, floors [%s], spacing %.0f cm, ceiling-validated %d, wall-enclosure fallback %d, nav projections %d, floor hits %d, collision rejections %d."),
-		TotalMoved,
-		NPCs.Num(),
-		*FloorPlacementSummary,
-		Spacing,
-		CeilingValidatedPlacementCount,
-		EnclosureFallbackPlacementCount,
-		NavProjectionSuccessCount,
-		FloorResolutionSuccessCount,
-		TeleportRejectionCount);
-
-	ApplyNPCActionAnimationPreview(NPCs);
-}
-
-void AYUFSSimulationController::ApplyNPCActionAnimationPreview(const TArray<AYUFSEvacuationNPC*>& NPCs)
-{
-	if (!bPreviewAllNPCActionAnimations)
-	{
-		StopNPCActionAnimationShowcase();
-		for (AYUFSEvacuationNPC* NPC : NPCs)
-		{
-			if (IsValid(NPC))
-			{
-				NPC->ClearActionAnimationPreview();
-			}
-		}
-		return;
-	}
-
-	constexpr int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
-	TArray<int32> PreviewCounts;
-	PreviewCounts.Init(0, ActionCount);
-	for (int32 Index = 0; Index < NPCs.Num(); ++Index)
-	{
-		AYUFSEvacuationNPC* NPC = NPCs[Index];
-		if (!IsValid(NPC))
-		{
-			continue;
-		}
-
-		const int32 ActionIndex = Index % ActionCount;
-		const EYUFSAction PreviewAction = static_cast<EYUFSAction>(ActionIndex);
-		NPC->SetActionAnimationPreview(PreviewAction);
-		++PreviewCounts[ActionIndex];
-	}
-
-	FString Summary;
-	for (int32 ActionIndex = 0; ActionIndex < ActionCount; ++ActionIndex)
-	{
-		if (PreviewCounts[ActionIndex] <= 0)
-		{
-			continue;
-		}
-
-		const EYUFSAction Action = static_cast<EYUFSAction>(ActionIndex);
-		Summary += FString::Printf(
-			TEXT("%s%s=%d"),
-			Summary.IsEmpty() ? TEXT("") : TEXT(", "),
-			*StaticEnum<EYUFSAction>()->GetNameStringByValue(static_cast<int64>(Action)),
-			PreviewCounts[ActionIndex]);
-	}
-
-	UE_LOG(
-		LogTemp,
-		Log,
-		TEXT("[YUFS][Animation] Preview gallery active for %d NPCs: %s."),
-		NPCs.Num(),
-		*Summary);
-
-	if (bAutoFocusNPCActionAnimationShowcase)
-	{
-		StartNPCActionAnimationShowcase();
-	}
-}
-
-void AYUFSSimulationController::StartNPCActionAnimationShowcase()
-{
-	if (!bPreviewAllNPCActionAnimations || CurrentPhase != ESimPhase::WaitingToStart || !GetWorld())
-	{
-		return;
-	}
-
-	AYUFSEvacuationNPC* FocusNPC = nullptr;
-	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
-	{
-		if (IsValid(NPC) && !NPC->IsHidden())
-		{
-			if (!FocusNPC || NPC->GetStableNPCId() < FocusNPC->GetStableNPCId())
-			{
-				FocusNPC = NPC;
-			}
-		}
-	}
-	if (!FocusNPC)
-	{
-		return;
-	}
-
-	// Distribution can be scheduled more than once while actors register. Reuse the
-	// existing showcase instead of saving the preview camera as its own return target.
-	if (bNPCActionAnimationShowcaseActive)
-	{
-		NPCActionPreviewFocusNPC = FocusNPC;
-		SavedNPCActionPreviewRotation = FocusNPC->GetActorRotation();
-		NPCActionPreviewAccumulator = 0.f;
-		NPCActionPreviewIndex = 0;
-		ApplyCurrentNPCActionAnimationShowcaseStep();
-		UpdateNPCActionAnimationShowcaseCamera();
-		return;
-	}
-
-	APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-	if (!PlayerController)
-	{
-		return;
-	}
-
-	SavedNPCActionPreviewViewTarget = PlayerController->GetViewTarget();
-	NPCActionPreviewFocusNPC = FocusNPC;
-	SavedNPCActionPreviewRotation = FocusNPC->GetActorRotation();
-	NPCActionPreviewAccumulator = 0.f;
-	NPCActionPreviewIndex = 0;
-
-	FActorSpawnParameters SpawnParameters;
-	SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	SpawnParameters.ObjectFlags |= RF_Transient;
-	NPCActionPreviewCamera = GetWorld()->SpawnActor<ACameraActor>(
-		ACameraActor::StaticClass(),
-		FocusNPC->GetActorLocation(),
-		FocusNPC->GetActorRotation(),
-		SpawnParameters);
-	if (!NPCActionPreviewCamera)
-	{
-		NPCActionPreviewFocusNPC = nullptr;
-		SavedNPCActionPreviewViewTarget.Reset();
-		return;
-	}
-
-	NPCActionPreviewCamera->GetCameraComponent()->SetFieldOfView(52.f);
-	NPCActionPreviewLight = NewObject<USpotLightComponent>(
-		NPCActionPreviewCamera,
-		TEXT("YUFSNPCAnimationPreviewLight"));
-	if (NPCActionPreviewLight)
-	{
-		NPCActionPreviewLight->SetupAttachment(NPCActionPreviewCamera->GetRootComponent());
-		NPCActionPreviewLight->SetMobility(EComponentMobility::Movable);
-		NPCActionPreviewLight->SetRelativeLocation(FVector::ZeroVector);
-		NPCActionPreviewLight->SetRelativeRotation(FRotator::ZeroRotator);
-		NPCActionPreviewLight->SetIntensity(8500.f);
-		NPCActionPreviewLight->SetAttenuationRadius(900.f);
-		NPCActionPreviewLight->SetInnerConeAngle(18.f);
-		NPCActionPreviewLight->SetOuterConeAngle(48.f);
-		NPCActionPreviewLight->SetLightColor(FLinearColor(1.f, 0.94f, 0.86f));
-		NPCActionPreviewLight->SetCastShadows(false);
-		NPCActionPreviewLight->RegisterComponent();
-	}
-	bNPCActionAnimationShowcaseActive = true;
-	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
-	{
-		if (!IsValid(NPC))
-		{
-			continue;
-		}
-
-		NPC->SetAnimationShowcaseDebugSuppressed(true);
-		if (bIsolateFocusedNPCInAnimationShowcase && NPC != FocusNPC && !NPC->IsHidden())
-		{
-			NPC->SetActorHiddenInGame(true);
-			NPCActionPreviewTemporarilyHiddenNPCs.Add(NPC);
-		}
-	}
-
-	if (UGameViewportClient* Viewport = GetWorld()->GetGameViewport())
-	{
-		SAssignNew(NPCActionPreviewOverlayText, STextBlock)
-			.Font(FCoreStyle::GetDefaultFontStyle(TEXT("Bold"), 18))
-			.ColorAndOpacity(FLinearColor(0.82f, 0.98f, 1.f, 1.f))
-			.Justification(ETextJustify::Center)
-			.ShadowOffset(FVector2D(1.f, 1.f))
-			.ShadowColorAndOpacity(FLinearColor::Black);
-
-		SAssignNew(NPCActionPreviewOverlayWidget, SOverlay)
-		+ SOverlay::Slot()
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Top)
-		.Padding(FMargin(0.f, 28.f, 0.f, 0.f))
-		[
-			SNew(SBorder)
-			.BorderImage(FCoreStyle::Get().GetBrush(TEXT("ToolPanel.GroupBorder")))
-			.BorderBackgroundColor(FLinearColor(0.015f, 0.025f, 0.04f, 0.92f))
-			.Padding(FMargin(24.f, 12.f))
-			[
-				NPCActionPreviewOverlayText.ToSharedRef()
-			]
-		];
-		Viewport->AddViewportWidgetContent(NPCActionPreviewOverlayWidget.ToSharedRef(), 10000);
-	}
-
-	ApplyCurrentNPCActionAnimationShowcaseStep();
-	UpdateNPCActionAnimationShowcaseCamera();
-	PlayerController->SetViewTargetWithBlend(NPCActionPreviewCamera, 0.35f);
-
-	UE_LOG(
-		LogTemp,
-		Warning,
-		TEXT("[YUFS][Animation] Visible showcase started on %s; actions auto-cycle every %.1f seconds."),
-		*FocusNPC->GetName(),
-		NPCActionPreviewSecondsPerAction);
-}
-
-void AYUFSSimulationController::StopNPCActionAnimationShowcase()
-{
-	if (!bNPCActionAnimationShowcaseActive)
-	{
-		return;
-	}
-
-	if (IsValid(NPCActionPreviewFocusNPC))
-	{
-		NPCActionPreviewFocusNPC->SetActorRotation(SavedNPCActionPreviewRotation);
-	}
-
-	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
-	{
-		if (IsValid(NPC))
-		{
-			NPC->SetAnimationShowcaseDebugSuppressed(false);
-		}
-	}
-	for (const TWeakObjectPtr<AYUFSEvacuationNPC>& HiddenNPC : NPCActionPreviewTemporarilyHiddenNPCs)
-	{
-		if (HiddenNPC.IsValid())
-		{
-			HiddenNPC->SetActorHiddenInGame(false);
-		}
-	}
-	NPCActionPreviewTemporarilyHiddenNPCs.Reset();
-
-	if (UWorld* World = GetWorld())
-	{
-		if (UGameViewportClient* Viewport = World->GetGameViewport())
-		{
-			if (NPCActionPreviewOverlayWidget.IsValid())
-			{
-				Viewport->RemoveViewportWidgetContent(NPCActionPreviewOverlayWidget.ToSharedRef());
-			}
-		}
-	}
-	NPCActionPreviewOverlayText.Reset();
-	NPCActionPreviewOverlayWidget.Reset();
-
-	if (UWorld* World = GetWorld())
-	{
-		if (APlayerController* PlayerController = World->GetFirstPlayerController())
-		{
-			AActor* RestoreTarget = SavedNPCActionPreviewViewTarget.Get();
-			if (!IsValid(RestoreTarget))
-			{
-				RestoreTarget = PlayerController->GetPawn();
-			}
-			if (IsValid(RestoreTarget))
-			{
-				PlayerController->SetViewTargetWithBlend(RestoreTarget, 0.25f);
-			}
-		}
-	}
-
-	if (IsValid(NPCActionPreviewCamera))
-	{
-		NPCActionPreviewCamera->Destroy();
-	}
-
-	bNPCActionAnimationShowcaseActive = false;
-	NPCActionPreviewFocusNPC = nullptr;
-	NPCActionPreviewCamera = nullptr;
-	NPCActionPreviewLight = nullptr;
-	SavedNPCActionPreviewViewTarget.Reset();
-	NPCActionPreviewAccumulator = 0.f;
-
-}
-
-void AYUFSSimulationController::TickNPCActionAnimationShowcase(float DeltaTime)
-{
-	if (!bNPCActionAnimationShowcaseActive
-		|| !IsValid(NPCActionPreviewFocusNPC)
-		|| !IsValid(NPCActionPreviewCamera))
-	{
-		return;
-	}
-
-	const float SecondsPerAction = FMath::Max(NPCActionPreviewSecondsPerAction, 1.f);
-	NPCActionPreviewAccumulator += DeltaTime;
-	if (NPCActionPreviewAccumulator >= SecondsPerAction)
-	{
-		NPCActionPreviewAccumulator = FMath::Fmod(NPCActionPreviewAccumulator, SecondsPerAction);
-		constexpr int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
-		NPCActionPreviewIndex = (NPCActionPreviewIndex + 1) % ActionCount;
-		ApplyCurrentNPCActionAnimationShowcaseStep();
-	}
-
-	UpdateNPCActionAnimationShowcaseCamera();
-	DrawNPCActionAnimationShowcaseOverlay();
-}
-
-void AYUFSSimulationController::ApplyCurrentNPCActionAnimationShowcaseStep()
-{
-	if (!IsValid(NPCActionPreviewFocusNPC))
-	{
-		return;
-	}
-
-	constexpr int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
-	NPCActionPreviewIndex = FMath::Clamp(NPCActionPreviewIndex, 0, ActionCount - 1);
-	const EYUFSAction Action = static_cast<EYUFSAction>(NPCActionPreviewIndex);
-	NPCActionPreviewFocusNPC->SetActionAnimationPreview(Action);
-
-	UE_LOG(
-		LogTemp,
-		Log,
-		TEXT("[YUFS][Animation][Showcase] %d/%d Action=%s Animation=%s"),
-		NPCActionPreviewIndex + 1,
-		ActionCount,
-		*StaticEnum<EYUFSAction>()->GetNameStringByValue(static_cast<int64>(Action)),
-		*NPCActionPreviewFocusNPC->GetCurrentActionAnimationName());
-}
-
-void AYUFSSimulationController::UpdateNPCActionAnimationShowcaseCamera()
-{
-	if (!IsValid(NPCActionPreviewFocusNPC) || !IsValid(NPCActionPreviewCamera) || !GetWorld())
-	{
-		return;
-	}
-
-	const FVector Target = NPCActionPreviewFocusNPC->GetActorLocation()
-		+ FVector(0.f, 0.f, NPCActionPreviewLookAtHeightCm);
-	FVector Forward = NPCActionPreviewFocusNPC->GetActorForwardVector().GetSafeNormal2D();
-	if (Forward.IsNearlyZero())
-	{
-		Forward = FVector::ForwardVector;
-	}
-	const FVector Right = FVector::CrossProduct(FVector::UpVector, Forward).GetSafeNormal();
-	const FVector CandidateDirections[] = { Forward, Right, -Forward, -Right };
-	const float PreferredDistance = FMath::Max(NPCActionPreviewCameraDistanceCm, 80.f);
-	const float CandidateDistances[] =
-	{
-		PreferredDistance,
-		PreferredDistance * 0.78f,
-		PreferredDistance * 0.58f,
-		PreferredDistance * 0.42f
-	};
-
-	FCollisionObjectQueryParams StaticObjectQuery;
-	StaticObjectQuery.AddObjectTypesToQuery(ECC_WorldStatic);
-	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(YUFSNPCAnimationShowcaseCamera), false);
-	QueryParams.AddIgnoredActor(NPCActionPreviewFocusNPC);
-	QueryParams.AddIgnoredActor(NPCActionPreviewCamera);
-
-	FVector CameraLocation = Target + Forward * CandidateDistances[UE_ARRAY_COUNT(CandidateDistances) - 1];
-	CameraLocation.Z += 15.f;
-	bool bFoundClearView = false;
-	for (const float Distance : CandidateDistances)
-	{
-		for (const FVector& Direction : CandidateDirections)
-		{
-			const FVector Candidate = Target + Direction * Distance + FVector(0.f, 0.f, 15.f);
-			FHitResult VisibilityHit;
-			const bool bBlocked = GetWorld()->LineTraceSingleByObjectType(
-				VisibilityHit,
-				Candidate,
-				Target,
-				StaticObjectQuery,
-				QueryParams);
-			if (!bBlocked)
-			{
-				CameraLocation = Candidate;
-				bFoundClearView = true;
-				break;
-			}
-		}
-		if (bFoundClearView)
-		{
-			break;
-		}
-	}
-
-	const FRotator CameraRotation = (Target - CameraLocation).Rotation();
-	NPCActionPreviewCamera->SetActorLocationAndRotation(CameraLocation, CameraRotation);
-}
-
-void AYUFSSimulationController::DrawNPCActionAnimationShowcaseOverlay() const
-{
-	if (!NPCActionPreviewOverlayText.IsValid() || !IsValid(NPCActionPreviewFocusNPC))
-	{
-		return;
-	}
-
-	constexpr int32 ActionCount = static_cast<int32>(EYUFSAction::Film) + 1;
-	const EYUFSAction Action = static_cast<EYUFSAction>(NPCActionPreviewIndex);
-	const float SecondsRemaining = FMath::Max(
-		0.f,
-		FMath::Max(NPCActionPreviewSecondsPerAction, 1.f) - NPCActionPreviewAccumulator);
-	const FString Overlay = FString::Printf(
-		TEXT("NPC ACTION ANIMATION CHECK  [%02d / %02d]\n%s  |  Animation: %s  |  Next: %.1fs\nPress START SIMULATION to return to the normal camera"),
-		NPCActionPreviewIndex + 1,
-		ActionCount,
-		*StaticEnum<EYUFSAction>()->GetNameStringByValue(static_cast<int64>(Action)),
-		*NPCActionPreviewFocusNPC->GetCurrentActionAnimationName(),
-		SecondsRemaining);
-	NPCActionPreviewOverlayText->SetText(FText::FromString(Overlay));
-}
-
-bool AYUFSSimulationController::TryResolveIndoorNPCSpawnLocation(
-	const FVector& DesiredLocation,
-	AYUFSEvacuationNPC* NPC,
-	bool bRequireCeiling,
-	FVector& OutLocation) const
-{
-	UWorld* World = GetWorld();
-	if (!World || !NPC)
-	{
-		return false;
-	}
-
-	FCollisionObjectQueryParams StaticObjectQuery;
-	StaticObjectQuery.AddObjectTypesToQuery(ECC_WorldStatic);
-	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(YUFSIndoorNPCPlacement), false);
-	QueryParams.AddIgnoredActor(NPC);
-
-	FHitResult FloorHit;
-	const bool bHasFloor = World->LineTraceSingleByObjectType(
-		FloorHit,
-		DesiredLocation + FVector(0.f, 0.f, 100.f),
-		DesiredLocation - FVector(0.f, 0.f, 1000.f),
-		StaticObjectQuery,
-		QueryParams);
-	if (!bHasFloor)
-	{
-		return false;
-	}
-	if (!Cast<UStaticMeshComponent>(FloorHit.GetComponent()))
-	{
-		// The large outdoor Landscape surrounds the CAD building and must never
-		// become an NPC spawn floor.
-		return false;
-	}
-
-	const float CapsuleHalfHeight = NPC->GetCapsuleComponent()
-		? NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()
-		: 88.f;
-	// Imported NPC actors can be authored well above the visible floor. Snap the
-	// capsule center to the actual collision floor so the rendered mesh stays inside
-	// the walls in both world space and the perspective overview camera.
-	OutLocation = FVector(
-		DesiredLocation.X,
-		DesiredLocation.Y,
-		FloorHit.ImpactPoint.Z + CapsuleHalfHeight + 2.f);
-
-	if (!bRequireCeiling)
-	{
-		const float EnclosureTraceDistance = FMath::Max(IndoorEnclosureTraceDistanceCm, 500.f);
-		const FVector TraceStart = OutLocation + FVector(0.f, 0.f, CapsuleHalfHeight * 0.25f);
-		const FVector Directions[] =
-		{
-			FVector::ForwardVector,
-			-FVector::ForwardVector,
-			FVector::RightVector,
-			-FVector::RightVector
-		};
-
-		int32 EnclosedDirectionCount = 0;
-		for (const FVector& Direction : Directions)
-		{
-			FHitResult WallHit;
-			if (World->LineTraceSingleByObjectType(
-				WallHit,
-				TraceStart,
-				TraceStart + Direction * EnclosureTraceDistance,
-				StaticObjectQuery,
-				QueryParams))
-			{
-				++EnclosedDirectionCount;
-			}
-		}
-
-		return EnclosedDirectionCount == UE_ARRAY_COUNT(Directions);
-	}
-
-	FHitResult CeilingHit;
-	return World->LineTraceSingleByObjectType(
-		CeilingHit,
-		OutLocation + FVector(0.f, 0.f, CapsuleHalfHeight + 20.f),
-		OutLocation + FVector(0.f, 0.f, FMath::Max(IndoorCeilingTraceHeightCm, 200.f)),
-		StaticObjectQuery,
-		QueryParams);
 }
 
 float AYUFSSimulationController::GetFireStartCountdown() const
@@ -1531,11 +717,36 @@ float AYUFSSimulationController::GetFireStartCountdown() const
 void AYUFSSimulationController::SpawnHUD()
 {
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (!PC || !HUDWidgetClass) return;
+	if (!PC || HUDWidgetInstance) return;
+	if (!HUDWidgetClass)
+	{
+		HUDWidgetClass = LoadClass<UUserWidget>(nullptr, TEXT("/Game/Blueprint/UI/WBP_SimHUD.WBP_SimHUD_C"));
+	}
+	if (!HUDWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS][Merge] Missing JJW HUD /Game/Blueprint/UI/WBP_SimHUD. Preserve JJW UI assets and their redirectors; no legacy simulation HUD is substituted."));
+		return;
+	}
+
+	PC->bShowMouseCursor = true;
+	PC->SetInputMode(FInputModeGameAndUI());
 
 	HUDWidgetInstance = CreateWidget<UUserWidget>(PC, HUDWidgetClass);
 	if (HUDWidgetInstance)
 	{
 		HUDWidgetInstance->AddToViewport();
+	}
+}
+
+void AYUFSSimulationController::StartNPCActionAnimationShowcase()
+{
+	UE_LOG(LogTemp, Display, TEXT("[YUFS][Merge] Legacy animation showcase is disabled. NPC placement and camera remain under JJW/player control."));
+}
+
+void AYUFSSimulationController::StopNPCActionAnimationShowcase()
+{
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (IsValid(NPC)) NPC->ClearActionAnimationPreview();
 	}
 }

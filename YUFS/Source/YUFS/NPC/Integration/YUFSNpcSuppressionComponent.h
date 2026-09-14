@@ -54,7 +54,6 @@ private:
 	FVector AttackPoint = FVector::ZeroVector;
 	FVector RetreatExit = FVector::ZeroVector;
 	TArray<FVector> RetreatPath;
-	float SavedWalkSpeed = 0.f;
 	FName LastStopReason = NAME_None;
 	float ScanTimer = 0.f;
 	float AttemptSeconds = 0.f;
