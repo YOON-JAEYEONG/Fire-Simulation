@@ -1,13 +1,16 @@
 #include "NPC/Integration/YUFSNpcSuppressionComponent.h"
+#include "NPC/Integration/YUFSSuppressionSafety.h"
 #include "NPC/YUFSEvacuationNPC.h"
+#include "NPC/Cognition/YUFSHumanCognitionComponent.h"
 #include "NPC/Decision/YUFSHumanBehaviorSelectorComponent.h"
 #include "NPC/Decision/YUFSIntentComponent.h"
 #include "NPC/Decision/YUFSBeliefComponent.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "NPC/Behavior/YUFSBehaviorConfig.h"
 #include "NPC/Integration/YUFSTeamIntegrationComponent.h"
 #include "NPC/Animation/YUFSActionAnimationComponent.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
-#include "Core/YUFSObservation.h"
+#include "NPC/Perception/YUFSNPCPerceptionComponent.h"
 #include "Fire/YUFSFireExtinguisher.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
 #include "Level/YUFSLevelDataManager.h"
@@ -17,43 +20,39 @@
 #include "NavigationSystem.h"
 #include "EngineUtils.h"
 
-UYUFSNpcSuppressionComponent::UYUFSNpcSuppressionComponent()
-{
-	PrimaryComponentTick.bCanEverTick = false;
-}
+UYUFSNpcSuppressionComponent::UYUFSNpcSuppressionComponent() { PrimaryComponentTick.bCanEverTick = false; }
 
 bool UYUFSNpcSuppressionComponent::Visible(AActor* Target) const
 {
-	if (!Npc.IsValid() || !IsValid(Target)) return false;
-	return CanSeePoint(Target->GetActorLocation() + FVector(0, 0, 45), Target);
+	return Npc.IsValid() && IsValid(Target) && CanSeePoint(Target->GetActorLocation() + FVector(0,0,45), Target);
 }
-
 bool UYUFSNpcSuppressionComponent::CanSeePoint(const FVector& Point, AActor* Target) const
 {
 	if (!Npc.IsValid()) return false;
-	const FVector Eye = Npc->GetActorLocation() + FVector(0, 0, 55);
+	const FVector Eye = Npc->GetPawnViewLocation();
 	if (FVector::DistSquared(Eye, Point) > FMath::Square(DetectionRadiusCm)) return false;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(NpcObjectSight), false, Npc.Get());
-	// A held tool must not occlude its owner's view of the fire.
-	if (Tool.IsValid() && Tool.Get() != Target && Tool->GetOwnerActor() == Npc.Get())
-		Params.AddIgnoredActor(Tool.Get());
+	if (Tool.IsValid()) Params.AddIgnoredActor(Tool.Get());
 	FHitResult Hit;
-	return !GetWorld()->LineTraceSingleByChannel(Hit, Eye, Point, ECC_Visibility, Params)
-		|| Hit.GetActor() == Target;
+	return !GetWorld()->LineTraceSingleByChannel(Hit, Eye, Point, ECC_Visibility, Params) || Hit.GetActor() == Target;
 }
-
 void UYUFSNpcSuppressionComponent::Observe(float DeltaTime, int32 SimFrame, const FYUFSNPCObservation& Observation)
 {
 	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
+	LatestObservation = Observation;
 	if (!Npc.IsValid() || !bEnabled) return;
-	if (bActive && Fire.IsValid() && !Fire->IsLocalFireBurning())
-	{ Finish(true, TEXT("LocalFireSuppressed")); return; }
+	if (Observation.bHazardSampleAvailable) LastHazardSampleAt = GetWorld()->GetTimeSeconds();
 	ScanTimer -= DeltaTime;
 	if (ScanTimer > 0.f) return;
 	ScanTimer = 0.5f + (Npc->GetStableNPCId() % 7) * 0.013f;
 	auto* Team = Npc->GetTeamIntegrationComponent();
 	if (!Team) return;
 	const float Now = GetWorld()->GetTimeSeconds();
+	auto InFieldOfView = [this](FVector Point)
+	{
+		const FVector Direction = (Point - Npc->GetPawnViewLocation()).GetSafeNormal2D();
+		return FVector::DotProduct(Npc->GetActorForwardVector().GetSafeNormal2D(), Direction) >= 0.5f;
+	};
 	if (!bActive)
 	{
 		if (Now - LastToolSeenAt > 15.f || (Tool.IsValid() && Tool->GetOwnerActor())) Tool.Reset();
@@ -62,36 +61,31 @@ void UYUFSNpcSuppressionComponent::Observe(float DeltaTime, int32 SimFrame, cons
 		for (TActorIterator<AYUFSFireExtinguisher> It(GetWorld()); It; ++It)
 		{
 			const float D = FVector::DistSquared(It->GetActorLocation(), Npc->GetActorLocation());
-			if (D < BestTool && !It->GetOwnerActor() && It->GetRemainingAgentNormalized() > 0.f && Visible(*It))
+			if (D < BestTool && !It->GetOwnerActor() && It->GetRemainingAgentNormalized() > 0.f
+				&& InFieldOfView(It->GetActorLocation()) && Visible(*It))
 			{ Tool = *It; BestTool = D; LastToolSeenAt = Now; }
 		}
 		for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
 		{
 			FVector Target;
-			if (!It->IsLocalFireBurning() || !It->GetInteractionTarget(Target)) continue;
+			if (!It->IsFdsFireActive() || !It->GetInteractionTarget(Target)) continue;
 			const float D = FVector::DistSquared(Target, Npc->GetActorLocation());
-			if (D < BestFire && !FinishedFires.Contains(It->GetFName())
-				&& (bKnowsScenarioFireLocation || CanSeePoint(Target + FVector(0, 0, 45), *It)))
+			float Smoke = 0.f, Heat = 0.f;
+			// Metadata describes reality, not NPC knowledge. Require visible local evidence at the source.
+			if (D < BestFire && !FinishedFires.Contains(It->GetFName()) && InFieldOfView(Target)
+				&& CanSeePoint(Target + FVector(0,0,45), *It)
+				&& Npc->GetNPCPerceptionComponent()->SampleObservedHazard(Target + FVector(0,0,45), SimFrame, Smoke, Heat)
+				&& (Heat >= 0.20f || Smoke >= 0.15f))
 			{ Fire = *It; FirePoint = Target; BestFire = D; LastFireSeenAt = Now; }
 		}
 	}
-	if (Fire.IsValid() && (bKnowsScenarioFireLocation || CanSeePoint(FirePoint + FVector(0, 0, 45), Fire.Get()))) LastFireSeenAt = Now;
-	// A safe exit must already be part of this NPC's level knowledge. Also check
-	// that it is reachable on the current floor instead of assuming distance = reachability.
-	bRetreatReachable = false;
-	FVector Exit;
-	if (Tool.IsValid() && Fire.IsValid() && Npc->GetLevelDataManager()
-		&& Npc->GetLevelDataManager()->TryGetNearestSafeExit(Npc->GetActorLocation(), SimFrame, Exit))
+	if (Fire.IsValid() && InFieldOfView(FirePoint) && CanSeePoint(FirePoint + FVector(0,0,45), Fire.Get()))
 	{
-		UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(
-			GetWorld(), Npc->GetActorLocation(), Exit, Npc.Get());
-		bRetreatReachable = Path && Path->IsValid() && !Path->IsPartial();
-		if (bRetreatReachable)
-		{
-			for (const FVector& Point : Path->PathPoints)
-				if (Npc->GetLevelDataManager()->IsLocationDangerous(Point, SimFrame)) bRetreatReachable = false;
-		}
+		float Smoke = 0.f, Heat = 0.f;
+		if (Npc->GetNPCPerceptionComponent()->SampleObservedHazard(FirePoint + FVector(0,0,45), SimFrame, Smoke, Heat)
+			&& (Heat >= 0.20f || Smoke >= 0.15f)) LastFireSeenAt = Now;
 	}
+	bRetreatReachable = Tool.IsValid() && Fire.IsValid() && CheckRetreat(SimFrame);
 	auto Next = Team->GetInteractionOpportunities();
 	const auto Old = Next;
 	Next.bHoldingExtinguisher = Tool.IsValid() && Tool->GetOwnerActor() == Npc.Get()
@@ -100,61 +94,105 @@ void UYUFSNpcSuppressionComponent::Observe(float DeltaTime, int32 SimFrame, cons
 		&& (!Tool->GetOwnerActor() || Tool->GetOwnerActor() == Npc.Get());
 	Next.ExtinguisherStableId = Tool.IsValid() ? Tool->GetFName() : NAME_None;
 	Next.ExtinguisherLocation = Tool.IsValid() ? Tool->GetActorLocation() : FVector::ZeroVector;
-	Next.bSuppressibleFireKnown = Fire.IsValid() && Fire->IsLocalFireBurning() && Fire->bHasInteractionTarget
-		&& !FinishedFires.Contains(Fire->GetFName()) && Now - LastFireSeenAt <= 15.f;
+	Next.bSuppressibleFireKnown = Fire.IsValid() && Fire->IsFdsFireActive()
+		&& !FinishedFires.Contains(Fire->GetFName()) && Now - LastFireSeenAt <= 15.f
+		&& Observation.bHazardSampleAvailable;
 	Next.FireStableId = Fire.IsValid() ? Fire->GetFName() : NAME_None;
 	Next.FireLocation = Fire.IsValid() ? FirePoint : FVector::ZeroVector;
-	Next.bSafeRetreatKnown = bRetreatReachable && Observation.RiskLevel < 0.65f
-		&& Observation.CurrentState != EYUFSBehaviorState::Crawling
-		&& Observation.CurrentState != EYUFSBehaviorState::Incapacitated;
+	Next.bSuppressionApproachKnown = bHasAttackPoint && bActive && Next.bHoldingExtinguisher;
+	Next.SuppressionApproachLocation = Next.bSuppressionApproachKnown ? AttackPoint : FVector::ZeroVector;
+	// "Known retreat" means reachable and not contradicted by observed hazards, not omniscient safety.
+	Next.bSafeRetreatKnown = bRetreatReachable && Observation.bHazardSampleAvailable;
 	if (Old.ExtinguisherStableId != Next.ExtinguisherStableId || Old.FireStableId != Next.FireStableId
-		|| Old.bHoldingExtinguisher != Next.bHoldingExtinguisher
-		|| Old.bExtinguisherKnownAvailable != Next.bExtinguisherKnownAvailable
-		|| Old.bSuppressibleFireKnown != Next.bSuppressibleFireKnown || Old.bSafeRetreatKnown != Next.bSafeRetreatKnown)
+		|| Old.bHoldingExtinguisher != Next.bHoldingExtinguisher || Old.bExtinguisherKnownAvailable != Next.bExtinguisherKnownAvailable
+		|| Old.bSuppressibleFireKnown != Next.bSuppressibleFireKnown || Old.bSafeRetreatKnown != Next.bSafeRetreatKnown
+		|| Old.bSuppressionApproachKnown != Next.bSuppressionApproachKnown
+		|| !Old.SuppressionApproachLocation.Equals(Next.SuppressionApproachLocation, 1.f))
 	{
 		++Next.KnowledgeRevision;
 		Team->SubmitInteractionOpportunities(Next);
-		UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] %s discovered tool=%s fire=%s retreat=%d"),
-			*Npc->GetName(), *Next.ExtinguisherStableId.ToString(), *Next.FireStableId.ToString(), Next.bSafeRetreatKnown);
+		UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] %s observed tool=%s FDS-source=%s retreat=%d data=%d"),
+			*Npc->GetName(), *Next.ExtinguisherStableId.ToString(), *Next.FireStableId.ToString(), bRetreatReachable, Observation.bHazardSampleAvailable);
 	}
 }
-
+bool UYUFSNpcSuppressionComponent::CheckRetreat(int32 SimFrame)
+{
+	RetreatPath.Reset();
+	RetreatExit = FVector::ZeroVector;
+	if (!Npc.IsValid() || !Npc->GetLevelDataManager() || !Npc->GetNavigator()) return false;
+	float BestLength = FLT_MAX;
+	for (const FVector& Exit : Npc->GetLevelDataManager()->GetKnownExitLocations())
+	{
+		auto* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), Npc->GetActorLocation(), Exit, Npc.Get());
+		if (Path && Path->IsValid() && !Path->IsPartial() && !Path->PathPoints.IsEmpty()
+			&& !Npc->GetNavigator()->IsKnownPathDangerous(Path->PathPoints) && Path->GetPathLength() < BestLength)
+		{
+			BestLength = Path->GetPathLength();
+			RetreatExit = Exit;
+			RetreatPath = Path->PathPoints;
+		}
+	}
+	return !RetreatPath.IsEmpty();
+}
+bool UYUFSNpcSuppressionComponent::ReassessSafety(int32 SimFrame)
+{
+	if (!bActive || !Npc.IsValid()) return false;
+	const auto* Cognition = Npc->GetHumanCognitionComponent();
+	const auto* State = Npc->GetBehaviorStateMachine();
+	if (!bEnabled || !Cognition || !State) { Finish(false, TEXT("InteractionExecutorDisabled")); return true; }
+	const auto& C = Cognition->GetCognitiveState();
+	auto O = LatestObservation;
+	O.CurrentState = State->GetCurrentState();
+	O.RiskPerception = State->GetRiskPerception();
+	const auto& Traits = Cognition->GetTraits();
+	FName Reason = NAME_None;
+	if (!FYUFSSuppressionSafety::CanAttempt(O, C, Traits, true))
+		Reason = FYUFSSuppressionSafety::ImmediateDanger(O) ? TEXT("ImmediateObservedDanger") : TEXT("PerceivedRiskOrEvacuationPriority");
+	else if (!Fire.IsValid() || !Fire->IsFdsFireActive()) Reason = TEXT("FdsSourceUnavailable");
+	else if (!Tool.IsValid() || Tool->GetOwnerActor() != Npc.Get()) Reason = TEXT("ToolOwnershipLost");
+	else if (GetWorld()->GetTimeSeconds() - LastHazardSampleAt > 1.f) Reason = TEXT("HazardDataUnavailable");
+	else if (!bRetreatReachable) Reason = TEXT("KnownRetreatLost");
+	if (Reason.IsNone()) return false;
+	UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] %s abort=%s perceivedRisk=%.3f stopAt=%.3f heatNear=%.3f"),
+		*Npc->GetName(), *Reason.ToString(), FYUFSSuppressionSafety::PerceivedRisk(O,C), FYUFSSuppressionSafety::StopRisk(Traits), O.NearbyHeatNormalized);
+	Finish(false, Reason);
+	return true;
+}
+void UYUFSNpcSuppressionComponent::UpdatePresentation()
+{
+	if (bActive && Tool.IsValid() && Tool->GetOwnerActor() == Npc.Get()
+		&& Tool->GetExtinguisherState() != EYUFSFireExtinguisherState::Reserved) UpdateHeldVisual();
+}
 bool UYUFSNpcSuppressionComponent::Execute(float DeltaTime, int32 SimFrame)
 {
 	if (!Npc.IsValid() || !bEnabled) { Cancel(); return false; }
-	// Observe may finish the task before the selector updates this frame.
-	// Never reacquire a released tool using that stale suppression decision.
-	if (Fire.IsValid() && (!Fire->IsLocalFireBurning() || FinishedFires.Contains(Fire->GetFName())))
-	{
-		if (bActive) Finish(true, TEXT("LocalFireSuppressed"));
-		return false;
-	}
-	if (Npc->GetBehaviorStateMachine()->IsIncapacitated() || Npc->GetBehaviorStateMachine()->IsCrawling()
-		|| (Npc->GetBeliefComponent() && (Npc->GetBeliefComponent()->HasImmediateLifeRisk()
-			|| Npc->GetBeliefComponent()->HasVerifiedOfficialInstruction())))
-	{ Cancel(); return false; }
+	if (ReassessSafety(SimFrame)) return true;
+	if (Fire.IsValid() && FinishedFires.Contains(Fire->GetFName())) return false;
 	auto* Selector = Npc->GetHumanBehaviorSelector();
 	if (!Selector || Selector->GetCurrentDecision().Behavior != EYUFSHighLevelBehavior::AttemptSuppression)
-	{
-		if (bActive && Selector)
-			UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] cancellation decision=%s"), *Selector->GetCurrentDecision().Reason.ToString());
-		Cancel(); return false;
-	}
-	if (!Tool.IsValid() || !Fire.IsValid() || !bRetreatReachable)
-	{ Finish(false, TEXT("SuppressionTargetUnavailable")); return true; }
+	{ Cancel(); return false; }
+	if (!Tool.IsValid() || !Fire.IsValid() || !Fire->IsFdsFireActive() || !bRetreatReachable
+		|| !LatestObservation.bHazardSampleAvailable)
+	{ Finish(false, TEXT("AttemptPrerequisiteUnavailable")); return true; }
 	FVector CurrentFirePoint;
 	if (!Fire->GetInteractionTarget(CurrentFirePoint) || !CurrentFirePoint.Equals(FirePoint, 10.f))
-	{ Finish(false, TEXT("ExistingFireTargetChanged")); return true; }
+	{ Finish(false, TEXT("FdsSourceChanged")); return true; }
 	if (!bActive)
 	{
 		if (!Tool->TryReserve(Npc.Get())) { Finish(false, TEXT("ToolReservedByAnotherNpc")); return true; }
-		bActive = true; AttemptSeconds = 0.f; UseSeconds = 0.f;
+		bActive = true; AttemptSeconds = UseSeconds = 0.f;
+		SavedWalkSpeed = Npc->GetCharacterMovement()->MaxWalkSpeed;
+		ExecutionRevision = Npc->GetTeamIntegrationComponent()->GetInteractionDirective().Revision;
 		Npc->GetNavigator()->ClearPath();
-		UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] SAME actor %s started suppression"), *Npc->GetName());
+		UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] %s attempts FDS source %s at %s; no fire mutation"),
+			*Npc->GetName(), *Fire->GetName(), *FirePoint.ToCompactString());
 	}
-	AttemptSeconds += DeltaTime;
-	if (AttemptSeconds > MaxAttemptSeconds || Tool->GetRemainingAgentNormalized() <= 0.f)
-	{ Finish(false, TEXT("SuppressionTimedOutOrEmpty")); return true; }
+	const auto& Directive = Npc->GetTeamIntegrationComponent()->GetInteractionDirective();
+	if (Directive.Goal == EYUFSInteractionGoal::SuppressFire || Directive.Goal == EYUFSInteractionGoal::AcquireExtinguisher)
+		ExecutionRevision = Directive.Revision;
+	AttemptSeconds += FMath::Max(0.f, DeltaTime);
+	if (AttemptSeconds >= MaxAttemptSeconds) { Finish(false, TEXT("AttemptTimeBudgetReached")); return true; }
+	if (Tool->GetRemainingAgentNormalized() <= 0.f) { Finish(false, TEXT("ExtinguisherEmptyFireUnchanged")); return true; }
 	const bool Held = Tool->GetExtinguisherState() == EYUFSFireExtinguisherState::Held
 		|| Tool->GetExtinguisherState() == EYUFSFireExtinguisherState::Spraying;
 	if (!Held)
@@ -163,13 +201,17 @@ bool UYUFSNpcSuppressionComponent::Execute(float DeltaTime, int32 SimFrame)
 		if (FVector::Dist2D(Npc->GetActorLocation(), MovementTarget) < 100.f
 			&& FMath::Abs(Npc->GetActorLocation().Z - MovementTarget.Z) < 160.f && Visible(Tool.Get()))
 		{
-			if (!Tool->PickUp(Npc.Get(), Npc->GetRootComponent(), NAME_None))
-			{ Finish(false, TEXT("PickupFailed")); return true; }
+			if (!Tool->PickUp(Npc.Get(), Npc->GetRootComponent(), NAME_None)) { Finish(false, TEXT("PickupFailed")); return true; }
 			Tool->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-			if (!ChooseAttackPoint(SimFrame)) { Finish(false, TEXT("NoReachableSuppressionPosition")); return true; }
-			MovementTarget = AttackPoint;
-			UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] SAME actor %s picked up %s"), *Npc->GetName(), *Tool->GetName());
-			ScanTimer = 0.f;
+			if (!ChooseAttackPoint(SimFrame)) { Finish(false, TEXT("NoReachableObservedAttackPosition")); return true; }
+			bHasAttackPoint = true;
+			auto Snapshot = Npc->GetTeamIntegrationComponent()->GetInteractionOpportunities();
+			Snapshot.bHoldingExtinguisher = true;
+			Snapshot.bSuppressionApproachKnown = true;
+			Snapshot.SuppressionApproachLocation = AttackPoint;
+			++Snapshot.KnowledgeRevision;
+			Npc->GetTeamIntegrationComponent()->SubmitInteractionOpportunities(Snapshot);
+			MovementTarget = AttackPoint; ScanTimer = 0.f;
 			Npc->GetNavigator()->ClearPath();
 		}
 	}
@@ -178,8 +220,9 @@ bool UYUFSNpcSuppressionComponent::Execute(float DeltaTime, int32 SimFrame)
 		UpdateHeldVisual();
 		MovementTarget = AttackPoint;
 		const float Distance = FVector::Dist2D(Npc->GetActorLocation(), FirePoint);
-		if (Distance >= 140.f && Distance <= 300.f
-			&& FMath::Abs(Npc->GetActorLocation().Z - FirePoint.Z) < 160.f && CanSeePoint(FirePoint + FVector(0, 0, 45), Fire.Get()))
+		if (FVector::Dist2D(Npc->GetActorLocation(), AttackPoint) <= 65.f && Distance >= 140.f && Distance <= 300.f
+			&& FMath::Abs(Npc->GetActorLocation().Z - FirePoint.Z) < 160.f
+			&& CanSeePoint(FirePoint + FVector(0,0,45), Fire.Get()))
 		{
 			Npc->GetCharacterMovement()->StopMovementImmediately();
 			Npc->GetNavigator()->ClearPath();
@@ -189,96 +232,124 @@ bool UYUFSNpcSuppressionComponent::Execute(float DeltaTime, int32 SimFrame)
 			UpdateHeldVisual();
 			if (!Npc->bUseExternalMotionDriver)
 				Npc->GetActionAnimationComponent()->ApplyAction(EYUFSAction::GatherBelongings, EYUFSBehaviorState::Normal);
-			UseSeconds += DeltaTime;
+			UseSeconds += FMath::Max(0.f, DeltaTime);
 			if (UseSeconds >= 1.5f && Tool->StartSpraying(Npc.Get()))
 			{
-				if (!bSpraying) UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] SAME actor %s spraying %s"), *Npc->GetName(), *Fire->GetName());
+				if (!bSpraying) UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] %s spraying gesture, FDS data unchanged"), *Npc->GetName());
 				bSpraying = true;
-				const float Used = Tool->ConsumeAgent(Npc.Get(), DeltaTime * 0.75f);
-				Fire->ApplyLocalSuppression(Used * 0.25f);
-				// Only the local presentation effect responds. Recorded VDB data is unchanged.
-				Tool->ShowSprayToward(FirePoint + FVector(0, 0, 25));
-				if (UseSeconds >= 7.5f) { Finish(true, TEXT("SuppressionActionCompleted")); return true; }
+				Tool->ConsumeAgent(Npc.Get(), DeltaTime * 0.75f);
+				Tool->ShowSprayToward(FirePoint + FVector(0,0,25));
+				// No damage, strength reduction, extinguished event, or timed success.
 			}
 			return true;
 		}
 	}
-	Tool->StopSpraying(Npc.Get()); bSpraying = false;
+	Tool->StopSpraying(Npc.Get()); bSpraying = false; UseSeconds = 0.f;
 	if (!Npc->bUseExternalMotionDriver)
 		Npc->GetActionAnimationComponent()->ApplyAction(EYUFSAction::HelpOther, EYUFSBehaviorState::Normal);
-	// The character owns actual steering; use the same smoke-aware navigator.
-	return false;
+	return false; // The same character and navigator own all locomotion.
 }
-
 void UYUFSNpcSuppressionComponent::UpdateHeldVisual()
 {
 	auto* Mesh = Npc->GetMesh();
+	if (!Mesh || !Tool.IsValid()) return;
 	FName Hand = NAME_None;
 	for (FName Candidate : {FName(TEXT("RightHand")), FName(TEXT("mixamorig_RightHand")), FName(TEXT("hand_r"))})
 		if (Mesh->GetBoneIndex(Candidate) != INDEX_NONE || Mesh->DoesSocketExist(Candidate)) { Hand = Candidate; break; }
 	const FVector Grip = Hand.IsNone() ? Npc->GetActorLocation() : Mesh->GetSocketLocation(Hand);
-	Tool->SetActorLocationAndRotation(Grip - FVector(0, 0, 43), FRotator(0, Npc->GetActorRotation().Yaw - 90.f, 0));
+	Tool->SetActorLocationAndRotation(Grip - FVector(0,0,43), FRotator(0, Npc->GetActorRotation().Yaw - 90.f, 0));
 }
-
 bool UYUFSNpcSuppressionComponent::ChooseAttackPoint(int32 SimFrame)
 {
 	auto* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-	if (!Nav) return false;
+	if (!Nav || !Npc->GetNavigator()) return false;
 	float BestLength = FLT_MAX;
 	for (int32 Index = 0; Index < 12; ++Index)
 	{
 		const float Angle = 2.f * PI * Index / 12.f;
 		FNavLocation Projected;
 		const FVector Candidate = FirePoint + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0) * 230.f;
-		if (!Nav->ProjectPointToNavigation(Candidate, Projected, FVector(70, 70, 100))) continue;
-		if (FMath::Abs(Projected.Location.Z - FirePoint.Z) > 100.f) continue;
-		if (Npc->GetLevelDataManager()->IsLocationDangerous(Projected.Location, SimFrame)) continue;
+		if (!Nav->ProjectPointToNavigation(Candidate, Projected, FVector(70,70,100))) continue;
+		if (FMath::Abs(Projected.Location.Z - FirePoint.Z) > 100.f
+			|| Npc->GetNavigator()->IsKnownLocationDangerous(Projected.Location + FVector(0,0,120))) continue;
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(NpcSuppressionAim), false, Npc.Get());
 		Params.AddIgnoredActor(Tool.Get());
 		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, Projected.Location + FVector(0, 0, 100),
-			FirePoint + FVector(0, 0, 45), ECC_Visibility, Params) && Hit.GetActor() != Fire.Get()) continue;
-		UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(
-			GetWorld(), Npc->GetActorLocation(), Projected.Location, Npc.Get());
-		if (Path && Path->IsValid() && !Path->IsPartial() && Path->GetPathLength() < BestLength)
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Projected.Location + FVector(0,0,100),
+			FirePoint + FVector(0,0,45), ECC_Visibility, Params) && Hit.GetActor() != Fire.Get()) continue;
+		auto* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), Npc->GetActorLocation(), Projected.Location, Npc.Get());
+		if (Path && Path->IsValid() && !Path->IsPartial() && !Path->PathPoints.IsEmpty()
+			&& !Npc->GetNavigator()->IsKnownPathDangerous(Path->PathPoints) && Path->GetPathLength() < BestLength)
 		{ BestLength = Path->GetPathLength(); AttackPoint = Projected.Location; }
 	}
 	return BestLength < FLT_MAX;
 }
-
 void UYUFSNpcSuppressionComponent::Finish(bool bSuccess, FName Reason)
 {
+	LastStopReason = Reason;
 	if (!Npc.IsValid()) return;
-	if (Fire.IsValid()) FinishedFires.Add(Fire->GetFName());
+	if (bActive && !Npc->bUseExternalNavigationDriver)
+	{
+		auto* Movement = Npc->GetCharacterMovement();
+		const auto* State = Npc->GetBehaviorStateMachine();
+		Movement->MaxWalkSpeed = SavedWalkSpeed;
+		if (State && State->IsIncapacitated()) Movement->MaxWalkSpeed = 0.f;
+		else if (State && State->IsCrawling() && State->Config)
+			Movement->MaxWalkSpeed = FMath::Min(Movement->MaxWalkSpeed, State->Config->CrawlSpeed);
+	}
+	if (Fire.IsValid()) FinishedFires.Add(Fire->GetFName()); // This NPC has tried, not "the fire was extinguished".
 	if (Tool.IsValid() && Tool->GetOwnerActor() == Npc.Get())
 	{
+		const bool bWasHeld = Tool->GetExtinguisherState() != EYUFSFireExtinguisherState::Reserved;
 		Tool->StopSpraying(Npc.Get());
-		Tool->SetActorLocation(Npc->GetActorLocation() + Npc->GetActorRightVector() * 65.f - FVector(0, 0, 88));
+		if (bWasHeld)
+		{
+			FCollisionQueryParams Params(SCENE_QUERY_STAT(NpcToolDrop), false, Npc.Get());
+			Params.AddIgnoredActor(Tool.Get());
+			FHitResult Floor;
+			const FVector Drop = Npc->GetActorLocation() + Npc->GetActorRightVector() * 55.f;
+			if (GetWorld()->LineTraceSingleByChannel(Floor, Drop, Drop - FVector(0,0,180), ECC_Visibility, Params)
+				&& Floor.ImpactNormal.Z > 0.6f) Tool->SetActorLocation(Floor.ImpactPoint + FVector(0,0,3));
+		}
 		Tool->Release(Npc.Get());
 	}
-	bActive = false; bSpraying = false; ScanTimer = 0.f;
-	Npc->GetNavigator()->ClearPath();
+	bActive = bSpraying = bHasAttackPoint = false; ScanTimer = 0.f;
+	Npc->GetNavigator()->ClearPath(); // Invalidates late asynchronous approach results.
 	auto* Team = Npc->GetTeamIntegrationComponent();
-	auto Snapshot = Team->GetInteractionOpportunities();
-	Snapshot.bSuppressibleFireKnown = false; Snapshot.bHoldingExtinguisher = false; ++Snapshot.KnowledgeRevision;
-	Team->SubmitInteractionOpportunities(Snapshot);
-	FYUFSTeamRequestFeedback Feedback;
-	Feedback.RequestRevision = Team->GetInteractionDirective().Revision;
-	Feedback.Status = bSuccess ? EYUFSTeamRequestStatus::Completed : EYUFSTeamRequestStatus::Failed;
-	Feedback.Reason = Reason;
-	Team->SubmitInteractionFeedback(Feedback);
+	if (Team)
+	{
+		auto Snapshot = Team->GetInteractionOpportunities();
+		Snapshot.bSuppressibleFireKnown = Snapshot.bHoldingExtinguisher = false; ++Snapshot.KnowledgeRevision;
+		Snapshot.bSuppressionApproachKnown = false;
+		Snapshot.SuppressionApproachLocation = FVector::ZeroVector;
+		Team->SubmitInteractionOpportunities(Snapshot);
+		FYUFSTeamRequestFeedback Feedback;
+		Feedback.RequestRevision = ExecutionRevision;
+		Feedback.Status = EYUFSTeamRequestStatus::Cancelled;
+		Feedback.Reason = Reason;
+		Team->SubmitInteractionFeedback(Feedback);
+	}
 	Npc->GetHumanBehaviorSelector()->RequestReselection(Reason);
-	Npc->GetIntentComponent()->ResumeEvacuationAfterInteraction(bRetreatReachable);
-	UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] SAME actor %s resumes decision: %s"), *Npc->GetName(), *Reason.ToString());
+	if (bResumeOnFinish) Npc->ResumeEvacuationAfterSuppression(bRetreatReachable, RetreatExit, RetreatPath);
+	UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] %s stopped attempt: %s; fire remains unchanged"), *Npc->GetName(), *Reason.ToString());
 }
-
-void UYUFSNpcSuppressionComponent::Cancel()
+void UYUFSNpcSuppressionComponent::Cancel(bool bResumeEvacuation)
 {
+	TGuardValue<bool> ResumeGuard(bResumeOnFinish, bResumeEvacuation);
 	if (bActive) Finish(false, TEXT("SuppressionInterrupted"));
 }
-
+void UYUFSNpcSuppressionComponent::ResetForEpisode()
+{
+	Cancel(false);
+	Tool.Reset(); Fire.Reset(); FinishedFires.Reset();
+	RetreatPath.Reset(); RetreatExit = FVector::ZeroVector;
+	bRetreatReachable = bHasAttackPoint = false;
+	LastFireSeenAt = LastToolSeenAt = LastHazardSampleAt = -1000.f;
+	ScanTimer = AttemptSeconds = UseSeconds = 0.f;
+	LastStopReason = NAME_None;
+}
 void UYUFSNpcSuppressionComponent::EndPlay(const EEndPlayReason::Type Reason)
 {
-	Cancel();
+	Cancel(false);
 	Super::EndPlay(Reason);
 }

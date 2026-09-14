@@ -1,258 +1,251 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
-
-#include "Async/Async.h"
-#include "EngineUtils.h"
-#include "Fire/YUFSBinaryManager.h"
-#include "GameFramework/Actor.h"
+#include "Components/CapsuleComponent.h"
+#include "Engine/World.h"
 #include "GameFramework/Character.h"
-#include "Level/YUFSLevelDataManager.h"
-#include "NavFilters/NavigationQueryFilter.h"
-#include "NavigationPath.h"
-#include "NavigationSystem.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "NavigationData.h"
 
-UYUFSSmokeAwareNavigator::UYUFSSmokeAwareNavigator()
+UYUFSSmokeAwareNavigator::UYUFSSmokeAwareNavigator() { PrimaryComponentTick.bCanEverTick = true; }
+void UYUFSSmokeAwareNavigator::EndPlay(const EEndPlayReason::Type Reason)
 {
-	PrimaryComponentTick.bCanEverTick = true;
+ CancelPendingRequest();
+ Super::EndPlay(Reason);
 }
-
-void UYUFSSmokeAwareNavigator::BeginPlay()
-{
-	Super::BeginPlay();
-
-	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It)
-	{
-		LevelDataMgr = *It;
-		break;
-	}
-
-	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
-	{
-		BinaryManager = *It;
-		break;
-	}
-}
-
 void UYUFSSmokeAwareNavigator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	RerouteTimer += DeltaTime;
+ Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+ SinceAttempt += DeltaTime;
+ RerouteTimer += DeltaTime;
 }
-
+void UYUFSSmokeAwareNavigator::StopOwnerMovement()
+{
+ if (auto* Character = Cast<ACharacter>(GetOwner()))
+ {
+  Character->ConsumeMovementInputVector();
+  if (auto* Movement = Character->GetCharacterMovement()) Movement->StopMovementImmediately();
+ }
+}
+void UYUFSSmokeAwareNavigator::CancelPendingRequest()
+{
+ ++RequestGeneration; // Abort cannot stop an already running callback; generation can.
+ if (ActiveQueryId != INVALID_NAVQUERYID && PendingNavigationSystem.IsValid())
+  PendingNavigationSystem->AbortAsyncFindPathRequest(ActiveQueryId);
+ ActiveQueryId = INVALID_NAVQUERYID;
+ PendingNavigationSystem.Reset();
+ bIsPathfinding = false;
+}
+void UYUFSSmokeAwareNavigator::SetStatus(EYUFSNavigationStatus NewStatus, EYUFSNavigationFailure Failure)
+{
+ Status = NewStatus;
+ LastFailure = Failure;
+ bIsPathfinding = Status == EYUFSNavigationStatus::Pathfinding;
+ if (Status == EYUFSNavigationStatus::Failed) bLastAttemptFailed = true;
+ else if (Status == EYUFSNavigationStatus::Moving || Status == EYUFSNavigationStatus::Arrived) bLastAttemptFailed = false;
+ UE_LOG(LogTemp, Log, TEXT("[YUFS][Nav] agent=%s request=%u status=%s failure=%s target=%s frame=%d observed=%d"),
+  *GetNameSafe(GetOwner()), RequestGeneration,
+  *StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(int64(Status)),
+  *StaticEnum<EYUFSNavigationFailure>()->GetNameStringByValue(int64(Failure)),
+  *RequestedDestination.ToCompactString(), RequestFrame, QueryKnowledge.Samples.Num());
+}
 void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame)
 {
-	if (bIsPathfinding)
-	{
-		return;
-	}
-
-	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
-	if (!NavSys)
-	{
-		return;
-	}
-
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
-	if (!OwnerCharacter)
-	{
-		return;
-	}
-
-	const FNavAgentProperties& AgentProps = OwnerCharacter->GetNavAgentPropertiesRef();
-	ANavigationData* NavData = NavSys->GetNavDataForProps(AgentProps, OwnerCharacter->GetActorLocation());
-	if (!NavData)
-	{
-		NavData = NavSys->GetDefaultNavDataInstance();
-	}
-
-	if (!NavData)
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("[Nav] Failed to find NavData!"));
-		}
-		return;
-	}
-
-	// 목적지를 NavMesh에 투영 — 실패하면 벽 안쪽으로 경로 탐색하므로 중단
-	FNavLocation ProjectedDestination;
-	if (!NavSys->ProjectPointToNavigation(Destination, ProjectedDestination, FVector(500.f, 500.f, 500.f), &AgentProps, nullptr))
-	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
-				FString::Printf(TEXT("[Nav] Destination NavMesh projection failed: %s"), *Destination.ToString()));
-		}
-		return;
-	}
-	Destination = ProjectedDestination.Location;
-
-	// 시작점도 NavMesh에 투영 — NPC가 약간 NavMesh 밖에 있으면 경로가 깨짐
-	FVector StartLocation = OwnerCharacter->GetActorLocation();
-	FNavLocation ProjectedStart;
-	if (NavSys->ProjectPointToNavigation(StartLocation, ProjectedStart, FVector(200.f, 200.f, 400.f), &AgentProps, nullptr))
-	{
-		StartLocation = ProjectedStart.Location;
-	}
-
-	FPathFindingQuery Query(
-		OwnerCharacter,
-		*NavData,
-		StartLocation,
-		Destination,
-		UNavigationQueryFilter::GetQueryFilter(*NavData, OwnerCharacter, UYUFSSmokeNavigationQueryFilter::StaticClass()));
-
-	bIsPathfinding = true;
-	CurrentDestination = Destination;
-
-	TWeakObjectPtr<UYUFSSmokeAwareNavigator> WeakThis(this);
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [WeakThis, NavSys, Query]()
-	{
-		if (!NavSys)
-		{
-			return;
-		}
-
-		FPathFindingResult PathResult = NavSys->FindPathSync(Query);
-		TArray<FVector> ResultPathPoints;
-		bool bSuccess = false;
-
-		if (PathResult.IsSuccessful() && PathResult.Path.IsValid())
-		{
-			bSuccess = true;
-			for (const FNavPathPoint& Point : PathResult.Path->GetPathPoints())
-			{
-				ResultPathPoints.Add(Point.Location);
-			}
-		}
-
-		AsyncTask(ENamedThreads::GameThread, [WeakThis, bSuccess, ResultPathPoints]()
-		{
-			if (UYUFSSmokeAwareNavigator* NavComp = WeakThis.Get())
-			{
-				NavComp->bIsPathfinding = false;
-				// 경로 탐색 완료 후 연기 패널티 초기화 — 다음 정상 탐색에 영향 없도록
-				UYUFSSmokeNavigationQueryFilter::ResetSmokeCosts();
-
-				if (bSuccess)
-				{
-					NavComp->CurrentPath = ResultPathPoints;
-					NavComp->CurrentWaypointIndex = NavComp->CurrentPath.Num() > 1 ? 1 : 0;
-				}
-				else
-				{
-					if (GEngine)
-					{
-						GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("[Nav] Custom Async Path Failed!"));
-					}
-					NavComp->ClearPath();
-				}
-			}
-		});
-	});
+ const bool SameGoal = bHasAttempted && LastAttemptDestination.Equals(Destination, 5.f);
+ if (SameGoal && (bIsPathfinding || IsFollowingPath())) return;
+ // Caller ClearPath/RequestPath loops cannot defeat the failure cooldown.
+ if (SameGoal && bLastAttemptFailed && AttemptKnowledgeRevision == KnowledgeRevision)
+ {
+  if (SinceAttempt < FMath::Max(0.1f, FailedPathRetryInterval) || RetryCount >= FMath::Max(0, MaxFailedPathRetries)) return;
+  ++RetryCount;
+ }
+ else RetryCount = 0;
+ StartPathRequest(Destination, Frame);
 }
-
+void UYUFSSmokeAwareNavigator::StartPathRequest(FVector Destination, int32 Frame)
+{
+ CancelPendingRequest();
+ StopOwnerMovement();
+ CurrentPath.Reset(); CurrentWaypointIndex = 0;
+ RequestedDestination = CurrentDestination = LastAttemptDestination = Destination;
+ bHasAttempted = true; RequestFrame = Frame; SinceAttempt = RerouteTimer = 0.f;
+ AttemptKnowledgeRevision = KnowledgeRevision;
+ QueryKnowledge = GetObservedHazardSnapshot();
+ auto* Character = Cast<ACharacter>(GetOwner());
+ if (!Character) { SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::InvalidOwner); return; }
+ if (Destination.ContainsNaN()) { SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::InvalidDestination); return; }
+ auto* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
+ const auto& AgentProps = Character->GetNavAgentPropertiesRef();
+ auto* NavData = NavSys ? NavSys->GetNavDataForProps(AgentProps, GetOwnerFeetLocation()) : nullptr;
+ if (!NavData) { SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::NoNavigationData); return; }
+ FNavLocation End, Start;
+ if (!NavSys->ProjectPointToNavigation(Destination, End, FVector(100, 100, 150), NavData)
+  || FMath::Abs(End.Location.Z - Destination.Z) > 150.f
+  || FVector::DistSquared2D(End.Location, Destination) > FMath::Square(100.f))
+ { SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::DestinationOffNavMesh); return; }
+ const FVector Feet = GetOwnerFeetLocation();
+ if (!NavSys->ProjectPointToNavigation(Feet, Start, FVector(60, 60, 80), NavData)
+  || FMath::Abs(Start.Location.Z - Feet.Z) > 80.f)
+ { SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::StartOffNavMesh); return; }
+ CurrentDestination = End.Location;
+ const auto Filter = UYUFSSmokeNavigationQueryFilter::CreateQueryFilter(*NavData, Character, QueryKnowledge);
+ if (!Filter.IsValid()) { SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::UnsupportedNavData); return; }
+ FPathFindingQuery Query(Character, *NavData, Start.Location, End.Location, Filter);
+ Query.SetAllowPartialPaths(false);
+ PendingNavigationSystem = NavSys;
+ ActiveQueryId = NavSys->FindPathAsync(AgentProps, Query,
+  FNavPathQueryDelegate::CreateUObject(this, &UYUFSSmokeAwareNavigator::OnPathFound, RequestGeneration));
+ if (ActiveQueryId == INVALID_NAVQUERYID) { SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::NoPath); return; }
+ SetStatus(EYUFSNavigationStatus::Pathfinding);
+}
+void UYUFSSmokeAwareNavigator::OnPathFound(uint32 QueryId, ENavigationQueryResult::Type Result,
+ FNavPathSharedPtr Path, uint32 Generation)
+{
+ if (Generation != RequestGeneration || QueryId != ActiveQueryId || !bIsPathfinding) return;
+ ActiveQueryId = INVALID_NAVQUERYID; PendingNavigationSystem.Reset();
+ if (Result != ENavigationQueryResult::Success || !Path.IsValid() || !Path->IsValid()
+  || Path->GetPathPoints().Num() < 2 || Path->IsPartial())
+ {
+  CurrentPath.Reset(); StopOwnerMovement();
+  SetStatus(EYUFSNavigationStatus::Failed, Path.IsValid() && Path->IsPartial()
+   ? EYUFSNavigationFailure::PartialPath : EYUFSNavigationFailure::NoPath);
+  return;
+ }
+ for (const auto& Point : Path->GetPathPoints())
+ {
+  if (Point.Location.ContainsNaN())
+  { CurrentPath.Reset(); StopOwnerMovement(); SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::NoPath); return; }
+  CurrentPath.Add(Point.Location);
+ }
+ if (!CurrentPath.Last().Equals(CurrentDestination, 50.f))
+ { CurrentPath.Reset(); StopOwnerMovement(); SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::PartialPath); return; }
+ // Final geometry uses the newest personal observations, never global FDS truth.
+ if (!GetObservedHazardSnapshot().IsPathSafe(CurrentPath))
+ { CurrentPath.Reset(); StopOwnerMovement(); SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::UnsafeKnownPath); return; }
+ CurrentWaypointIndex = 1; RetryCount = 0;
+ SetStatus(EYUFSNavigationStatus::Moving);
+}
 void UYUFSSmokeAwareNavigator::CheckAndReroute(int32 Frame)
 {
-	if (CurrentPath.IsEmpty() || bIsPathfinding)
-	{
-		return;
-	}
-
-	if (RerouteTimer >= RerouteCheckInterval)
-	{
-		RerouteTimer = 0.f;
-
-		TArray<FVector> RemainingPath;
-		for (int32 PathIndex = CurrentWaypointIndex; PathIndex < CurrentPath.Num(); ++PathIndex)
-		{
-			RemainingPath.Add(CurrentPath[PathIndex]);
-		}
-
-		const float DangerScore = LevelDataMgr ? LevelDataMgr->GetPathDangerScore(RemainingPath, Frame) : 0.f;
-		if (DangerScore > SmokeBlockThreshold)
-		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(
-					-1,
-					0.0f,
-					FColor::Orange,
-					FString::Printf(TEXT("[Nav] Rerouting due to Smoke! Danger Score: %f"), DangerScore));
-			}
-			// 재탐색 전 NavArea_Obstacle 비용을 높여 연기 구역을 우회하도록 유도
-			// (레벨에 NavModifierVolume + NavArea_Obstacle 배치 시 실제 우회 경로 생성)
-			UYUFSSmokeNavigationQueryFilter::UpdateSmokeCosts(BinaryManager, Frame);
-			RequestPathAsync(CurrentDestination, Frame);
-		}
-	}
+ if (!IsFollowingPath() || RerouteTimer < FMath::Max(0.1f, RerouteCheckInterval)) return;
+ RerouteTimer = 0.f;
+ const auto Remaining = BuildRemainingPath();
+ const auto Latest = GetObservedHazardSnapshot();
+ float PreviousCost = 0.f, CurrentCost = 0.f;
+ for (int32 I = 1; I < Remaining.Num(); ++I)
+ {
+  PreviousCost += QueryKnowledge.SegmentAddedCost(Remaining[I - 1], Remaining[I]);
+  CurrentCost += Latest.SegmentAddedCost(Remaining[I - 1], Remaining[I]);
+ }
+ if (!Latest.IsPathSafe(Remaining) || CurrentCost > PreviousCost + 100.f)
+  StartPathRequest(RequestedDestination, Frame);
 }
-
 void UYUFSSmokeAwareNavigator::ClearPath()
 {
-	CurrentPath.Empty();
-	CurrentWaypointIndex = 0;
-	CurrentDestination = FVector::ZeroVector;
+ CancelPendingRequest(); StopOwnerMovement();
+ CurrentPath.Reset(); CurrentWaypointIndex = 0;
+ RequestedDestination = CurrentDestination = FVector::ZeroVector;
+ QueryKnowledge = {};
+ // Keep retry bookkeeping so repeated clears do not spin on an unreachable goal.
+ if (Status != EYUFSNavigationStatus::Idle) SetStatus(EYUFSNavigationStatus::Idle);
 }
-
+void UYUFSSmokeAwareNavigator::ReportMovementBlocked()
+{
+ const FVector Position = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
+ const bool SameBlock = RequestedDestination.Equals(LastBlockedGoal, 5.f)
+  && FVector::DistSquared2D(Position, LastBlockedPosition) < FMath::Square(150.f)
+  && LastBlockedKnowledgeRevision == KnowledgeRevision;
+ RepeatedMovementBlocks = SameBlock ? RepeatedMovementBlocks + 1 : 1;
+ LastBlockedPosition = Position; LastBlockedGoal = RequestedDestination;
+ LastBlockedKnowledgeRevision = KnowledgeRevision;
+ CancelPendingRequest(); StopOwnerMovement();
+ CurrentPath.Reset(); CurrentWaypointIndex = 0; SinceAttempt = 0.f;
+ // A geometrically valid but physically blocked route cannot reset its own
+ // recovery budget by returning the same successful NavMesh path repeatedly.
+ RetryCount = RepeatedMovementBlocks > FMath::Max(0, MaxFailedPathRetries)
+  ? FMath::Max(0, MaxFailedPathRetries) : 0;
+ SetStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::Blocked);
+}
 FVector UYUFSSmokeAwareNavigator::GetNextWaypoint() const
 {
-	if (CurrentPath.Num() > 0 && CurrentWaypointIndex < CurrentPath.Num())
-	{
-		return CurrentPath[CurrentWaypointIndex];
-	}
-
-	return GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
+ return IsFollowingPath() && CurrentPath.IsValidIndex(CurrentWaypointIndex)
+  ? CurrentPath[CurrentWaypointIndex] : (GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector);
 }
-
 FVector UYUFSSmokeAwareNavigator::GetSteeringTarget(FVector ActorLocation, float LookAheadDistance) const
 {
-	if (CurrentPath.IsEmpty() || CurrentWaypointIndex >= CurrentPath.Num())
-	{
-		return ActorLocation;
-	}
-
-	// 현재 웨이포인트까지만 룩어헤드를 허용 — 그 이상 넘어가면 코너를 직선으로 관통하는
-	// 방향벡터가 생겨 벽 돌진 현상이 발생하므로 현재 세그먼트 안으로 클램프
-	FVector NextWaypoint = CurrentPath[CurrentWaypointIndex];
-	NextWaypoint.Z = ActorLocation.Z;
-
-	const float DistToNext = FVector::Dist2D(ActorLocation, NextWaypoint);
-
-	// 웨이포인트가 룩어헤드 거리 안에 있으면 그냥 웨이포인트를 직접 목표로 사용
-	if (DistToNext <= LookAheadDistance || DistToNext <= KINDA_SMALL_NUMBER)
-	{
-		return NextWaypoint;
-	}
-
-	// 웨이포인트까지 충분히 멀면 현재 세그먼트 안에서 룩어헤드 보간
-	const FVector Dir = (NextWaypoint - ActorLocation).GetSafeNormal2D();
-	FVector SteeringTarget = ActorLocation + Dir * LookAheadDistance;
-	SteeringTarget.Z = ActorLocation.Z;
-	return SteeringTarget;
+ if (!IsFollowingPath() || !CurrentPath.IsValidIndex(CurrentWaypointIndex)) return ActorLocation;
+ FVector Next = CurrentPath[CurrentWaypointIndex]; Next.Z = ActorLocation.Z;
+ const float Distance = FVector::Dist2D(ActorLocation, Next);
+ return Distance <= LookAheadDistance ? Next
+  : ActorLocation + (Next - ActorLocation).GetSafeNormal2D() * FMath::Max(0.f, LookAheadDistance);
 }
-
 void UYUFSSmokeAwareNavigator::UpdateWaypoint(FVector ActorLocation, float AcceptanceRadius)
 {
-	if (CurrentPath.Num() == 0 || CurrentWaypointIndex >= CurrentPath.Num())
-	{
-		return;
-	}
-
-	const float AcceptanceRadiusSq = FMath::Square(AcceptanceRadius);
-	while (CurrentWaypointIndex < CurrentPath.Num())
-	{
-		FVector CurrentWaypoint = CurrentPath[CurrentWaypointIndex];
-		CurrentWaypoint.Z = ActorLocation.Z;
-
-		if (FVector::DistSquared2D(ActorLocation, CurrentWaypoint) > AcceptanceRadiusSq)
-		{
-			break;
-		}
-
-		++CurrentWaypointIndex;
-	}
+ if (!IsFollowingPath()) return;
+ while (CurrentPath.IsValidIndex(CurrentWaypointIndex))
+ {
+  const auto& Point = CurrentPath[CurrentWaypointIndex];
+  const float Radius = CurrentWaypointIndex + 1 < CurrentPath.Num() ? FMath::Min(AcceptanceRadius, 25.f) : AcceptanceRadius;
+  if (FVector::DistSquared2D(ActorLocation, Point) > FMath::Square(Radius)
+   || FMath::Abs(ActorLocation.Z - Point.Z) > WaypointHeightTolerance) break;
+  ++CurrentWaypointIndex;
+ }
+ if (CurrentWaypointIndex >= CurrentPath.Num()) { StopOwnerMovement(); SetStatus(EYUFSNavigationStatus::Arrived); }
+}
+FVector UYUFSSmokeAwareNavigator::GetOwnerFeetLocation() const
+{
+ const auto* Character = Cast<ACharacter>(GetOwner());
+ return Character ? Character->GetActorLocation() - FVector(0, 0, Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight())
+  : (GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector);
+}
+TArray<FVector> UYUFSSmokeAwareNavigator::BuildRemainingPath() const
+{
+ TArray<FVector> Result; Result.Add(GetOwnerFeetLocation());
+ for (int32 I = CurrentWaypointIndex; I < CurrentPath.Num(); ++I) Result.Add(CurrentPath[I]);
+ return Result;
+}
+void UYUFSSmokeAwareNavigator::ReportObservedHazard(FVector Position, float Smoke, float Heat, float Radius)
+{
+ if (Position.ContainsNaN() || !FMath::IsFinite(Smoke) || !FMath::IsFinite(Heat) || !FMath::IsFinite(Radius)) return;
+ const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+ const int32 Removed = ObservedHazards.RemoveAll([&](const auto& K) { return Now - K.ObservedAt > FMath::Max(1.f, HazardMemorySeconds); });
+ if (Removed) ++KnowledgeRevision;
+ const int32 Existing = ObservedHazards.IndexOfByPredicate([&](const auto& K) { return K.Location.Equals(Position, 10.f); });
+ Smoke = FMath::Clamp(Smoke, 0.f, 1.f); Heat = FMath::Clamp(Heat, 0.f, 1.f);
+ if (Smoke <= 0.01f && Heat <= 0.01f)
+ {
+  if (Existing != INDEX_NONE) { ObservedHazards.RemoveAt(Existing); ++KnowledgeRevision; }
+  return;
+ }
+ FYUFSObservedHazard NewSample{Position, Smoke, Heat, FMath::Clamp(Radius, 10.f, 100.f), Now};
+ if (Existing != INDEX_NONE)
+ {
+  const auto& Old = ObservedHazards[Existing];
+  if (!FMath::IsNearlyEqual(Old.Smoke, Smoke, 0.02f) || !FMath::IsNearlyEqual(Old.Heat, Heat, 0.02f)) ++KnowledgeRevision;
+  ObservedHazards[Existing] = NewSample;
+ }
+ else
+ {
+  if (ObservedHazards.Num() >= 256)
+  {
+   int32 Oldest = 0;
+   for (int32 I = 1; I < ObservedHazards.Num(); ++I)
+    if (ObservedHazards[I].ObservedAt < ObservedHazards[Oldest].ObservedAt) Oldest = I;
+   ObservedHazards.RemoveAt(Oldest);
+  }
+  ObservedHazards.Add(NewSample); ++KnowledgeRevision;
+ }
+}
+void UYUFSSmokeAwareNavigator::ResetObservedHazards()
+{
+ ObservedHazards.Reset(); ++KnowledgeRevision;
+}
+FYUFSObservedHazardSnapshot UYUFSSmokeAwareNavigator::GetObservedHazardSnapshot() const
+{
+ FYUFSObservedHazardSnapshot Result;
+ Result.BlockSmoke = FMath::Clamp(UnsafeSmokeThreshold, 0.01f, 1.f);
+ Result.BlockHeat = FMath::Clamp(UnsafeHeatThreshold, 0.01f, 1.f);
+ const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+ for (const auto& Known : ObservedHazards)
+  if (Now - Known.ObservedAt <= FMath::Max(1.f, HazardMemorySeconds)) Result.Samples.Add(Known);
+ return Result;
 }
 

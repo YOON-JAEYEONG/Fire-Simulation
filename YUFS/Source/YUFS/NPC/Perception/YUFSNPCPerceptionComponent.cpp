@@ -9,6 +9,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
 #include "Math/RotationMatrix.h"
+#include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 
 UYUFSNPCPerceptionComponent::UYUFSNPCPerceptionComponent()
 {
@@ -28,7 +29,10 @@ void UYUFSNPCPerceptionComponent::BeginPlay()
 
 void UYUFSNPCPerceptionComponent::UpdatePerception(int32 CurrentFrame)
 {
-	if (!BinaryManager || !Config || !GetOwner())
+	CachedHeatInSight = 0.f;
+	CachedNearbyHeat = 0.f;
+	bHazardSampleAvailable = false;
+	if (!BinaryManager || !BinaryManager->bDatasetAlignmentConfirmed || !Config || !GetOwner())
 	{
 		CachedSmokeDensity = 0.f;
 		CachedTemperature = 0.f;
@@ -39,6 +43,7 @@ void UYUFSNPCPerceptionComponent::UpdatePerception(int32 CurrentFrame)
 	}
 
 	const FVector MyPos = GetOwner()->GetActorLocation();
+	bHazardSampleAvailable = SampleObservedHazard(MyPos, CurrentFrame, CachedSmokeDensity, CachedTemperature);
 
 	uint8 RawDensity = 0;
 	if (BinaryManager->GetSmokeDensityAtLocation(MyPos, CurrentFrame, RawDensity))
@@ -71,7 +76,8 @@ void UYUFSNPCPerceptionComponent::UpdatePerception(int32 CurrentFrame)
 
 	const int32 SafeFrontRayCount = FMath::Max(1, Config->VisionRayCount);
 	const int32 SafeUpperYawRayCount = FMath::Max(1, Config->UpperVisionYawRayCount);
-	const int32 SafeSampleCount = FMath::Max(1, Config->VisionSamplesPerRay);
+	const int32 SafeSampleCount = FMath::Max3(1, Config->VisionSamplesPerRay,
+		FMath::CeilToInt(Config->VisionRange / FMath::Max(20.f, Config->MaximumSampleSpacingCm)));
 	const float FrontHalfFOV = Config->FieldOfViewDegrees * 0.5f;
 	const float FrontSampleStep = Config->VisionRange / static_cast<float>(SafeSampleCount);
 	const float OverheadSampleStep = Config->OverheadProbeRange / static_cast<float>(SafeSampleCount);
@@ -109,7 +115,13 @@ void UYUFSNPCPerceptionComponent::UpdatePerception(int32 CurrentFrame)
 			}
 
 			const FVector SamplePoint = ViewOrigin + (RayDirection * SampleDistance);
-			RayMaxSmoke = FMath::Max(RayMaxSmoke, SampleSmokeAtPoint(SamplePoint, CurrentFrame));
+			float Smoke = 0.f, Heat = 0.f;
+			if (SampleObservedHazard(SamplePoint, CurrentFrame, Smoke, Heat))
+			{
+				const float Attenuation = FMath::Lerp(1.f, 0.35f, FMath::Clamp(SampleDistance / FMath::Max(Range, 1.f), 0.f, 1.f));
+				RayMaxSmoke = FMath::Max(RayMaxSmoke, Smoke * Attenuation);
+				CachedHeatInSight = FMath::Max(CachedHeatInSight, Heat * Attenuation);
+			}
 		}
 
 		Accumulator = FMath::Max(Accumulator, RayMaxSmoke);
@@ -161,7 +173,43 @@ void UYUFSNPCPerceptionComponent::UpdatePerception(int32 CurrentFrame)
 		CachedSmokeAboveNormalized,
 		Config->bDrawVisionDebug);
 
-	CachedRiskLevel = ComputeRiskLevel(CachedSmokeDensity, CachedTemperature);
+	// Ground-level fire cues and local heat are occluded by the same walls/floors as sight.
+	for (float Pitch : {-20.f, -40.f})
+	{
+		const FVector Direction = FRotationMatrix(BaseFacing + FRotator(Pitch, 0.f, 0.f)).GetUnitAxis(EAxis::X);
+		ScanRay(Direction, Config->VisionRange, FrontSampleStep, CachedSmokeInFrontNormalized, Config->bDrawVisionDebug);
+	}
+	for (int32 I = 0; I < 8; ++I)
+	{
+		const FVector Direction = FRotationMatrix(FRotator(0.f, I * 45.f, 0.f)).GetUnitAxis(EAxis::X);
+		for (float Distance = 40.f; Distance <= Config->NearbyHeatRangeCm; Distance += 40.f)
+		{
+			float Smoke = 0.f, Heat = 0.f;
+			if (SampleObservedHazard(MyPos + Direction * Distance, CurrentFrame, Smoke, Heat))
+				CachedNearbyHeat = FMath::Max(CachedNearbyHeat, Heat);
+		}
+	}
+	CachedRiskLevel = FMath::Max(ComputeRiskLevel(CachedSmokeDensity, CachedTemperature),
+		FMath::Max(CachedNearbyHeat, CachedHeatInSight * 0.65f));
+}
+
+bool UYUFSNPCPerceptionComponent::SampleObservedHazard(FVector WorldPos, int32 Frame, float& Smoke, float& Heat) const
+{
+	Smoke = Heat = 0.f;
+	if (!GetOwner() || !GetWorld() || !BinaryManager || !BinaryManager->bDatasetAlignmentConfirmed) return false;
+	const APawn* Pawn = Cast<APawn>(GetOwner());
+	const FVector Eye = Pawn ? Pawn->GetPawnViewLocation() : GetOwner()->GetActorLocation();
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSObservedHazard), false, GetOwner());
+	FHitResult Hit;
+	if (GetWorld()->LineTraceSingleByChannel(Hit, Eye, WorldPos, ECC_Visibility, Params)) return false;
+	uint8 RawSmoke = 0, RawHeat = 0;
+	if (!BinaryManager->GetSmokeDensityAtLocation(WorldPos, Frame, RawSmoke)
+		|| !BinaryManager->GetTemperatureAtLocation(WorldPos, Frame, RawHeat)) return false;
+	Smoke = RawSmoke / 255.f;
+	Heat = RawHeat / 255.f;
+	if (auto* Navigator = GetOwner()->FindComponentByClass<UYUFSSmokeAwareNavigator>())
+		Navigator->ReportObservedHazard(WorldPos, Smoke, Heat);
+	return true;
 }
 
 float UYUFSNPCPerceptionComponent::SampleSmokeAtPoint(FVector WorldPos, int32 Frame) const

@@ -9,9 +9,9 @@ public class YUFS : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicIncludePaths.AddRange(new string[]{"YUFS"});
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "NavigationSystem", "UMG", "NNE", "Projects", "AIModule", "Slate", "SlateCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput", "NavigationSystem", "Navmesh", "UMG", "NNE", "Projects", "AIModule", "Slate", "SlateCore" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "NNERuntimeORT" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore", "NNERuntimeORT", "Json" });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

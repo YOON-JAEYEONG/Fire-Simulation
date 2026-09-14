@@ -258,6 +258,13 @@ struct YUFS_API FYUFSInteractionOpportunitySnapshot
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector FireLocation = FVector::ZeroVector;
 
+	/** Validated standing location, never the ignition/aim point. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bSuppressionApproachKnown = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector SuppressionApproachLocation = FVector::ZeroVector;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bHoldingExtinguisher = false;
 

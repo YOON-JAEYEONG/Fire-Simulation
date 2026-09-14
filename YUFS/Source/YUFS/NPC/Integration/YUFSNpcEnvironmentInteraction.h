@@ -16,6 +16,7 @@ public:
  bool Execute(float Dt, int32 SimFrame);
  void Cancel();
  bool IsActive() const { return bActive; }
+ bool IsOperatingDoor() const { return bActive && ActiveGoal==EYUFSInteractionGoal::OpenDoor; }
  bool NeedsMovement() const { return bActive && bApproaching; }
  FVector GetTarget() const;
  /** A reservation may exist while the helper is still approaching. */
@@ -31,6 +32,8 @@ public:
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="NPC|Help") bool bNeedsAssistance=false;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="NPC|Help") bool bAcceptsAssistance=true;
  UPROPERTY(EditAnywhere, Category="NPC|Interaction") float SearchRadius=800.f;
+ UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="0.0")) float DoorReachSeconds=.35f;
+ UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="1.0",ClampMax="45.0")) float DoorFacingToleranceDegrees=15.f;
 protected:
  virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:

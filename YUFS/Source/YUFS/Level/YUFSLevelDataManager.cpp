@@ -34,6 +34,13 @@ void AYUFSLevelDataManager::CollectLevelActors()
 
 }
 
+TArray<FVector> AYUFSLevelDataManager::GetKnownExitLocations() const
+{
+	TArray<FVector> Locations;
+	for (const AYUFSExitPoint* Exit : CachedExits) if (IsValid(Exit)) Locations.Add(Exit->GetActorLocation());
+	return Locations;
+}
+
 void AYUFSLevelDataManager::RefreshExitDangerCache(int32 Frame) const
 {
 	if (CachedDangerFrame == Frame && CachedExitDangerStates.Num() == CachedExits.Num())

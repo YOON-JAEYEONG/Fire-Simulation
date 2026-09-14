@@ -76,17 +76,17 @@ void UYUFSBehaviorStateMachine::AccumulateRiskPerception(const FYUFSNPCObservati
 
 	float RiskIncrease = 0.f;
 
-	if (Obs.SmokeDensityAtSelf > Config->SmokeAwarenessThreshold)
+	if (Obs.bHazardSampleAvailable && Obs.SmokeDensityAtSelf > Config->SmokeAwarenessThreshold)
 	{
 		RiskIncrease += Config->RiskAccumSpeed * (Obs.SmokeDensityAtSelf / Config->SmokeAwarenessThreshold);
 	}
 
-	if (Obs.TemperatureAtSelf > 0.1f)
+	if (Obs.bHazardSampleAvailable && Obs.TemperatureAtSelf > 0.1f)
 	{
 		RiskIncrease += Config->RiskAccumSpeed * (Obs.TemperatureAtSelf * 10.f);
 	}
 
-	if (Obs.SmokeInFrontNormalized > Config->VisionSmokeCueThreshold)
+	if (Obs.bHazardSampleAvailable && Obs.SmokeInFrontNormalized > Config->VisionSmokeCueThreshold)
 	{
 		const float FrontSmokeNormalized =
 			(Obs.SmokeInFrontNormalized - Config->VisionSmokeCueThreshold) /
@@ -95,7 +95,7 @@ void UYUFSBehaviorStateMachine::AccumulateRiskPerception(const FYUFSNPCObservati
 			FMath::Clamp(FrontSmokeNormalized, 0.f, 1.f);
 	}
 
-	if (Obs.SmokeAboveNormalized > Config->AboveSmokeCueThreshold)
+	if (Obs.bHazardSampleAvailable && Obs.SmokeAboveNormalized > Config->AboveSmokeCueThreshold)
 	{
 		const float AboveSmokeNormalized =
 			(Obs.SmokeAboveNormalized - Config->AboveSmokeCueThreshold) /
@@ -125,12 +125,20 @@ void UYUFSBehaviorStateMachine::AccumulateRiskPerception(const FYUFSNPCObservati
 	{
 		RiskIncrease -= Config->RiskAccumSpeed * 0.5f;
 	}
+	if (!Obs.bHazardSampleAvailable)
+	{
+		// Unknown is not clear air: preserve the previous risk floor while still
+		// allowing positive alarm/social evidence and direct communication events.
+		RiskIncrease = FMath::Max(0.f, RiskIncrease);
+	}
 
 	RiskPerception = FMath::Clamp(RiskPerception + (RiskIncrease * DeltaTime), 0.f, 1.f);
 }
 
 void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& Obs)
 {
+	// Terminal physical state. A stronger emergency cue cannot restore the ability to move.
+	if (CurrentState == EYUFSBehaviorState::Incapacitated) return;
 	if (!Config)
 	{
 		return;
@@ -165,9 +173,9 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& Obs)
 	switch (CurrentState)
 	{
 	case EYUFSBehaviorState::Normal:
-		if (Obs.SmokeDensityAtSelf > Config->SmokeAwarenessThreshold ||
+		if ((Obs.bHazardSampleAvailable && (Obs.SmokeDensityAtSelf > Config->SmokeAwarenessThreshold ||
 			Obs.SmokeInFrontNormalized > Config->VisionSmokeCueThreshold ||
-			Obs.SmokeAboveNormalized > Config->AboveSmokeCueThreshold ||
+			Obs.SmokeAboveNormalized > Config->AboveSmokeCueThreshold)) ||
 			Obs.bAlarmSounding ||
 			Obs.bReceivedPreRecordedMsg ||
 			Obs.bReceivedLiveAnnouncement ||
@@ -219,7 +227,7 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& Obs)
 
 	case EYUFSBehaviorState::Crawling:
 		// 신선한 공기 구역에서 충분히 회복되면 Evacuating으로 복귀
-		if (SmokeExposureAccumulated < Config->CrawlThreshold)
+		if (Obs.bHazardSampleAvailable && SmokeExposureAccumulated < Config->CrawlThreshold)
 		{
 			CurrentState = EYUFSBehaviorState::Evacuating;
 		}
@@ -254,12 +262,14 @@ bool UYUFSBehaviorStateMachine::CheckEmergencyOverride(const FYUFSNPCObservation
 		return false;
 	}
 
-	return Obs.SmokeDensityAtSelf > (Config->SmokeAwarenessThreshold * Config->EmergencyOverrideMultiplier);
+	return Obs.bHazardSampleAvailable
+		&& Obs.SmokeDensityAtSelf > (Config->SmokeAwarenessThreshold * Config->EmergencyOverrideMultiplier);
 }
 
 void UYUFSBehaviorStateMachine::AccumulateSmokeExposure(const FYUFSNPCObservation& Obs, float DeltaTime)
 {
-	if (!Config) return;
+	// Neither damage nor recovery can be integrated from an unobserved physical sample.
+	if (!Config || !Obs.bHazardSampleAvailable) return;
 
 	// 연기가 있을 때만 누적. 연기 농도에 비례하여 더 빠르게 누적.
 	if (Obs.SmokeDensityAtSelf > 0.f)

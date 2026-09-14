@@ -76,8 +76,14 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 				? InteractionOpportunities.FireStableId
 				: InteractionOpportunities.ExtinguisherStableId;
 			NextNavigation.DestinationHint = InteractionOpportunities.bHoldingExtinguisher
-				? InteractionOpportunities.FireLocation
+				? InteractionOpportunities.SuppressionApproachLocation
 				: InteractionOpportunities.ExtinguisherLocation;
+			if (InteractionOpportunities.bHoldingExtinguisher && !InteractionOpportunities.bSuppressionApproachKnown)
+			{
+				NextNavigation.Goal = EYUFSNavigationGoal::None;
+				NextNavigation.TargetStableId = NAME_None;
+				NextNavigation.DestinationHint = FVector::ZeroVector;
+			}
 		}
 	}
 	if (NextNavigation.Goal == EYUFSNavigationGoal::AssistTarget && InteractionOpportunities.bAssistPersonKnown)
@@ -89,6 +95,7 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	{
 		NextNavigation.Revision = ++NavigationRevision;
 		NavigationDirective = NextNavigation;
+		NavigationFeedback = FYUFSTeamRequestFeedback{};
 		OnNavigationDirectiveChanged.Broadcast(NavigationDirective);
 	}
 
@@ -111,6 +118,7 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	{
 		NextMotion.Revision = ++MotionRevision;
 		MotionDirective = NextMotion;
+		MotionFeedback = FYUFSTeamRequestFeedback{};
 		OnMotionDirectiveChanged.Broadcast(MotionDirective);
 	}
 
@@ -119,6 +127,7 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	{
 		NextInteraction.Revision = ++InteractionRevision;
 		InteractionDirective = NextInteraction;
+		InteractionFeedback = FYUFSTeamRequestFeedback{};
 		OnInteractionDirectiveChanged.Broadcast(InteractionDirective);
 	}
 }

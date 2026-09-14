@@ -9,8 +9,8 @@
 #include "NPC/Animation/YUFSActionAnimationComponent.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "Fire/YUFSInteractionDoor.h"
-#include "Level/YUFSLevelDataManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "EngineUtils.h"
 #include "NavigationSystem.h"
 #include "NavigationPath.h"
@@ -43,7 +43,7 @@ void UYUFSNpcEnvironmentInteraction::UpdateLocalPose(const FVector& FacingTarget
   Npc->SetActorRotation(FMath::RInterpConstantTo(Npc->GetActorRotation(),Desired,Dt,180.f));
  }
  if (auto* Animation=Npc->GetActionAnimationComponent())
-  Animation->ApplyAction(Action,EYUFSBehaviorState::Normal);
+  Animation->ApplyAction(Action,Npc->GetBehaviorStateMachine()->GetCurrentState());
 }
 bool UYUFSNpcEnvironmentInteraction::NeedsHelp() const
 {
@@ -56,7 +56,7 @@ bool UYUFSNpcEnvironmentInteraction::Visible(AActor* Target) const
 {
  if (!Npc.IsValid() || !IsValid(Target)) return false;
  FVector Point=Target->GetActorLocation();
- if (Target->IsA<AYUFSInteractionDoor>()) Point.Z+=90.f;
+ if (const auto* TargetDoor=Cast<AYUFSInteractionDoor>(Target)) Point=TargetDoor->GetHandleLocation();
  if (FVector::DistSquared(Npc->GetActorLocation(),Point)>FMath::Square(SearchRadius)
      || FMath::Abs(Npc->GetActorLocation().Z-Point.Z)>160.f) return false;
  FHitResult Hit;
@@ -74,10 +74,15 @@ void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
  // Only doors physically in front of the next path segment, never nearest-room doors.
  if (Nav && !Nav->GetCurrentPathPoints().IsEmpty())
  {
-  FVector Direction=(Nav->GetNextWaypoint()-Npc->GetActorLocation()).GetSafeNormal2D();
-  const FVector Start=Npc->GetActorLocation(), End=Start+Direction*140.f;
+  const FVector Segment=Nav->GetNextWaypoint()-Npc->GetActorLocation();
+  const FVector Direction=Segment.GetSafeNormal2D();
+  // Do not look through a path corner into a room that the route does not enter.
+  const FVector Start=Npc->GetActorLocation(), End=Start+Direction*FMath::Min(140.f,Segment.Size2D());
   FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(DoorAhead),false,Npc.Get());
-  if (GetWorld()->LineTraceSingleByChannel(Hit,Start,End,ECC_Visibility,Params)) Door=Cast<AYUFSInteractionDoor>(Hit.GetActor());
+  const float Radius=Npc->GetCapsuleComponent()->GetScaledCapsuleRadius();
+  if (!Direction.IsNearlyZero() && GetWorld()->SweepSingleByChannel(Hit,Start,End,FQuat::Identity,ECC_Visibility,
+      FCollisionShape::MakeSphere(Radius),Params)) Door=Cast<AYUFSInteractionDoor>(Hit.GetActor());
+  if (Door.IsValid() && (!Door->IsUserInReach(Npc.Get()) || !Visible(Door.Get()))) Door.Reset();
  }
  float Best=FLT_MAX;
  for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
@@ -101,27 +106,53 @@ void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
 }
 void UYUFSNpcEnvironmentInteraction::Finish(bool Success,FName Reason)
 {
+ const bool WasDoor=ActiveGoal==EYUFSInteractionGoal::OpenDoor;
  if (Door.IsValid()) Door->Release(GetOwner());
  if (Person.IsValid()) if (auto* Other=Person->FindComponentByClass<UYUFSNpcEnvironmentInteraction>())
   if (Other->Helper.Get()==GetOwner()) Other->Helper.Reset();
  if (Npc.IsValid())
  {
   FYUFSTeamRequestFeedback Feedback; Feedback.RequestRevision=RequestRevision;
-  Feedback.Status=Success?EYUFSTeamRequestStatus::Completed:EYUFSTeamRequestStatus::Failed; Feedback.Reason=Reason;
-  Npc->GetTeamIntegrationComponent()->SubmitInteractionFeedback(Feedback);
-  Npc->GetHumanBehaviorSelector()->RequestReselection(Reason);
-  Npc->GetNavigator()->ClearPath();
+  const bool WasCancelled=Reason==TEXT("InteractionCancelled");
+  Feedback.Status=Success?EYUFSTeamRequestStatus::Completed:
+      (WasCancelled?EYUFSTeamRequestStatus::Cancelled:EYUFSTeamRequestStatus::Failed); Feedback.Reason=Reason;
+  auto* Team=Npc->GetTeamIntegrationComponent();
+  Team->SubmitInteractionFeedback(Feedback);
+  if (WasDoor)
+  {
+   // Opening is a sub-action of the existing route, not a new destination.
+   // Preserve the route/waypoint so local traffic coordination can resume it.
+   // Clear even on failure/cancel: a stale door opportunity must not mask the
+   // next suppression/evacuation directive or its revision-scoped feedback.
+   auto Next=Team->GetInteractionOpportunities();
+   Next.DoorStableId=NAME_None; Next.bDoorActionRequired=false;
+   ++Next.KnowledgeRevision; Team->SubmitInteractionOpportunities(Next);
+   if (!Success && !WasCancelled)
+   {
+    FYUFSTeamRequestFeedback Blocked;
+    Blocked.RequestRevision=Team->GetNavigationDirective().Revision;
+    Blocked.Status=EYUFSTeamRequestStatus::Blocked; Blocked.Reason=Reason;
+    Blocked.ResolvedLocation=Npc->GetActorLocation(); Team->SubmitNavigationFeedback(Blocked);
+   }
+  }
+  if (!WasDoor || !Success) Npc->GetHumanBehaviorSelector()->RequestReselection(Reason);
+  if (!WasDoor) Npc->GetNavigator()->ClearPath();
   UE_LOG(LogTemp,Display,TEXT("[EnvironmentInteraction] %s finished %s"),*Npc->GetName(),*Reason.ToString());
  }
  bActive=false; bApproaching=false; ActiveGoal=EYUFSInteractionGoal::None; ActiveTargetId=NAME_None;
+ Door.Reset(); Person.Reset();
  Elapsed=Contact=0; RetryAt=GetWorld()->GetTimeSeconds()+2.f; Scan=0;
 }
 bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
 {
  if (!Npc.IsValid() || bUseExternalExecutor) { Cancel(); return false; }
- if (Npc->GetBehaviorStateMachine()->IsIncapacitated() || Npc->GetBehaviorStateMachine()->IsCrawling()
-     || Npc->GetBeliefComponent()->HasImmediateLifeRisk()) { Cancel(); return false; }
+ if (Npc->GetBehaviorStateMachine()->IsIncapacitated()) { Cancel(); return false; }
  auto* Team=Npc->GetTeamIntegrationComponent(); const auto& Directive=Team->GetInteractionDirective();
+ // A usable door on the evacuation route remains necessary during emergency
+ // escape. Risk interrupts optional helping/suppression, not the escape door.
+ if (Directive.Goal!=EYUFSInteractionGoal::OpenDoor
+     && (Npc->GetBehaviorStateMachine()->IsCrawling() || Npc->GetBeliefComponent()->HasImmediateLifeRisk()))
+ { Cancel(); return false; }
  if (bActive)
  {
   // A changed reason or refreshed location is not a different interaction.
@@ -135,7 +166,6 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
   if (Directive.Goal==EYUFSInteractionGoal::OpenDoor && Door.IsValid() && Directive.TargetStableId==Door->GetFName())
   {
    RequestRevision=Directive.Revision;
-   if (!Door->TryUse(Npc.Get())) { Finish(false,TEXT("DoorLockedHotBusyOrOutOfReach")); return true; }
    Person.Reset();
   }
   else if (Directive.Goal==EYUFSInteractionGoal::AssistPerson && Person.IsValid() && Directive.TargetStableId==Person->GetFName())
@@ -158,10 +188,24 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  if (Door.IsValid())
  {
   bApproaching=false; Npc->GetCharacterMovement()->StopMovementImmediately();
-  // Existing compatible hand-use sequence is a temporary reach gesture, not door-handle IK.
-  UpdateLocalPose(Door->GetActorLocation()+Door->GetActorRightVector()*70.f,EYUFSAction::GatherBelongings,Dt);
-  if (Door->IsOpen()) Finish(true,TEXT("DoorOpened"));
-  else if (!Door->TryUse(Npc.Get())) Finish(false,TEXT("DoorBecameUnavailable"));
+  if (Door->IsPassageClear()) { Finish(true,TEXT("DoorOpened")); return true; }
+  if (!Door->CanOperate() || !Door->IsUserInReach(Npc.Get()))
+  { Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true; }
+  if (!Door->TryReserve(Npc.Get()))
+  {
+   Contact=0.f;
+   UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
+   return true; // Do not crowd/push the NPC currently operating this same door.
+  }
+  const FVector Handle=Door->GetHandleLocation();
+  const FVector Facing=(Handle-Npc->GetActorLocation()).GetSafeNormal2D();
+  const bool Aligned=FVector::DotProduct(Npc->GetActorForwardVector().GetSafeNormal2D(),Facing)
+      >=FMath::Cos(FMath::DegreesToRadians(DoorFacingToleranceDegrees));
+  // Align first, then play the compatible reach gesture. No hand IK is claimed.
+  UpdateLocalPose(Handle,Aligned?EYUFSAction::GatherBelongings:EYUFSAction::Idle,Dt);
+  if (!Aligned) { Contact=0.f; return true; }
+  Contact+=Dt;
+  if (Contact>=DoorReachSeconds && !Door->TryUse(Npc.Get())) Finish(false,TEXT("DoorBecameUnavailable"));
   return true;
  }
  if (!Person.IsValid()) { Finish(false,TEXT("PersonLost")); return true; }
@@ -184,14 +228,16 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  Contact+=Dt;
  if (Contact>=2.f)
  {
-  FVector Exit; auto* Level=Person->GetLevelDataManager();
+  FVector Exit; const auto* RecipientNav=Person->GetNavigator();
   // Guidance only: never heal, teleport, or claim to carry an incapacitated person.
-  bool Safe=Level && Level->TryGetNearestSafeExit(Person->GetActorLocation(),SimFrame,Exit);
+  // The recipient's own knowledge, not global unobserved FDS cells, constrains
+  // the exit it will resume toward. This does not claim the whole route is known safe.
+  bool Safe=RecipientNav && Person->TryGetNearestKnownExit(Exit);
   if (Safe)
   {
    auto* Path=UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),Person->GetActorLocation(),Exit,Person.Get());
-   Safe=Path && Path->IsValid() && !Path->IsPartial();
-   if (Safe) for (const FVector& Point:Path->PathPoints) if (Level->IsLocationDangerous(Point,SimFrame)) Safe=false;
+   Safe=Path && Path->IsValid() && !Path->IsPartial() && !Path->PathPoints.IsEmpty()
+       && !RecipientNav->IsKnownPathDangerous(Path->PathPoints);
   }
   if (!Safe) { Finish(false,TEXT("NoKnownExitForGuidance")); return true; }
   Other->bNeedsAssistance=false;

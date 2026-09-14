@@ -5,6 +5,7 @@
 class UStaticMeshComponent;
 class USceneComponent;
 class UBoxComponent;
+class AYUFSSimulationController;
 /** Place at a real doorway: origin at the floor hinge, closed leaf along local +Y. */
 UCLASS()
 class YUFS_API AYUFSInteractionDoor : public AActor
@@ -14,10 +15,17 @@ public:
  AYUFSInteractionDoor();
  virtual void OnConstruction(const FTransform& Transform) override;
  virtual void Tick(float DeltaSeconds) override;
+ /** Reserve without moving the leaf: the executor can stop and face the handle first. */
+ UFUNCTION(BlueprintCallable) bool TryReserve(AActor* User);
  UFUNCTION(BlueprintCallable) bool TryUse(AActor* User);
  UFUNCTION(BlueprintCallable) void Release(AActor* User);
  UFUNCTION(BlueprintPure) bool IsOpen() const { return OpenFraction >= 1.f; }
- UFUNCTION(BlueprintPure) bool CanOperate() const { return !bLocked && !bHot && !IsOpen(); }
+ UFUNCTION(BlueprintPure) bool CanOperate() const { return !bLocked && !bHot && !IsOpen() && FMath::Abs(OpenAngle) >= 75.f; }
+ UFUNCTION(BlueprintPure) bool IsReservedBy(AActor* User) const { return Operator.IsValid() && Operator.Get()==User; }
+ UFUNCTION(BlueprintPure) bool IsOpeningBlocked() const { return bOpeningBlocked; }
+ UFUNCTION(BlueprintPure) bool IsPassageClear() const;
+ UFUNCTION(BlueprintPure) bool IsUserInReach(AActor* User) const;
+ UFUNCTION(BlueprintPure) FVector GetHandleLocation() const;
  UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Panel;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") bool bLocked = false;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") bool bHot = false;
@@ -30,6 +38,10 @@ private:
  UPROPERTY() TArray<TObjectPtr<UStaticMeshComponent>> FrameMeshes;
  UPROPERTY() TArray<TObjectPtr<UStaticMeshComponent>> HardwareMeshes;
  TWeakObjectPtr<AActor> Operator;
+ TWeakObjectPtr<AYUFSSimulationController> SimulationController;
  float OpenFraction = 0.f;
  float SwingDirection = 1.f;
+ bool bOpeningRequested = false;
+ bool bOpeningBlocked = false;
+ bool CanSweepLeaf(float FromFraction, float ToFraction) const;
 };

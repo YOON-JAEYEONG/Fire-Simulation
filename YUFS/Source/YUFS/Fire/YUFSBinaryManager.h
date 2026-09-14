@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include <atomic>
 #include "YUFSBinaryManager.generated.h"
 
 class AYUFSHeterogeneousVolume;
@@ -27,6 +28,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 public:	
 	virtual void Tick(float DeltaTime) override;
@@ -43,9 +45,12 @@ public:
 	
 	int32 GetCurrentFrame() const { return CurrentDebugFrame; }
 	AYUFSHeterogeneousVolume* GetHeterogeneousVolume() const { return HeterogeneousVolume; }
+	// Must be confirmed against the FDS exporter; missing data/alignment is never clear air.
+	UPROPERTY(EditAnywhere, Category="Fire|Dataset") bool bDatasetAlignmentConfirmed = false;
 
 private:
-	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation);
+	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, uint64 Generation);
+	bool ResolveLoadedGridIndex(const FVector& WorldLocation, int32 FrameIndex, int32& OutSlot, int32& OutFlatIndex) const;
 
 protected:
 	UPROPERTY()
@@ -95,6 +100,12 @@ private:
 	// 동적 스트리밍 관련 변수
 	const int32 MaxBufferSize = 192;
 	bool bIsLoadingChunk = false;
-	int32 LoadGeneration = 0;
+	bool bStreamingActive = false;
+	uint64 LoadGeneration = 0;
+	int32 GridSizeBytes = 0;
+	int64 ValidatedFileSize = 0;
+	double NextLoadRetryTime = 0.0;
+	FString ValidatedBinaryPath;
+	TSharedPtr<std::atomic<bool>, ESPMode::ThreadSafe> ActiveLoadCancellation;
 	int32 LastCurrentFrame = -1;
 };

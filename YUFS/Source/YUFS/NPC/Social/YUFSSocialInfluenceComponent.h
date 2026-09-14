@@ -22,7 +22,9 @@ public:
 	// Observation 빌드 시 읽어감
 	float GetNearbyEvacuatingRatio() const;
 	int32 GetNearbyNPCCount() const;
-	FVector GetAverageEvacuationDestination() const;
+	FVector GetObservedEvacuationDestination() const;
+	// Compatibility name only: never average unrelated exits into a wall/interior point.
+	FVector GetAverageEvacuationDestination() const { return GetObservedEvacuationDestination(); }
 	FVector GetNearestNPCNeedingHelpLocation() const;
 
 	bool  ShouldHelpNearbyNPC()      const;

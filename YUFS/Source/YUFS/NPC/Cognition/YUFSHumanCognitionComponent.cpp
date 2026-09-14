@@ -90,10 +90,13 @@ void UYUFSHumanCognitionComponent::UpdateCognition(
 		LastEvidenceSignature = NewSignature;
 	}
 
-	const float DirectHazard = FMath::Max3(
+	// Missing physical samples are not measured zeroes. Keep social/official evidence live,
+	// but do not fabricate a new physical observation from an unavailable channel.
+	const float DirectHazard = Observation.bHazardSampleAvailable ? FMath::Max(FMath::Max3(
 		FMath::Clamp(Observation.SmokeDensityAtSelf, 0.f, 1.f),
 		FMath::Clamp(Observation.TemperatureAtSelf, 0.f, 1.f),
-		FMath::Clamp(Observation.RiskLevel, 0.f, 1.f));
+		FMath::Clamp(Observation.RiskLevel, 0.f, 1.f)),
+		FMath::Max(Observation.NearbyHeatNormalized, Observation.HeatInSightNormalized * 0.65f)) : 0.f;
 	const bool bOfficial = Observation.bReceivedStaffGuidance || Observation.bReceivedLiveAnnouncement;
 	const bool bMovingCrowd = Observation.NearbyEvacuatingRatio >= 0.30f;
 	const bool bStationaryCrowd = Observation.NearbyNPCCount >= 3
@@ -137,10 +140,16 @@ void UYUFSHumanCognitionComponent::UpdateCognition(
 		FMath::Max(CueRisk, DirectHazard) + (bOfficial ? 0.20f : 0.f),
 		0.f,
 		1.f);
-	const float PerceivedRiskTarget = FMath::Clamp(
+	float PerceivedRiskTarget = FMath::Clamp(
 		FMath::Max(CueRisk, DirectHazard) - NormalcyTarget * 0.20f,
 		0.f,
 		1.f);
+	if (!Observation.bHazardSampleAvailable)
+	{
+		// No-data cannot prove the remembered threat has gone away. New alarms, staff
+		// instructions or crowd evidence may still raise risk and urgency above this floor.
+		PerceivedRiskTarget = FMath::Max(PerceivedRiskTarget, CognitiveState.PerceivedRisk);
+	}
 	const float UrgencyTarget = FMath::Clamp(
 		PerceivedRiskTarget * (1.15f - 0.30f * Traits.RiskTolerance),
 		0.f,
@@ -214,18 +223,27 @@ uint32 UYUFSHumanCognitionComponent::BuildEvidenceSignature(
 EYUFSPerceivedPhysicalSeverity UYUFSHumanCognitionComponent::ResolvePhysicalSeverity(
 	const FYUFSNPCObservation& Observation) const
 {
+	if (!Observation.bHazardSampleAvailable)
+	{
+		// Do not downgrade a remembered physical cue on streaming failure. A fresh
+		// valid clear sample may downgrade it later; an initial unknown stays None.
+		return Observation.bAlarmSounding && PreviousSeverity == EYUFSPerceivedPhysicalSeverity::None
+			? EYUFSPerceivedPhysicalSeverity::AmbiguousAlarm : PreviousSeverity;
+	}
 	const float SmokeThreshold = PolicyAsset ? PolicyAsset->ConfirmedSmokeThreshold : 0.15f;
 	const float LifeSmokeThreshold = PolicyAsset ? PolicyAsset->LifeRiskSmokeThreshold : 0.70f;
 	const float LifeTemperatureThreshold = PolicyAsset ? PolicyAsset->LifeRiskTemperatureThreshold : 0.80f;
 
 	if (Observation.SmokeDensityAtSelf >= LifeSmokeThreshold
-		|| Observation.TemperatureAtSelf >= LifeTemperatureThreshold)
+		|| Observation.TemperatureAtSelf >= FMath::Min(LifeTemperatureThreshold, 0.65f)
+		|| Observation.NearbyHeatNormalized >= 0.65f)
 	{
 		return EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat;
 	}
 	if (Observation.SmokeDensityAtSelf >= SmokeThreshold
 		|| Observation.SmokeInFrontNormalized >= SmokeThreshold
-		|| Observation.SmokeAboveNormalized >= SmokeThreshold)
+		|| Observation.SmokeAboveNormalized >= SmokeThreshold
+		|| Observation.HeatInSightNormalized >= 0.20f || Observation.NearbyHeatNormalized >= 0.20f)
 	{
 		return EYUFSPerceivedPhysicalSeverity::ConfirmedSmoke;
 	}

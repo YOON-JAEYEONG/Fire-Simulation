@@ -1,38 +1,80 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #include "NPC/Navigation/YUFSSmokeNavigationQueryFilter.h"
-
 #include "NavigationData.h"
-#include "NavAreas/NavArea_Obstacle.h"
+#include "NavMesh/RecastNavMesh.h"
+#include "NavMesh/RecastHelpers.h"
 
-// 기본값 1.0 — 연기 미감지 시 NavArea_Obstacle 비용을 기본값으로 유지
-float UYUFSSmokeNavigationQueryFilter::SmokePenaltyCost = 1.f;
-
-void UYUFSSmokeNavigationQueryFilter::UpdateSmokeCosts(AYUFSBinaryManager* /*BinaryManager*/, int32 /*CurrentFrame*/)
+FVector2D FYUFSObservedHazardSnapshot::Sample(const FVector& WorldPoint) const
 {
-	// 연기가 경로에서 감지된 직후 호출됨 — 장애물 구역 비용을 500배로 상향해
-	// 다음 FindPathSync()에서 NavArea_Obstacle 구역을 크게 우회하도록 유도.
-	// BinaryManager/CurrentFrame은 향후 지점별 밀도 기반 가변 비용 구현 시 활용.
-	SmokePenaltyCost = 500.f;
+ FVector2D Result = FVector2D::ZeroVector;
+ for (const auto& Known : Samples)
+ {
+  if (FVector::DistSquared(Known.Location, WorldPoint) > FMath::Square(Known.RadiusCm)) continue;
+  Result.X = FMath::Max(Result.X, double(Known.Smoke));
+  Result.Y = FMath::Max(Result.Y, double(Known.Heat));
+ }
+ return Result;
 }
-
-void UYUFSSmokeNavigationQueryFilter::ResetSmokeCosts()
+bool FYUFSObservedHazardSnapshot::IsLocationSafe(const FVector& WorldPoint) const
 {
-	SmokePenaltyCost = 1.f;
+ const auto Risk = Sample(WorldPoint);
+ return Risk.X < BlockSmoke && Risk.Y < BlockHeat;
 }
-
-void UYUFSSmokeNavigationQueryFilter::InitializeFilter(
-	const ANavigationData& NavData,
-	const UObject* Querier,
-	FNavigationQueryFilter& Filter) const
+float FYUFSObservedHazardSnapshot::SegmentAddedCost(const FVector& A, const FVector& B) const
 {
-	Super::InitializeFilter(NavData, Querier, Filter);
-
-	// ANavigationData::GetNavAreaID()는 ARecastNavMesh에서 오버라이드됨.
-	// NavSys를 거치지 않고 직접 NavData에서 AreaID를 조회하는 것이 올바른 UE5 API.
-	const int32 ObstacleAreaID = NavData.GetAreaID(UNavArea_Obstacle::StaticClass());
-	if (ObstacleAreaID != INDEX_NONE)
-	{
-		Filter.SetAreaCost(static_cast<uint8>(ObstacleAreaID), SmokePenaltyCost);
-	}
+ const float Length = FVector::Dist(A, B);
+ if (Samples.IsEmpty() || Length <= UE_SMALL_NUMBER) return 0.f;
+ const int32 Steps = FMath::Clamp(FMath::CeilToInt(Length / 20.f), 1, 4096);
+ float Total = 0.f;
+ for (int32 I = 0; I <= Steps; ++I)
+ {
+  const auto Risk = Sample(FMath::Lerp(A, B, float(I) / Steps) + FVector(0, 0, SampleHeightCm));
+  Total += float(Risk.X) * SmokeCost + float(Risk.Y) * HeatCost;
+ }
+ return Length * Total / (Steps + 1);
+}
+bool FYUFSObservedHazardSnapshot::IsPathSafe(const TArray<FVector>& FloorPoints) const
+{
+ for (int32 Segment = 1; Segment < FloorPoints.Num(); ++Segment)
+ {
+  const FVector& A = FloorPoints[Segment - 1];
+  const FVector& B = FloorPoints[Segment];
+  const int32 Steps = FMath::Clamp(FMath::CeilToInt(FVector::Dist(A, B) / 20.f), 1, 4096);
+  for (int32 I = 0; I <= Steps; ++I)
+   if (!IsLocationSafe(FMath::Lerp(A, B, float(I) / Steps) + FVector(0, 0, SampleHeightCm))) return false;
+ }
+ return true; // Unobserved means unknown, not certified safe.
+}
+#if WITH_RECAST
+FYUFSObservedHazardRecastFilter::FYUFSObservedHazardRecastFilter(const FRecastQueryFilter& Base,
+ const FYUFSObservedHazardSnapshot& InSnapshot) : FRecastQueryFilter(Base), Snapshot(InSnapshot)
+{
+ SetIsVirtual(true);
+}
+dtReal FYUFSObservedHazardRecastFilter::getVirtualCost(const dtReal* A, const dtReal* B,
+ dtPolyRef PrevRef, const dtMeshTile* PrevTile, const dtPoly* PrevPoly,
+ dtPolyRef CurRef, const dtMeshTile* CurTile, const dtPoly* CurPoly,
+ dtPolyRef NextRef, const dtMeshTile* NextTile, const dtPoly* NextPoly) const
+{
+ return FRecastQueryFilter::getVirtualCost(A, B, PrevRef, PrevTile, PrevPoly,
+  CurRef, CurTile, CurPoly, NextRef, NextTile, NextPoly)
+  + Snapshot.SegmentAddedCost(Recast2UnrealPoint(A), Recast2UnrealPoint(B));
+}
+#endif
+FSharedConstNavQueryFilter UYUFSSmokeNavigationQueryFilter::CreateQueryFilter(
+ const ANavigationData& NavData, const UObject* Querier, const FYUFSObservedHazardSnapshot& Snapshot)
+{
+ const auto Base = GetQueryFilter(NavData, Querier, StaticClass());
+ if (!Base.IsValid() || !Base->GetImplementation()) return nullptr;
+ FSharedNavQueryFilter Filter = Base->GetCopy();
+#if WITH_RECAST
+ if (Cast<ARecastNavMesh>(&NavData))
+ {
+  const FYUFSObservedHazardRecastFilter ObservedFilter(
+   *static_cast<const FRecastQueryFilter*>(Base->GetImplementation()), Snapshot);
+  Filter->SetFilterImplementation(&ObservedFilter);
+  return Filter;
+ }
+#endif
+ // Unsupported backends cannot silently ignore already-known danger.
+ return Snapshot.Samples.IsEmpty() ? Filter : nullptr;
 }

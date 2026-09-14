@@ -19,6 +19,13 @@ struct YUFS_API FYUFSNPCObservation
 	float SmokeInFrontNormalized = 0.0f;
 	UPROPERTY()
 	float SmokeAboveNormalized = 0.0f;
+	// Runtime-only cues. FillFloatArray and FeatureCount remain the original 28-input model contract.
+	UPROPERTY()
+	float HeatInSightNormalized = 0.0f;
+	UPROPERTY()
+	float NearbyHeatNormalized = 0.0f;
+	UPROPERTY()
+	bool bHazardSampleAvailable = false;
 	UPROPERTY()
 	float RiskLevel = 0.0f;
 	UPROPERTY()

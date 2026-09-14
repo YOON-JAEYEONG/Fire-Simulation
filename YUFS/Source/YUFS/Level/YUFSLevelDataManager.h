@@ -45,6 +45,8 @@ private:
 
 public:
 	/** 연기 기준을 통과한 출구가 있을 때만 true를 반환한다. */
+	// Map knowledge only. Callers must use their own observed hazards to assess the route.
+	TArray<FVector> GetKnownExitLocations() const;
 	bool TryGetNearestSafeExit(FVector From, int32 Frame, FVector& OutExit) const;
 	FVector GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const;
 	FVector GetFamiliarExit(FVector NPCSpawnLocation) const;

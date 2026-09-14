@@ -211,6 +211,7 @@ bool FYUFSHumanCognitionEvidenceTest::RunTest(const FString& Parameters)
 		InitialRevision + 1);
 
 	Observation.SmokeDensityAtSelf = 0.40f;
+	Observation.bHazardSampleAvailable = true;
 	Cognition->UpdateCognition(0.1f, Observation);
 	TestEqual(
 		TEXT("smoke promotes the mutually exclusive severity tier"),
@@ -371,6 +372,26 @@ bool FYUFSTeamIntegrationContractTest::RunTest(const FString& Parameters)
 	CurrentFeedback.Status = EYUFSTeamRequestStatus::Accepted;
 	Integration->SubmitNavigationFeedback(CurrentFeedback);
 	TestEqual(TEXT("current route feedback is accepted"), Integration->GetFeedbackGeneration(), 1ll);
+
+	Opportunities.bHoldingExtinguisher = true;
+	++Opportunities.KnowledgeRevision;
+	Integration->SubmitInteractionOpportunities(Opportunities);
+	Integration->PublishDecision(17, Decision, EYUFSIntent::Prepare, EYUFSBehaviorState::Preparing,
+		FVector::ZeroVector, true, Cognition);
+	TestEqual(TEXT("held tool waits for a validated approach, never walks into ignition"),
+		Integration->GetNavigationDirective().Goal, EYUFSNavigationGoal::None);
+	TestEqual(TEXT("new navigation directive clears earlier feedback"),
+		Integration->GetNavigationFeedback().Status, EYUFSTeamRequestStatus::None);
+	Opportunities.bSuppressionApproachKnown = true;
+	Opportunities.SuppressionApproachLocation = FVector(100.f, 400.f, 0.f);
+	++Opportunities.KnowledgeRevision;
+	Integration->SubmitInteractionOpportunities(Opportunities);
+	Integration->PublishDecision(17, Decision, EYUFSIntent::Prepare, EYUFSBehaviorState::Preparing,
+		FVector::ZeroVector, true, Cognition);
+	TestTrue(TEXT("navigation targets the validated standing position"),
+		Integration->GetNavigationDirective().DestinationHint.Equals(Opportunities.SuppressionApproachLocation));
+	TestTrue(TEXT("interaction aim remains the FDS ignition position"),
+		Integration->GetInteractionDirective().TargetLocationHint.Equals(Opportunities.FireLocation));
 
 	return true;
 }
@@ -549,10 +570,14 @@ bool FYUFSDoorLifecycleTest::RunTest(const FString& Parameters)
  Door->Release(B); TestFalse(TEXT("non-owner cannot release"),Door->TryUse(B));
  Door->Release(A); TestTrue(TEXT("owner release enables next operator"),Door->TryUse(B));
  Door->Tick(.5f); TestFalse(TEXT("partial rotation blocks passage"),Door->IsOpen());
+ Door->Tick(5.f); TestFalse(TEXT("waiting person in swing arc prevents forced opening"),Door->IsOpen());
+ // Move the fixture's obstacle away; production interaction never teleports an NPC.
+ A->SetActorLocation(FVector(240,-120,90));
  Door->Tick(5.f); TestTrue(TEXT("opening completes"),Door->IsOpen());
  TestTrue(TEXT("hinge actor remains in authored orientation"),FMath::IsNearlyZero(Door->GetActorRotation().Yaw,.01f));
  TestTrue(TEXT("leaf rotation cannot overshoot"),FMath::IsNearlyEqual(FMath::Abs(Door->Panel->GetComponentRotation().Yaw),90.f,.01f));
- TestEqual(TEXT("open panel is non-blocking"),Door->Panel->GetCollisionEnabled(),ECollisionEnabled::NoCollision);
+ TestEqual(TEXT("open solid leaf retains collision"),Door->Panel->GetCollisionEnabled(),ECollisionEnabled::QueryAndPhysics);
+ TestTrue(TEXT("only completed doorway passage is unblocked"),Door->IsPassageClear());
  auto* Help=A->EnvironmentInteraction.Get(); Help->RequestAssistance(true);
  TestFalse(TEXT("cannot assist self"),Help->TryReserveHelper(A));
  TestTrue(TEXT("helper reserves person"),Help->TryReserveHelper(B));

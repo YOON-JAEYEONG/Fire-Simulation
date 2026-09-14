@@ -17,6 +17,8 @@ class YUFS_API UYUFSBehaviorStateMachine : public UActorComponent
 	GENERATED_BODY()
 
 public:
+	// With the cognition model enabled, legacy PADM is a projection, not a second accumulating risk model.
+	void ApplyCognitiveRisk(float Risk) { RiskPerception = FMath::Clamp(Risk, 0.f, 1.f); }
 	UYUFSBehaviorStateMachine();
 
 public:

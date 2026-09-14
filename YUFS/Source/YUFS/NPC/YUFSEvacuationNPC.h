@@ -114,6 +114,9 @@ public:
 	UYUFSHumanBehaviorSelectorComponent* GetHumanBehaviorSelector() const { return HumanBehaviorSelector; }
 	UYUFSTeamIntegrationComponent* GetTeamIntegrationComponent() const { return TeamIntegrationComp; }
 	UYUFSNpcSuppressionComponent* GetSuppressionComponent() const { return SuppressionComp; }
+	void ResumeEvacuationAfterSuppression(bool bRetreatReachable, const FVector& RetreatExit = FVector::ZeroVector,
+		const TArray<FVector>& RetreatPath = TArray<FVector>());
+	bool TryGetNearestKnownExit(FVector& OutExit) const;
 	UPROPERTY(VisibleAnywhere, Category="NPC|Interaction")
 	TObjectPtr<UYUFSNpcSuppressionComponent> SuppressionComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="NPC|Interaction")
@@ -236,6 +239,17 @@ private:
 	FYUFSDeterministicRngSet DeterministicRng;
 	bool bHasSafeExit = false;
 	FVector LastSafeExit = FVector::ZeroVector;
+	// A verified retreat is handed back by the interaction, never recomputed from global FDS truth.
+	mutable bool bHasPreferredRetreat = false;
+	mutable FVector PreferredRetreatExit = FVector::ZeroVector;
+	mutable TArray<FVector> PreferredRetreatPath;
+	mutable float PreferredRetreatExpiresAt = 0.f;
+	mutable TMap<FVector, float> FailedExitUntil;
+	mutable uint32 LastRecordedNavigationFailure = MAX_uint32;
+	bool TryGetPreferredRetreat(FVector& OutExit) const;
+	void RememberFailedExit() const;
+	void ResetRetreatKnowledge();
+	friend struct FYUFSPersonalRetreatTestAccess;
 	int64 LastTeamFeedbackGeneration = 0;
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────

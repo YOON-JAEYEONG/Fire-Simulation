@@ -28,4 +28,6 @@ public:
 	UPROPERTY(EditAnywhere) float OverheadProbePitchDegrees = 75.f;
 	UPROPERTY(EditAnywhere) float OverheadProbeRange = 350.f;
 	UPROPERTY(EditAnywhere) bool bDrawVisionDebug          = false;
+	UPROPERTY(EditAnywhere) float MaximumSampleSpacingCm = 40.f;
+	UPROPERTY(EditAnywhere) float NearbyHeatRangeCm = 180.f;
 };

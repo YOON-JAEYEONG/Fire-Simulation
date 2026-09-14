@@ -23,12 +23,16 @@ protected:
 public:
 	void UpdatePerception(int32 CurrentFrame);
 	float SampleSmokeAtPoint(FVector WorldPos, int32 Frame) const;
+	bool SampleObservedHazard(FVector WorldPos, int32 Frame, float& Smoke, float& Heat) const;
 
 	float GetSmokeDensity() const { return CachedSmokeDensity; }
 	float GetTemperature() const { return CachedTemperature; }
 	float GetSmokeInFrontNormalized() const { return CachedSmokeInFrontNormalized; }
 	float GetSmokeAboveNormalized() const { return CachedSmokeAboveNormalized; }
 	float GetRiskLevel() const { return CachedRiskLevel; }
+	float GetHeatInSightNormalized() const { return CachedHeatInSight; }
+	float GetNearbyHeatNormalized() const { return CachedNearbyHeat; }
+	bool HasHazardSample() const { return bHazardSampleAvailable; }
 	bool IsIncapacitated() const { return CachedSmokeDensity > Config->IncapacitationThreshold; }
 
 	UPROPERTY(EditAnywhere, Category="Config")
@@ -42,6 +46,9 @@ private:
 	float CachedSmokeInFrontNormalized = 0.f;
 	float CachedSmokeAboveNormalized = 0.f;
 	float CachedRiskLevel = 0.f;
+	float CachedHeatInSight = 0.f;
+	float CachedNearbyHeat = 0.f;
+	bool bHazardSampleAvailable = false;
 
 	float ComputeRiskLevel(float Density, float Temp) const
 	{

@@ -4,6 +4,7 @@
 #include "Core/YUFSObservation.h"
 #include "NPC/Cognition/YUFSBehaviorPolicy.h"
 #include "NPC/Cognition/YUFSHumanCognitionTypes.h"
+#include "NPC/Integration/YUFSSuppressionSafety.h"
 
 UYUFSHumanBehaviorSelectorComponent::UYUFSHumanBehaviorSelectorComponent()
 {
@@ -26,7 +27,8 @@ const FYUFSBehaviorDecision& UYUFSHumanBehaviorSelectorComponent::ResolveDecisio
 		&& (Opportunities.bExtinguisherKnownAvailable || Opportunities.bHoldingExtinguisher)
 		&& Opportunities.bSuppressibleFireKnown && Opportunities.bSafeRetreatKnown
 		&& Cognition.PhysicalSeverity != EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat
-		&& Cognition.PerceivedRisk < 0.65f
+		&& FYUFSSuppressionSafety::CanAttempt(Observation, Cognition, Traits,
+			CurrentDecision.Behavior == EYUFSHighLevelBehavior::AttemptSuppression)
 		&& !Observation.bReceivedLiveAnnouncement && !Observation.bReceivedStaffGuidance
 		&& Observation.CurrentState != EYUFSBehaviorState::Incapacitated
 		&& Observation.CurrentState != EYUFSBehaviorState::Crawling;
@@ -75,6 +77,7 @@ const FYUFSBehaviorDecision& UYUFSHumanBehaviorSelectorComponent::ResolveDecisio
 		}
 	}
 	const bool bPrefire = !Observation.bAlarmSounding
+		&& Observation.HeatInSightNormalized <= 0.f && Observation.NearbyHeatNormalized <= 0.f
 		&& Observation.SmokeDensityAtSelf <= 0.f
 		&& Observation.SmokeInFrontNormalized <= 0.f
 		&& Observation.SmokeAboveNormalized <= 0.f
@@ -324,7 +327,7 @@ FYUFSBehaviorDecision UYUFSHumanBehaviorSelectorComponent::SelectPreAction(
 		&& Opportunities.bSuppressibleFireKnown
 		&& Opportunities.bSafeRetreatKnown
 		&& Cognition.PhysicalSeverity != EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat
-		&& Cognition.PerceivedRisk < 0.65f
+		&& FYUFSSuppressionSafety::CanAttempt(Observation, Cognition, Traits, false)
 		&& !Observation.bReceivedLiveAnnouncement && !Observation.bReceivedStaffGuidance;
 	if (bSuppressionEligible)
 	{

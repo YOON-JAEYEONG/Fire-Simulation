@@ -41,10 +41,12 @@ void UYUFSBeliefComponent::UpdateBelief(const FYUFSNPCObservation& Observation)
 	const bool bConfirmedSmoke =
 		Observation.SmokeDensityAtSelf >= ConfirmedSmokeThreshold ||
 		Observation.SmokeInFrontNormalized >= ConfirmedSmokeThreshold ||
-		Observation.SmokeAboveNormalized >= ConfirmedSmokeThreshold;
+		Observation.SmokeAboveNormalized >= ConfirmedSmokeThreshold ||
+		Observation.HeatInSightNormalized >= 0.20f || Observation.NearbyHeatNormalized >= 0.20f;
 	const bool bHighHeat =
 		Observation.SmokeDensityAtSelf >= ImmediateLifeRiskSmokeThreshold ||
-		Observation.TemperatureAtSelf >= ImmediateLifeRiskTemperatureThreshold;
+		Observation.TemperatureAtSelf >= FMath::Min(ImmediateLifeRiskTemperatureThreshold, 0.65f) ||
+		Observation.NearbyHeatNormalized >= 0.65f;
 	const bool bMovingCrowd = Observation.NearbyEvacuatingRatio >= 0.30f;
 	const bool bStationaryCrowd = Observation.NearbyNPCCount >= 3
 		&& Observation.NearbyEvacuatingRatio <= 0.10f;
