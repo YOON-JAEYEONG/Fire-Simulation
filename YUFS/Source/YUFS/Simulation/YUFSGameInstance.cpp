@@ -18,6 +18,7 @@
 #include "NavigationSystem.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Debug/YUFSInteractionPreview.h"
+#include "Simulation/YUFSAuthoredSuppressionScenario.h"
 
 void UYUFSGameInstance::OnStart()
 {
@@ -29,22 +30,33 @@ void UYUFSGameInstance::OnStart()
 
 void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 {
-	if (!World || BuildingInteractionSetupWorld == World
-		|| !FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions"))) return;
+	if (!World || !World->IsGameWorld() || BuildingInteractionSetupWorld == World
+		|| FParse::Param(FCommandLine::Get(), TEXT("YUFSNoBuildingInteractions"))
+		|| (!bEnableBuildingInteractions
+			&& !FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions")))) return;
 	BuildingInteractionSetupWorld = World;
+	const auto* Scenario = GetDefault<AYUFSAuthoredSuppressionScenario>();
+	if (Scenario->bEnabled
+		&& !FParse::Param(FCommandLine::Get(), TEXT("YUFSDisableAuthoredSuppression")))
+	{
+		bool bExists = false;
+		for (TActorIterator<AYUFSAuthoredSuppressionScenario> It(World); It; ++It) { bExists = true; break; }
+		if (!bExists) World->SpawnActor<AYUFSAuthoredSuppressionScenario>();
+	}
 	{
 		// Add only environmental props after the building's own spawner distributes
 		// its residents. Existing NPC identities, classes, traits and meshes remain.
 		FTimerHandle Handle;
 		const TWeakObjectPtr<UWorld> SetupWorld(World);
-		World->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateWeakLambda(this, [SetupWorld]()
+		const int32 TargetCount = FMath::Clamp(MinimumExtinguisherCount, 0, 64);
+		World->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateWeakLambda(this, [SetupWorld, TargetCount]()
 		{
 			UWorld* W = SetupWorld.Get();
 			if (!W) return;
 			auto* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(W);
 			if (!Nav)
 			{
-				UE_LOG(LogTemp, Error, TEXT("[InteractionPreview] Setup failed: no navigation system. Start remains blocked in preview mode."));
+				UE_LOG(LogTemp, Warning, TEXT("[NPCSuppression] Automatic prop placement unavailable: no navigation system. Existing props and ordinary simulation remain available."));
 				return;
 			}
 			int32 Placed = 0;
@@ -104,28 +116,55 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 					It->GetSuppressionComponent()->bKnowsScenarioFireLocation = false;
 			}
 			TArray<FVector> Anchors;
-			if (bTargetConfigured)
+			int32 Existing = 0;
+			for (TActorIterator<AYUFSFireExtinguisher> It(W); It; ++It)
+			{
+				++Existing;
+				Anchors.Add(It->GetActorLocation());
+			}
+			if (bTargetConfigured && Existing < TargetCount)
 			{
 				FNavLocation NearRoom;
 				if (Nav->ProjectPointToNavigation(KnownFire + FVector(250, 500, 0), NearRoom, FVector(100, 100, 80)))
 				{
 					FActorSpawnParameters Params;
 					Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-					if (W->SpawnActor<AYUFSFireExtinguisher>(NearRoom.Location + FVector(0, 0, 3), FRotator::ZeroRotator, Params)) ++Placed;
+					const FVector Location = NearRoom.Location + FVector(0, 0, 3);
+					if (!Anchors.ContainsByPredicate([Location](const FVector& P)
+						{ return FVector::DistSquared(P, Location) < FMath::Square(160.f); }))
+						if (auto* Tool = W->SpawnActor<AYUFSFireExtinguisher>(Location, FRotator::ZeroRotator, Params))
+						{ ++Placed; Anchors.Add(Tool->GetActorLocation()); }
 				}
 			}
-			for (TActorIterator<AYUFSEvacuationNPC> It(W); It && Placed < 4; ++It)
+			for (TActorIterator<AYUFSEvacuationNPC> It(W); It && Existing + Placed < TargetCount; ++It)
 			{
 				const FVector Origin = It->GetActorLocation();
-				if (Anchors.ContainsByPredicate([Origin](const FVector& P) { return FVector::DistSquared(P, Origin) < FMath::Square(650.f); })) continue;
-				FNavLocation ToolPoint;
-				if (!Nav->ProjectPointToNavigation(Origin + FVector(150, 0, 0), ToolPoint, FVector(100, 100, 140))) continue;
-				FActorSpawnParameters Params;
-				Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-				auto* Tool = W->SpawnActor<AYUFSFireExtinguisher>(ToolPoint.Location + FVector(0, 0, 3), FRotator::ZeroRotator, Params);
-				if (Tool) { Anchors.Add(Origin); ++Placed; }
+				// Clustered residents must not collapse every prop into a single +X location.
+				for (int32 Direction = 0; Direction < 8 && Existing + Placed < TargetCount; ++Direction)
+				{
+					const float Angle = Direction * PI / 4.f;
+					const FVector Candidate = Origin + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0) * 180.f;
+					FNavLocation ToolPoint;
+					if (!Nav->ProjectPointToNavigation(Candidate, ToolPoint, FVector(60, 60, 140))
+						|| FMath::Abs(ToolPoint.Location.Z - Origin.Z) > 150.f
+						|| Anchors.ContainsByPredicate([&ToolPoint](const FVector& P)
+							{ return FVector::DistSquared(P, ToolPoint.Location) < FMath::Square(160.f); })) continue;
+					FCollisionQueryParams Sight(SCENE_QUERY_STAT(ExtinguisherPlacement), false, *It);
+					if (W->LineTraceTestByChannel(Origin, ToolPoint.Location + FVector(0, 0, 70), ECC_Visibility, Sight)) continue;
+					FActorSpawnParameters Params;
+					Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+					auto* Tool = W->SpawnActor<AYUFSFireExtinguisher>(ToolPoint.Location + FVector(0, 0, 3), FRotator::ZeroRotator, Params);
+					if (Tool)
+					{
+						Anchors.Add(ToolPoint.Location); ++Placed;
+#if WITH_EDITOR
+						Tool->SetActorLabel(FString::Printf(TEXT("Extinguisher_%02d"), Placed));
+#endif
+						UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] Prop %s at %s"), *Tool->GetName(), *Tool->GetActorLocation().ToCompactString());
+					}
+				}
 			}
-			UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] Placed %d extinguishers; ZERO added fires and ZERO added NPCs. Recorded volume playback is unchanged by NPC attempts; only explicit FDS metadata supplies ignition targets."), Placed);
+			UE_LOG(LogTemp, Display, TEXT("[NPCSuppression] Placed %d extinguishers (%d already present, target %d); ZERO added fires and ZERO added NPCs. Recorded volume playback is unchanged by NPC attempts; only explicit FDS metadata supplies ignition targets."), Placed, Existing, TargetCount);
 			const bool bPreviewMode = FParse::Param(FCommandLine::Get(), TEXT("YUFSInteractionPreview"));
 			AYUFSInteractionPreview* Preview = bPreviewMode ? W->SpawnActor<AYUFSInteractionPreview>() : nullptr;
 			for (TActorIterator<AYUFSSimulationController> It(W); It; ++It)

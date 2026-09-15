@@ -8,6 +8,7 @@
 class AYUFSEvacuationNPC;
 class AYUFSFireExtinguisher;
 class AYUFSHeterogeneousVolume;
+class ACameraActor;
 struct FYUFSNPCObservation;
 
 /** Object interaction fallback on the SAME evacuation character. No extra pawn or teleport. */
@@ -27,6 +28,16 @@ public:
 	void ResetForEpisode();
 	bool IsActive() const { return bActive; }
 	bool IsSpraying() const { return bSpraying; }
+	/** Explicit animation preview only: target is authored, never an FDS observation. */
+	UFUNCTION(BlueprintCallable, Category="NPC|Suppression|Presentation")
+	bool StartVisualPresentation(AYUFSFireExtinguisher* Extinguisher, FVector Target, float DurationSeconds = 8.f);
+	UFUNCTION(BlueprintPure, Category="NPC|Suppression|Presentation")
+	bool IsVisualPresentationActive() const { return bVisualPresentation; }
+	UFUNCTION(BlueprintCallable, Category="NPC|Suppression|Presentation")
+	bool FocusVisualPresentation();
+	bool TickVisualPresentation(float DeltaTime);
+	bool CanStartAuthoredGesture() const;
+	bool ShouldInterruptAuthoredGesture(const FYUFSNPCObservation& Observation) const;
 	// Historical diagnostic, separate from revision-scoped team request feedback.
 	/** Historical executor outcome; unlike request feedback, survives a new evacuation directive. */
 	FName GetLastStopReason() const { return LastStopReason; }
@@ -68,4 +79,13 @@ private:
 	bool bRetreatReachable = false;
 	bool bHasAttackPoint = false;
 	bool bResumeOnFinish = true;
+	void FinishVisualPresentation(FName Reason);
+	bool bVisualPresentation = false;
+	bool bPresentationWasLogging = false;
+	float PresentationDuration = 8.f;
+	float PresentationElapsed = 0.f;
+	float PresentationSprayElapsed = 0.f;
+	FTransform PresentationToolTransform = FTransform::Identity;
+	TWeakObjectPtr<ACameraActor> PresentationCamera;
+	TWeakObjectPtr<AActor> PreviousViewTarget;
 };

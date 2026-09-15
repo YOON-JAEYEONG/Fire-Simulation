@@ -20,8 +20,171 @@
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "EngineUtils.h"
+#include "Camera/CameraActor.h"
+#include "Kismet/GameplayStatics.h"
+#include "GameFramework/PlayerController.h"
+#include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
 
 UYUFSNpcSuppressionComponent::UYUFSNpcSuppressionComponent() { PrimaryComponentTick.bCanEverTick = false; }
+
+bool UYUFSNpcSuppressionComponent::ShouldInterruptAuthoredGesture(const FYUFSNPCObservation& Observation) const
+{
+	const auto* OwnerNpc = Cast<AYUFSEvacuationNPC>(GetOwner());
+	if (!OwnerNpc || !OwnerNpc->GetBehaviorStateMachine()) return true;
+	const auto* State = OwnerNpc->GetBehaviorStateMachine();
+	const float SmokeLimit = State->Config ? State->Config->SmokeAwarenessThreshold * State->Config->EmergencyOverrideMultiplier : .30f;
+	const float HeatLimit = State->Config ? State->Config->EmergencyHeatThreshold : .65f;
+	return State->IsIncapacitated() || State->GetCurrentState() == EYUFSBehaviorState::Crawling
+		|| FYUFSSuppressionSafety::ImmediateDanger(Observation, SmokeLimit, HeatLimit);
+}
+
+bool UYUFSNpcSuppressionComponent::CanStartAuthoredGesture() const
+{
+	const auto* OwnerNpc = Cast<AYUFSEvacuationNPC>(GetOwner());
+	return bEnabled && !bActive && !bVisualPresentation && OwnerNpc
+		&& !OwnerNpc->bTimelinePlaybackMode && !OwnerNpc->bInteractionPreviewControlled
+		&& !OwnerNpc->bUseExternalNavigationDriver && !OwnerNpc->bUseExternalMotionDriver
+		&& OwnerNpc->GetActionAnimationComponent()->CanUseNativeAnimations(OwnerNpc->GetMesh())
+		&& !ShouldInterruptAuthoredGesture(OwnerNpc->LiveObservation)
+		&& (!OwnerNpc->EnvironmentInteraction || (!OwnerNpc->EnvironmentInteraction->IsActive()
+			&& !OwnerNpc->EnvironmentInteraction->IsReceivingContactAssistance()));
+}
+
+bool UYUFSNpcSuppressionComponent::StartVisualPresentation(AYUFSFireExtinguisher* Extinguisher,
+	FVector Target, float DurationSeconds)
+{
+	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
+	if (!Npc.IsValid() || !bEnabled || !IsValid(Extinguisher) || bActive || bVisualPresentation
+		|| Target.ContainsNaN() || !FMath::IsFinite(DurationSeconds) || DurationSeconds <= 0.f
+		|| Npc->bUseExternalNavigationDriver || Npc->bUseExternalMotionDriver
+		|| !Npc->GetActionAnimationComponent()->CanUseNativeAnimations(Npc->GetMesh())
+		|| FVector::Dist2D(Target, Extinguisher->GetActorLocation()) < 100.f
+		|| !Extinguisher->TryReserve(Npc.Get())) return false;
+	Tool = Extinguisher;
+	PresentationToolTransform = Tool->GetActorTransform();
+	FirePoint = Target;
+	MovementTarget = Tool->GetActorLocation();
+	PresentationDuration = FMath::Clamp(DurationSeconds, 1.f, 30.f);
+	PresentationElapsed = PresentationSprayElapsed = UseSeconds = 0.f;
+	bVisualPresentation = true;
+	bPresentationWasLogging = Npc->bLogTransitions;
+	Npc->bLogTransitions = false;
+	Npc->bHasPendingTransition = false;
+	Npc->GetNavigator()->ClearPath();
+	LastStopReason = NAME_None;
+	UE_LOG(LogTemp, Display, TEXT("[SuppressionPresentation] START npc=%s tool=%s target=%s; animation only, no hazard evidence or fire mutation"),
+		*Npc->GetName(), *Tool->GetName(), *Target.ToCompactString());
+	return true;
+}
+
+bool UYUFSNpcSuppressionComponent::FocusVisualPresentation()
+{
+	if (!bVisualPresentation || !Npc.IsValid() || !Tool.IsValid()) return false;
+	auto* Player = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!Player) return false;
+	if (PresentationCamera.IsValid()) return true;
+	const FVector Direction = (Tool->GetActorLocation() - Npc->GetActorLocation()).GetSafeNormal2D();
+	const FVector Focus = Npc->GetActorLocation() + FVector(0,0,15);
+	FCollisionQueryParams Query(SCENE_QUERY_STAT(SuppressionPresentationCamera), true, Npc.Get());
+	Query.AddIgnoredActor(Tool.Get());
+	FVector Position = Focus + FVector(0,0,100);
+	float BestDistance = 0.f;
+	for (int32 Index = 0; Index < 16; ++Index)
+	{
+		const float Angle = Direction.Rotation().Yaw + 65.f + Index * 22.5f;
+		const FVector Candidate = Focus + FRotator(0,Angle,0).Vector() * 300.f + FVector(0,0,60);
+		FHitResult Hit;
+		const bool Blocked = GetWorld()->LineTraceSingleByChannel(Hit, Focus, Candidate, ECC_Visibility, Query);
+		const FVector ClearPoint = Blocked ? FMath::Lerp(Focus, Candidate, FMath::Max(0.f, Hit.Time - .1f)) : Candidate;
+		const float Distance = FVector::DistSquared(Focus, ClearPoint);
+		if (Distance > BestDistance) { BestDistance = Distance; Position = ClearPoint; }
+		if (!Blocked) break;
+	}
+	PresentationCamera = GetWorld()->SpawnActor<ACameraActor>(Position, (Focus - Position).Rotation());
+	if (!PresentationCamera.IsValid()) return false;
+	PreviousViewTarget = Player->GetViewTarget();
+	Player->SetViewTargetWithBlend(PresentationCamera.Get(), .5f);
+	UE_LOG(LogTemp, Display, TEXT("[SuppressionPresentation] CAMERA position=%s focus=%s npc=%s"),
+		*Position.ToCompactString(), *Focus.ToCompactString(), *Npc->GetActorLocation().ToCompactString());
+	return true;
+}
+
+bool UYUFSNpcSuppressionComponent::TickVisualPresentation(float DeltaTime)
+{
+	if (!bVisualPresentation) return false;
+	if (!Npc.IsValid() || !Tool.IsValid() || Tool->GetOwnerActor() != Npc.Get()
+		|| !bEnabled || Npc->bUseExternalNavigationDriver || Npc->bUseExternalMotionDriver)
+	{ FinishVisualPresentation(TEXT("PresentationToolLost")); return true; }
+	PresentationElapsed += FMath::Max(0.f, DeltaTime);
+	if (PresentationElapsed > 60.f || Npc->GetBehaviorStateMachine()->IsIncapacitated())
+	{ FinishVisualPresentation(TEXT("PresentationInterrupted")); return true; }
+	const bool Held = Tool->GetExtinguisherState() == EYUFSFireExtinguisherState::Held
+		|| Tool->GetExtinguisherState() == EYUFSFireExtinguisherState::Spraying;
+	if (!Held)
+	{
+		MovementTarget = Tool->GetActorLocation();
+		if (FVector::Dist2D(Npc->GetActorLocation(), MovementTarget) > 100.f
+			|| FMath::Abs(Npc->GetActorLocation().Z - MovementTarget.Z) > 160.f || !Visible(Tool.Get()))
+		{
+			Npc->GetActionAnimationComponent()->ApplyAction(EYUFSAction::HelpOther, EYUFSBehaviorState::Normal);
+			return false;
+		}
+		if (!Tool->PickUp(Npc.Get(), Npc->GetRootComponent(), NAME_None))
+		{ FinishVisualPresentation(TEXT("PresentationPickupFailed")); return true; }
+		Tool->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+		Npc->GetNavigator()->ClearPath();
+	}
+	Npc->GetCharacterMovement()->StopMovementImmediately();
+	const FRotator Aim(0, (FirePoint - Npc->GetActorLocation()).Rotation().Yaw, 0);
+	Npc->SetActorRotation(FMath::RInterpConstantTo(Npc->GetActorRotation(), Aim, DeltaTime, 120.f));
+	UpdateHeldVisual();
+	Npc->GetActionAnimationComponent()->ApplyAction(EYUFSAction::GatherBelongings, EYUFSBehaviorState::Normal);
+	if (FMath::Abs(FMath::FindDeltaAngleDegrees(Npc->GetActorRotation().Yaw, Aim.Yaw)) > 8.f) return true;
+	UseSeconds += FMath::Max(0.f, DeltaTime);
+	if (UseSeconds >= 1.5f && Tool->StartSpraying(Npc.Get()))
+	{
+		if (!bSpraying) UE_LOG(LogTemp, Display, TEXT("[SuppressionPresentation] SPRAY npc=%s; recorded fire unchanged"), *Npc->GetName());
+		bSpraying = true;
+		Tool->ShowSprayToward(FirePoint);
+		PresentationSprayElapsed += FMath::Max(0.f, DeltaTime);
+		if (PresentationSprayElapsed >= PresentationDuration)
+			FinishVisualPresentation(TEXT("PresentationComplete"));
+	}
+	return true;
+}
+
+void UYUFSNpcSuppressionComponent::FinishVisualPresentation(FName Reason)
+{
+	if (!bVisualPresentation) return;
+	if (PresentationCamera.IsValid())
+	{
+		auto* Player = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		if (Player && Player->GetViewTarget() == PresentationCamera.Get() && PreviousViewTarget.IsValid())
+			Player->SetViewTarget(PreviousViewTarget.Get());
+		PresentationCamera->Destroy();
+		PresentationCamera.Reset();
+		PreviousViewTarget.Reset();
+	}
+	if (Tool.IsValid() && Npc.IsValid() && Tool->GetOwnerActor() == Npc.Get())
+	{
+		Tool->StopSpraying(Npc.Get());
+		// Return the prop to its reachable pickup point, not to the hand's elevated position.
+		Tool->SetActorTransform(PresentationToolTransform);
+		Tool->Release(Npc.Get());
+	}
+	bVisualPresentation = bSpraying = false;
+	if (Npc.IsValid())
+	{
+		Npc->GetNavigator()->ClearPath();
+		Npc->bLogTransitions = bPresentationWasLogging;
+		Npc->bHasPendingTransition = false;
+		Npc->ClearActionAnimationPreview();
+		Npc->UpdateActionAnimation(true);
+	}
+	Tool.Reset();
+	LastStopReason = Reason;
+	UE_LOG(LogTemp, Display, TEXT("[SuppressionPresentation] END reason=%s; normal NPC decisions resume, no suppression success recorded"), *Reason.ToString());
+}
 
 bool UYUFSNpcSuppressionComponent::Visible(AActor* Target) const
 {
@@ -364,6 +527,7 @@ void UYUFSNpcSuppressionComponent::Finish(bool bSuccess, FName Reason)
 }
 void UYUFSNpcSuppressionComponent::Cancel(bool bResumeEvacuation)
 {
+	if (bVisualPresentation) FinishVisualPresentation(TEXT("PresentationCancelled"));
 	TGuardValue<bool> ResumeGuard(bResumeOnFinish, bResumeEvacuation);
 	if (bActive) Finish(false, TEXT("SuppressionInterrupted"));
 }

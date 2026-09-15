@@ -186,6 +186,15 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		}
 		return;
 	}
+	if (SuppressionComp && SuppressionComp->IsVisualPresentationActive()
+		&& (!SimulationController || !SimulationController->IsNPCSimulationEnabled()))
+	{
+		StopEverydayBehavior();
+		bInteractionHoldingPosition = SuppressionComp->TickVisualPresentation(DeltaTime);
+		if (SuppressionComp->IsVisualPresentationActive() && !bInteractionHoldingPosition)
+			UpdateNavigationMovement(SuppressionComp->GetMovementTarget(), DeltaTime, 140.f);
+		return;
+	}
 	if (SimulationController)
 	{
 		const ESimPhase Phase = SimulationController->GetCurrentPhase();
@@ -273,6 +282,22 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		CurrentObs.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
 	}
 
+	// Live authored gestures still perceive smoke and update emergency behavior.
+	// They must not publish fabricated suppression evidence or learning actions.
+	if (SuppressionComp && SuppressionComp->IsVisualPresentationActive())
+	{
+		LiveObservation = CurrentObs;
+		if (SuppressionComp->ShouldInterruptAuthoredGesture(CurrentObs))
+			SuppressionComp->Cancel(false);
+		else
+		{
+			StopEverydayBehavior();
+			bInteractionHoldingPosition = SuppressionComp->TickVisualPresentation(DeltaTime);
+			if (SuppressionComp->IsVisualPresentationActive() && !bInteractionHoldingPosition)
+				UpdateNavigationMovement(SuppressionComp->GetMovementTarget(), DeltaTime, 140.f);
+			return;
+		}
+	}
 	UpdateEvidenceDecisionModel(DeltaTime, CurrentObs);
 	if (SuppressionComp) SuppressionComp->Observe(DeltaTime, CurrentFrame, CurrentObs);
 	if (EnvironmentInteraction) EnvironmentInteraction->Observe(DeltaTime);
@@ -933,7 +958,7 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 		&& (!SimulationController || SimulationController->IsNPCSimulationEnabled());
 	if (bLiveInteraction && EnvironmentInteraction
 		&& (EnvironmentInteraction->IsActive() || EnvironmentInteraction->IsReceivingContactAssistance())) return;
-	if (SuppressionComp && SuppressionComp->IsActive()) return;
+	if (SuppressionComp && (SuppressionComp->IsActive() || SuppressionComp->IsVisualPresentationActive())) return;
 	if (bUseExternalMotionDriver || !ActionAnimationComp)
 	{
 		return;

@@ -273,6 +273,7 @@ private:
 	friend struct FYUFSPersonalRetreatTestAccess;
 	friend struct FYUFSJJWDecisionBridgeTestAccess;
 	friend struct FYUFSEverydayIntegrationTestAccess;
+	friend class UYUFSNpcSuppressionComponent;
 	int64 LastTeamFeedbackGeneration = 0;
 	FYUFSBehaviorDecision ActiveInteractionDecision;
 	bool bOptionalInteractionSelected = false;

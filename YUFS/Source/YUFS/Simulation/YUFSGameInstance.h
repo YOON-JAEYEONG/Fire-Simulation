@@ -8,7 +8,7 @@
 #include "YUFSGameInstance.generated.h"
 
 // 레벨 리로드를 넘어 배치 실험 상태를 보존하는 GameInstance
-UCLASS()
+UCLASS(Config=Game)
 class YUFS_API UYUFSGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
@@ -17,6 +17,10 @@ public:
 	virtual void OnStart() override;
 	// Called for every play world, including Stop/Reset level reloads. Idempotent.
 	void SetupBuildingInteractions(UWorld* World);
+	UPROPERTY(Config, EditAnywhere, Category="NPC|Interactions")
+	bool bEnableBuildingInteractions = true;
+	UPROPERTY(Config, EditAnywhere, Category="NPC|Interactions", meta=(ClampMin="0", ClampMax="64"))
+	int32 MinimumExtinguisherCount = 4;
 
 	// 다음 레벨 시작 시 SimulationController가 읽어갈 배치 상태
 	bool bHasPendingBatchRun = false;
