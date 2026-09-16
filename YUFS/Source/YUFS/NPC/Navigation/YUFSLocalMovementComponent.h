@@ -10,6 +10,7 @@ UCLASS(ClassGroup=(YUFS), meta=(BlueprintSpawnableComponent))
 class YUFS_API UYUFSLocalMovementComponent : public UActorComponent
 {
 	GENERATED_BODY()
+	friend struct FYUFSTrafficRegressionAccess;
 public:
 	UYUFSLocalMovementComponent();
 	void Reset();
@@ -26,6 +27,7 @@ public:
 	UPROPERTY(EditAnywhere, Category="Recovery") float RecoveryCooldownSeconds=1.5f;
 	static bool TrajectoriesConflict(FVector A,FVector DA,float RA,FVector B,FVector DB,float RB,float LookAhead);
 	static bool ShouldYieldTo(FVector A,FVector DA,uint32 IDA,FVector B,FVector DB,uint32 IDB);
+	bool IsCycleLeader(const AYUFSEvacuationNPC* Blocker) const;
 	// A reserved route is not a moving trajectory while the person operates a door or gives assistance.
 	static bool IsMovingPeer(bool bFollowingPath, bool bInteractionHoldingPosition)
 	{ return bFollowingPath && !bInteractionHoldingPosition; }

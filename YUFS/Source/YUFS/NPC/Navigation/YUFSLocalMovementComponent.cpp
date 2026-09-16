@@ -46,6 +46,24 @@ bool UYUFSLocalMovementComponent::ShouldYieldTo(FVector A,FVector DA,uint32 IDA,
 	}
 	return IDA>IDB; // Stable tie breaker prevents mirrored left/right decisions.
 }
+bool UYUFSLocalMovementComponent::IsCycleLeader(const AYUFSEvacuationNPC* Blocker) const
+{
+	const auto* Self = Cast<AYUFSEvacuationNPC>(GetOwner());
+	if (!Self) return false;
+	TSet<const AYUFSEvacuationNPC*> Visited;
+	const AYUFSEvacuationNPC* Leader = Self;
+	for (const AYUFSEvacuationNPC* Peer = Blocker; Peer; )
+	{
+		if (Peer == Self) return Leader == Self;
+		if (Visited.Contains(Peer)) return false;
+		Visited.Add(Peer);
+		if (Peer->GetUniqueID() < Leader->GetUniqueID()) Leader = Peer;
+		const auto* Traffic = Peer->FindComponentByClass<UYUFSLocalMovementComponent>();
+		if (!Traffic || Traffic->State != EYUFSLocalMovementState::Yielding) return false;
+		Peer = Traffic->YieldingTo.Get();
+	}
+	return false;
+}
 FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,int32 Frame)
 {
 	auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner()); if (!NPC) return Desired;
@@ -70,7 +88,7 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 		const FVector OtherDir=Moving ? (Nav->GetSteeringTarget(B,120.f)-B).GetSafeNormal2D() : FVector::ZeroVector;
 		if (!TrajectoriesConflict(A,Desired,Radius,B,OtherDir,Other->GetCapsuleComponent()->GetScaledCapsuleRadius(),LookAheadCm)) continue;
 		// A stationary person is a real obstacle. Moving agents use a stable right of way.
-		if ((!Moving || ShouldYieldTo(A,Desired,NPC->GetUniqueID(),B,OtherDir,Other->GetUniqueID())) && Dist<Nearest)
+		if ((!Moving || ShouldYieldTo(A,Desired,NPC->GetUniqueID(),B,OtherDir,Other->GetUniqueID())) && !IsCycleLeader(Other) && Dist<Nearest)
 		{ Blocker=Other; Nearest=Dist; }
 	}
 	if (Blocker)

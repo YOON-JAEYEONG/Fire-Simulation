@@ -31,6 +31,7 @@ public:
 	/** Explicit animation preview only: target is authored, never an FDS observation. */
 	UFUNCTION(BlueprintCallable, Category="NPC|Suppression|Presentation")
 	bool StartVisualPresentation(AYUFSFireExtinguisher* Extinguisher, FVector Target, float DurationSeconds = 8.f);
+	bool StartAuthoredApproach(AYUFSFireExtinguisher* Extinguisher, FVector Target, FVector SprayFeet, float DurationSeconds);
 	UFUNCTION(BlueprintPure, Category="NPC|Suppression|Presentation")
 	bool IsVisualPresentationActive() const { return bVisualPresentation; }
 	UFUNCTION(BlueprintCallable, Category="NPC|Suppression|Presentation")
@@ -81,6 +82,8 @@ private:
 	bool bResumeOnFinish = true;
 	void FinishVisualPresentation(FName Reason);
 	bool bVisualPresentation = false;
+	bool bAuthoredApproach = false;
+	FVector PresentationSprayFeet = FVector::ZeroVector;
 	bool bPresentationWasLogging = false;
 	float PresentationDuration = 8.f;
 	float PresentationElapsed = 0.f;

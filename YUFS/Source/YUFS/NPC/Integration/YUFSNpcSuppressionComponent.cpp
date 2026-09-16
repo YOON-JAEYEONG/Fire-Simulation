@@ -67,6 +67,7 @@ bool UYUFSNpcSuppressionComponent::StartVisualPresentation(AYUFSFireExtinguisher
 	PresentationDuration = FMath::Clamp(DurationSeconds, 1.f, 30.f);
 	PresentationElapsed = PresentationSprayElapsed = UseSeconds = 0.f;
 	bVisualPresentation = true;
+	bAuthoredApproach = false;
 	bPresentationWasLogging = Npc->bLogTransitions;
 	Npc->bLogTransitions = false;
 	Npc->bHasPendingTransition = false;
@@ -74,6 +75,16 @@ bool UYUFSNpcSuppressionComponent::StartVisualPresentation(AYUFSFireExtinguisher
 	LastStopReason = NAME_None;
 	UE_LOG(LogTemp, Display, TEXT("[SuppressionPresentation] START npc=%s tool=%s target=%s; animation only, no hazard evidence or fire mutation"),
 		*Npc->GetName(), *Tool->GetName(), *Target.ToCompactString());
+	return true;
+}
+
+bool UYUFSNpcSuppressionComponent::StartAuthoredApproach(AYUFSFireExtinguisher* Extinguisher,
+	FVector Target, FVector SprayFeet, float DurationSeconds)
+{
+	if (SprayFeet.ContainsNaN() || !CanStartAuthoredGesture()
+		|| !StartVisualPresentation(Extinguisher, Target, DurationSeconds)) return false;
+	bAuthoredApproach = true;
+	PresentationSprayFeet = SprayFeet;
 	return true;
 }
 
@@ -133,6 +144,19 @@ bool UYUFSNpcSuppressionComponent::TickVisualPresentation(float DeltaTime)
 		{ FinishVisualPresentation(TEXT("PresentationPickupFailed")); return true; }
 		Tool->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 		Npc->GetNavigator()->ClearPath();
+	}
+	if (bAuthoredApproach)
+	{
+		UpdateHeldVisual();
+		MovementTarget = PresentationSprayFeet;
+		if (FVector::Dist2D(Npc->GetActorLocation(), MovementTarget) > 35.f)
+		{
+			Npc->GetActionAnimationComponent()->ApplyAction(EYUFSAction::HelpOther, EYUFSBehaviorState::Normal);
+			return false;
+		}
+		// Recheck actual sight at the spray position; never spray through a wall.
+		if (!CanSeePoint(FirePoint, nullptr))
+		{ FinishVisualPresentation(TEXT("PresentationTargetOccluded")); return true; }
 	}
 	Npc->GetCharacterMovement()->StopMovementImmediately();
 	const FRotator Aim(0, (FirePoint - Npc->GetActorLocation()).Rotation().Yaw, 0);

@@ -69,6 +69,22 @@ bool FSuppressionPresentationLifecycleTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSuppressionAuthoredApproachTest,
+    "YUFS.NPC.Suppression.Authored.PickupThenApproachBeforeSpraying",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FSuppressionAuthoredApproachTest::RunTest(const FString&)
+{
+    FPresentationFixture F;
+    const FVector SprayFeet(200,0,0);
+    TestTrue(TEXT("Authored scenario reserves existing tool"), F.Presentation->StartAuthoredApproach(F.Tool, FVector(450,0,65), SprayFeet, 2.f));
+    TestFalse(TEXT("Pickup requests physical travel to spray position"), F.Presentation->TickVisualPresentation(2.f));
+    TestEqual(TEXT("Tool is held, not spraying while walking"), F.Tool->GetExtinguisherState(), EYUFSFireExtinguisherState::Held);
+    TestTrue(TEXT("Movement uses the validated spray point"), F.Presentation->GetMovementTarget().Equals(SprayFeet));
+    F.Npc->SetActorLocation(SprayFeet + FVector(0,0,90));
+    F.Presentation->TickVisualPresentation(1.6f);
+    TestEqual(TEXT("Spray starts only after approach and preparation"), F.Tool->GetExtinguisherState(), EYUFSFireExtinguisherState::Spraying);
+    return true;
+}
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSuppressionPresentationCancelTest,
     "YUFS.NPC.Suppression.Presentation.ReplayCancelsAndReleasesProp",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

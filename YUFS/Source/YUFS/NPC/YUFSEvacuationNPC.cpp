@@ -787,6 +787,7 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 		{
 			Mv->SetMovementMode(MOVE_Walking);
 			Mv->MaxWalkSpeed = FMath::Max(1.f, SavedWalkSpeedBeforeTimeline);
+			Mv->SetAvoidanceEnabled(true);
 		}
 	}
 
@@ -805,6 +806,15 @@ void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReaso
 	if (Navigator) { Navigator->ClearPath(); Navigator->ResetObservedHazards(); }
 	if (LocalMovement) LocalMovement->Reset();
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
+	if (TerminalReason == EYUFSTerminalReason::ReachedExit || TerminalReason == EYUFSTerminalReason::Incapacitated)
+	{
+		// Hiding the actor does not stop CharacterMovement's component tick/RVO updates.
+		// Remove resolved residents from avoidance so they cannot crowd an invisible exit.
+		ConsumeMovementInputVector();
+		GetCharacterMovement()->StopMovementImmediately();
+		GetCharacterMovement()->SetAvoidanceEnabled(false);
+		GetCharacterMovement()->DisableMovement();
+	}
 	if (!bHasPendingTransition) return;
 
 	FYUFSNPCObservation TerminalObs{};
