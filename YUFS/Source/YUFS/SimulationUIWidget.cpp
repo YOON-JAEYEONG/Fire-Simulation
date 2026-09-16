@@ -2,8 +2,17 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
+#include "Simulation/YUFSSimulationController.h"
+
+namespace
+{
+    AYUFSSimulationController* FindSimulationController(const UObject* WorldContext)
+    {
+        return Cast<AYUFSSimulationController>(UGameplayStatics::GetActorOfClass(
+            WorldContext, AYUFSSimulationController::StaticClass()));
+    }
+}
 
 void USimulationUIWidget::NativeConstruct()
 {
@@ -46,23 +55,58 @@ void USimulationUIWidget::OnStartClicked()
 {
     bIsSimulationRunning = true;
     UGameplayStatics::SetGamePaused(GetWorld(), false);
+    if (AYUFSSimulationController* Controller = FindSimulationController(this))
+    {
+        // Both HUD implementations use the same simulation lifecycle. Merely
+        // unpausing the world does not start the NPC or interaction systems.
+        if (Controller->GetCurrentPhase() == ESimPhase::WaitingToStart)
+        {
+            Controller->StartSimulation();
+        }
+        else
+        {
+            Controller->ResumeSimulation();
+        }
+        return;
+    }
     UE_LOG(LogTemp, Warning, TEXT("Simulation Start"));
 }
 
 void USimulationUIWidget::OnPauseClicked()
 {
     bIsSimulationRunning = false;
+    if (AYUFSSimulationController* Controller = FindSimulationController(this))
+    {
+        // Controller pause keeps UI and camera controls available.
+        UGameplayStatics::SetGamePaused(GetWorld(), false);
+        Controller->PauseSimulation();
+        return;
+    }
     UGameplayStatics::SetGamePaused(GetWorld(), true);
     UE_LOG(LogTemp, Warning, TEXT("Simulation Paused"));
 }
 
 void USimulationUIWidget::OnStopClicked()
 {
+    if (AYUFSSimulationController* Controller = FindSimulationController(this))
+    {
+        bIsSimulationRunning = false;
+        UGameplayStatics::SetGamePaused(GetWorld(), false);
+        Controller->StopAndResetSimulation();
+        return;
+    }
     UE_LOG(LogTemp, Warning, TEXT("Simulation Stop"));
 }
 
 void USimulationUIWidget::OnResetClicked()
 {
+    if (AYUFSSimulationController* Controller = FindSimulationController(this))
+    {
+        bIsSimulationRunning = false;
+        UGameplayStatics::SetGamePaused(GetWorld(), false);
+        Controller->StopAndResetSimulation();
+        return;
+    }
     if (GetWorld())
     {
         FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld());
@@ -158,6 +202,7 @@ void USimulationUIWidget::UpdateSimulationStats()
     if (SimulationTimeText)
     {
         SimulationTimeText->SetText(FText::FromString(TEXT("00:00 / 01:00")));
+		LastDisplayedSimulationSecond = 0;
     }
 }
 void USimulationUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -177,6 +222,12 @@ void USimulationUIWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaT
     }
 
     int32 CurrentSeconds = FMath::FloorToInt(SimulationElapsedTime);
+    if (CurrentSeconds == LastDisplayedSimulationSecond)
+    {
+        return;
+    }
+
+    LastDisplayedSimulationSecond = CurrentSeconds;
     int32 TotalSeconds = FMath::FloorToInt(SimulationDuration);
 
     FString TimeString = FString::Printf(

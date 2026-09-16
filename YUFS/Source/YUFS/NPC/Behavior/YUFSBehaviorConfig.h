@@ -15,6 +15,13 @@ class YUFS_API UYUFSBehaviorConfig : public UDataAsset
 	GENERATED_BODY()
 	
 public:
+	// Design parameters for experiments, not population statistics.
+	UPROPERTY(EditAnywhere, Category="Individual") float EarlyAlarmResponseFraction = 0.30f;
+	UPROPERTY(EditAnywhere, Category="Individual") float VerifyAlarmResponseFraction = 0.45f;
+	UPROPERTY(EditAnywhere, Category="Individual") float HeatAwarenessThreshold = 0.20f;
+	UPROPERTY(EditAnywhere, Category="Individual") float EmergencyHeatThreshold = 0.65f;
+	UPROPERTY(EditAnywhere, Category="Individual") float EvidenceMemorySeconds = 20.f;
+	UPROPERTY(EditAnywhere, Category="Individual") int32 PersonalitySeed = 173;
 	UPROPERTY(EditAnywhere)
 	float MaxMillingDuration = 30.f;
 

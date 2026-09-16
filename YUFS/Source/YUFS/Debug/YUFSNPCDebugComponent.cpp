@@ -8,6 +8,10 @@
 #include "GameFramework/PlayerController.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "NPC/YUFSEvacuationNPC.h"
+#include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "NPC/Perception/YUFSNPCPerceptionComponent.h"
+#include "NPC/Navigation/YUFSLocalMovementComponent.h"
+#include "Simulation/YUFSGameInstance.h"
 
 UYUFSNPCDebugComponent::UYUFSNPCDebugComponent()
 {
@@ -36,9 +40,18 @@ void UYUFSNPCDebugComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 bool UYUFSNPCDebugComponent::ShouldDraw() const
 {
-	if (!bEnabled || !OwnerNPC.IsValid() || !GetWorld())
+	if (bTemporarilySuppressed || !bEnabled || !OwnerNPC.IsValid() || !GetWorld())
 	{
 		return false;
+	}
+
+	// 설정 화면의 전역 토글 — 꺼져 있으면 개별 bEnabled와 상관없이 표시하지 않습니다.
+	if (const UYUFSGameInstance* GI = GetWorld()->GetGameInstance<UYUFSGameInstance>())
+	{
+		if (!GI->bNPCDebugOverlayEnabled)
+		{
+			return false;
+		}
 	}
 
 	AActor* OwnerActor = OwnerNPC.Get();
@@ -89,25 +102,43 @@ FString UYUFSNPCDebugComponent::BuildStateText(const FYUFSNPCObservation& Obs) c
 	const FString StateName = StateEnum
 		? StateEnum->GetNameStringByValue(static_cast<int64>(Obs.CurrentState))
 		: FString::FromInt(static_cast<int32>(Obs.CurrentState));
+	const EYUFSAction DisplayedAction = OwnerNPC->GetDisplayedAction();
 	const FString ActionName = ActionEnum
-		? ActionEnum->GetNameStringByValue(static_cast<int64>(OwnerNPC->GetLastAction()))
-		: FString::FromInt(static_cast<int32>(OwnerNPC->GetLastAction()));
+		? ActionEnum->GetNameStringByValue(static_cast<int64>(DisplayedAction))
+		: FString::FromInt(static_cast<int32>(DisplayedAction));
+	const FString PreviewSuffix = OwnerNPC->IsActionAnimationPreviewActive()
+		? TEXT(" [ANIM PREVIEW]")
+		: TEXT("");
+	const FString AnimationName = OwnerNPC->GetCurrentActionAnimationName();
 
 	const UYUFSSmokeAwareNavigator* Navigator = OwnerNPC->GetNavigator();
 	const FString DestinationText = Navigator
 		? Navigator->GetCurrentDestination().ToCompactString()
 		: FString(TEXT("None"));
-	const FString PathStatus = (Navigator && Navigator->bIsPathfinding) ? TEXT("Repathing") : TEXT("Stable");
+	const FString PathStatus = Navigator
+		? FString::Printf(TEXT("%s | %s | %s\nData: %s | Path smoke/heat: %.2f / %.2f"),
+			*StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(static_cast<int64>(Navigator->GetNavigationStatus())),
+			*StaticEnum<EYUFSRepathReason>()->GetNameStringByValue(static_cast<int64>(Navigator->GetLastRepathReason())),
+			*StaticEnum<EYUFSNavigationFailure>()->GetNameStringByValue(static_cast<int64>(Navigator->GetLastFailure())),
+			*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(Navigator->GetHazardDataStatus())),
+			Navigator->GetPathSmoke(), Navigator->GetPathHeat())
+		: TEXT("None");
 
 	return FString::Printf(
-		TEXT("%s\nState: %s\nAction: %s\nRisk: %.2f | Env: %.2f\nDest: %s\nPath: %s"),
+		TEXT("%s\nState: %s\nAction: %s%s\nAnim: %s\nRisk: %.2f | Env: %.2f\nDest: %s\nPath: %s"),
 		*OwnerNPC->GetName(),
 		*StateName,
 		*ActionName,
+		*PreviewSuffix,
+		*AnimationName,
 		Obs.RiskPerception,
 		Obs.RiskLevel,
 		*DestinationText,
-		*PathStatus);
+		*PathStatus) + FString::Printf(TEXT("\nCue: %s | Alarm trust: %.2f\nTraffic: %s | Yield to: %s\nHeat sight/near: %.2f/%.2f | Known cells: %d"),
+		*StaticEnum<EYUFSEvacuationCue>()->GetNameStringByValue(int64(OwnerNPC->GetBehaviorStateMachine()->GetDecisionCue())),
+		OwnerNPC->GetBehaviorStateMachine()->GetAlarmTrust(),
+		*StaticEnum<EYUFSLocalMovementState>()->GetNameStringByValue(int64(OwnerNPC->GetLocalMovement()->GetState())),
+		*OwnerNPC->GetLocalMovement()->GetYieldingTo(),Obs.HeatInSight,Obs.NearbyHeat,OwnerNPC->GetNPCPerceptionComponent()->GetKnownCellCount());
 }
 
 FString UYUFSNPCDebugComponent::BuildObservationText(const FYUFSNPCObservation& Obs) const

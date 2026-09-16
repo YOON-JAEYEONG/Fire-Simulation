@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/EngineTypes.h"
 #include "YUFSSocialInfluenceComponent.generated.h"
 
 
@@ -19,9 +20,12 @@ public:
 	void UpdateSocialContext();
 
 	// Observation 빌드 시 읽어감
+	bool HasPeerWarning() const { return bPeerWarning; }
 	float GetNearbyEvacuatingRatio() const;
 	int32 GetNearbyNPCCount() const;
 	FVector GetAverageEvacuationDestination() const;
+	// Compatibility alias: JJW already selects an actual visible neighbor's destination, never an average.
+	FVector GetObservedEvacuationDestination() const { return GetAverageEvacuationDestination(); }
 	FVector GetNearestNPCNeedingHelpLocation() const;
 
 	bool  ShouldHelpNearbyNPC()      const;
@@ -33,7 +37,11 @@ public:
 	UPROPERTY(EditAnywhere) float SocialDelayPerMember    = 1.2f;
 
 private:
-	TArray<ACharacter*> NearbyNPCs;
+	bool bPeerWarning = false;
+	TArray<TWeakObjectPtr<ACharacter>> NearbyNPCs;
+	TArray<AActor*> OverlappingActors;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	TArray<AActor*> ActorsToIgnore;
 	int32 EvacuatingCount = 0;
 	bool bCachedShouldHelpNearbyNPC = false;
 	bool bHasNPCNeedingHelp = false;   // 실제 도움이 필요한 NPC 존재 여부 (Crawling/Incapacitated)

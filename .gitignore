@@ -83,8 +83,31 @@ Build/*/**
 *.bin
 *.csv
 
+# 실험용/중간 VDB
+*.vdb
+
 # ML 학습 데이터 및 모델 (Git LFS로 관리)
 !**/Saved/Transitions/
 !**/Saved/Transitions/**
 !**/Saved/Models/
 !**/Saved/Models/**
+
+
+YUFS/Content/Fires/vdb/Scenario_01/vdb/fire.uasset
+YUFS/Content/Fires/vdb/Scenario_02/vdb/fire.uasset
+YUFS/Content/Fires/vdb/Scenario_03/vdb/fire.uasset
+
+# Claude Code 임시 작업 폴더
+YUFS/.claude/worktrees/
+/YUFS/Content/Fires
+
+# Local asset inspection and Unreal verification outputs are not source assets.
+.tmp/
+/Logs/
+
+# Evaluated locally but not redistributable as source assets.
+YUFS/SourceAssets/FireExtinguisher/Polyfork_95dca1/
+YUFS/Content/Props/FireExtinguisher/Polyfork_95dca1/
+
+# CC0 source used by the reproducible Unreal importer.
+!YUFS/SourceAssets/FireExtinguisher/OpenGameArt_JamesWhite_2015/fire_extinguisher_model.obj

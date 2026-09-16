@@ -24,43 +24,36 @@ float NormalizeCount(int32 Count)
 }
 }
 
-TArray<float> FYUFSNPCObservation::ToFloatArray() const
+void FYUFSNPCObservation::FillFloatArray(TArray<float>& OutArray) const
 {
-	TArray<float> OutArray;
-	OutArray.Reserve(28);
+	OutArray.SetNumUninitialized(FeatureCount);
 
-	OutArray.Add(SmokeDensityAtSelf);
-	OutArray.Add(TemperatureAtSelf);
-	OutArray.Add(SmokeInFrontNormalized);
-	OutArray.Add(SmokeAboveNormalized);
-	OutArray.Add(RiskLevel);
-	OutArray.Add(SimTimeNormalized);
-
-	OutArray.Add(NormalizeDistance(DistToNearestExit));
-	OutArray.Add(NormalizeDistance(DistToFamiliarExit));
-	OutArray.Add(static_cast<float>(DirToNearestExit.X));
-	OutArray.Add(static_cast<float>(DirToNearestExit.Y));
-	OutArray.Add(static_cast<float>(DirToNearestExit.Z));
-	OutArray.Add(bNearestExitSmokeFree ? 1.0f : 0.0f);
-
-	OutArray.Add(NearbyEvacuatingRatio);
-	OutArray.Add(NormalizeCount(NearbyNPCCount));
-	OutArray.Add(NormalizeCount(GroupSize));
-	OutArray.Add(bNearbyNPCNeedsHelp ? 1.0f : 0.0f);
-
-	OutArray.Add(bAlarmSounding ? 1.0f : 0.0f);
-	OutArray.Add(bReceivedPreRecordedMsg ? 1.0f : 0.0f);
-	OutArray.Add(bReceivedLiveAnnouncement ? 1.0f : 0.0f);
-	OutArray.Add(bReceivedStaffGuidance ? 1.0f : 0.0f);
-	OutArray.Add(NormalizeCoordinate(StaffGuidedExitLocation.X));
-	OutArray.Add(NormalizeCoordinate(StaffGuidedExitLocation.Y));
-	OutArray.Add(NormalizeCoordinate(StaffGuidedExitLocation.Z));
-
-	OutArray.Add(static_cast<float>(CurrentState) / static_cast<float>(EYUFSBehaviorState::Incapacitated));
-	OutArray.Add(RiskPerception);
-	OutArray.Add(StressLevel);
-	OutArray.Add(FMath::Clamp(static_cast<float>(MillingActionCount) / MillingNormalizeMax, 0.f, 1.f));
-	OutArray.Add(SmokeExposureAccumulated);
-
-	return OutArray;
+	OutArray[0] = SmokeDensityAtSelf;
+	OutArray[1] = TemperatureAtSelf;
+	OutArray[2] = SmokeInFrontNormalized;
+	OutArray[3] = SmokeAboveNormalized;
+	OutArray[4] = RiskLevel;
+	OutArray[5] = SimTimeNormalized;
+	OutArray[6] = NormalizeDistance(DistToNearestExit);
+	OutArray[7] = NormalizeDistance(DistToFamiliarExit);
+	OutArray[8] = static_cast<float>(DirToNearestExit.X);
+	OutArray[9] = static_cast<float>(DirToNearestExit.Y);
+	OutArray[10] = static_cast<float>(DirToNearestExit.Z);
+	OutArray[11] = bNearestExitSmokeFree ? 1.0f : 0.0f;
+	OutArray[12] = NearbyEvacuatingRatio;
+	OutArray[13] = NormalizeCount(NearbyNPCCount);
+	OutArray[14] = NormalizeCount(GroupSize);
+	OutArray[15] = bNearbyNPCNeedsHelp ? 1.0f : 0.0f;
+	OutArray[16] = bAlarmSounding ? 1.0f : 0.0f;
+	OutArray[17] = bReceivedPreRecordedMsg ? 1.0f : 0.0f;
+	OutArray[18] = bReceivedLiveAnnouncement ? 1.0f : 0.0f;
+	OutArray[19] = bReceivedStaffGuidance ? 1.0f : 0.0f;
+	OutArray[20] = NormalizeCoordinate(StaffGuidedExitLocation.X);
+	OutArray[21] = NormalizeCoordinate(StaffGuidedExitLocation.Y);
+	OutArray[22] = NormalizeCoordinate(StaffGuidedExitLocation.Z);
+	OutArray[23] = static_cast<float>(CurrentState) / static_cast<float>(EYUFSBehaviorState::Incapacitated);
+	OutArray[24] = RiskPerception;
+	OutArray[25] = StressLevel;
+	OutArray[26] = FMath::Clamp(static_cast<float>(MillingActionCount) / MillingNormalizeMax, 0.f, 1.f);
+	OutArray[27] = SmokeExposureAccumulated;
 }

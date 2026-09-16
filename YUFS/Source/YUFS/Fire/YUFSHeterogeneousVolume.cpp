@@ -1,113 +1,94 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-#include "YUFSHeterogeneousVolume.h"
+#include "Fire/YUFSHeterogeneousVolume.h"
+#include "Simulation/YUFSSimulationController.h"
+#include "EngineUtils.h"
+#include "Misc/ConfigCacheIni.h"
+#include "Misc/Paths.h"
 
 AYUFSHeterogeneousVolume::AYUFSHeterogeneousVolume()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
 	HeterogeneousVolumeComponent = CreateDefaultSubobject<UHeterogeneousVolumeComponent>(TEXT("YUFSHeterogeneousVolumeComponent"));
+	RootComponent = HeterogeneousVolumeComponent;
 	// 생성자에서는 재생하지 않음 — SimulationController가 제어
 	HeterogeneousVolumeComponent->EndFrame = 0.f;
 	HeterogeneousVolumeComponent->bPlaying = false;
 }
-
 void AYUFSHeterogeneousVolume::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// 설정 값으로 컴포넌트 초기화 (재생은 하지 않음)
+	if (IgnitionMetadataFile.IsEmpty())
+		GConfig->GetString(TEXT("YUFS.FdsIgnition"), TEXT("MetadataFile"), IgnitionMetadataFile, GGameIni);
+	if (!IgnitionMetadataFile.IsEmpty())
+	{
+		const FString File = FPaths::IsRelative(IgnitionMetadataFile)
+			? FPaths::Combine(FPaths::ProjectContentDir(), IgnitionMetadataFile) : IgnitionMetadataFile;
+		bMetadataLoaded = FYUFSFdsIgnitionMetadata::LoadFile(File, IgnitionMetadata, MetadataDiagnostic);
+	}
+	else MetadataDiagnostic = TEXT("MissingFdsIgnitionMetadata");
+	UE_LOG(LogTemp, Display, TEXT("[FDSIgnition] %s metadata=%d status=%s. No local fire effects or suppression response."),
+		*GetName(), bMetadataLoaded, *MetadataDiagnostic);
 	if (HeterogeneousVolumeComponent)
 	{
 		HeterogeneousVolumeComponent->Frame = 0.f;
 		HeterogeneousVolumeComponent->FrameRate = PlaybackFrameRate;
 		HeterogeneousVolumeComponent->EndFrame = TotalFrameCount;
-		HeterogeneousVolumeComponent->bPlaying = false;
-
-		// 에디터 테스트용: bAutoPlayOnBeginPlay가 true이면 즉시 재생
-		if (bAutoPlayOnBeginPlay)
-		{
-			HeterogeneousVolumeComponent->bPlaying = true;
-			UE_LOG(LogTemp, Warning, TEXT("[YUFSFire] Auto-play enabled. Fire starts immediately."));
-		}
-		else
-		{
-			UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Standby. Waiting for SimulationController to call StartFire()."));
-		}
+		HeterogeneousVolumeComponent->bPlaying = bAutoPlayOnBeginPlay;
 	}
+	bFireActive = bAutoPlayOnBeginPlay;
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 제어 API
-// ─────────────────────────────────────────────────────────────────────────────
-
 void AYUFSHeterogeneousVolume::StartFire()
 {
+	bFireActive = true;
 	if (!HeterogeneousVolumeComponent) return;
-
 	HeterogeneousVolumeComponent->Frame = 0.f;
 	HeterogeneousVolumeComponent->bPlaying = true;
-	UE_LOG(LogTemp, Warning, TEXT("[YUFSFire] 🔥 Fire STARTED. Frame reset to 0."));
+	UE_LOG(LogTemp, Display, TEXT("[YUFSFire] Recorded FDS playback started; NPC attempts do not extinguish the data."));
 }
-
 void AYUFSHeterogeneousVolume::PauseFire()
 {
-	if (!HeterogeneousVolumeComponent) return;
-
-	HeterogeneousVolumeComponent->bPlaying = false;
-	UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Fire PAUSED at frame %.0f."),
-		HeterogeneousVolumeComponent->Frame);
+	if (HeterogeneousVolumeComponent) HeterogeneousVolumeComponent->bPlaying = false;
 }
-
 void AYUFSHeterogeneousVolume::ResumeFire()
 {
-	if (!HeterogeneousVolumeComponent) return;
-
-	HeterogeneousVolumeComponent->bPlaying = true;
-	UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Fire RESUMED from frame %.0f."),
-		HeterogeneousVolumeComponent->Frame);
+	if (HeterogeneousVolumeComponent) HeterogeneousVolumeComponent->bPlaying = true;
 }
-
 void AYUFSHeterogeneousVolume::ResetFire()
 {
+	bFireActive = false;
 	if (!HeterogeneousVolumeComponent) return;
-
 	HeterogeneousVolumeComponent->Frame = 0.f;
 	HeterogeneousVolumeComponent->bPlaying = false;
-	UE_LOG(LogTemp, Log, TEXT("[YUFSFire] Fire RESET to frame 0."));
 }
-
 int32 AYUFSHeterogeneousVolume::GetFrame() const
 {
-	if (HeterogeneousVolumeComponent)
-	{
-		return static_cast<int32>(HeterogeneousVolumeComponent->Frame);
-	}
-	UE_LOG(LogTemp, Error, TEXT("[YUFSFire] HeterogeneousVolumeComponent가 비어있습니다!"));
-	return 0;
+	return HeterogeneousVolumeComponent ? static_cast<int32>(HeterogeneousVolumeComponent->Frame) : 0;
 }
-
 void AYUFSHeterogeneousVolume::SetFrame(int32 TargetFrame)
 {
-	if (!HeterogeneousVolumeComponent)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[YUFSFire] SetFrame failed: HeterogeneousVolumeComponent is null."));
-		return;
-	}
-
-	// TotalFrameCount는 float로 관리되고 있으므로 안전하게 int 범위로 Clamp합니다.
+	if (!HeterogeneousVolumeComponent) return;
 	const int32 MaxFrame = FMath::Max(0, FMath::FloorToInt(TotalFrameCount) - 1);
-	const int32 ClampedFrame = FMath::Clamp(TargetFrame, 0, MaxFrame);
-
-	HeterogeneousVolumeComponent->Frame = static_cast<float>(ClampedFrame);
+	HeterogeneousVolumeComponent->Frame = static_cast<float>(FMath::Clamp(TargetFrame, 0, MaxFrame));
 	HeterogeneousVolumeComponent->EndFrame = TotalFrameCount;
-
-	// Seek는 "이 시점으로 이동"하는 동작이므로 기본적으로 정지 상태로 둡니다.
-	// 재생 버튼을 누르면 TimelineRecorder가 다시 ResumeFire()를 호출합니다.
 	HeterogeneousVolumeComponent->bPlaying = false;
 }
-
 bool AYUFSHeterogeneousVolume::IsPlaying() const
 {
 	return HeterogeneousVolumeComponent && HeterogeneousVolumeComponent->bPlaying;
+}
+bool AYUFSHeterogeneousVolume::IsFdsFireActive() const
+{
+	FVector Location;
+	return bFireActive && GetInteractionTarget(Location);
+}
+bool AYUFSHeterogeneousVolume::GetInteractionTarget(FVector& OutWorldLocation) const
+{
+	OutWorldLocation = FVector::ZeroVector;
+	if (!bMetadataLoaded || !GetWorld()) return false;
+	for (TActorIterator<AYUFSSimulationController> It(GetWorld()); It; ++It)
+	{
+		FString Reason;
+		// Explicit simulation-clock mapping, never an assumed SVT fps / BIN time ratio.
+		return IgnitionMetadata.TryGetActiveIgnition(It->GetElapsedTime(), OutWorldLocation, Reason);
+	}
+	return false;
 }

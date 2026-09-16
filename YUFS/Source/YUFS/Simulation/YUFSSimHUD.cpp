@@ -4,11 +4,14 @@
 
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "Simulation/YUFSGameInstance.h"
+#include "Fire/YUFSHeterogeneousVolume.h"
 
 void UYUFSSimHUD::NativeConstruct()
 {
 	Super::NativeConstruct();
 	FindSimController();
+	FindFirePoints();
 }
 
 void UYUFSSimHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -29,6 +32,48 @@ void UYUFSSimHUD::FindSimController()
 	{
 		SimController = *It;
 		break;
+	}
+}
+
+void UYUFSSimHUD::FindFirePoints()
+{
+	if (!GetWorld()) return;
+
+	// 레벨에 배치된 YUFSHeterogeneousVolume 액터들 중, 에디터 표시 이름(Actor Label)이
+	// "_A"/"_B"로 끝나는 액터를 각각 FirePointA / FirePointB로 매칭합니다.
+	// 주의: GetName()(내부 오브젝트 이름)이 아니라 GetActorLabel()(에디터에 보이는 이름)을
+	// 써야 합니다 — 월드 파티션 액터는 GetName()이 "_UAID_..." 형태의 자동 생성된
+	// GUID라서 "_A"/"_B" 매칭이 안 됩니다.
+	for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
+	{
+		AYUFSHeterogeneousVolume* Volume = *It;
+		if (!Volume) continue;
+
+#if WITH_EDITOR
+		const FString Name = Volume->GetActorLabel();
+#else
+		const FString Name = Volume->GetName();
+#endif
+		// 디버그: 월드에서 발견된 HeterogeneousVolume 액터 이름을 전부 찍어봅니다.
+		UE_LOG(LogTemp, Warning, TEXT("[YUFSSimHUD] Found HeterogeneousVolume: Label='%s' Name='%s'"), *Name, *Volume->GetName());
+
+		if (Name.EndsWith(TEXT("_A")))
+		{
+			FirePointA = Volume;
+		}
+		else if (Name.EndsWith(TEXT("_B")))
+		{
+			FirePointB = Volume;
+		}
+	}
+
+	if (!FirePointA)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFSSimHUD] FirePointA를 월드에서 찾지 못했습니다."));
+	}
+	if (!FirePointB)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFSSimHUD] FirePointB를 월드에서 찾지 못했습니다."));
 	}
 }
 
@@ -61,6 +106,40 @@ void UYUFSSimHUD::OnStopButtonClicked()
 	if (SimController) SimController->StopAndResetSimulation();
 }
 
+void UYUFSSimHUD::OnMainMenuButtonClicked()
+{
+	if (UYUFSGameInstance* GI = Cast<UYUFSGameInstance>(GetGameInstance()))
+	{
+		GI->ReturnToMainMenu();
+	}
+}
+
+void UYUFSSimHUD::OnFireSceneAButtonClicked()
+{
+	if (SimController)
+	{
+		SimController->SelectFireScenario(EFireScenario::ScenarioA);
+	}
+}
+
+void UYUFSSimHUD::OnFireSceneBButtonClicked()
+{
+	if (SimController)
+	{
+		SimController->SelectFireScenario(EFireScenario::ScenarioB);
+	}
+}
+
+bool UYUFSSimHUD::IsFireSceneASelected() const
+{
+	return SimController && SimController->GetActiveFireScenario() == EFireScenario::ScenarioA;
+}
+
+bool UYUFSSimHUD::IsFireSceneBSelected() const
+{
+	return SimController && SimController->GetActiveFireScenario() == EFireScenario::ScenarioB;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 데이터 조회 (UMG 바인딩용)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -71,7 +150,8 @@ FText UYUFSSimHUD::GetPhaseText() const
 
 	switch (SimController->GetCurrentPhase())
 	{
-	case ESimPhase::WaitingToStart: return FText::FromString(TEXT("대기 중"));
+	case ESimPhase::WaitingToStart: return FText::FromString(SimController->IsWaitingForInteractionPreview()
+		? TEXT("상호작용 준비 중 · 시작 클릭 예약 가능") : TEXT("대기 중"));
 	case ESimPhase::FireStartDelay: return FText::FromString(TEXT("화재 발생 전"));
 	case ESimPhase::FireActive:     return FText::FromString(TEXT("🔥 화재 진행 중"));
 	case ESimPhase::TimelineReview: return FText::FromString(TEXT("타임라인 관찰 모드"));
@@ -115,7 +195,6 @@ FText UYUFSSimHUD::GetRunProgressText() const
 	if (!SimController) return FText::FromString(TEXT(""));
 
 	const int32 Current = SimController->GetCurrentRunIndex();
-	// TotalRunCount는 공개 프로퍼티이므로 직접 접근
 	return FText::FromString(FString::Printf(TEXT("실험 %d회차"), Current));
 }
 
@@ -197,4 +276,77 @@ FText UYUFSSimHUD::GetTimelineTimeText() const
 		TEXT("%.1f / %.1f초"),
 		SimController->GetTimelineCurrentTime(),
 		SimController->GetTimelineMaxTime()));
+}
+
+void UYUFSSimHUD::OnCameraOverviewButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Overview camera button clicked"));
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC) return;
+
+	TArray<AActor*> Cameras;
+	UGameplayStatics::GetAllActorsWithTag(World, FName("OverviewCamera"), Cameras);
+
+	UE_LOG(LogTemp, Warning, TEXT("OverviewCamera count: %d"), Cameras.Num());
+
+	if (Cameras.Num() > 0 && Cameras[0])
+	{
+		PC->SetViewTargetWithBlend(Cameras[0], 0.5f);
+		UE_LOG(LogTemp, Warning, TEXT("Switched to OverviewCamera"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("OverviewCamera not found"));
+	}
+}
+
+void UYUFSSimHUD::OnCameraFireZoneButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Fire zone camera button clicked"));
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC) return;
+
+	TArray<AActor*> Cameras;
+	UGameplayStatics::GetAllActorsWithTag(World, FName("FireZoneCamera"), Cameras);
+
+	UE_LOG(LogTemp, Warning, TEXT("FireZoneCamera count: %d"), Cameras.Num());
+
+	if (Cameras.Num() > 0 && Cameras[0])
+	{
+		PC->SetViewTargetWithBlend(Cameras[0], 0.5f);
+		UE_LOG(LogTemp, Warning, TEXT("Switched to FireZoneCamera"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("FireZoneCamera not found"));
+	}
+}
+
+void UYUFSSimHUD::OnCameraPlayerViewButtonClicked()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Player view button clicked"));
+
+	UWorld* World = GetWorld();
+	if (!World) return;
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+	if (!PC) return;
+
+	APawn* PlayerPawn = PC->GetPawn();
+	if (!PlayerPawn)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Player pawn not found"));
+		return;
+	}
+
+	PC->SetViewTargetWithBlend(PlayerPawn, 0.5f);
+	UE_LOG(LogTemp, Warning, TEXT("Switched back to Player View"));
 }

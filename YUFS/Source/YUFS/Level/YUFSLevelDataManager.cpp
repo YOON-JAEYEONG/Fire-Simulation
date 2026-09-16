@@ -29,11 +29,47 @@ void AYUFSLevelDataManager::CollectLevelActors()
 	{
 		CachedExits.Add(Cast<AYUFSExitPoint>(Actor));
 	}
+	CachedDangerFrame = INDEX_NONE;
+	CachedExitDangerStates.Reset();
 
+}
+
+void AYUFSLevelDataManager::RefreshExitDangerCache(int32 Frame) const
+{
+	if (CachedDangerFrame == Frame && CachedExitDangerStates.Num() == CachedExits.Num() &&
+		!CachedExitDangerStates.Contains(-1))
+	{
+		return;
+	}
+
+	CachedDangerFrame = Frame;
+	CachedExitDangerStates.Init(-1, CachedExits.Num());
+	if (!BinaryManager)
+	{
+		return;
+	}
+
+	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
+	{
+		const AYUFSExitPoint* Exit = CachedExits[Index];
+		if (!IsValid(Exit))
+		{
+			continue;
+		}
+
+		const auto Sample = BinaryManager->GetHazardSnapshot(Frame).Sample(Exit->GetActorLocation() + FVector(0, 0, 120));
+		if (Sample.Status == EYUFSHazardDataStatus::Ready || Sample.Status == EYUFSHazardDataStatus::OutsideDomain)
+		{
+			CachedExitDangerStates[Index] =
+				(Sample.Smoke >= DangerSmokeDensityThreshold || Sample.Heat >= DangerSmokeDensityThreshold) ? 1 : 0;
+		}
+	}
 }
 
 FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const
 {
+	RefreshExitDangerCache(Frame);
+
 	// 한 번의 순회로 두 후보를 동시에 추적:
 	// - NearestSmokeFree: 연기 없는 출구 중 가장 가까운 것
 	// - NearestAny: 연기 유무 무관하게 가장 가까운 것 (bSmokeFreeOnly 폴백용)
@@ -42,8 +78,9 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 	float MinSmokeFreeDist = MAX_flt;
 	float MinAnyDist = MAX_flt;
 
-	for (AYUFSExitPoint* Exit : CachedExits)
+	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
 	{
+		AYUFSExitPoint* Exit = CachedExits[Index];
 		if (!IsValid(Exit)) continue;
 
 		const FVector ExitLoc = Exit->GetActorLocation();
@@ -55,7 +92,10 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 			NearestAny = ExitLoc;
 		}
 
-		if (!IsLocationDangerous(ExitLoc, Frame) && DistSq < MinSmokeFreeDist)
+		const bool bDangerous = CachedExitDangerStates.IsValidIndex(Index)
+			? CachedExitDangerStates[Index] != 0
+			: IsLocationDangerous(ExitLoc, Frame);
+		if (!bDangerous && DistSq < MinSmokeFreeDist)
 		{
 			MinSmokeFreeDist = DistSq;
 			NearestSmokeFree = ExitLoc;
@@ -98,15 +138,48 @@ FVector AYUFSLevelDataManager::GetFamiliarExit(FVector NPCSpawnLocation) const
 bool AYUFSLevelDataManager::IsLocationDangerous(FVector Location, int32 Frame) const
 {
 	if (!BinaryManager) return false;
+	RefreshExitDangerCache(Frame);
+
+	// 출구 위치라면 같은 화재 프레임에 이미 조회한 위험도를 재사용한다.
+	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
+	{
+		const AYUFSExitPoint* Exit = CachedExits[Index];
+		if (IsValid(Exit) && Exit->GetActorLocation().Equals(Location, 1.f)
+			&& CachedExitDangerStates.IsValidIndex(Index)
+			&& CachedExitDangerStates[Index] >= 0)
+		{
+			return CachedExitDangerStates[Index] == 1;
+		}
+	}
 	
 	uint8 OutDensity = 0;
 	if (BinaryManager->GetSmokeDensityAtLocation(Location, Frame, OutDensity))
 	{
-		float NormalizedDensity = OutDensity / 255.0f;
-		return NormalizedDensity >= DangerSmokeDensityThreshold;
+		const bool bDangerous = OutDensity / 255.f >= DangerSmokeDensityThreshold;
+		for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
+		{
+			const AYUFSExitPoint* Exit = CachedExits[Index];
+			if (IsValid(Exit) && Exit->GetActorLocation().Equals(Location, 1.f)
+				&& CachedExitDangerStates.IsValidIndex(Index))
+			{
+				CachedExitDangerStates[Index] = bDangerous ? 1 : 0;
+				break;
+			}
+		}
+		return bDangerous;
 	}
 	
 	return false;
+}
+
+FYUFSHazardSnapshot AYUFSLevelDataManager::GetHazardSnapshot(int32 Frame) const
+{
+	return IsValid(BinaryManager) ? BinaryManager->GetHazardSnapshot(Frame) : FYUFSHazardSnapshot();
+}
+
+int32 AYUFSLevelDataManager::GetCurrentHazardFrame() const
+{
+	return IsValid(BinaryManager) ? BinaryManager->GetCurrentFrame() : INDEX_NONE;
 }
 
 float AYUFSLevelDataManager::GetPathDangerScore(const TArray<FVector>& Path, int32 Frame) const
@@ -137,4 +210,11 @@ float AYUFSLevelDataManager::GetPathDangerScore(const TArray<FVector>& Path, int
 	}
 	
 	return TotalScore;
+}
+
+TArray<FVector> AYUFSLevelDataManager::GetExitLocations() const
+{
+	TArray<FVector> Locations;
+	for (const auto* Exit:CachedExits) if (IsValid(Exit)) Locations.Add(Exit->GetActorLocation());
+	return Locations;
 }
