@@ -83,6 +83,9 @@ Build/*/**
 *.bin
 *.csv
 
+# 실험용/중간 VDB
+*.vdb
+
 # ML 학습 데이터 및 모델 (Git LFS로 관리)
 !**/Saved/Transitions/
 !**/Saved/Transitions/**

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Blueprint/UserWidget.h"
 #include "TimerManager.h"
+#include "YUFSScenarioConfig.h"
 #include "YUFSSimulationController.generated.h"
 
 class AYUFSLevelDataManager;
@@ -27,6 +28,14 @@ enum class ESimPhase : uint8
 	Completed,        // 시뮬레이션 종료 (성공/실패)
 };
 
+// ── 화재 시나리오 (Fire_A / Fire_B 버튼으로 전환) ─────────────────────────
+UENUM(BlueprintType)
+enum class EFireScenario : uint8
+{
+	ScenarioA,
+	ScenarioB,
+};
+
 // ── 한 회차 결과 요약 ──────────────────────────────────────────────────────
 USTRUCT(BlueprintType)
 struct FSimRunResult
@@ -40,6 +49,26 @@ struct FSimRunResult
 	UPROPERTY(BlueprintReadOnly) float EvacuationRate = 0.f;   // [0,1]
 	UPROPERTY(BlueprintReadOnly) float SimDurationSeconds = 0.f;
 	UPROPERTY(BlueprintReadOnly) float AverageEvacuationTime = 0.f;
+
+	// 이 회차 실행 시 사용된 난수 시드. 결과 화면에서 "이 회차 재현"에 사용됩니다.
+	UPROPERTY(BlueprintReadOnly) int32 RandomSeed = 0;
+
+	// 이 회차가 언제 실행됐는지. 결과 화면이 여러 세션에 걸친 기록을 누적해서 보여주므로
+	// 각 행을 구분하는 용도로 씁니다.
+	UPROPERTY(BlueprintReadOnly) FDateTime Timestamp;
+
+	// 이 회차가 실제로 사용한 시나리오 설정 스냅샷. RandomSeed와 함께 있어야
+	// GameInstance의 "현재" ActiveScenario가 그 사이 바뀌어도 정확히 재현할 수 있습니다.
+	UPROPERTY(BlueprintReadOnly) FYUFSScenarioConfig ScenarioConfig;
+
+	// 이 회차 시작 시점의 NPC별 초기 Transform (RegisteredNPCs와 같은 순서).
+	// "이 회차 재현" 시 레벨에 현재 배치된 상태와 무관하게 이 위치/방향으로 되돌립니다.
+	UPROPERTY(BlueprintReadOnly) TArray<FTransform> InitialNPCTransforms;
+
+	// InitialNPCTransforms와 같은 순서의 NPC 클래스. 레벨에 원래부터 배치된 NPC 수보다
+	// 이 배열이 더 길면(배치 도구로 런타임에 추가 배치한 경우), 재현 시 부족한 만큼
+	// 이 클래스로 다시 스폰합니다(그런 NPC는 레벨 자체엔 저장되지 않으므로).
+	UPROPERTY(BlueprintReadOnly) TArray<TSubclassOf<AYUFSEvacuationNPC>> InitialNPCClasses;
 };
 
 // ── 이벤트 델리게이트 ──────────────────────────────────────────────────────
@@ -88,6 +117,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
 	void StopNPCActionAnimationShowcase();
 
+	// ── 화재 시나리오 선택 (HUD의 Fire_A / Fire_B 버튼 → 이 함수 호출) ───
+	// 서로 다른 화재 데이터(각각의 AYUFSBinaryManager + AYUFSHeterogeneousVolume 쌍)를 전환합니다.
+	// 시뮬레이션이 이미 진행 중(WaitingToStart가 아님)이면 전환하지 않습니다 — 먼저 Stop 하세요.
+	UFUNCTION(BlueprintCallable, Category="Simulation|Fire")
+	void SelectFireScenario(EFireScenario NewScenario);
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	EFireScenario GetActiveFireScenario() const { return CurrentActiveScenario; }
+
 	// ── 상태 조회 (HUD가 읽음) ───────────────────────────────────────────
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	ESimPhase GetCurrentPhase() const { return CurrentPhase; }
@@ -129,6 +167,13 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	TArray<FSimRunResult> GetAllRunResults() const { return AllRunResults; }
+
+	// ── 시나리오 (메인 메뉴에서 넘어온 설정) ─────────────────────────
+	UFUNCTION(BlueprintPure, Category="Simulation|Scenario")
+	bool HasActiveScenario() const { return bHasActiveScenario; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Scenario")
+	const FYUFSScenarioConfig& GetActiveScenario() const { return ActiveScenario; }
 
 	// ── 타임라인 기록/관찰 API ───────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
@@ -187,14 +232,6 @@ public:
 	// 최대 시뮬레이션 시간 (초, 이 시간이 지나면 강제 종료)
 	UPROPERTY(EditAnywhere, Category="Simulation|Timing")
 	float MaxSimDurationSeconds = 300.f;
-
-	// 반복 실험 횟수
-	UPROPERTY(EditAnywhere, Category="Simulation|Batch")
-	int32 TotalRunCount = 1;
-
-	// 각 회차 종료 후 다음 회차까지 대기 (초)
-	UPROPERTY(EditAnywhere, Category="Simulation|Batch")
-	float DelayBetweenRunsSeconds = 3.f;
 
 	// 알람은 화재 시작 몇 초 후에 발령?
 	UPROPERTY(EditAnywhere, Category="Simulation|Events")
@@ -329,7 +366,15 @@ private:
 	bool bLiveAnnouncementFired = false;
 	bool bStaffGuidanceFired = false;
 
+	// 메인 메뉴에서 넘어온 시나리오 설정. bHasActiveScenario가 false면
+	// 이 액터의 EditAnywhere 기본값을 그대로 사용합니다.
+	bool bHasActiveScenario = false;
+
+	UPROPERTY()
+	FYUFSScenarioConfig ActiveScenario;
+
 	int32 CurrentRunIndex = 0;
+	int32 CurrentRunSeed = 0;
 	int32 InitialNPCCount = 0;
 	int32 LiveEvacuatedCount = 0;
 	int32 LiveIncapacitatedCount = 0;
@@ -338,10 +383,15 @@ private:
 	TArray<AYUFSEvacuationNPC*> RegisteredNPCs;
 	TArray<FSimRunResult> AllRunResults;
 
+	// 이번 회차 시작 시점의 NPC별 Transform/클래스 (RegisteredNPCs와 같은 순서). BuildRunResult()가
+	// 그대로 결과에 담아 "이 회차 재현" 시 복원(또는 재스폰)할 수 있게 합니다.
+	TArray<FTransform> InitialNPCTransforms;
+	TArray<TSubclassOf<AYUFSEvacuationNPC>> InitialNPCClasses;
+
 	// 대피/행동불능 처리를 이미 끝낸 NPC를 기억해서 카운트 중복 증가를 막습니다.
 	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;
 
-	// 캐싱
+	// 캐싱 — 현재 선택된(Active) 시나리오의 쌍을 가리킵니다. 나머지 로직은 전부 이 두 포인터만 사용합니다.
 	AYUFSBinaryManager* BinaryManager = nullptr;
 	AYUFSEmergencyCommSystem* CommSystem = nullptr;
 	AYUFSHeterogeneousVolume* HeterogeneousVolume = nullptr;
@@ -349,16 +399,39 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UUserWidget> HUDWidgetInstance = nullptr;
 
+	// ── 화재 시나리오 A/B 각각의 실제 데이터 쌍 ───────────────────────────
+	// 레벨에는 이름이 "..._A" / "..._B"로 끝나는 AYUFSHeterogeneousVolume, AYUFSBinaryManager
+	// 액터를 각각 배치합니다 (WBP_SimHUD의 FindFirePoints()와 동일한 명명 규칙).
+	EFireScenario CurrentActiveScenario = EFireScenario::ScenarioA;
+
+	AYUFSBinaryManager* BinaryManagerA = nullptr;
+	AYUFSBinaryManager* BinaryManagerB = nullptr;
+	AYUFSHeterogeneousVolume* HeterogeneousVolumeA = nullptr;
+	AYUFSHeterogeneousVolume* HeterogeneousVolumeB = nullptr;
+
 	UPROPERTY(VisibleAnywhere, Category="Simulation|Timeline")
 	UYUFSTimelineRecorder* TimelineRecorder = nullptr;
 
 	// ── 내부 함수 ─────────────────────────────────────────────────────
+	void ApplyActiveScenario();
 	void SetPhase(ESimPhase NewPhase);
 	void TickFireActivePhase(float DeltaTime);
 	void CheckCompletionCondition();
+	FSimRunResult BuildRunResult() const;
+	FYUFSScenarioConfig CaptureScenarioSnapshot() const;
+	void StoreRunResult(const FSimRunResult& Result);
+	void InitializeRunSeed();
+	void CaptureInitialNPCTransforms();
+	void ApplyReplayNPCTransforms(const TArray<FTransform>& Transforms, const TArray<TSubclassOf<AYUFSEvacuationNPC>>& Classes);
 	void FinalizeRun();
-	void StartNextRun();
 	void UpdateLiveCounts();
 	void SpawnHUD();
+
+	// 레벨에서 "_A"/"_B" 이름 규칙의 BinaryManager/HeterogeneousVolume 쌍을 찾아 서로 링크합니다.
+	void FindFireScenarioActors();
+	// CurrentActiveScenario(화재 A/B 선택)에 맞춰 BinaryManager/HeterogeneousVolume 캐시를
+	// 갱신하고, 선택되지 않은 쪽 볼륨은 숨김 처리합니다.
+	void ApplyCurrentActiveScenario();
+
 	friend struct FYUFSJJWControllerTestAccess;
 };
