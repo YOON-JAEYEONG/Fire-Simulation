@@ -29,11 +29,47 @@ enum class ESimPhase : uint8
 };
 
 // ── 화재 시나리오 (Fire_A / Fire_B 버튼으로 전환) ─────────────────────────
+// Deprecated: 콤보박스 기반 FireOptions로 대체되었습니다. 기존 블루프린트
+// 호환을 위해서만 남겨둡니다 (ScenarioA=인덱스 0, ScenarioB=인덱스 1).
 UENUM(BlueprintType)
 enum class EFireScenario : uint8
 {
 	ScenarioA,
 	ScenarioB,
+};
+
+// ── 화재 선택 콤보박스용 옵션 하나 ─────────────────────────────────────────
+// 레벨마다(Main/Prototype) BinaryManager/HeterogeneousVolume은 각각 1개씩만 두고,
+// 실제로 재생할 데이터(.bin)와 시각 머티리얼(vdb)만 이 배열로 여러 개 등록해
+// 전환합니다. 콤보박스에는 DisplayName들이 나열됩니다.
+USTRUCT(BlueprintType)
+struct FYUFSFireOption
+{
+	GENERATED_BODY()
+
+	// 콤보박스에 표시할 이름 (예: "1층 로비 화재")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	FString DisplayName;
+
+	// 이 화재의 연기/온도 데이터 (.bin, Content 폴더 기준 상대 경로)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	FString BinaryFilePath;
+
+	// 이 화재의 vdb에 대응하는 Sparse Volume Texture 머티리얼(인스턴스)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	TObjectPtr<class UMaterialInterface> FireMaterial = nullptr;
+
+	// 선택: 이 화재 전용 발화 지점 메타데이터(.json) 경로. 비워두면 프로젝트 기본값(Config) 사용.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	FString IgnitionMetadataFile;
+
+	// 이 화재의 vdb를 건물에 맞게 보이도록 HeterogeneousVolume 액터에 적용할 위치/회전/크기.
+	// 화재마다 FDS 도메인 크기·비율이 달라서 볼륨 액터 하나의 Transform으로는 전부 맞출 수
+	// 없기 때문에, 이 화재가 선택될 때마다 여기 저장된 Transform이 액터에 그대로 적용됩니다.
+	// 사용법: 레벨에서 HeterogeneousVolume 액터를 이 화재에 맞게 눈으로 맞춘 뒤, Details 패널의
+	// Transform을 복사(Copy)해서 이 필드에 붙여넣기(Paste) 하세요.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	FTransform VolumeTransform = FTransform::Identity;
 };
 
 // ── 한 회차 결과 요약 ──────────────────────────────────────────────────────
@@ -117,14 +153,33 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
 	void StopNPCActionAnimationShowcase();
 
-	// ── 화재 시나리오 선택 (HUD의 Fire_A / Fire_B 버튼 → 이 함수 호출) ───
-	// 서로 다른 화재 데이터(각각의 AYUFSBinaryManager + AYUFSHeterogeneousVolume 쌍)를 전환합니다.
-	// 시뮬레이션이 이미 진행 중(WaitingToStart가 아님)이면 전환하지 않습니다 — 먼저 Stop 하세요.
+	// ── 화재 선택 (HUD 콤보박스 → 이 함수 호출) ──────────────────────────
+	// 레벨의 (단일) BinaryManager/HeterogeneousVolume에 FireOptions[OptionIndex]의
+	// 데이터(.bin)와 머티리얼(vdb)을 적용합니다. 시뮬레이션이 이미 진행 중
+	// (WaitingToStart가 아님)이면 전환하지 않습니다 — 먼저 Stop 하세요.
 	UFUNCTION(BlueprintCallable, Category="Simulation|Fire")
-	void SelectFireScenario(EFireScenario NewScenario);
+	void SelectFireOption(int32 OptionIndex);
 
 	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
-	EFireScenario GetActiveFireScenario() const { return CurrentActiveScenario; }
+	int32 GetActiveFireOptionIndex() const { return CurrentFireOptionIndex; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	int32 GetFireOptionCount() const { return FireOptions.Num(); }
+
+	// 콤보박스를 채우는 용도. 인덱스는 FireOptions 배열과 1:1로 대응합니다.
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	TArray<FString> GetFireOptionNames() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	FString GetFireOptionName(int32 OptionIndex) const;
+
+	// Deprecated: SelectFireOption(int32)을 쓰세요. 기존 Fire_A/Fire_B 버튼 블루프린트와의
+	// 호환을 위해서만 남겨둡니다 (ScenarioA→인덱스 0, ScenarioB→인덱스 1).
+	UFUNCTION(BlueprintCallable, Category="Simulation|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use SelectFireOption(int32) with the FireOptions combo box instead."))
+	void SelectFireScenario(EFireScenario NewScenario);
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use GetActiveFireOptionIndex() instead."))
+	EFireScenario GetActiveFireScenario() const { return CurrentFireOptionIndex == 0 ? EFireScenario::ScenarioA : EFireScenario::ScenarioB; }
 
 	// ── 상태 조회 (HUD가 읽음) ───────────────────────────────────────────
 	UFUNCTION(BlueprintPure, Category="Simulation")
@@ -257,6 +312,21 @@ public:
 	// HUD 위젯 클래스 (에디터에서 BP 위젯 클래스를 연결)
 	UPROPERTY(EditAnywhere, Category="Simulation|UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
+
+	// ── 화재 선택 목록 (HUD 콤보박스에 표시) ─────────────────────────────
+	// 레벨에는 AYUFSBinaryManager/AYUFSHeterogeneousVolume을 각 1개씩만 배치하고,
+	// 전환 가능한 화재들은 전부 이 배열에 등록합니다. Main은 3개, Prototype은
+	// 기존 A/B 2개를 그대로 여기로 옮기면 됩니다.
+	UPROPERTY(EditAnywhere, Category="Simulation|Fire")
+	TArray<FYUFSFireOption> FireOptions;
+
+	// 새 vdb를 테스트할 때 뷰포트에서 HeterogeneousVolume을 직접 옮기고 스케일을 눈으로
+	// 맞춰보려면 이 값을 false로 꺼두세요. true(기본값)면 화재를 선택/재생할 때마다
+	// FireOptions[i].VolumeTransform이 액터에 강제로 다시 적용되어, 손으로 옮긴 값이
+	// 계속 되돌아갑니다. 맞는 값을 찾으면 다시 true로 켜고 Transform을 복사해서
+	// 해당 FireOptions 항목의 Volume Transform에 붙여넣으세요.
+	UPROPERTY(EditAnywhere, Category="Simulation|Fire")
+	bool bAutoApplyFireVolumeTransform = true;
 
 	// ── 타임라인 기록 설정 ─────────────────────────────────────────────
 	// true면 StartSimulation()으로도 지정 시간까지 기록 후 관찰 모드로 전환합니다.
@@ -399,15 +469,8 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UUserWidget> HUDWidgetInstance = nullptr;
 
-	// ── 화재 시나리오 A/B 각각의 실제 데이터 쌍 ───────────────────────────
-	// 레벨에는 이름이 "..._A" / "..._B"로 끝나는 AYUFSHeterogeneousVolume, AYUFSBinaryManager
-	// 액터를 각각 배치합니다 (WBP_SimHUD의 FindFirePoints()와 동일한 명명 규칙).
-	EFireScenario CurrentActiveScenario = EFireScenario::ScenarioA;
-
-	AYUFSBinaryManager* BinaryManagerA = nullptr;
-	AYUFSBinaryManager* BinaryManagerB = nullptr;
-	AYUFSHeterogeneousVolume* HeterogeneousVolumeA = nullptr;
-	AYUFSHeterogeneousVolume* HeterogeneousVolumeB = nullptr;
+	// ── 현재 선택된 화재 (FireOptions 배열의 인덱스) ──────────────────────
+	int32 CurrentFireOptionIndex = 0;
 
 	UPROPERTY(VisibleAnywhere, Category="Simulation|Timeline")
 	UYUFSTimelineRecorder* TimelineRecorder = nullptr;
@@ -427,11 +490,11 @@ private:
 	void UpdateLiveCounts();
 	void SpawnHUD();
 
-	// 레벨에서 "_A"/"_B" 이름 규칙의 BinaryManager/HeterogeneousVolume 쌍을 찾아 서로 링크합니다.
-	void FindFireScenarioActors();
-	// CurrentActiveScenario(화재 A/B 선택)에 맞춰 BinaryManager/HeterogeneousVolume 캐시를
-	// 갱신하고, 선택되지 않은 쪽 볼륨은 숨김 처리합니다.
-	void ApplyCurrentActiveScenario();
+	// 레벨에서 (단일) BinaryManager/HeterogeneousVolume 액터를 찾아 서로 링크합니다.
+	// 둘 중 하나가 여러 개 있으면(예: 이전 A/B 방식의 잔여물) 첫 번째만 사용하고 경고를 남깁니다.
+	void FindFireSceneActors();
+	// FireOptions[OptionIndex]의 .bin 경로와 머티리얼을 BinaryManager/HeterogeneousVolume에 적용합니다.
+	void ApplyFireOption(int32 OptionIndex);
 
 	friend struct FYUFSJJWControllerTestAccess;
 };

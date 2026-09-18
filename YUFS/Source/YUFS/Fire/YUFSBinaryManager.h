@@ -31,6 +31,12 @@ public:
 
 	void SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolume);
 
+	// 지정한 .bin 파일(Content 폴더 기준 상대 경로)을 다시 읽어 재생 데이터를 통째로 교체합니다.
+	// 헤더 파싱에 실패하면 false를 반환하고 이전 데이터는 무효화됩니다(bHeaderValid=false).
+	// 레벨 리로드 없이 콤보박스로 화재를 전환할 때 SimulationController가 호출합니다.
+	UFUNCTION(BlueprintCallable, Category="Fire")
+	bool LoadBinaryFile(const FString& NewRelativePath);
+
 	bool GetSmokeDensityAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutDensity);
 	bool GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature);
 	FYUFSHazardSnapshot GetHazardSnapshot(int32 FrameIndex) const;

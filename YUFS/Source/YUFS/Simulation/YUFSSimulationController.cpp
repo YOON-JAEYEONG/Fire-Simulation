@@ -48,18 +48,29 @@ void AYUFSSimulationController::BeginPlay()
 		break;
 	}
 
-	// 화재 시나리오 A/B 쌍(BinaryManager + HeterogeneousVolume)을 찾아 링크하고,
-	// 기본 시나리오(A)를 활성화합니다.
-	FindFireScenarioActors();
-	ApplyCurrentActiveScenario();
+	// 레벨의 (단일) BinaryManager/HeterogeneousVolume을 찾아 링크하고,
+	// FireOptions[0](또는 마지막으로 선택했던 인덱스)를 적용합니다.
+	FindFireSceneActors();
+	if (FireOptions.IsValidIndex(CurrentFireOptionIndex))
+	{
+		ApplyFireOption(CurrentFireOptionIndex);
+	}
+	else if (!FireOptions.IsEmpty())
+	{
+		ApplyFireOption(0);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] FireOptions가 비어 있습니다. SimulationController의 Fire Options 배열에 화재(표시 이름/.bin 경로/머티리얼)를 최소 1개 등록하세요."));
+	}
 
-	// A/B 각각의 화재 볼륨이 실제 머티리얼을 가지고 있는지 확인합니다.
+	// 화재 볼륨이 실제 머티리얼을 가지고 있는지 확인합니다.
 	for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
 	{
 		const auto* VolumeComponent = It->FindComponentByClass<UHeterogeneousVolumeComponent>();
 		if (!VolumeComponent || !VolumeComponent->GetMaterial(0))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[YUFS][Merge] Recorded fire volume '%s' has no material. JJW Scenario_04 requires /Game/Fires/vdb/Scenario_04/vdb/SparseVolumeMaterial_Inst_Scenario_04; obtain the matching external assets. No substitute fire or material is created."), *It->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] Fire volume '%s' has no material. Set FireMaterial on the matching FireOptions entry (or assign a material on the HeterogeneousVolume directly) so playback is visible."), *It->GetName());
 		}
 	}
 
@@ -297,24 +308,54 @@ void AYUFSSimulationController::StopAndResetSimulation()
 	UGameplayStatics::OpenLevel(GetWorld(), *GetWorld()->GetName());
 }
 
-void AYUFSSimulationController::SelectFireScenario(EFireScenario NewScenario)
+void AYUFSSimulationController::SelectFireOption(int32 OptionIndex)
 {
 	if (CurrentPhase != ESimPhase::WaitingToStart)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 시뮬레이션이 진행 중일 때는 화재 시나리오를 전환할 수 없습니다. 먼저 Stop 하세요."));
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 시뮬레이션이 진행 중일 때는 화재를 전환할 수 없습니다. 먼저 Stop 하세요."));
 		return;
 	}
 
-	if (CurrentActiveScenario == NewScenario)
+	if (!FireOptions.IsValidIndex(OptionIndex))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 잘못된 화재 인덱스 %d (등록된 화재 %d개)."), OptionIndex, FireOptions.Num());
+		return;
+	}
+
+	if (CurrentFireOptionIndex == OptionIndex)
 	{
 		return;
 	}
 
-	CurrentActiveScenario = NewScenario;
-	ApplyCurrentActiveScenario();
+	ApplyFireOption(OptionIndex);
 
-	UE_LOG(LogTemp, Warning, TEXT("[YUFS] 화재 시나리오 전환 → %s"),
-		NewScenario == EFireScenario::ScenarioA ? TEXT("A") : TEXT("B"));
+	UE_LOG(LogTemp, Warning, TEXT("[YUFS] 화재 전환 → [%d] %s"), OptionIndex, *FireOptions[OptionIndex].DisplayName);
+}
+
+void AYUFSSimulationController::SelectFireScenario(EFireScenario NewScenario)
+{
+	SelectFireOption(NewScenario == EFireScenario::ScenarioA ? 0 : 1);
+}
+
+TArray<FString> AYUFSSimulationController::GetFireOptionNames() const
+{
+	TArray<FString> Names;
+	Names.Reserve(FireOptions.Num());
+	for (int32 Index = 0; Index < FireOptions.Num(); ++Index)
+	{
+		Names.Add(GetFireOptionName(Index));
+	}
+	return Names;
+}
+
+FString AYUFSSimulationController::GetFireOptionName(int32 OptionIndex) const
+{
+	if (!FireOptions.IsValidIndex(OptionIndex))
+	{
+		return FString();
+	}
+	const FString& DisplayName = FireOptions[OptionIndex].DisplayName;
+	return DisplayName.IsEmpty() ? FString::Printf(TEXT("Fire %d"), OptionIndex + 1) : DisplayName;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -347,95 +388,85 @@ void AYUFSSimulationController::ApplyActiveScenario()
 		*ActiveScenario.DisplayName.ToString(), FireStartDelaySeconds);
 }
 
-void AYUFSSimulationController::FindFireScenarioActors()
+void AYUFSSimulationController::FindFireSceneActors()
 {
 	if (!GetWorld()) return;
 
-	// 이름(에디터 표시 이름)이 "_A"/"_B"로 끝나는 HeterogeneousVolume 액터를 각각 매칭합니다.
-	// (WBP_SimHUD::FindFirePoints()와 동일한 규칙 — GetActorLabel()을 써야 월드 파티션에서도 매칭됩니다.)
+	int32 VolumeCount = 0;
 	for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
 	{
-		AYUFSHeterogeneousVolume* Volume = *It;
-		if (!Volume) continue;
-
-#if WITH_EDITOR
-		const FString Name = Volume->GetActorLabel();
-#else
-		const FString Name = Volume->GetName();
-#endif
-		if (Name.EndsWith(TEXT("_A")))
+		if (!*It) continue;
+		++VolumeCount;
+		if (!HeterogeneousVolume)
 		{
-			HeterogeneousVolumeA = Volume;
-		}
-		else if (Name.EndsWith(TEXT("_B")))
-		{
-			HeterogeneousVolumeB = Volume;
+			HeterogeneousVolume = *It;
 		}
 	}
 
-	// 이름이 "_A"/"_B"로 끝나는 BinaryManager 액터를 각각 매칭합니다.
-	// 아직 이름 규칙을 따르지 않는 기존(단일) BinaryManager만 있는 경우엔 하위 호환을 위해 A로 취급합니다.
+	int32 ManagerCount = 0;
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
 	{
-		AYUFSBinaryManager* Manager = *It;
-		if (!Manager) continue;
-
-#if WITH_EDITOR
-		const FString Name = Manager->GetActorLabel();
-#else
-		const FString Name = Manager->GetName();
-#endif
-		if (Name.EndsWith(TEXT("_A")))
+		if (!*It) continue;
+		++ManagerCount;
+		if (!BinaryManager)
 		{
-			BinaryManagerA = Manager;
-		}
-		else if (Name.EndsWith(TEXT("_B")))
-		{
-			BinaryManagerB = Manager;
-		}
-		else if (!BinaryManagerA)
-		{
-			BinaryManagerA = Manager;
+			BinaryManager = *It;
 		}
 	}
 
-	if (BinaryManagerA && HeterogeneousVolumeA)
+	if (BinaryManager && HeterogeneousVolume)
 	{
-		BinaryManagerA->SetHeterogeneousVolume(HeterogeneousVolumeA);
-	}
-	if (BinaryManagerB && HeterogeneousVolumeB)
-	{
-		BinaryManagerB->SetHeterogeneousVolume(HeterogeneousVolumeB);
+		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
 	}
 
-	if (!HeterogeneousVolumeA)
+	if (VolumeCount == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 시나리오 A용 HeterogeneousVolume(이름이 '_A'로 끝나는 액터)을 찾지 못했습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 레벨에 AYUFSHeterogeneousVolume 액터가 없습니다. 화재 볼륨을 하나 배치하세요."));
 	}
-	if (!HeterogeneousVolumeB || !BinaryManagerB)
+	if (ManagerCount == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 시나리오 B용 BinaryManager/HeterogeneousVolume(이름이 '_B'로 끝나는 액터)을 찾지 못했습니다. "
-			"레벨에 AYUFSBinaryManager_B, AYUFSHeterogeneousVolume_B를 배치하고 B용 .bin 파일 경로를 설정하세요."));
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 레벨에 AYUFSBinaryManager 액터가 없습니다. 데이터 매니저를 하나 배치하세요."));
+	}
+	if (VolumeCount > 1 || ManagerCount > 1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] HeterogeneousVolume %d개 / BinaryManager %d개가 발견되었습니다 — 화재 전환은 이제 FireOptions + 콤보박스로 하므로 각각 1개씩만 있으면 됩니다. 남는 액터는 삭제하세요."),
+			VolumeCount, ManagerCount);
 	}
 }
 
-void AYUFSSimulationController::ApplyCurrentActiveScenario()
+void AYUFSSimulationController::ApplyFireOption(int32 OptionIndex)
 {
-	const bool bIsA = (CurrentActiveScenario == EFireScenario::ScenarioA);
-
-	BinaryManager = bIsA ? BinaryManagerA : BinaryManagerB;
-	HeterogeneousVolume = bIsA ? HeterogeneousVolumeA : HeterogeneousVolumeB;
-
-	// 선택되지 않은 시나리오의 화재 볼륨은 화면에서 숨기고 정지시킵니다.
-	if (HeterogeneousVolumeA)
+	if (!FireOptions.IsValidIndex(OptionIndex))
 	{
-		HeterogeneousVolumeA->SetActorHiddenInGame(!bIsA);
-		if (!bIsA) HeterogeneousVolumeA->PauseFire();
+		return;
 	}
-	if (HeterogeneousVolumeB)
+
+	CurrentFireOptionIndex = OptionIndex;
+	const FYUFSFireOption& Option = FireOptions[OptionIndex];
+
+	if (BinaryManager)
 	{
-		HeterogeneousVolumeB->SetActorHiddenInGame(bIsA);
-		if (bIsA) HeterogeneousVolumeB->PauseFire();
+		BinaryManager->LoadBinaryFile(Option.BinaryFilePath);
+	}
+
+	if (HeterogeneousVolume)
+	{
+		// 화재마다 FDS 도메인 크기/비율이 달라서, 머티리얼과 함께 이 화재 전용으로
+		// 맞춰둔 위치/회전/크기도 같이 적용해야 건물과 어긋나지 않습니다.
+		// 단, 새 vdb를 뷰포트에서 눈으로 맞춰보는 동안에는 bAutoApplyFireVolumeTransform을
+		// false로 꺼서 이 강제 적용을 건너뛸 수 있습니다.
+		if (bAutoApplyFireVolumeTransform)
+		{
+			HeterogeneousVolume->SetActorTransform(Option.VolumeTransform);
+		}
+		HeterogeneousVolume->SetFireMaterial(Option.FireMaterial);
+		HeterogeneousVolume->SetIgnitionMetadataFile(Option.IgnitionMetadataFile);
+		HeterogeneousVolume->ResetFire();
+	}
+
+	if (BinaryManager && HeterogeneousVolume)
+	{
+		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
 	}
 
 	if (TimelineRecorder)
