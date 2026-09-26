@@ -50,6 +50,15 @@ public:
 	bool IsDatasetAlignmentConfirmed() const { return bDatasetAlignmentConfirmed; }
 	AYUFSHeterogeneousVolume* GetHeterogeneousVolume() const { return HeterogeneousVolume; }
 
+	/**
+	 * Grid(cell) -> world for a BIN grid that shares the SVT's voxel lattice.
+	 * FrameTransform is the SVT frame transform as the UE importer builds it: VDB affine map with
+	 * translation += SequenceBoundsMin * Scale. The VDB map itself is assumed translation-free
+	 * (true for FDS ScaleMap exports), so SequenceBoundsMin = FrameTranslation / FrameScale.
+	 */
+	static FTransform ComputeVisualAlignedGridToWorld(const FTransform& FrameTransform,
+		const FTransform& ComponentToWorld, const FVector& BinToVisualVoxelOffset);
+
 private:
 	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation);
 
@@ -83,6 +92,21 @@ private:
 	int32 BinaryFrameOffset = 0;
 	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
 	bool bDatasetAlignmentConfirmed = false;
+
+	/**
+	 * Map BIN cells through the visual SVT's own frame transform instead of GridOriginLocal/VoxelSize,
+	 * so NPC smoke/heat sits exactly where the rendered smoke is (same 40 cm FDS grid, same frames).
+	 * Used only when the fire volume's material has a sparse volume texture; otherwise legacy mapping.
+	 */
+	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
+	bool bAlignGridToVisualVolume = true;
+
+	/**
+	 * BIN cell index -> VDB voxel index offset, measured from the it_test data
+	 * (3 fires, 8 frames each: VDB bbox == BIN bbox shifted by -4.5/-4.5/-0.5, +-0.5 voxel).
+	 */
+	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment", meta=(EditCondition="bAlignGridToVisualVolume"))
+	FVector BinToVisualVoxelOffset = FVector(-4.5f, -4.5f, -0.5f);
 
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");

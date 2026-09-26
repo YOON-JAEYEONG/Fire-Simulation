@@ -166,6 +166,19 @@ void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 Start, int32 End, int32 Gen
 	});
 }
 
+FTransform AYUFSBinaryManager::ComputeVisualAlignedGridToWorld(const FTransform& FrameTransform,
+	const FTransform& ComponentToWorld, const FVector& BinToVisualVoxelOffset)
+{
+	// UE's OpenVDB importer stores SVT voxels relative to the sequence bounds minimum and folds that
+	// shift into the frame translation as BoundsMin * Scale (see SparseVolumeTextureOpenVDBUtility).
+	const FVector Scale = FrameTransform.GetScale3D();
+	const FVector BoundsMin = FrameTransform.GetTranslation() / Scale;
+	// BIN cell -> VDB voxel -> SVT virtual voxel -> component local (exactly what is rendered) -> world.
+	const FMatrix CellToVirtual = FTranslationMatrix(BinToVisualVoxelOffset - BoundsMin);
+	const FMatrix CellToWorld = CellToVirtual * FrameTransform.ToMatrixWithScale() * ComponentToWorld.ToMatrixWithScale();
+	return FTransform(CellToWorld);
+}
+
 FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 {
 	FYUFSHazardSnapshot Result;
@@ -178,6 +191,19 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 	}
 	const auto* Volume = HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>();
 	const FTransform VolumeTransform = Volume ? Volume->GetComponentTransform() : HeterogeneousVolume->GetActorTransform();
+	// Preferred: share the rendered SVT's voxel lattice so NPC smoke sits where the visible smoke is.
+	if (bAlignGridToVisualVolume && Volume && !Volume->FrameTransform.Equals(FTransform::Identity)
+		&& Volume->FrameTransform.GetScale3D().GetAbsMin() > SMALL_NUMBER)
+	{
+		Result.GridToWorld = ComputeVisualAlignedGridToWorld(Volume->FrameTransform, VolumeTransform, BinToVisualVoxelOffset);
+		if (!Result.GridToWorld.IsValid() || Result.GridToWorld.GetScale3D().GetAbsMin() <= SMALL_NUMBER)
+		{
+			Result.Status = EYUFSHazardDataStatus::InvalidMapping;
+			return Result;
+		}
+	}
+	else
+	{
 	const double ScaleX = FMath::Abs(VolumeTransform.GetScale3D().X);
 	if (!VolumeTransform.IsValid() || ScaleX <= SMALL_NUMBER)
 	{
@@ -190,6 +216,7 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 	{
 		Result.Status = EYUFSHazardDataStatus::InvalidMapping;
 		return Result;
+	}
 	}
 	if (Frame < 0 || Frame >= TotalFrames)
 	{
@@ -241,11 +268,13 @@ FString AYUFSBinaryManager::GetHazardDiagnostics() const
 			}
 		}
 	}
-	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d voxelXcm=%.2f alignment=%s status=%s asset=%s"),
+	const bool bVisualAligned = bAlignGridToVisualVolume && Volume && !Volume->FrameTransform.Equals(FTransform::Identity);
+	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d voxelXcm=%.2f alignment=%s mapping=%s status=%s asset=%s"),
 		*BinaryFilePath, DimX, DimY, DimZ, TotalFrames, CurrentDebugFrame,
 		Volume ? *Volume->VolumeResolution.ToString() : TEXT("MissingVolume"),
 		HeterogeneousVolume ? HeterogeneousVolume->GetFrame() : INDEX_NONE, VoxelSize,
 		bDatasetAlignmentConfirmed ? TEXT("UserConfirmed") : TEXT("UNVERIFIED"),
+		bVisualAligned ? *FString::Printf(TEXT("VisualSVT(offset=%s)"), *BinToVisualVoxelOffset.ToCompactString()) : TEXT("LegacyVoxelSize"),
 		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(GetDataStatus())), *VisualAsset);
 }
 
