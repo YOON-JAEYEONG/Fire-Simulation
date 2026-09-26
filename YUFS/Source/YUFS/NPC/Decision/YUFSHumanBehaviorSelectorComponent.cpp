@@ -4,7 +4,6 @@
 #include "Core/YUFSObservation.h"
 #include "NPC/Cognition/YUFSBehaviorPolicy.h"
 #include "NPC/Cognition/YUFSHumanCognitionTypes.h"
-#include "NPC/Integration/YUFSSuppressionSafety.h"
 
 UYUFSHumanBehaviorSelectorComponent::UYUFSHumanBehaviorSelectorComponent()
 {
@@ -23,67 +22,13 @@ const FYUFSBehaviorDecision& UYUFSHumanBehaviorSelectorComponent::ResolveDecisio
 {
 	const bool bIntentChanged = Intent != LastIntent;
 	const bool bKnowledgeChanged = Opportunities.KnowledgeRevision != LastKnowledgeRevision;
-	const bool bSuppressionSafe = Traits.FireTraining >= (PolicyAsset ? PolicyAsset->MinimumSuppressionTraining : 0.55f)
-		&& (Opportunities.bExtinguisherKnownAvailable || Opportunities.bHoldingExtinguisher)
-		&& Opportunities.bSuppressibleFireKnown && Opportunities.bSafeRetreatKnown
-		&& Cognition.PhysicalSeverity != EYUFSPerceivedPhysicalSeverity::ImmediateLifeThreat
-		&& FYUFSSuppressionSafety::CanAttempt(Observation, Cognition, Traits,
-			CurrentDecision.Behavior == EYUFSHighLevelBehavior::AttemptSuppression)
-		&& !Observation.bReceivedLiveAnnouncement && !Observation.bReceivedStaffGuidance
-		&& Observation.CurrentState != EYUFSBehaviorState::Incapacitated
-		&& Observation.CurrentState != EYUFSBehaviorState::Crawling;
-	// Acquiring the tool changes knowledge, but must not reroll an accepted task.
-	if (CurrentDecision.Behavior == EYUFSHighLevelBehavior::AttemptSuppression && bSuppressionSafe
-		&& PendingReselectionReason != FName(TEXT("TaskFinished"))
-		&& Intent != EYUFSIntent::Incapacitated && Intent != EYUFSIntent::Shelter)
-	{
-		LastKnowledgeRevision = Opportunities.KnowledgeRevision;
-		LastIntent = Intent;
-		return CurrentDecision;
-	}
-	if (CurrentDecision.Behavior == EYUFSHighLevelBehavior::AttemptSuppression)
-	{
-		RequestReselection(TEXT("SuppressionNoLongerSafe"));
-	}
-	// Probability changes willingness among eligible JJW evacuees, never readiness/commitment.
-	if ((Intent == EYUFSIntent::CommitEvac || Intent == EYUFSIntent::Help) && bSuppressionSafe)
-	{
-		// Changing to another nearby extinguisher is not another chance at the same fire.
-		const FString Pair = Opportunities.FireStableId.ToString();
-		if (!ConsideredSuppressionPairs.Contains(Pair))
-		{
-			ConsideredSuppressionPairs.Add(Pair);
-			const float Base = PolicyAsset ? PolicyAsset->EvacuatingSuppressionProbability : 0.25f;
-			const float Probability = SuppressionProbabilityOverride >= 0.f ? FMath::Clamp(SuppressionProbabilityOverride, 0.f, 1.f)
-				: bDemonstrateSuppressionWhenEligible ? 1.f : FMath::Clamp(Base * (0.5f + Traits.FireTraining)
-				* (0.5f + Traits.HelpingTendency) * (1.f - Cognition.PerceivedRisk), 0.f, 1.f);
-			const bool bSelected = RandomSource.Roll(EYUFSRngStream::TaskChoice, Probability);
-			UE_LOG(LogTemp, Display, TEXT("[NPCSuppressionChoice] %s probability=%.3f selected=%d training=%.2f risk=%.2f"),
-				*GetNameSafe(GetOwner()), Probability, bSelected, Traits.FireTraining, Cognition.PerceivedRisk);
-			if (bSelected)
-			{
-				CurrentDecision = FYUFSBehaviorDecision{};
-				CurrentDecision.Revision = NextRevision++;
-				CurrentDecision.Behavior = EYUFSHighLevelBehavior::AttemptSuppression;
-				CurrentDecision.DesiredTask = EYUFSActionTask::InitialExtinguish;
-				CurrentDecision.Reason = bDemonstrateSuppressionWhenEligible
-					? TEXT("DemonstrationEligibleSuppression") : TEXT("EvacueeDiscoveredSuppressionOpportunity");
-				LastIntent = Intent;
-				LastKnowledgeRevision = Opportunities.KnowledgeRevision;
-				bNeedsReselection = false;
-				PendingReselectionReason = NAME_None;
-				return CurrentDecision;
-			}
-		}
-	}
 	const bool bPrefire = !Observation.bAlarmSounding
 		&& Observation.HeatInSightNormalized <= 0.f && Observation.NearbyHeatNormalized <= 0.f
 		&& Observation.SmokeDensityAtSelf <= 0.f
 		&& Observation.SmokeInFrontNormalized <= 0.f
 		&& Observation.SmokeAboveNormalized <= 0.f
 		&& !Observation.bReceivedLiveAnnouncement
-		&& !Observation.bReceivedStaffGuidance
-		&& !Opportunities.bSuppressibleFireKnown;
+		&& !Observation.bReceivedStaffGuidance;
 
 	if (bPrefire && Intent == EYUFSIntent::Observe)
 	{
@@ -319,9 +264,6 @@ FYUFSBehaviorDecision UYUFSHumanBehaviorSelectorComponent::SelectPreAction(
 			RecordWeight * (1.f - Cognition.PerceivedRisk),
 			TEXT("DistantObserver"));
 	}
-
-	// Initial suppression is only offered by ResolveDecision after JJW commitment;
-	// a pre-action lottery must not bypass an individual's alarm verification delay.
 
 	if (Candidates.IsEmpty())
 	{

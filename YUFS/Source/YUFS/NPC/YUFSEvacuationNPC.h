@@ -27,7 +27,7 @@ class UYUFSHumanBehaviorSelectorComponent;
 class UYUFSTeamIntegrationComponent;
 class UYUFSNPCDebugComponent;
 class UYUFSNpcEnvironmentInteraction;
-class UYUFSNpcSuppressionComponent;
+class UYUFSBelongingsRetrievalComponent;
 class UYUFSNPCPerceptionComponent;
 class AYUFSSimulationController;
 
@@ -140,12 +140,12 @@ public:
 	UYUFSHumanCognitionComponent* GetHumanCognitionComponent() const { return HumanCognitionComp; }
 	UYUFSHumanBehaviorSelectorComponent* GetHumanBehaviorSelector() const { return HumanBehaviorSelector; }
 	UYUFSTeamIntegrationComponent* GetTeamIntegrationComponent() const { return TeamIntegrationComp; }
-	UYUFSNpcSuppressionComponent* GetSuppressionComponent() const { return SuppressionComp; }
-	void ResumeEvacuationAfterSuppression(bool bRetreatReachable, const FVector& RetreatExit = FVector::ZeroVector,
-		const TArray<FVector>& RetreatPath = TArray<FVector>());
+	UYUFSBelongingsRetrievalComponent* GetBelongingsRetrievalComponent() const { return BelongingsRetrievalComp; }
+	/** Hand control back to the evacuation policy after an interaction detour (e.g. fetching belongings). */
+	void ResumeEvacuationAfterInteraction();
 	bool TryGetNearestKnownExit(FVector& OutExit) const;
-	UPROPERTY(VisibleAnywhere, Category="NPC|Interaction")
-	TObjectPtr<UYUFSNpcSuppressionComponent> SuppressionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="NPC|Interaction")
+	TObjectPtr<UYUFSBelongingsRetrievalComponent> BelongingsRetrievalComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="NPC|Interaction")
 	TObjectPtr<UYUFSNpcEnvironmentInteraction> EnvironmentInteraction;
 	// Opt-in visual fixture only: replaces decision input, never interaction outcomes.
@@ -273,7 +273,7 @@ private:
 	friend struct FYUFSPersonalRetreatTestAccess;
 	friend struct FYUFSJJWDecisionBridgeTestAccess;
 	friend struct FYUFSEverydayIntegrationTestAccess;
-	friend class UYUFSNpcSuppressionComponent;
+	friend class UYUFSBelongingsRetrievalComponent;
 	int64 LastTeamFeedbackGeneration = 0;
 	FYUFSBehaviorDecision ActiveInteractionDecision;
 	bool bOptionalInteractionSelected = false;

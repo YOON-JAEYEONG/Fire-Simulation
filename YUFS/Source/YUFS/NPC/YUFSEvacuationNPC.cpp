@@ -27,7 +27,7 @@
 #include "NPC/Decision/YUFSIntentComponent.h"
 #include "NPC/Cognition/YUFSHumanCognitionComponent.h"
 #include "NPC/Integration/YUFSTeamIntegrationComponent.h"
-#include "NPC/Integration/YUFSNpcSuppressionComponent.h"
+#include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
 #include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
 #include "NPC/Tasks/YUFSActionTaskComponent.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
@@ -55,7 +55,7 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 	HumanCognitionComp = CreateDefaultSubobject<UYUFSHumanCognitionComponent>(TEXT("YUFSHumanCognitionComponent"));
 	HumanBehaviorSelector = CreateDefaultSubobject<UYUFSHumanBehaviorSelectorComponent>(TEXT("YUFSHumanBehaviorSelectorComponent"));
 	TeamIntegrationComp = CreateDefaultSubobject<UYUFSTeamIntegrationComponent>(TEXT("YUFSTeamIntegrationComponent"));
-	SuppressionComp = CreateDefaultSubobject<UYUFSNpcSuppressionComponent>(TEXT("NpcSuppression"));
+	BelongingsRetrievalComp = CreateDefaultSubobject<UYUFSBelongingsRetrievalComponent>(TEXT("BelongingsRetrieval"));
 	EnvironmentInteraction = CreateDefaultSubobject<UYUFSNpcEnvironmentInteraction>(TEXT("EnvironmentInteraction"));
 
 	bUseControllerRotationPitch = false;
@@ -83,7 +83,7 @@ void AYUFSEvacuationNPC::BeginPlay()
 	Super::BeginPlay();
 	ResetRetreatKnowledge();
 	if (Navigator) Navigator->ResetObservedHazards();
-	if (SuppressionComp) SuppressionComp->ResetForEpisode();
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->ResetForEpisode();
 	SpawnLocation = GetActorLocation();
 	BaseWalkSpeed = FMath::Max(200.f,GetCharacterMovement()->MaxWalkSpeed);
 	LastMovementSampleLocation = SpawnLocation;
@@ -171,7 +171,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		// A pause preserves an interaction; leaving the live episode releases it.
 		if (SimulationController->GetCurrentPhase() != ESimPhase::FireActive)
 		{
-			if (SuppressionComp) SuppressionComp->Cancel(false);
+			if (BelongingsRetrievalComp) BelongingsRetrievalComp->Cancel(false);
 			if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 			ResetRetreatKnowledge();
 			if (Navigator) Navigator->ResetObservedHazards();
@@ -184,15 +184,6 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 			Mv->StopMovementImmediately();
 			Mv->MaxWalkSpeed = 0.f;
 		}
-		return;
-	}
-	if (SuppressionComp && SuppressionComp->IsVisualPresentationActive()
-		&& (!SimulationController || !SimulationController->IsNPCSimulationEnabled()))
-	{
-		StopEverydayBehavior();
-		bInteractionHoldingPosition = SuppressionComp->TickVisualPresentation(DeltaTime);
-		if (SuppressionComp->IsVisualPresentationActive() && !bInteractionHoldingPosition)
-			UpdateNavigationMovement(SuppressionComp->GetMovementTarget(), DeltaTime, 140.f);
 		return;
 	}
 	if (SimulationController)
@@ -282,24 +273,8 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		CurrentObs.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
 	}
 
-	// Live authored gestures still perceive smoke and update emergency behavior.
-	// They must not publish fabricated suppression evidence or learning actions.
-	if (SuppressionComp && SuppressionComp->IsVisualPresentationActive())
-	{
-		LiveObservation = CurrentObs;
-		if (SuppressionComp->ShouldInterruptAuthoredGesture(CurrentObs))
-			SuppressionComp->Cancel(false);
-		else
-		{
-			StopEverydayBehavior();
-			bInteractionHoldingPosition = SuppressionComp->TickVisualPresentation(DeltaTime);
-			if (SuppressionComp->IsVisualPresentationActive() && !bInteractionHoldingPosition)
-				UpdateNavigationMovement(SuppressionComp->GetMovementTarget(), DeltaTime, 140.f);
-			return;
-		}
-	}
 	UpdateEvidenceDecisionModel(DeltaTime, CurrentObs);
-	if (SuppressionComp) SuppressionComp->Observe(DeltaTime, CurrentFrame, CurrentObs);
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->Observe(DeltaTime, CurrentObs);
 	if (EnvironmentInteraction) EnvironmentInteraction->Observe(DeltaTime);
 	LiveObservation = CurrentObs;
 
@@ -345,7 +320,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		{
 			if (BehaviorSM->IsIncapacitated())
 			{
-				if (SuppressionComp) SuppressionComp->Cancel(false);
+				if (BelongingsRetrievalComp) BelongingsRetrievalComp->Cancel(false);
 				if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 				Mv->MaxWalkSpeed = 0.f;
 				if (Navigator) Navigator->ClearPath();
@@ -385,7 +360,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 
 	if (TerminalReason != EYUFSTerminalReason::None)
 	{
-		if (SuppressionComp) SuppressionComp->Cancel(false);
+		if (BelongingsRetrievalComp) BelongingsRetrievalComp->Cancel(false);
 		if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 		if (LocalMovement) LocalMovement->Reset();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement()) Mv->MaxWalkSpeed = 0.f;
@@ -625,7 +600,6 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 	Out.SmokeAboveNormalized    = PerceptionComp->GetSmokeAboveNormalized();
 	Out.RiskLevel               = PerceptionComp->GetRiskLevel();
 	Out.bHazardSampleAvailable = PerceptionComp->HasHazardSample();
-	Out.bSuppressionAllowedByBehavior = AllowsOptionalInteractions();
 	Out.HeatInSight             = PerceptionComp->GetHeatInSight();
 	Out.HeatInSightNormalized   = Out.HeatInSight;
 	Out.NearbyHeatNormalized    = PerceptionComp->GetNearbyHeat();
@@ -718,7 +692,7 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 
 void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot)
 {
-	if (SuppressionComp) SuppressionComp->Cancel(false);
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->Cancel(false);
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	ResetRetreatKnowledge();
 	if (Navigator) Navigator->ResetObservedHazards();
@@ -770,7 +744,7 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 	}
 
 	bTimelinePlaybackMode = bEnabled;
-	if (SuppressionComp) SuppressionComp->Cancel(false);
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->Cancel(false);
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	ResetRetreatKnowledge();
 	if (Navigator) Navigator->ResetObservedHazards();
@@ -801,7 +775,7 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)
 {
-	if (SuppressionComp) SuppressionComp->ResetForEpisode();
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->ResetForEpisode();
 	ResetRetreatKnowledge();
 	if (Navigator) { Navigator->ClearPath(); Navigator->ResetObservedHazards(); }
 	if (LocalMovement) LocalMovement->Reset();
@@ -867,13 +841,9 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& 
 				|| bOptionalInteractionSelected))
 		{
 			const auto& Opportunities = TeamIntegrationComp->GetInteractionOpportunities();
-			const auto& Decision = HumanBehaviorSelector->ResolveDecision(NewAction, GetCurrentIntent(), Observation,
+			HumanBehaviorSelector->ResolveDecision(NewAction, GetCurrentIntent(), Observation,
 				HumanCognitionComp->GetCognitiveState(), HumanCognitionComp->GetTraits(), Opportunities, false, DeterministicRng);
-			if (Decision.Behavior == EYUFSHighLevelBehavior::AttemptSuppression)
-			{
-				Candidate = Decision; NewAction = EYUFSAction::Idle; bSelectInteraction = true;
-			}
-			else if (Opportunities.bAssistPersonKnown && (RawProposal == EYUFSAction::HelpOther
+			if (Opportunities.bAssistPersonKnown && (RawProposal == EYUFSAction::HelpOther
 				|| (bOptionalInteractionSelected && ActiveInteractionDecision.Behavior == EYUFSHighLevelBehavior::AssistOther
 					&& EnvironmentInteraction && EnvironmentInteraction->IsActive())))
 			{
@@ -900,6 +870,12 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& 
 			}
 		}
 		LastPolicyBehaviorState = Observation.CurrentState;
+	}
+	// Going back for belongings is owned by its executor, not re-rolled by the policy each tick.
+	if (BelongingsRetrievalComp && BelongingsRetrievalComp->IsActive())
+	{
+		bOptionalInteractionSelected = true;
+		ActiveInteractionDecision = BelongingsRetrievalComp->MakeDecision();
 	}
 	PublishTeamDirectives(Observation);
 	ExecuteCurrentAction(DeltaTime);
@@ -968,7 +944,7 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 		&& (!SimulationController || SimulationController->IsNPCSimulationEnabled());
 	if (bLiveInteraction && EnvironmentInteraction
 		&& (EnvironmentInteraction->IsActive() || EnvironmentInteraction->IsReceivingContactAssistance())) return;
-	if (SuppressionComp && (SuppressionComp->IsActive() || SuppressionComp->IsVisualPresentationActive())) return;
+	if (BelongingsRetrievalComp && BelongingsRetrievalComp->IsActive()) return;
 	if (bUseExternalMotionDriver || !ActionAnimationComp)
 	{
 		return;
@@ -1029,12 +1005,6 @@ FString AYUFSEvacuationNPC::GetCurrentActionAnimationName() const
 void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 {
 	bInteractionHoldingPosition = false;
-	// Safety is evaluated even while a door is a sub-action of suppression.
-	if (SuppressionComp)
-	{
-		if (SuppressionComp->ReassessSafety(GetCurrentSimFrame())) return;
-		SuppressionComp->UpdatePresentation();
-	}
 	// Only suppress locomotion during contact. The normal Tick has already
 	// updated perception, risk and intent, and pause/replay guards still apply.
 	if (EnvironmentInteraction && EnvironmentInteraction->IsReceivingContactAssistance())
@@ -1074,16 +1044,19 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 		return;
 	}
 	if (bInteractionPreviewControlled) return;
-	if (SuppressionComp && SuppressionComp->Execute(DeltaTime, GetCurrentSimFrame()))
+	if (BelongingsRetrievalComp && BelongingsRetrievalComp->IsActive())
 	{
-		bInteractionHoldingPosition = true;
-		if (LocalMovement) LocalMovement->Reset();
-		return;
-	}
-	if (SuppressionComp && SuppressionComp->IsActive())
-	{
-		UpdateNavigationMovement(SuppressionComp->GetMovementTarget(), DeltaTime, 180.f);
-		return;
+		if (BelongingsRetrievalComp->Execute(DeltaTime))
+		{
+			bInteractionHoldingPosition = true;
+			if (LocalMovement) LocalMovement->Reset();
+			return;
+		}
+		if (BelongingsRetrievalComp->IsActive())
+		{
+			UpdateNavigationMovement(BelongingsRetrievalComp->GetMovementTarget(), DeltaTime);
+			return;
+		}
 	}
 	if (!BehaviorSM || BehaviorSM->IsIncapacitated()) return;
 
@@ -1209,28 +1182,12 @@ bool AYUFSEvacuationNPC::TryGetPreferredRetreat(FVector& OutExit) const
 	return true;
 }
 
-void AYUFSEvacuationNPC::ResumeEvacuationAfterSuppression(bool bRetreatReachable,
-	const FVector& RetreatExit, const TArray<FVector>& RetreatPath)
+void AYUFSEvacuationNPC::ResumeEvacuationAfterInteraction()
 {
 	if (!IntentComp || !BehaviorSM || BehaviorSM->IsIncapacitated()) return;
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	bHasPreferredRetreat = false; PreferredRetreatPath.Reset();
-	bRetreatReachable = bRetreatReachable && Navigator && !RetreatExit.ContainsNaN()
-		&& RetreatPath.Num() >= 2 && RetreatPath.Num() <= 4096;
-	if (bRetreatReachable)
-	{
-		for (const FVector& Point : RetreatPath) if (Point.ContainsNaN()) { bRetreatReachable = false; break; }
-		bRetreatReachable = bRetreatReachable && RetreatPath.Last().Equals(RetreatExit, 150.f)
-			&& !Navigator->IsKnownPathDangerous(RetreatPath);
-	}
-	if (bRetreatReachable)
-	{
-		PreferredRetreatExit = RetreatExit; PreferredRetreatPath = RetreatPath;
-		PreferredRetreatExpiresAt = (GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f) + 60.f;
-		bHasPreferredRetreat = true;
-		FailedExitUntil.Remove(RetreatExit);
-		Navigator->ClearPath(); // Any previous approach must not invalidate the handed-off exit preference.
-	}
+	if (Navigator) Navigator->ClearPath();
 	if (TeamIntegrationComp)
 	{
 		auto Snapshot = TeamIntegrationComp->GetInteractionOpportunities();
@@ -1242,14 +1199,17 @@ void AYUFSEvacuationNPC::ResumeEvacuationAfterSuppression(bool bRetreatReachable
 	bOptionalInteractionSelected = false;
 	ActiveInteractionDecision = FYUFSBehaviorDecision{};
 	if (LocalMovement) LocalMovement->Reset();
+	if (UCharacterMovementComponent* Movement = GetCharacterMovement())
+		Movement->MaxWalkSpeed = GetDesiredWalkingSpeed();
 	const EYUFSAction Next = ConstrainActionForIntent(EYUFSAction::EvacuateToNearestExit);
 	CurrentAction = Next;
 	ActionHoldTimer = MinActionHoldDuration;
 	PolicyTickAccumulator = PolicyTickInterval;
+	CurrentNavTarget = FVector::ZeroVector; // Force a fresh exit request instead of the old bag target.
 	OnActionChanged(Next);
 	FYUFSNPCObservation Observation;
 	BuildObservation(Observation);
-	if (HumanBehaviorSelector) HumanBehaviorSelector->RequestReselection(TEXT("SuppressionFinished"));
+	if (HumanBehaviorSelector) HumanBehaviorSelector->RequestReselection(TEXT("InteractionFinished"));
 	PublishTeamDirectives(Observation);
 }
 
@@ -1442,7 +1402,7 @@ void AYUFSEvacuationNPC::ApplyDistributedSpawnLocation(const FVector& NewLocatio
 {
 	// Placement is an episode setup operation, never runtime collision recovery.
 	if (SimulationController && SimulationController->IsNPCSimulationEnabled()) return;
-	if (SuppressionComp) SuppressionComp->ResetForEpisode();
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->ResetForEpisode();
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	ResetRetreatKnowledge();
 	if (Navigator) Navigator->ResetObservedHazards();
@@ -1594,7 +1554,6 @@ void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCOb
 	if (BeliefComp) BeliefComp->UpdateBelief(Observation);
 	LastSafeExit = ChooseKnownExit();
 	bHasSafeExit = !LastSafeExit.IsZero(); // Known goal, not proof of hazard-free travel.
-	Observation.bSuppressionAllowedByBehavior = AllowsOptionalInteractions();
 	if (IntentComp->DidIntentChange())
 	{
 		if (HumanBehaviorSelector) HumanBehaviorSelector->RequestReselection(TEXT("JJWStateChanged"));
@@ -1604,7 +1563,7 @@ void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCOb
 
 void AYUFSEvacuationNPC::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	if (SuppressionComp) SuppressionComp->Cancel(false);
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->Cancel(false);
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	if (Navigator) Navigator->ClearPath();
 	if (IsValid(SimulationController)) SimulationController->UnregisterNPC(this);

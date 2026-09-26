@@ -62,8 +62,7 @@ void UYUFSActionTaskComponent::UpdateDesiredTask(
 		Intent == EYUFSIntent::Observe || Intent == EYUFSIntent::Prepare || Intent == EYUFSIntent::Help;
 	if (!bIntentAllowsTask)
 	{
-		if (!(Intent == EYUFSIntent::CommitEvac && DesiredTask == EYUFSActionTask::InitialExtinguish))
-			DesiredTask = EYUFSActionTask::None;
+		DesiredTask = EYUFSActionTask::None;
 	}
 	if (DesiredTask == CompletedTask)
 	{
@@ -116,9 +115,7 @@ void UYUFSActionTaskComponent::UpdateResolvedTask(
 	}
 
 	ElapsedSeconds += DeltaTime;
-	// Object execution owns suppression completion; a duration draw is not a
-	// successful extinguishing operation. The runtime adapter reports feedback.
-	if (ElapsedSeconds >= PlannedDurationSeconds && CurrentTask != EYUFSActionTask::InitialExtinguish)
+	if (ElapsedSeconds >= PlannedDurationSeconds)
 	{
 		CompletedTask = CurrentTask;
 		CancelTask(EYUFSTaskCancelReason::Completed);
@@ -182,8 +179,6 @@ float UYUFSActionTaskComponent::DrawDuration(
 	case EYUFSActionTask::AssistOther:
 	case EYUFSActionTask::AlertHelp:
 		return DrawLogNormal(WarnHelpDuration, RandomSource);
-	case EYUFSActionTask::InitialExtinguish:
-		return DrawTriangular(SuppressTriangularSeconds, RandomSource);
 	case EYUFSActionTask::Freeze:
 		return RandomSource.FRandRange(EYUFSRngStream::TaskDuration, 1.f, 3.f);
 	case EYUFSActionTask::FilmObserve:

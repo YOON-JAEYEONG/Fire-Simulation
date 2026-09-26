@@ -234,47 +234,43 @@ bool FYUFSHumanBehaviorSelectionTest::RunTest(const FString& Parameters)
 	UYUFSBehaviorPolicy* Policy = NewObject<UYUFSBehaviorPolicy>();
 	Policy->SeekInformationWeight = 0.f;
 	Policy->WaitOrContinueWeight = 0.f;
-	Policy->RetrieveBelongingsWeight = 0.f;
+	Policy->RetrieveBelongingsWeight = 1.f;
 	Policy->WarnOrAssistWeight = 0.f;
 	Policy->ObserveOrRecordWeight = 0.f;
-	Policy->AttemptSuppressionWeight = 1.f;
 	Policy->FreezeBaseProbability = 0.f;
+	Policy->bUseLegacyBelongingsAssumption = false;
 
 	UYUFSHumanBehaviorSelectorComponent* Selector = NewObject<UYUFSHumanBehaviorSelectorComponent>();
 	Selector->PolicyAsset = Policy;
-	Selector->SuppressionProbabilityOverride = 1.f;
 	FYUFSDeterministicRngSet RandomSource;
 	RandomSource.Initialize(42, 7);
 	FYUFSNPCObservation Observation;
 	Observation.bAlarmSounding = true;
-	Observation.CurrentState = EYUFSBehaviorState::Evacuating;
-	Observation.bSuppressionAllowedByBehavior = true; // Fixture passed the authoritative JJW eligibility gate.
+	Observation.CurrentState = EYUFSBehaviorState::Preparing;
 	FYUFSCognitiveState CognitiveState;
 	CognitiveState.PhysicalSeverity = EYUFSPerceivedPhysicalSeverity::AmbiguousAlarm;
 	FYUFSHumanTraits Traits;
-	Traits.FireTraining = 1.f;
 	FYUFSInteractionOpportunitySnapshot Opportunities;
 	Opportunities.KnowledgeRevision = 1;
-	Opportunities.bExtinguisherKnownAvailable = true;
-	Opportunities.bSuppressibleFireKnown = true;
-	Opportunities.bSafeRetreatKnown = true;
+	Opportunities.bBelongingsKnown = true;
+	Opportunities.BelongingsStableId = TEXT("BAG-01");
 
 	const FYUFSBehaviorDecision First = Selector->ResolveDecision(
-		EYUFSAction::EvacuateToNearestExit,
-		EYUFSIntent::CommitEvac,
+		EYUFSAction::GatherBelongings,
+		EYUFSIntent::Prepare,
 		Observation,
 		CognitiveState,
 		Traits,
 		Opportunities,
 		false,
 		RandomSource);
-	TestEqual(TEXT("safe trained NPC can select suppression"), First.Behavior, EYUFSHighLevelBehavior::AttemptSuppression);
-	TestEqual(TEXT("suppression uses the explicit task layer"), First.DesiredTask, EYUFSActionTask::InitialExtinguish);
+	TestEqual(TEXT("known belongings can be selected while preparing"), First.Behavior, EYUFSHighLevelBehavior::RetrieveBelongings);
+	TestEqual(TEXT("belongings use the explicit task layer"), First.DesiredTask, EYUFSActionTask::GatherBelongings);
 	const uint64 DrawsAfterFirstSelection = RandomSource.GetDrawCount(EYUFSRngStream::TaskChoice);
 
 	const FYUFSBehaviorDecision Second = Selector->ResolveDecision(
-		EYUFSAction::EvacuateToNearestExit,
-		EYUFSIntent::CommitEvac,
+		EYUFSAction::GatherBelongings,
+		EYUFSIntent::Prepare,
 		Observation,
 		CognitiveState,
 		Traits,
@@ -287,7 +283,7 @@ bool FYUFSHumanBehaviorSelectionTest::RunTest(const FString& Parameters)
 		RandomSource.GetDrawCount(EYUFSRngStream::TaskChoice),
 		DrawsAfterFirstSelection);
 
-	Selector->NotifyTaskFinished(EYUFSActionTask::InitialExtinguish);
+	Observation.CurrentState = EYUFSBehaviorState::Evacuating;
 	Selector->ResolveDecision(
 		EYUFSAction::EvacuateToNearestExit,
 		EYUFSIntent::CommitEvac,
@@ -297,10 +293,10 @@ bool FYUFSHumanBehaviorSelectionTest::RunTest(const FString& Parameters)
 		Opportunities,
 		false,
 		RandomSource);
-	TestEqual(TEXT("completed encounter is not gambled repeatedly"),
-		RandomSource.GetDrawCount(EYUFSRngStream::TaskChoice), DrawsAfterFirstSelection);
-	TestEqual(TEXT("completed optional task returns to the committed evacuation"),
+	TestEqual(TEXT("commitment projects to evacuation, never an extinguishing attempt"),
 		Selector->GetCurrentDecision().Behavior, EYUFSHighLevelBehavior::EvacuateNearest);
+	TestEqual(TEXT("evacuation projection does not gamble"),
+		RandomSource.GetDrawCount(EYUFSRngStream::TaskChoice), DrawsAfterFirstSelection);
 
 	return true;
 }
@@ -315,20 +311,16 @@ bool FYUFSTeamIntegrationContractTest::RunTest(const FString& Parameters)
 	UYUFSTeamIntegrationComponent* Integration = NewObject<UYUFSTeamIntegrationComponent>();
 	FYUFSInteractionOpportunitySnapshot Opportunities;
 	Opportunities.KnowledgeRevision = 1;
-	Opportunities.bExtinguisherKnownAvailable = true;
-	Opportunities.ExtinguisherStableId = TEXT("EXT-01");
-	Opportunities.ExtinguisherLocation = FVector(100.f, 200.f, 0.f);
-	Opportunities.bSuppressibleFireKnown = true;
-	Opportunities.FireStableId = TEXT("FIRE-01");
-	Opportunities.FireLocation = FVector(300.f, 400.f, 0.f);
-	Opportunities.bSafeRetreatKnown = true;
+	Opportunities.bBelongingsKnown = true;
+	Opportunities.BelongingsStableId = TEXT("BAG-01");
+	Opportunities.BelongingsLocation = FVector(100.f, 200.f, 0.f);
 	Integration->SubmitInteractionOpportunities(Opportunities);
 
 	FYUFSBehaviorDecision Decision;
-	Decision.Behavior = EYUFSHighLevelBehavior::AttemptSuppression;
-	Decision.LegacyAction = EYUFSAction::Idle;
-	Decision.DesiredTask = EYUFSActionTask::InitialExtinguish;
-	Decision.Reason = TEXT("TestSuppression");
+	Decision.Behavior = EYUFSHighLevelBehavior::RetrieveBelongings;
+	Decision.LegacyAction = EYUFSAction::GatherBelongings;
+	Decision.DesiredTask = EYUFSActionTask::GatherBelongings;
+	Decision.Reason = TEXT("TestBelongings");
 	FYUFSCognitiveState Cognition;
 	Integration->PublishDecision(17, Decision, EYUFSIntent::Prepare, EYUFSBehaviorState::Preparing,
 		FVector::ZeroVector, true, Cognition);
@@ -344,17 +336,23 @@ bool FYUFSTeamIntegrationContractTest::RunTest(const FString& Parameters)
 		Cognition);
 
 	TestEqual(
-		TEXT("interaction team receives extinguisher acquisition"),
+		TEXT("interaction team receives belongings retrieval"),
 		Integration->GetInteractionDirective().Goal,
-		EYUFSInteractionGoal::AcquireExtinguisher);
+		EYUFSInteractionGoal::RetrieveBelongings);
 	TestEqual(
-		TEXT("motion team receives extinguish semantic"),
+		TEXT("interaction targets the left-behind bag"),
+		Integration->GetInteractionDirective().TargetStableId,
+		FName(TEXT("BAG-01")));
+	TestEqual(
+		TEXT("motion team receives gather-belongings semantic"),
 		Integration->GetMotionDirective().Semantic,
-		EYUFSMotionSemantic::Extinguish);
+		EYUFSMotionSemantic::GatherBelongings);
 	TestEqual(
 		TEXT("route team receives interaction destination"),
 		Integration->GetNavigationDirective().Goal,
 		EYUFSNavigationGoal::InteractionTarget);
+	TestTrue(TEXT("route goes back to the bag"),
+		Integration->GetNavigationDirective().DestinationHint.Equals(Opportunities.BelongingsLocation));
 	const int64 NavigationRevision = Integration->GetNavigationDirective().Revision;
 	Integration->PublishDecision(
 		17,
@@ -381,25 +379,26 @@ bool FYUFSTeamIntegrationContractTest::RunTest(const FString& Parameters)
 	Integration->SubmitNavigationFeedback(CurrentFeedback);
 	TestEqual(TEXT("current route feedback is accepted"), Integration->GetFeedbackGeneration(), 1ll);
 
-	Opportunities.bHoldingExtinguisher = true;
+	// Bag picked up: the NPC evacuates again toward an exit.
+	Opportunities.bBelongingsKnown = false;
+	Opportunities.BelongingsStableId = NAME_None;
+	Opportunities.BelongingsLocation = FVector::ZeroVector;
+	Opportunities.bCarryingBelongings = true;
 	++Opportunities.KnowledgeRevision;
 	Integration->SubmitInteractionOpportunities(Opportunities);
-	Integration->PublishDecision(17, Decision, EYUFSIntent::CommitEvac, EYUFSBehaviorState::Evacuating,
-		FVector::ZeroVector, true, Cognition);
-	TestEqual(TEXT("held tool waits for a validated approach, never walks into ignition"),
-		Integration->GetNavigationDirective().Goal, EYUFSNavigationGoal::None);
+	FYUFSBehaviorDecision Evacuate;
+	Evacuate.Behavior = EYUFSHighLevelBehavior::EvacuateNearest;
+	Evacuate.LegacyAction = EYUFSAction::EvacuateToNearestExit;
+	const FVector Exit(500.f, 0.f, 0.f);
+	Integration->PublishDecision(17, Evacuate, EYUFSIntent::CommitEvac, EYUFSBehaviorState::Evacuating,
+		Exit, true, Cognition);
+	TestEqual(TEXT("carrying NPC is routed to a safe exit"),
+		Integration->GetNavigationDirective().Goal, EYUFSNavigationGoal::SafeExit);
+	TestTrue(TEXT("exit destination is forwarded"), Integration->GetNavigationDirective().DestinationHint.Equals(Exit));
+	TestEqual(TEXT("no interaction remains after pickup"),
+		Integration->GetInteractionDirective().Goal, EYUFSInteractionGoal::None);
 	TestEqual(TEXT("new navigation directive clears earlier feedback"),
 		Integration->GetNavigationFeedback().Status, EYUFSTeamRequestStatus::None);
-	Opportunities.bSuppressionApproachKnown = true;
-	Opportunities.SuppressionApproachLocation = FVector(100.f, 400.f, 0.f);
-	++Opportunities.KnowledgeRevision;
-	Integration->SubmitInteractionOpportunities(Opportunities);
-	Integration->PublishDecision(17, Decision, EYUFSIntent::CommitEvac, EYUFSBehaviorState::Evacuating,
-		FVector::ZeroVector, true, Cognition);
-	TestTrue(TEXT("navigation targets the validated standing position"),
-		Integration->GetNavigationDirective().DestinationHint.Equals(Opportunities.SuppressionApproachLocation));
-	TestTrue(TEXT("interaction aim remains the FDS ignition position"),
-		Integration->GetInteractionDirective().TargetLocationHint.Equals(Opportunities.FireLocation));
 
 	return true;
 }
@@ -444,124 +443,17 @@ bool FYUFSActionTaskLifecycleTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSEvacueeSuppressionTest,
-	"YUFS.NPC.Integration.EvacueeSuppressionLifecycle",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSInteractionResumeContractTest,
+	"YUFS.NPC.Integration.InteractionResumeContract",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::CommandletContext | EAutomationTestFlags::EngineFilter)
 
-bool FYUFSEvacueeSuppressionTest::RunTest(const FString& Parameters)
+bool FYUFSInteractionResumeContractTest::RunTest(const FString& Parameters)
 {
-	auto* Selector = NewObject<UYUFSHumanBehaviorSelectorComponent>();
-	auto* Policy = NewObject<UYUFSBehaviorPolicy>();
-	Policy->EvacuatingSuppressionProbability = 1.f;
-	Selector->PolicyAsset = Policy;
-	FYUFSHumanTraits Traits;
-	Traits.FireTraining = 1.f; Traits.HelpingTendency = 1.f;
-	FYUFSCognitiveState Cognition;
-	FYUFSNPCObservation Observation;
-	Observation.bAlarmSounding = true;
-	Observation.CurrentState = EYUFSBehaviorState::Evacuating;
-	Observation.bSuppressionAllowedByBehavior = true;
-	FYUFSInteractionOpportunitySnapshot Opportunity;
-	Opportunity.KnowledgeRevision = 1;
-	Opportunity.FireStableId = TEXT("FireA"); Opportunity.ExtinguisherStableId = TEXT("ToolA");
-	Opportunity.bExtinguisherKnownAvailable = true;
-	Opportunity.bSuppressibleFireKnown = true;
-	Opportunity.bSafeRetreatKnown = true;
-	FYUFSDeterministicRngSet Rng; Rng.Initialize(19, 37);
-	auto Resolve = [&]() { return Selector->ResolveDecision(EYUFSAction::EvacuateToNearestExit,
-		EYUFSIntent::CommitEvac, Observation, Cognition, Traits, Opportunity, false, Rng); };
-	TestEqual(TEXT("existing evacuee can choose suppression"), Resolve().Behavior, EYUFSHighLevelBehavior::AttemptSuppression);
-	const auto Draws = Rng.GetDrawCount(EYUFSRngStream::TaskChoice);
-	Opportunity.bHoldingExtinguisher = true; Opportunity.bExtinguisherKnownAvailable = false; ++Opportunity.KnowledgeRevision;
-	for (int32 I = 0; I < 100; ++I) Resolve();
-	TestEqual(TEXT("pickup and repeated updates retain suppression"), Resolve().Behavior, EYUFSHighLevelBehavior::AttemptSuppression);
-	TestEqual(TEXT("no per-tick redraw"), Rng.GetDrawCount(EYUFSRngStream::TaskChoice), Draws);
-	Opportunity.bSafeRetreatKnown = false; ++Opportunity.KnowledgeRevision;
-	TestEqual(TEXT("lost retreat resumes evacuation"), Resolve().Behavior, EYUFSHighLevelBehavior::EvacuateNearest);
-	Opportunity.bSafeRetreatKnown = true; Opportunity.bHoldingExtinguisher = false;
-	Opportunity.bExtinguisherKnownAvailable = true; ++Opportunity.KnowledgeRevision;
-	TestEqual(TEXT("same pair is not gambled repeatedly"), Resolve().Behavior, EYUFSHighLevelBehavior::EvacuateNearest);
-	TestEqual(TEXT("same encounter consumes one random draw"), Rng.GetDrawCount(EYUFSRngStream::TaskChoice), Draws);
-	Opportunity.FireStableId = TEXT("FireB"); ++Opportunity.KnowledgeRevision;
-	Traits.FireTraining = 0.f;
-	TestEqual(TEXT("untrained evacuee continues evacuating"), Resolve().Behavior, EYUFSHighLevelBehavior::EvacuateNearest);
-	Traits.FireTraining = 1.f; Observation.bReceivedStaffGuidance = true;
-	TestEqual(TEXT("official instruction masks suppression"), Resolve().Behavior, EYUFSHighLevelBehavior::EvacuateNearest);
-	auto* Tasks = NewObject<UYUFSActionTaskComponent>();
-	Tasks->UpdateDesiredTask(120.f, EYUFSActionTask::InitialExtinguish, 1, EYUFSIntent::CommitEvac, false, false, Rng);
-	TestEqual(TEXT("clock alone cannot finish suppression"), Tasks->GetCurrentTask(), EYUFSActionTask::InitialExtinguish);
-	Tasks->UpdateDesiredTask(0.f, EYUFSActionTask::InitialExtinguish, 1, EYUFSIntent::CommitEvac, true, false, Rng);
-	TestEqual(TEXT("life risk still interrupts task"), Tasks->GetCurrentTask(), EYUFSActionTask::None);
-	return true;
-}
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSExistingFireDemoContractTest,
-	"YUFS.NPC.Integration.ExistingFireDemonstrationContract",
-	EAutomationTestFlags::EditorContext | EAutomationTestFlags::CommandletContext | EAutomationTestFlags::EngineFilter)
-
-bool FYUFSExistingFireDemoContractTest::RunTest(const FString& Parameters)
-{
-	auto* Volunteer = NewObject<UYUFSHumanBehaviorSelectorComponent>();
-	Volunteer->bDemonstrateSuppressionWhenEligible = true;
-	FYUFSHumanTraits Traits; Traits.FireTraining = 1.f;
-	FYUFSCognitiveState Cognition;
-	FYUFSNPCObservation Observation; Observation.bAlarmSounding = true;
-	Observation.CurrentState = EYUFSBehaviorState::Evacuating;
-	Observation.bSuppressionAllowedByBehavior = true;
-	FYUFSInteractionOpportunitySnapshot Opportunity;
-	Opportunity.KnowledgeRevision = 1;
-	Opportunity.bExtinguisherKnownAvailable = true;
-	Opportunity.bSafeRetreatKnown = true;
-	Opportunity.ExtinguisherStableId = TEXT("ExistingTool");
-	FYUFSDeterministicRngSet Rng; Rng.Initialize(8, 0);
-	auto Resolve = [&]() { return Volunteer->ResolveDecision(EYUFSAction::EvacuateToNearestExit,
-		EYUFSIntent::CommitEvac, Observation, Cognition, Traits, Opportunity, false, Rng); };
-	TestEqual(TEXT("missing authored ignition never invents a target"), Resolve().Behavior, EYUFSHighLevelBehavior::EvacuateNearest);
-	Opportunity.bSuppressibleFireKnown = true;
-	Opportunity.FireStableId = TEXT("ExistingLevelVolume"); ++Opportunity.KnowledgeRevision;
-	TestEqual(TEXT("eligible demonstration resident uses existing target"), Resolve().Behavior, EYUFSHighLevelBehavior::AttemptSuppression);
-	Opportunity.bSafeRetreatKnown = false; ++Opportunity.KnowledgeRevision;
-	TestEqual(TEXT("demonstration cannot bypass lost retreat"), Resolve().Behavior, EYUFSHighLevelBehavior::EvacuateNearest);
 	auto* Intent = NewObject<UYUFSIntentComponent>();
 	Intent->ResumeEvacuationAfterInteraction(true);
 	TestEqual(TEXT("completed interaction resumes evacuation"), Intent->GetCurrentIntent(), EYUFSIntent::CommitEvac);
 	Intent->ResumeEvacuationAfterInteraction(false);
 	TestEqual(TEXT("no route means shelter, not invented escape"), Intent->GetCurrentIntent(), EYUFSIntent::Shelter);
-	return true;
-}
-
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSSuppressionRatioTest,
-	"YUFS.NPC.Integration.SuppressionProbabilityRatio",
-	EAutomationTestFlags::EditorContext | EAutomationTestFlags::CommandletContext | EAutomationTestFlags::EngineFilter)
-
-bool FYUFSSuppressionRatioTest::RunTest(const FString& Parameters)
-{
-	int32 Selected = 0;
-	for (int32 I = 0; I < 1000; ++I)
-	{
-		auto* Selector = NewObject<UYUFSHumanBehaviorSelectorComponent>();
-		Selector->SuppressionProbabilityOverride = 0.35f;
-		FYUFSHumanTraits Traits; Traits.FireTraining = 0.85f;
-		FYUFSCognitiveState Cognition;
-		FYUFSNPCObservation Observation; Observation.bAlarmSounding = true;
-	Observation.CurrentState = EYUFSBehaviorState::Evacuating;
-	Observation.bSuppressionAllowedByBehavior = true;
-		FYUFSInteractionOpportunitySnapshot Opportunity;
-		Opportunity.bExtinguisherKnownAvailable = Opportunity.bSuppressibleFireKnown = Opportunity.bSafeRetreatKnown = true;
-		Opportunity.FireStableId = TEXT("SameExistingFire"); Opportunity.ExtinguisherStableId = TEXT("Tool1");
-		Opportunity.KnowledgeRevision = 1;
-		FYUFSDeterministicRngSet Rng; Rng.Initialize(20260908, I);
-		auto Resolve = [&]() { return Selector->ResolveDecision(EYUFSAction::EvacuateToNearestExit,
-			EYUFSIntent::CommitEvac, Observation, Cognition, Traits, Opportunity, false, Rng); };
-		const bool Choice = Resolve().Behavior == EYUFSHighLevelBehavior::AttemptSuppression;
-		Selected += Choice ? 1 : 0;
-		const auto Draws = Rng.GetDrawCount(EYUFSRngStream::TaskChoice);
-		Opportunity.ExtinguisherStableId = TEXT("Tool2"); ++Opportunity.KnowledgeRevision;
-		for (int32 J = 0; J < 10; ++J) Resolve();
-		TestEqual(TEXT("changing tool or repeating ticks does not reroll this fire"), Rng.GetDrawCount(EYUFSRngStream::TaskChoice), Draws);
-	}
-	AddInfo(FString::Printf(TEXT("35 percent policy: %d / 1000 eligible agents selected suppression"), Selected));
-	TestTrue(TEXT("large seeded eligible population matches configured ratio within sampling tolerance"), Selected >= 290 && Selected <= 410);
 	return true;
 }
 

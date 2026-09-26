@@ -3,6 +3,7 @@
 
 #include "NPC/Social/YUFSSocialInfluenceComponent.h"
 #include "NPC/YUFSEvacuationNPC.h"
+#include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -110,10 +111,11 @@ FVector UYUFSSocialInfluenceComponent::GetAverageEvacuationDestination() const
 		const auto* NPC=Cast<AYUFSEvacuationNPC>(Weak.Get());
 		if (!IsValid(NPC) || NPC->IsHidden() || !NPC->GetNavigator() || !NPC->GetNavigator()->IsFollowingPath()) continue;
 		// Interaction travel is not an evacuation destination. In particular, never
-		// make a crowd follow a helper or an extinguisher carrier toward the fire.
+		// make a crowd follow a helper or a resident going back for belongings toward the fire.
 		const EYUFSAction Action = NPC->GetLastAction();
 		if (Action != EYUFSAction::EvacuateToNearestExit && Action != EYUFSAction::EvacuateToFamiliarExit
 			&& Action != EYUFSAction::FollowCrowd) continue;
+		if (NPC->GetBelongingsRetrievalComponent() && NPC->GetBelongingsRetrievalComponent()->IsActive()) continue;
 		const float D=FVector::DistSquared(GetOwner()->GetActorLocation(),NPC->GetActorLocation());
 		if (D<Best) { Best=D; Target=NPC->GetNavigator()->GetRequestedDestination(); }
 	}

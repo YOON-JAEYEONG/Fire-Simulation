@@ -63,8 +63,6 @@ public:
 	FYUFSLogNormalDurationModel WarnHelpDuration { 28.f, 0.55f, 120.f };
 	UPROPERTY(EditAnywhere, Category="Task|Duration")
 	FVector2D FilmDurationRange = FVector2D(5.f, 15.f);
-	UPROPERTY(EditAnywhere, Category="Task|Duration")
-	FVector SuppressTriangularSeconds = FVector(15.f, 20.f, 30.f);
 
 private:
 	struct FTaskEvent

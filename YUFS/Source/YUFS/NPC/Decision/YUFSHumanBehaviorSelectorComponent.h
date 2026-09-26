@@ -40,12 +40,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="NPC|Behavior")
 	TObjectPtr<UYUFSBehaviorPolicy> PolicyAsset = nullptr;
-	/** Opt-in presentation: choose suppression when eligible; all safety checks still apply. */
-	UPROPERTY(EditAnywhere, Category="NPC|Behavior|Demonstration")
-	bool bDemonstrateSuppressionWhenEligible = false;
-	/** -1 preserves policy weights; otherwise one probability draw per eligible encounter. */
-	UPROPERTY(EditAnywhere, Category="NPC|Behavior", meta=(ClampMin="-1.0", ClampMax="1.0"))
-	float SuppressionProbabilityOverride = -1.f;
 
 private:
 	struct FCandidate
@@ -74,5 +68,4 @@ private:
 	int64 NextRevision = 1;
 	bool bNeedsReselection = true;
 	FName PendingReselectionReason = NAME_None;
-	TSet<FString> ConsideredSuppressionPairs;
 };

@@ -67,7 +67,6 @@ enum class EYUFSActionTask : uint8
 	AssistOther,
 	WaitForOfficialInfo,
 	FilmObserve,
-	InitialExtinguish,
 	Freeze
 };
 

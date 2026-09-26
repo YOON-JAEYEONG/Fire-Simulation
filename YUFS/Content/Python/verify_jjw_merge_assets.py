@@ -47,7 +47,7 @@ REQUIRED_COMPONENTS = (
     "YUFSBeliefComponent", "YUFSIntentComponent", "YUFSActionTaskComponent",
     "YUFSActionAnimationComponent", "YUFSHumanCognitionComponent",
     "YUFSHumanBehaviorSelectorComponent", "YUFSTeamIntegrationComponent",
-    "YUFSNpcSuppressionComponent", "YUFSNpcEnvironmentInteraction",
+    "YUFSBelongingsRetrievalComponent", "YUFSNpcEnvironmentInteraction",
 )
 # These are the exact native ActionAnimationComponent default soft references.
 ANIMATIONS = (

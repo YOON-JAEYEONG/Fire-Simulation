@@ -1,7 +1,7 @@
 #include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Integration/YUFSTeamIntegrationComponent.h"
-#include "NPC/Integration/YUFSNpcSuppressionComponent.h"
+#include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
 #include "NPC/Decision/YUFSHumanBehaviorSelectorComponent.h"
 #include "NPC/Decision/YUFSIntentComponent.h"
 #include "NPC/Decision/YUFSBeliefComponent.h"
@@ -123,7 +123,7 @@ void UYUFSNpcEnvironmentInteraction::Finish(bool Success,FName Reason)
    // Opening is a sub-action of the existing route, not a new destination.
    // Preserve the route/waypoint so local traffic coordination can resume it.
    // Clear even on failure/cancel: a stale door opportunity must not mask the
-   // next suppression/evacuation directive or its revision-scoped feedback.
+   // next evacuation directive or its revision-scoped feedback.
    auto Next=Team->GetInteractionOpportunities();
    Next.DoorStableId=NAME_None; Next.bDoorActionRequired=false;
    ++Next.KnowledgeRevision; Team->SubmitInteractionOpportunities(Next);
@@ -149,7 +149,7 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  if (Npc->GetBehaviorStateMachine()->IsIncapacitated()) { Cancel(); return false; }
  auto* Team=Npc->GetTeamIntegrationComponent(); const auto& Directive=Team->GetInteractionDirective();
  // A usable door on the evacuation route remains necessary during emergency
- // escape. Risk interrupts optional helping/suppression, not the escape door.
+ // escape. Risk interrupts optional helping, not the escape door.
  if (Directive.Goal!=EYUFSInteractionGoal::OpenDoor && !Npc->AllowsOptionalInteractions()
      && !Npc->bInteractionPreviewControlled)
  { Cancel(); return false; }
@@ -170,7 +170,7 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
   }
   else if (Directive.Goal==EYUFSInteractionGoal::AssistPerson && Person.IsValid() && Directive.TargetStableId==Person->GetFName())
   {
-   if (Npc->GetSuppressionComponent()->IsActive() || Npc->GetBeliefComponent()->HasVerifiedOfficialInstruction()) return false;
+   if (Npc->GetBelongingsRetrievalComponent()->IsActive() || Npc->GetBeliefComponent()->HasVerifiedOfficialInstruction()) return false;
    auto* Other=Person->FindComponentByClass<UYUFSNpcEnvironmentInteraction>();
    RequestRevision=Directive.Revision;
    auto* Path=UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),Npc->GetActorLocation(),Person->GetActorLocation(),Npc.Get());

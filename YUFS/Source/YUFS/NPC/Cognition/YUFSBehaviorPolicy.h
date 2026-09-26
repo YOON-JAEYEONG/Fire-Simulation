@@ -43,9 +43,6 @@ public:
 	float WarnOrAssistWeight = 0.10f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Task Weights", meta=(ClampMin="0.0"))
-	float AttemptSuppressionWeight = 0.05f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Task Weights", meta=(ClampMin="0.0"))
 	float ObserveOrRecordWeight = 0.03f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Task Weights", meta=(ClampMin="0.0", ClampMax="1.0"))
@@ -56,11 +53,4 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Task Selection")
 	bool bUseLegacyBelongingsAssumption = true;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Task Selection", meta=(ClampMin="0.0", ClampMax="1.0"))
-	float MinimumSuppressionTraining = 0.55f;
-
-	/** Simulation prior per newly encountered fire/tool pair; not an observed population rate. */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Task Selection", meta=(ClampMin="0.0", ClampMax="1.0"))
-	float EvacuatingSuppressionProbability = 0.25f;
 };

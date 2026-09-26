@@ -20,7 +20,6 @@ enum class EYUFSHighLevelBehavior : uint8
 	WarnOthers,
 	AssistOther,
 	ObserveOrRecord,
-	AttemptSuppression,
 	Freeze,
 	EvacuateNearest,
 	EvacuateFamiliar,
@@ -56,7 +55,6 @@ enum class EYUFSMotionSemantic : uint8
 	Warn,
 	Assist,
 	Record,
-	Extinguish,
 	OperateDoor,
 	Crawl,
 	Cough,
@@ -72,8 +70,6 @@ enum class EYUFSInteractionGoal : uint8
 	HoldDoor,
 	PassDoor,
 	RetrieveBelongings,
-	AcquireExtinguisher,
-	SuppressFire,
 	AssistPerson
 };
 
@@ -240,36 +236,9 @@ struct YUFS_API FYUFSInteractionOpportunitySnapshot
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FVector DoorUseLocation = FVector::ZeroVector;
 
+	/** True once the NPC is physically carrying its belongings object. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bExtinguisherKnownAvailable = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName ExtinguisherStableId = NAME_None;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector ExtinguisherLocation = FVector::ZeroVector;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bSuppressibleFireKnown = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName FireStableId = NAME_None;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector FireLocation = FVector::ZeroVector;
-
-	/** Validated standing location, never the ignition/aim point. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bSuppressionApproachKnown = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FVector SuppressionApproachLocation = FVector::ZeroVector;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bHoldingExtinguisher = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bSafeRetreatKnown = false;
+	bool bCarryingBelongings = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(ClampMin="0.0", ClampMax="1.0"))
 	float KnowledgeConfidence = 0.f;

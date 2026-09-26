@@ -20,15 +20,12 @@ protected:
 	virtual void OnStart() override;
 
 public:
-	// ── 건물 상호작용 소품 배치 (소화기 등) ─────────────────────────────
+	// ── 건물 상호작용 설정 (인구 파라미터, 상호작용 미리보기) ─────────────
 	// Called for every play world, including Stop/Reset level reloads. Idempotent.
 	void SetupBuildingInteractions(UWorld* World);
 
 	UPROPERTY(Config, EditAnywhere, Category="NPC|Interactions")
 	bool bEnableBuildingInteractions = true;
-
-	UPROPERTY(Config, EditAnywhere, Category="NPC|Interactions", meta=(ClampMin="0", ClampMax="64"))
-	int32 MinimumExtinguisherCount = 4;
 
 	// ── 결과 영속화 (디스크 저장, 프로그램 재시작 후에도 전체 기록 확인 가능) ──
 	// 현재 LastRunResults(누적 기록 전체)를 디스크에 저장합니다.

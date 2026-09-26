@@ -1,7 +1,7 @@
 #include "Debug/YUFSInteractionPreview.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
-#include "NPC/Integration/YUFSNpcSuppressionComponent.h"
+#include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
 #include "NPC/Integration/YUFSTeamIntegrationComponent.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "Fire/YUFSInteractionDoor.h"
@@ -86,7 +86,7 @@ void AYUFSInteractionPreview::PrepareResidentsOnce()
  for(auto* Npc:{User.Get(),Recipient.Get()}) if(Npc)
  {
   Npc->EnvironmentInteraction->Cancel(); Npc->EnvironmentInteraction->RequestAssistance(false);
-  Npc->GetSuppressionComponent()->Cancel(); Npc->GetSuppressionComponent()->bEnabled=false;
+  Npc->GetBelongingsRetrievalComponent()->ResetForEpisode(); Npc->GetBelongingsRetrievalComponent()->bEnabled=false;
   Npc->SetTimelinePlaybackMode(false);
   Npc->bInteractionPreviewControlled=true; Npc->InteractionPreviewBehavior=EYUFSHighLevelBehavior::WaitObserve;
   Npc->GetCharacterMovement()->StopMovementImmediately(); Npc->GetNavigator()->ClearPath();

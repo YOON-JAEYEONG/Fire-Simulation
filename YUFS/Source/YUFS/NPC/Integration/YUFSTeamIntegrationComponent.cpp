@@ -63,28 +63,11 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	{
 		NextNavigation.Goal = EYUFSNavigationGoal::ShelterLocation;
 	}
-	if (NextNavigation.Goal == EYUFSNavigationGoal::InteractionTarget)
+	if (NextNavigation.Goal == EYUFSNavigationGoal::InteractionTarget
+		&& Decision.Behavior == EYUFSHighLevelBehavior::RetrieveBelongings)
 	{
-		if (Decision.Behavior == EYUFSHighLevelBehavior::RetrieveBelongings)
-		{
-			NextNavigation.TargetStableId = InteractionOpportunities.BelongingsStableId;
-			NextNavigation.DestinationHint = InteractionOpportunities.BelongingsLocation;
-		}
-		else
-		{
-			NextNavigation.TargetStableId = InteractionOpportunities.bHoldingExtinguisher
-				? InteractionOpportunities.FireStableId
-				: InteractionOpportunities.ExtinguisherStableId;
-			NextNavigation.DestinationHint = InteractionOpportunities.bHoldingExtinguisher
-				? InteractionOpportunities.SuppressionApproachLocation
-				: InteractionOpportunities.ExtinguisherLocation;
-			if (InteractionOpportunities.bHoldingExtinguisher && !InteractionOpportunities.bSuppressionApproachKnown)
-			{
-				NextNavigation.Goal = EYUFSNavigationGoal::None;
-				NextNavigation.TargetStableId = NAME_None;
-				NextNavigation.DestinationHint = FVector::ZeroVector;
-			}
-		}
+		NextNavigation.TargetStableId = InteractionOpportunities.BelongingsStableId;
+		NextNavigation.DestinationHint = InteractionOpportunities.BelongingsLocation;
 	}
 	if (NextNavigation.Goal == EYUFSNavigationGoal::AssistTarget && InteractionOpportunities.bAssistPersonKnown)
 	{
@@ -110,9 +93,6 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	FYUFSMotionDirective NextMotion;
 	NextMotion.StableNpcId = StableNpcId;
 	NextMotion.Semantic = MapMotionSemantic(Decision.Behavior, BehaviorState);
-	if (bMovementHeldByJJW && Decision.Behavior == EYUFSHighLevelBehavior::AttemptSuppression)
-		NextMotion.Semantic = Intent == EYUFSIntent::Prepare ? EYUFSMotionSemantic::GatherBelongings
-			: Intent == EYUFSIntent::Incapacitated ? EYUFSMotionSemantic::Cough : EYUFSMotionSemantic::Wait;
 	NextMotion.LegacyAction = Decision.LegacyAction;
 	NextMotion.BehaviorState = BehaviorState;
 	NextMotion.SpeedScale = BehaviorState == EYUFSBehaviorState::Crawling
@@ -199,7 +179,6 @@ EYUFSNavigationGoal UYUFSTeamIntegrationComponent::MapNavigationGoal(EYUFSHighLe
 	case EYUFSHighLevelBehavior::AssistOther: return EYUFSNavigationGoal::AssistTarget;
 	case EYUFSHighLevelBehavior::SeekInformation: return EYUFSNavigationGoal::InvestigateTarget;
 	case EYUFSHighLevelBehavior::RetrieveBelongings:
-	case EYUFSHighLevelBehavior::AttemptSuppression:
 		return EYUFSNavigationGoal::InteractionTarget;
 	case EYUFSHighLevelBehavior::Shelter: return EYUFSNavigationGoal::ShelterLocation;
 	case EYUFSHighLevelBehavior::Reenter: return EYUFSNavigationGoal::ReentryTarget;
@@ -224,7 +203,6 @@ EYUFSMotionSemantic UYUFSTeamIntegrationComponent::MapMotionSemantic(
 	case EYUFSHighLevelBehavior::WarnOthers: return EYUFSMotionSemantic::Warn;
 	case EYUFSHighLevelBehavior::AssistOther: return EYUFSMotionSemantic::Assist;
 	case EYUFSHighLevelBehavior::ObserveOrRecord: return EYUFSMotionSemantic::Record;
-	case EYUFSHighLevelBehavior::AttemptSuppression: return EYUFSMotionSemantic::Extinguish;
 	case EYUFSHighLevelBehavior::Freeze: return EYUFSMotionSemantic::Freeze;
 	case EYUFSHighLevelBehavior::EvacuateNearest:
 	case EYUFSHighLevelBehavior::EvacuateFamiliar:
@@ -263,18 +241,6 @@ FYUFSInteractionDirective UYUFSTeamIntegrationComponent::BuildInteractionDirecti
 		Result.Goal = EYUFSInteractionGoal::RetrieveBelongings;
 		Result.TargetStableId = InteractionOpportunities.BelongingsStableId;
 		Result.TargetLocationHint = InteractionOpportunities.BelongingsLocation;
-		Result.bRequiresReservation = true;
-		break;
-	case EYUFSHighLevelBehavior::AttemptSuppression:
-		Result.Goal = InteractionOpportunities.bHoldingExtinguisher
-			? EYUFSInteractionGoal::SuppressFire
-			: EYUFSInteractionGoal::AcquireExtinguisher;
-		Result.TargetStableId = InteractionOpportunities.bHoldingExtinguisher
-			? InteractionOpportunities.FireStableId
-			: InteractionOpportunities.ExtinguisherStableId;
-		Result.TargetLocationHint = InteractionOpportunities.bHoldingExtinguisher
-			? InteractionOpportunities.FireLocation
-			: InteractionOpportunities.ExtinguisherLocation;
 		Result.bRequiresReservation = true;
 		break;
 	case EYUFSHighLevelBehavior::AssistOther:

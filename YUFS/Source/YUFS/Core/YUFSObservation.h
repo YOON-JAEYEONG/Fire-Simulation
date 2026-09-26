@@ -74,8 +74,6 @@ struct YUFS_API FYUFSNPCObservation
 	UPROPERTY() float HeatInSightNormalized = 0.f;
 	UPROPERTY() float NearbyHeatNormalized = 0.f;
 	UPROPERTY() bool bHazardSampleAvailable = false;
-	// Read-only runtime projection of JJW commitment/preparation/emergency priority.
-	UPROPERTY() bool bSuppressionAllowedByBehavior = false;
 
 	static constexpr int32 FeatureCount = 28;
 	void FillFloatArray(TArray<float>& OutArray) const;
