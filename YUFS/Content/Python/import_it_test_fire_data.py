@@ -7,17 +7,18 @@ Follows VDB_임포트_및_머티리얼_연결_가이드.md:
      /Game/Fires/FirePrototype/VDB/fire_it_test_{1,2,3}_MIC and
      Fires/FirePrototype/BinaryData/smoke_data_it_test_{1,2,3}.bin
 
-Density Mask is inherited from SparseVolumeMaterial_Inst (it already overrides it),
-so each new instance only sets the SparseVolumeTexture parameter.
-Existing assets are kept; the script is safe to run again.
+Each instance uses /Game/Fires/Material/SparseVolumeMaterial as parent, sets the
+SparseVolumeTexture parameter and enables Density Mask (R), like the team's setup.
+Existing assets are kept and re-configured; the script is safe to run again.
 """
 import os
 import unreal
 
 DATA_ROOT = r"C:\CodexWork\FireData_it_test"
 DEST = "/Game/Fires/FirePrototype/VDB"
-PARENT = "/Game/Fires/FirePrototype/VDB/SparseVolumeMaterial_Inst"
+PARENT = "/Game/Fires/Material/SparseVolumeMaterial"
 SVT_PARAM = "SparseVolumeTexture"
+DENSITY_MASK = "Density Mask"
 START_PIE = True
 
 asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
@@ -86,8 +87,14 @@ def make_mic(index, svt):
         except Exception as error:  # noqa: BLE001 - editor API differs by engine version
             unreal.log_error("[YUFSFireImport] could not set %s on %s: %s" % (SVT_PARAM, name, error))
     mel.update_material_instance(mic)
+    mask_ok = False
+    helper = getattr(unreal, "YUFSFireAssetLibrary", None)
+    if helper:
+        mask_ok = bool(helper.set_static_component_mask_parameter(mic, DENSITY_MASK, True, False, False, False))
+    if not mask_ok:
+        unreal.log_error("[YUFSFireImport] could not enable %s (R) on %s - tick it manually" % (DENSITY_MASK, name))
     eal.save_asset(path, only_if_is_dirty=False)
-    log("%s -> parent=%s svt=%s set=%s" % (path, PARENT, svt.get_path_name() if svt else None, ok))
+    log("%s -> parent=%s svt=%s set=%s densityMaskR=%s" % (path, PARENT, svt.get_path_name() if svt else None, ok, mask_ok))
 
 
 def main():
@@ -98,7 +105,9 @@ def main():
     log("done")
     if START_PIE:
         unreal.EditorPythonScripting.set_keep_python_script_alive(True)
-        unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).editor_request_begin_play()
+        level_editor = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
+        level_editor.load_level("/Game/Maps/Main")
+        level_editor.editor_request_begin_play()
         log("Play-In-Editor requested")
 
 

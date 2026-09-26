@@ -43,6 +43,8 @@ public:
 
 	/** Places the bag lazily and decides when to turn back. Call once per live Tick. */
 	void Observe(float DeltaTime, const FYUFSNPCObservation& Observation);
+	/** Roll and place the left-behind bag now (at spawn), so it is visible before the fire. */
+	void PrepareForEpisode();
 	/** Drives the retrieval. Returns true while the NPC holds position (picking up). */
 	bool Execute(float DeltaTime);
 	/** Abort an active return. The bag stays where it is. */

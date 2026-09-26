@@ -141,6 +141,8 @@ void AYUFSEvacuationNPC::BeginPlay()
 		SimulationController->RegisterNPC(this);
 		break;
 	}
+	// The left-behind bag exists from the start, beside where this NPC was placed.
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->PrepareForEpisode();
 }
 
 void AYUFSEvacuationNPC::Tick(float DeltaTime)
@@ -1408,6 +1410,7 @@ void AYUFSEvacuationNPC::ApplyDistributedSpawnLocation(const FVector& NewLocatio
 	if (Navigator) Navigator->ResetObservedHazards();
 	SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 	SpawnLocation = NewLocation;
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->PrepareForEpisode();
 	LastMovementSampleLocation = NewLocation;
 	bHasMovementSample = true;
 	CurrentNavTarget = FVector::ZeroVector;

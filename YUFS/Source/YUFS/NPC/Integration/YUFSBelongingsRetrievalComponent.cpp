@@ -91,7 +91,7 @@ bool UYUFSBelongingsRetrievalComponent::PlaceBag()
 	Bag = NewBag;
 	Phase = EYUFSBelongingsRetrievalPhase::LeftBehind;
 	PublishOpportunity();
-	UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] %s left a bag at %s; remembers after %.1fs of evacuation"),
+	UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] %s's bag placed at %s; remembers it after %.1fs of evacuation"),
 		*Npc->GetName(), *NewBag->GetActorLocation().ToCompactString(), RememberDelay);
 	return true;
 }
@@ -173,16 +173,22 @@ bool UYUFSBelongingsRetrievalComponent::HasSafeReturnPath(FName& OutReason) cons
 	return true;
 }
 
+void UYUFSBelongingsRetrievalComponent::PrepareForEpisode()
+{
+	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
+	if (!Npc.IsValid() || !bEnabled || Npc->bUseExternalNavigationDriver || Npc->IsTimelinePlaybackMode()
+		|| !GetWorld() || !GetWorld()->IsGameWorld()) return;
+	if (!bRolled) RollForEpisode();
+	if (bWantsBag && Phase == EYUFSBelongingsRetrievalPhase::None && !Bag.IsValid() && !PlaceBag())
+		bWantsBag = false;
+}
+
 void UYUFSBelongingsRetrievalComponent::Observe(float DeltaTime, const FYUFSNPCObservation& Observation)
 {
 	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
 	if (!Npc.IsValid() || !bEnabled || Npc->bUseExternalNavigationDriver) return;
-	if (!bRolled) RollForEpisode();
+	PrepareForEpisode();
 	if (!bWantsBag) return;
-	if (Phase == EYUFSBelongingsRetrievalPhase::None && !Bag.IsValid())
-	{
-		if (!PlaceBag()) { bWantsBag = false; return; }
-	}
 	if (Phase != EYUFSBelongingsRetrievalPhase::LeftBehind || !Bag.IsValid()) return;
 
 	const auto* State = Npc->GetBehaviorStateMachine();
