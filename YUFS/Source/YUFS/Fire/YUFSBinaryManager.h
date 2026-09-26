@@ -59,6 +59,15 @@ public:
 	static FTransform ComputeVisualAlignedGridToWorld(const FTransform& FrameTransform,
 		const FTransform& ComponentToWorld, const FVector& BinToVisualVoxelOffset);
 
+	/** World-space box covered by the BIN grid (visual-aligned when possible). False if no grid/volume. */
+	bool GetGridWorldBounds(FBox& OutBounds) const;
+	FIntVector GetGridDimensions() const { return FIntVector(DimX, DimY, DimZ); }
+
+private:
+	/** SVT frame transform of the fire volume: live component value, else the material's SVT asset. */
+	bool FindVisualFrameTransform(FTransform& OutFrameTransform) const;
+public:
+
 private:
 	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation);
 
@@ -107,6 +116,9 @@ private:
 	 */
 	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment", meta=(EditCondition="bAlignGridToVisualVolume"))
 	FVector BinToVisualVoxelOffset = FVector(-4.5f, -4.5f, -0.5f);
+
+	mutable TWeakObjectPtr<UMaterialInterface> CachedVisualMaterial;
+	mutable FTransform CachedVisualFrameTransform = FTransform::Identity;
 
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");

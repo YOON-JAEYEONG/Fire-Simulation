@@ -179,6 +179,48 @@ FTransform AYUFSBinaryManager::ComputeVisualAlignedGridToWorld(const FTransform&
 	return FTransform(CellToWorld);
 }
 
+bool AYUFSBinaryManager::FindVisualFrameTransform(FTransform& OutFrameTransform) const
+{
+	const auto* Volume = IsValid(HeterogeneousVolume) ? HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>() : nullptr;
+	if (!Volume) return false;
+	auto Usable = [](const FTransform& T) { return !T.Equals(FTransform::Identity) && T.GetScale3D().GetAbsMin() > SMALL_NUMBER; };
+	if (Usable(Volume->FrameTransform)) { OutFrameTransform = Volume->FrameTransform; return true; }
+	// Before the first streamed frame (or without a renderer) read the transform from the SVT asset itself.
+	UMaterialInterface* Material = Volume->GetMaterial(0);
+	if (!Material) return false;
+	if (CachedVisualMaterial.Get() != Material)
+	{
+		CachedVisualMaterial = Material;
+		CachedVisualFrameTransform = FTransform::Identity;
+		TArray<FMaterialParameterInfo> Parameters;
+		TArray<FGuid> Ids;
+		Material->GetAllSparseVolumeTextureParameterInfo(Parameters, Ids);
+		for (const auto& Parameter : Parameters)
+		{
+			USparseVolumeTexture* Texture = nullptr;
+			if (Material->GetSparseVolumeTextureParameterValue(Parameter, Texture) && Texture)
+			{
+				CachedVisualFrameTransform = Texture->GetFrameTransform();
+				break;
+			}
+		}
+	}
+	if (!Usable(CachedVisualFrameTransform)) return false;
+	OutFrameTransform = CachedVisualFrameTransform;
+	return true;
+}
+
+bool AYUFSBinaryManager::GetGridWorldBounds(FBox& OutBounds) const
+{
+	OutBounds.Init();
+	if (!bHeaderValid) return false;
+	FYUFSHazardSnapshot Probe = GetHazardSnapshot(FMath::Clamp(CurrentDebugFrame, 0, FMath::Max(0, TotalFrames - 1)));
+	if (Probe.Status == EYUFSHazardDataStatus::InvalidMapping || Probe.GridToWorld.Equals(FTransform::Identity)) return false;
+	for (int32 Corner = 0; Corner < 8; ++Corner)
+		OutBounds += Probe.GridToWorld.TransformPosition(FVector(Corner & 1 ? DimX : 0, Corner & 2 ? DimY : 0, Corner & 4 ? DimZ : 0));
+	return OutBounds.IsValid != 0;
+}
+
 FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 {
 	FYUFSHazardSnapshot Result;
@@ -192,10 +234,10 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 	const auto* Volume = HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>();
 	const FTransform VolumeTransform = Volume ? Volume->GetComponentTransform() : HeterogeneousVolume->GetActorTransform();
 	// Preferred: share the rendered SVT's voxel lattice so NPC smoke sits where the visible smoke is.
-	if (bAlignGridToVisualVolume && Volume && !Volume->FrameTransform.Equals(FTransform::Identity)
-		&& Volume->FrameTransform.GetScale3D().GetAbsMin() > SMALL_NUMBER)
+	FTransform VisualFrame;
+	if (bAlignGridToVisualVolume && Volume && FindVisualFrameTransform(VisualFrame))
 	{
-		Result.GridToWorld = ComputeVisualAlignedGridToWorld(Volume->FrameTransform, VolumeTransform, BinToVisualVoxelOffset);
+		Result.GridToWorld = ComputeVisualAlignedGridToWorld(VisualFrame, VolumeTransform, BinToVisualVoxelOffset);
 		if (!Result.GridToWorld.IsValid() || Result.GridToWorld.GetScale3D().GetAbsMin() <= SMALL_NUMBER)
 		{
 			Result.Status = EYUFSHazardDataStatus::InvalidMapping;

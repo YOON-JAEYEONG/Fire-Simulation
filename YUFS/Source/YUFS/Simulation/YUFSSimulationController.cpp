@@ -623,6 +623,11 @@ void AYUFSSimulationController::TickFireActivePhase(float DeltaTime)
 
 void AYUFSSimulationController::UpdateLiveCounts()
 {
+	if (!CachedLDM)
+	{
+		// A level data manager can be added after BeginPlay (runtime test setup); pick it up lazily.
+		for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It) { CachedLDM = *It; break; }
+	}
 	if (!CachedLDM || !BinaryManager) return;
 
 	const int32 CurrentFrame = BinaryManager->GetCurrentFrame();

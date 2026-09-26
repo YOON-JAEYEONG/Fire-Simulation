@@ -13,6 +13,11 @@
 #include "NPC/Cognition/YUFSHumanCognitionComponent.h"
 #include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
 #include "Simulation/YUFSSimulationController.h"
+#include "Fire/YUFSBinaryManager.h"
+#include "Level/YUFSLevelDataManager.h"
+#include "Level/YUFSExitPoint.h"
+#include "NavigationPath.h"
+#include "NavigationSystem.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Debug/YUFSInteractionPreview.h"
 
@@ -20,6 +25,168 @@ void UYUFSGameInstance::OnStart()
 {
 	Super::OnStart();
 	SetupBuildingInteractions(GetWorld());
+}
+
+namespace
+{
+	/**
+	 * Test/demo helper: place NPCs on walkable floor inside the recorded fire's data domain
+	 * (the building part covered by smoke/heat), without editing the level asset.
+	 */
+	int32 SpawnTestNPCs(UWorld* World, int32 Count)
+	{
+		auto* Nav = FNavigationSystem::GetCurrent<UNavigationSystemV1>(World);
+		AYUFSBinaryManager* Binary = nullptr;
+		for (TActorIterator<AYUFSBinaryManager> It(World); It; ++It) { Binary = *It; break; }
+		FBox Domain(ForceInit);
+		if (!Nav || !Binary || !Binary->GetGridWorldBounds(Domain))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[YUFSTestNPC] No navmesh or fire data domain; no test NPCs placed."));
+			return 0;
+		}
+		UClass* NpcClass = LoadClass<AYUFSEvacuationNPC>(nullptr, TEXT("/Game/Blueprint/BP_YUFSRLEvacuationNPC.BP_YUFSRLEvacuationNPC_C"));
+		if (!NpcClass) NpcClass = AYUFSEvacuationNPC::StaticClass();
+		// NPC observations require a level data manager with exits. Maps still under construction
+		// (e.g. Main) may lack them: add runtime-only test exits on walkable ground outside the domain.
+		if (!TActorIterator<AYUFSLevelDataManager>(World))
+		{
+			int32 ExitCount = 0;
+			for (TActorIterator<AYUFSExitPoint> It(World); It; ++It) ++ExitCount;
+			if (ExitCount == 0)
+			{
+				FNavLocation Anchor;
+				const FVector Center = Domain.GetCenter();
+				if (Nav->ProjectPointToNavigation(FVector(Center.X, Center.Y, Domain.Min.Z + 60.f), Anchor, FVector(800.f, 800.f, 200.f)))
+				{
+					TArray<FVector> Exits;
+					const float Radius = Domain.GetExtent().Size2D();
+					for (const float Extra : { 300.f, 700.f, 1200.f })
+					for (int32 Step = 0; Step < 24; ++Step)
+					{
+						const float Angle = 2.f * PI * Step / 24.f;
+						const FVector Probe = Center + FVector(FMath::Cos(Angle), FMath::Sin(Angle), 0.f) * (Radius + Extra);
+						FNavLocation Ground;
+						if (!Nav->ProjectPointToNavigation(FVector(Probe.X, Probe.Y, Domain.Min.Z + 60.f), Ground, FVector(300.f, 300.f, 250.f))
+							|| (Ground.Location.X > Domain.Min.X && Ground.Location.X < Domain.Max.X
+								&& Ground.Location.Y > Domain.Min.Y && Ground.Location.Y < Domain.Max.Y)
+							|| Exits.ContainsByPredicate([&Ground](const FVector& E) { return FVector::Dist2D(E, Ground.Location) < 1500.f; }))
+							continue;
+						const UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(World, Anchor.Location, Ground.Location);
+						if (Path && Path->IsValid() && !Path->IsPartial()) Exits.Add(Ground.Location);
+						if (Exits.Num() >= 4) break;
+					}
+					// Navmesh covers only the interior: use reachable ground-floor points at the building edge.
+					if (Exits.IsEmpty())
+					{
+						struct FCandidate { FVector Location; float EdgeDistance; };
+						TArray<FCandidate> Candidates;
+						const FVector Extent = Domain.GetExtent();
+						for (int32 IX = 0; IX <= 30; ++IX)
+						for (int32 IY = 0; IY <= 12; ++IY)
+						{
+							const FVector Probe(Domain.Min.X + 2.f * Extent.X * IX / 30.f, Domain.Min.Y + 2.f * Extent.Y * IY / 12.f, Domain.Min.Z + 60.f);
+							FNavLocation Ground;
+							if (!Nav->ProjectPointToNavigation(Probe, Ground, FVector(80.f, 80.f, 150.f))
+								|| Ground.Location.Z > Domain.Min.Z + 150.f) continue;
+							const float Edge = FMath::Min(
+								FMath::Min(Ground.Location.X - Domain.Min.X, Domain.Max.X - Ground.Location.X),
+								FMath::Min(Ground.Location.Y - Domain.Min.Y, Domain.Max.Y - Ground.Location.Y));
+							Candidates.Add({ Ground.Location, Edge });
+						}
+						Candidates.Sort([](const FCandidate& A, const FCandidate& B) { return A.EdgeDistance < B.EdgeDistance; });
+						for (const FCandidate& Candidate : Candidates)
+						{
+							if (Exits.Num() >= 4) break;
+							if (Exits.ContainsByPredicate([&Candidate](const FVector& E) { return FVector::Dist2D(E, Candidate.Location) < 1500.f; })) continue;
+							const UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(World, Anchor.Location, Candidate.Location);
+							if (Path && Path->IsValid() && !Path->IsPartial()) Exits.Add(Candidate.Location);
+						}
+					}
+					for (int32 Index = 0; Index < Exits.Num(); ++Index)
+						if (auto* Exit = World->SpawnActor<AYUFSExitPoint>(Exits[Index] + FVector(0, 0, 90.f), FRotator::ZeroRotator))
+						{
+							Exit->ExitID = FName(*FString::Printf(TEXT("TestExit_%d"), Index));
+							Exit->bIsFamiliarEntry = Index == 0;
+							UE_LOG(LogTemp, Display, TEXT("[YUFSTestNPC] test exit %d at %s"), Index, *Exits[Index].ToCompactString());
+						}
+					UE_LOG(LogTemp, Warning, TEXT("[YUFSTestNPC] Map has no exits: created %d runtime test exits outside the building (not saved to the level)."), Exits.Num());
+				}
+			}
+			World->SpawnActor<AYUFSLevelDataManager>();
+			UE_LOG(LogTemp, Warning, TEXT("[YUFSTestNPC] Map has no YUFSLevelDataManager: spawned one for this run (not saved to the level)."));
+		}
+		FRandomStream Rng(20260927);
+		TArray<FVector> Placed;
+		const FVector Size = Domain.GetSize();
+		for (int32 Attempt = 0; Attempt < Count * 40 && Placed.Num() < Count; ++Attempt)
+		{
+			const FVector Candidate(
+				Domain.Min.X + Size.X * Rng.FRandRange(0.05f, 0.95f),
+				Domain.Min.Y + Size.Y * Rng.FRandRange(0.05f, 0.95f),
+				Domain.Min.Z + Size.Z * Rng.FRand());
+			FNavLocation Floor;
+			if (!Nav->ProjectPointToNavigation(Candidate, Floor, FVector(40.f, 40.f, Size.Z))
+				|| !Domain.ExpandBy(FVector(0, 0, 50)).IsInside(Floor.Location)
+				|| Placed.ContainsByPredicate([&Floor](const FVector& P) { return FVector::DistSquared(P, Floor.Location) < FMath::Square(150.f); }))
+				continue;
+			FActorSpawnParameters Spawn;
+			Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			const FRotator Facing(0.f, Rng.FRandRange(-180.f, 180.f), 0.f);
+			if (World->SpawnActor<AYUFSEvacuationNPC>(NpcClass, Floor.Location + FVector(0, 0, 95.f), Facing, Spawn))
+				Placed.Add(Floor.Location);
+		}
+		UE_LOG(LogTemp, Display, TEXT("[YUFSTestNPC] Placed %d/%d %s inside fire data domain %s"),
+			Placed.Num(), Count, *NpcClass->GetName(), *Domain.ToString());
+		// Telemetry for unattended checks: what each NPC perceives and does, every 5 s.
+		FTimerHandle Telemetry;
+		const TWeakObjectPtr<UWorld> WeakWorld(World);
+		World->GetTimerManager().SetTimer(Telemetry, FTimerDelegate::CreateLambda([WeakWorld]()
+		{
+			UWorld* W = WeakWorld.Get();
+			if (!W) return;
+			int32 Total = 0, Evacuated = 0, Moving = 0, Smoke = 0;
+			for (TActorIterator<AYUFSEvacuationNPC> It(W); It; ++It)
+			{
+				const auto& O = It->GetLastObservation();
+				++Total; Evacuated += It->IsHidden() ? 1 : 0;
+				Moving += It->GetVelocity().Size2D() > 20.f ? 1 : 0;
+				Smoke += O.SmokeDensityAtSelf > 0.05f ? 1 : 0;
+				const auto* Bag = It->GetBelongingsRetrievalComponent();
+				FString Direct = TEXT("-");
+				for (TActorIterator<AYUFSBinaryManager> B(W); B; ++B)
+				{
+					const auto Snap = B->GetHazardSnapshot(B->GetCurrentFrame());
+					const FVector Eye = It->GetPawnViewLocation();
+					const auto S = Snap.Sample(Eye);
+					Direct = FString::Printf(TEXT("%s cell=%s smoke=%.2f"),
+						*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(int64(S.Status)),
+						*Snap.GridToWorld.InverseTransformPosition(Eye).ToCompactString(), S.Smoke);
+					break;
+				}
+				UE_LOG(LogTemp, Display, TEXT("[YUFSTestNPC] t=%.0f %s state=%s action=%s smoke=%.2f heat=%.2f risk=%.2f exposure=%.2f speed=%.0f hidden=%d bag=%s direct=[%s] pos=%s"),
+					W->GetTimeSeconds(), *It->GetName(),
+					*StaticEnum<EYUFSBehaviorState>()->GetNameStringByValue(int64(O.CurrentState)),
+					*StaticEnum<EYUFSAction>()->GetNameStringByValue(int64(It->GetLastAction())),
+					O.SmokeDensityAtSelf, FMath::Max(O.TemperatureAtSelf, O.NearbyHeatNormalized), O.RiskPerception,
+					O.SmokeExposureAccumulated, It->GetVelocity().Size2D(), It->IsHidden() ? 1 : 0,
+					Bag ? *StaticEnum<EYUFSBelongingsRetrievalPhase>()->GetNameStringByValue(int64(Bag->GetPhase())) : TEXT("-"),
+					*Direct, *It->GetActorLocation().ToCompactString());
+			}
+			int32 BinFrame = INDEX_NONE; FString Status = TEXT("NoBinary"); int32 PeakSmoke = 0, SmokeCells = 0;
+			for (TActorIterator<AYUFSBinaryManager> It(W); It; ++It)
+			{
+				BinFrame = It->GetCurrentFrame();
+				const auto Snapshot = It->GetHazardSnapshot(BinFrame);
+				Status = StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(int64(Snapshot.Status));
+				if (Snapshot.Grid.IsValid())
+					for (const uint8 D : Snapshot.Grid->Density) { PeakSmoke = FMath::Max<int32>(PeakSmoke, D); SmokeCells += D >= 10; }
+				break;
+			}
+			UE_LOG(LogTemp, Display, TEXT("[YUFSTestNPC] summary t=%.0f total=%d evacuated=%d moving=%d inSmoke=%d fireFrame=%d hazard=%s peakSmoke=%d smokeCells=%d"),
+				W->GetTimeSeconds(), Total, Evacuated, Moving, Smoke, BinFrame, *Status, PeakSmoke, SmokeCells);
+		}), 5.f, true);
+		return Placed.Num();
+	}
 }
 
 void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
@@ -38,6 +205,9 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 		{
 			UWorld* W = SetupWorld.Get();
 			if (!W) return;
+			int32 TestNpcCount = 0;
+			if (FParse::Value(FCommandLine::Get(), TEXT("YUFSSpawnTestNPCs="), TestNpcCount) && TestNpcCount > 0)
+				SpawnTestNPCs(W, FMath::Min(TestNpcCount, 100));
 			// Optional interaction-only population parameters; JJW's PADM personality,
 			// movement, response timing and user-authored NPC placement remain untouched.
 			float TrainedFraction = 0.65f, LeaveBehindProbability = -1.f;
