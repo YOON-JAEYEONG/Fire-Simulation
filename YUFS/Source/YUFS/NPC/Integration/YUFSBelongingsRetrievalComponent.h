@@ -91,6 +91,14 @@ public:
 	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="10.0"))
 	float PickupRadiusCm = 90.f;
 
+	/**
+	 * A bag placed in the level within this distance of where the NPC starts becomes that NPC's
+	 * left-behind bag (nearest unclaimed one, same floor). When a level has placed bags, no extra
+	 * bags are spawned at random, so the designer's placement is exactly what appears.
+	 */
+	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="50.0"))
+	float LevelBagClaimRadiusCm = 800.f;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void EndPlay(const EEndPlayReason::Type Reason) override;
@@ -98,6 +106,8 @@ protected:
 private:
 	void RollForEpisode();
 	bool PlaceBag();
+	bool ClaimLevelBag();
+	FVector GetEpisodeOrigin() const;
 	bool IsReturnSafe(const FYUFSNPCObservation& Observation, FName& OutReason) const;
 	bool HasSafeReturnPath(FName& OutReason) const;
 	/** Danger the NPC has actually observed; unobserved or missing data is not treated as known danger. */

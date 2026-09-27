@@ -60,6 +60,32 @@ void AYUFSBelongingsBag::AssignOwnerNpc(AActor* InOwner)
 	OwnerNpc = InOwner;
 }
 
+bool AYUFSBelongingsBag::Claim(AActor* InOwner)
+{
+	if (!IsValid(InOwner) || IsClaimed() || IsCarried()) return false;
+	// Captured lazily: NPCs may claim before this bag's own BeginPlay has run.
+	if (!bHomeCaptured) { HomeTransform = GetActorTransform(); bHomeCaptured = true; }
+	OwnerNpc = InOwner;
+	return true;
+}
+
+void AYUFSBelongingsBag::ReleaseToHome()
+{
+	if (GetAttachParentActor()) DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	if (bHomeCaptured) SetActorTransform(HomeTransform, false, nullptr, ETeleportType::TeleportPhysics);
+	SetActorHiddenInGame(false);
+	State = EYUFSBelongingsState::LeftBehind;
+	OwnerNpc.Reset();
+}
+
+void AYUFSBelongingsBag::LeaveWithCarrier()
+{
+	if (GetAttachParentActor()) DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	SetActorHiddenInGame(true);
+	// Stays Carried so no other NPC can claim a bag that has already left the building.
+	OwnerNpc.Reset();
+}
+
 FVector AYUFSBelongingsBag::GetPickupLocation() const
 {
 	return GetActorLocation() - FVector(0.f, 0.f, BodyHalfHeightCm);

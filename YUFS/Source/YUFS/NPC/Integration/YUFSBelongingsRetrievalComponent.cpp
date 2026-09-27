@@ -15,6 +15,7 @@
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 
 namespace
 {
@@ -54,11 +55,42 @@ void UYUFSBelongingsRetrievalComponent::RollForEpisode()
 	RememberDelay = Stream.FRandRange(MinDelay, MaxDelay);
 }
 
+FVector UYUFSBelongingsRetrievalComponent::GetEpisodeOrigin() const
+{
+	if (!Npc.IsValid()) return FVector::ZeroVector;
+	return Npc->GetSpawnLocation().IsZero() ? Npc->GetActorLocation() : Npc->GetSpawnLocation();
+}
+
+bool UYUFSBelongingsRetrievalComponent::ClaimLevelBag()
+{
+	UWorld* World = GetWorld();
+	if (!Npc.IsValid() || !World) return false;
+	const FVector Origin = GetEpisodeOrigin();
+	AYUFSBelongingsBag* Best = nullptr;
+	float BestDistSq = FMath::Square(LevelBagClaimRadiusCm);
+	for (TActorIterator<AYUFSBelongingsBag> It(World); It; ++It)
+	{
+		AYUFSBelongingsBag* Candidate = *It;
+		if (!Candidate->IsLevelPlaced() || Candidate->IsClaimed() || Candidate->IsCarried()) continue;
+		// Same floor only: a bag one storey up is not "the bag I left at my desk".
+		if (FMath::Abs(Candidate->GetPickupLocation().Z - (Origin.Z - Npc->GetSimpleCollisionHalfHeight())) > 150.f) continue;
+		const float DistSq = FVector::DistSquared2D(Candidate->GetActorLocation(), Origin);
+		if (DistSq < BestDistSq) { BestDistSq = DistSq; Best = Candidate; }
+	}
+	if (!Best || !Best->Claim(Npc.Get())) return false;
+	Bag = Best;
+	Phase = EYUFSBelongingsRetrievalPhase::LeftBehind;
+	PublishOpportunity();
+	UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] %s owns level bag %s at %s (%.0fcm away); remembers it after %.1fs of evacuation"),
+		*Npc->GetName(), *Best->GetName(), *Best->GetActorLocation().ToCompactString(), FMath::Sqrt(BestDistSq), RememberDelay);
+	return true;
+}
+
 bool UYUFSBelongingsRetrievalComponent::PlaceBag()
 {
 	UWorld* World = GetWorld();
 	if (!Npc.IsValid() || !World) return false;
-	const FVector Origin = Npc->GetSpawnLocation().IsZero() ? Npc->GetActorLocation() : Npc->GetSpawnLocation();
+	const FVector Origin = GetEpisodeOrigin();
 	// Beside where the NPC originally stood (desk/seat), on the actual floor.
 	const float Yaw = static_cast<float>(Npc->GetStableNPCId() % 360);
 	const FVector Candidate = Origin + FRotator(0.f, Yaw, 0.f).Vector() * 45.f;
@@ -178,8 +210,16 @@ void UYUFSBelongingsRetrievalComponent::PrepareForEpisode()
 	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
 	if (!Npc.IsValid() || !bEnabled || Npc->bUseExternalNavigationDriver || Npc->IsTimelinePlaybackMode()
 		|| !GetWorld() || !GetWorld()->IsGameWorld()) return;
+	// Bags are assigned once, when the episode is set up; a bag freed mid-run is not re-assigned.
+	const bool bEpisodeSetup = !bRolled;
 	if (!bRolled) RollForEpisode();
-	if (bWantsBag && Phase == EYUFSBelongingsRetrievalPhase::None && !Bag.IsValid() && !PlaceBag())
+	if (!bEpisodeSetup || Phase != EYUFSBelongingsRetrievalPhase::None || Bag.IsValid()) return;
+	// A designer-placed bag next to this NPC is always its own, regardless of the random roll.
+	if (ClaimLevelBag()) { bWantsBag = true; return; }
+	bool bLevelHasPlacedBags = false;
+	for (TActorIterator<AYUFSBelongingsBag> It(GetWorld()); It && !bLevelHasPlacedBags; ++It)
+		bLevelHasPlacedBags = It->IsLevelPlaced();
+	if (bWantsBag && (bLevelHasPlacedBags || !PlaceBag()))
 		bWantsBag = false;
 }
 
@@ -323,7 +363,13 @@ void UYUFSBelongingsRetrievalComponent::Cancel(bool bResumeEvacuation)
 
 void UYUFSBelongingsRetrievalComponent::DestroyBag()
 {
-	if (Bag.IsValid()) Bag->Destroy();
+	if (Bag.IsValid())
+	{
+		// Level-placed bags belong to the map: never delete them. One that was carried out
+		// leaves with its owner; one that was left behind stays (or goes back) on its spot.
+		if (Bag->IsLevelPlaced()) Bag->IsCarried() ? Bag->LeaveWithCarrier() : Bag->ReleaseToHome();
+		else Bag->Destroy();
+	}
 	Bag.Reset();
 }
 

@@ -40,6 +40,16 @@ public:
 	/** Attach to the carrier's back. Only the assigned owner may carry it. */
 	bool AttachToCarrier(AActor* Carrier);
 
+	/** Placed in the level by a designer (runtime bags are spawned with their NPC as Owner). */
+	bool IsLevelPlaced() const { return GetOwner() == nullptr; }
+	bool IsClaimed() const { return OwnerNpc.IsValid(); }
+	/** Level-placed bag: becomes this NPC's left-behind bag. Fails if already claimed or carried. */
+	bool Claim(AActor* InOwner);
+	/** Level-placed bag: drop it back on the designer's spot and forget the owner (episode reset). */
+	void ReleaseToHome();
+	/** Level-placed bag carried out of the building: it left with its owner, so hide it for this run. */
+	void LeaveWithCarrier();
+
 	UPROPERTY(VisibleAnywhere, Category="Belongings")
 	TObjectPtr<UStaticMeshComponent> Body;
 
@@ -59,4 +69,6 @@ protected:
 private:
 	TWeakObjectPtr<AActor> OwnerNpc;
 	EYUFSBelongingsState State = EYUFSBelongingsState::LeftBehind;
+	FTransform HomeTransform;
+	bool bHomeCaptured = false;
 };

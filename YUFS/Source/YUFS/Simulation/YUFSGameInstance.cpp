@@ -12,6 +12,7 @@
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Cognition/YUFSHumanCognitionComponent.h"
 #include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
+#include "Props/YUFSBelongingsBag.h"
 #include "Simulation/YUFSSimulationController.h"
 #include "Fire/YUFSBinaryManager.h"
 #include "Level/YUFSLevelDataManager.h"
@@ -118,6 +119,28 @@ namespace
 		FRandomStream Rng(20260927);
 		TArray<FVector> Placed;
 		const FVector Size = Domain.GetSize();
+		// Level-placed bags first: put one NPC beside each so every bag in the map has an owner.
+		for (TActorIterator<AYUFSBelongingsBag> It(World); It && Placed.Num() < Count; ++It)
+		{
+			if (!It->IsLevelPlaced() || It->IsClaimed()) continue;
+			const FVector BagFloor = It->GetPickupLocation();
+			for (int32 Try = 0; Try < 8; ++Try)
+			{
+				const FVector Probe = BagFloor + FRotator(0.f, Try * 45.f, 0.f).Vector() * 110.f + FVector(0, 0, 40.f);
+				FNavLocation Floor;
+				if (!Nav->ProjectPointToNavigation(Probe, Floor, FVector(60.f, 60.f, 120.f))
+					|| FMath::Abs(Floor.Location.Z - BagFloor.Z) > 60.f) continue;
+				FActorSpawnParameters Spawn;
+				Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+				const FRotator Facing(0.f, (BagFloor - Floor.Location).Rotation().Yaw, 0.f);
+				if (World->SpawnActor<AYUFSEvacuationNPC>(NpcClass, Floor.Location + FVector(0, 0, 95.f), Facing, Spawn))
+				{
+					Placed.Add(Floor.Location);
+					break;
+				}
+			}
+		}
+		const int32 BagOwners = Placed.Num();
 		for (int32 Attempt = 0; Attempt < Count * 40 && Placed.Num() < Count; ++Attempt)
 		{
 			const FVector Candidate(
@@ -135,8 +158,8 @@ namespace
 			if (World->SpawnActor<AYUFSEvacuationNPC>(NpcClass, Floor.Location + FVector(0, 0, 95.f), Facing, Spawn))
 				Placed.Add(Floor.Location);
 		}
-		UE_LOG(LogTemp, Display, TEXT("[YUFSTestNPC] Placed %d/%d %s inside fire data domain %s"),
-			Placed.Num(), Count, *NpcClass->GetName(), *Domain.ToString());
+		UE_LOG(LogTemp, Display, TEXT("[YUFSTestNPC] Placed %d/%d %s inside fire data domain %s (%d beside level bags)"),
+			Placed.Num(), Count, *NpcClass->GetName(), *Domain.ToString(), BagOwners);
 		// Telemetry for unattended checks: what each NPC perceives and does, every 5 s.
 		FTimerHandle Telemetry;
 		const TWeakObjectPtr<UWorld> WeakWorld(World);

@@ -57,6 +57,32 @@ bool FYUFSBelongingsBagCarryTest::RunTest(const FString&)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSLevelPlacedBagTest,
+	"YUFS.NPC.Belongings.LevelPlacedBagIsClaimedAndRestored",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSLevelPlacedBagTest::RunTest(const FString&)
+{
+	FBelongingsWorldFixture F;
+	AActor* Owner = F.SpawnCarrier(FVector(0, 0, 90));
+	AActor* Other = F.SpawnCarrier(FVector(200, 0, 90));
+	FActorSpawnParameters Spawn;
+	Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	auto* Bag = F.World->SpawnActor<AYUFSBelongingsBag>(FVector(100, 50, 20), FRotator(0, 30, 0), Spawn);
+	if (!TestNotNull(TEXT("bag spawns"), Bag)) return false;
+	TestTrue(TEXT("a bag without an owner actor counts as level-placed"), Bag->IsLevelPlaced());
+	TestTrue(TEXT("first NPC claims the level bag"), Bag->Claim(Owner));
+	TestFalse(TEXT("a claimed bag cannot be claimed again"), Bag->Claim(Other));
+	TestTrue(TEXT("owner carries it"), Bag->AttachToCarrier(Owner));
+	Owner->SetActorLocation(FVector(2000, 0, 90));
+	Bag->ReleaseToHome();
+	TestFalse(TEXT("released bag is on the floor again"), Bag->IsCarried());
+	TestNull(TEXT("released bag is detached"), Bag->GetAttachParentActor());
+	TestTrue(TEXT("released bag is back on the designer's spot"), Bag->GetActorLocation().Equals(FVector(100, 50, 20), 0.5f));
+	TestFalse(TEXT("released bag has no owner"), Bag->IsClaimed());
+	TestTrue(TEXT("another NPC can claim it next episode"), Bag->Claim(Other));
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSBelongingsComponentContractTest,
 	"YUFS.NPC.Belongings.RetrievalComponentContract",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
