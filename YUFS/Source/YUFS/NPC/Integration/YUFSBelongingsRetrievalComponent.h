@@ -72,11 +72,32 @@ public:
 
 	/** Seconds of evacuation before the NPC remembers the bag (min, max). */
 	UPROPERTY(EditAnywhere, Category="NPC|Belongings")
-	FVector2D RememberDelaySeconds = FVector2D(3.f, 8.f);
+	FVector2D RememberDelaySeconds = FVector2D(1.5f, 4.f);
+
+	/** Reaching this close to an exit makes the NPC remember the bag at once (noticed at the door). */
+	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="0.0"))
+	float RememberNearExitCm = 900.f;
+
+	/**
+	 * After remembering the bag the NPC keeps weighing it up for this long: a moment that
+	 * looks unsafe (a puff of smoke, a risk spike) makes it hesitate, not give up for good.
+	 * Only when the window closes without a safe moment is the bag abandoned.
+	 */
+	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="0.0"))
+	float DecisionWindowSeconds = 15.f;
 
 	/** Perceived risk above which the NPC will not turn back. Observed smoke/heat always aborts. */
 	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="0.0", ClampMax="1.0"))
 	float MaxRiskToReturn = 0.85f;
+
+	/**
+	 * Scenario design value: share of bag owners for whom general unease (perceived risk) is
+	 * not a reason to leave the bag - only smoke or heat they actually see stops them.
+	 * Risk perception saturates quickly once a fire is noticed, so without this almost nobody
+	 * would ever go back.
+	 */
+	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float RiskIgnoringShare = 0.5f;
 
 	/** A return path longer than this is not worth it. */
 	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="100.0"))
@@ -108,7 +129,8 @@ private:
 	bool PlaceBag();
 	bool ClaimLevelBag();
 	FVector GetEpisodeOrigin() const;
-	bool IsReturnSafe(const FYUFSNPCObservation& Observation, FName& OutReason) const;
+	/** bCommitted: already on the way back - general unease no longer stops it, only observed cues do. */
+	bool IsReturnSafe(const FYUFSNPCObservation& Observation, FName& OutReason, bool bCommitted = false) const;
 	bool HasSafeReturnPath(FName& OutReason) const;
 	/** Danger the NPC has actually observed; unobserved or missing data is not treated as known danger. */
 	bool IsObservedDangerAlong(const TArray<FVector>& FloorPoints) const;
@@ -128,6 +150,9 @@ private:
 	float PickupElapsed = 0.f;
 	float HazardRecheckTimer = 0.f;
 	float FailedPathSeconds = 0.f;
+	float NextDecisionAt = -1.f;
+	bool bIgnoresRisk = false;
+	FName HesitationReason = NAME_None;
 	int64 ExecutionRevision = 0;
 	bool bRolled = false;
 	bool bWantsBag = false;

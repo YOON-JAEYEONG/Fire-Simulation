@@ -10,6 +10,7 @@
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "Fire/YUFSHazardField.h"
 #include "Level/YUFSLevelDataManager.h"
+#include "Level/YUFSExitPoint.h"
 #include "Props/YUFSBelongingsBag.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NavigationPath.h"
@@ -53,6 +54,7 @@ void UYUFSBelongingsRetrievalComponent::RollForEpisode()
 	const float MinDelay = FMath::Max(0.f, FMath::Min(RememberDelaySeconds.X, RememberDelaySeconds.Y));
 	const float MaxDelay = FMath::Max(MinDelay, FMath::Max(RememberDelaySeconds.X, RememberDelaySeconds.Y));
 	RememberDelay = Stream.FRandRange(MinDelay, MaxDelay);
+	bIgnoresRisk = Stream.FRand() < FMath::Clamp(RiskIgnoringShare, 0.f, 1.f);
 }
 
 FVector UYUFSBelongingsRetrievalComponent::GetEpisodeOrigin() const
@@ -143,7 +145,7 @@ void UYUFSBelongingsRetrievalComponent::PublishOpportunity() const
 	Team->SubmitInteractionOpportunities(Snapshot);
 }
 
-bool UYUFSBelongingsRetrievalComponent::IsReturnSafe(const FYUFSNPCObservation& Observation, FName& OutReason) const
+bool UYUFSBelongingsRetrievalComponent::IsReturnSafe(const FYUFSNPCObservation& Observation, FName& OutReason, bool bCommitted) const
 {
 	OutReason = NAME_None;
 	const auto* State = Npc.IsValid() ? Npc->GetBehaviorStateMachine() : nullptr;
@@ -156,7 +158,9 @@ bool UYUFSBelongingsRetrievalComponent::IsReturnSafe(const FYUFSNPCObservation& 
 	if (Observation.SmokeDensityAtSelf > SmokeLimit) { OutReason = TEXT("ObservedSmoke"); return false; }
 	if (FMath::Max(Observation.TemperatureAtSelf, Observation.NearbyHeatNormalized) >= HeatLimit)
 	{ OutReason = TEXT("ObservedHeat"); return false; }
-	if (State->GetRiskPerception() > MaxRiskToReturn) { OutReason = TEXT("PerceivedRiskTooHigh"); return false; }
+	// Perceived risk decides whether to turn back at all. Once on the way, people push on
+	// for their things unless they actually see smoke or feel heat (checked above/along the path).
+	if (!bCommitted && !bIgnoresRisk && State->GetRiskPerception() > MaxRiskToReturn) { OutReason = TEXT("PerceivedRiskTooHigh"); return false; }
 	if (Observation.bReceivedStaffGuidance || Npc->HasReceivedStaffGuidance())
 	{ OutReason = TEXT("StaffGuidance"); return false; }
 	return true;
@@ -236,12 +240,35 @@ void UYUFSBelongingsRetrievalComponent::Observe(float DeltaTime, const FYUFSNPCO
 		return;
 	const float Now = GetWorld()->GetTimeSeconds();
 	if (EvacuationStartedAt < 0.f) EvacuationStartedAt = Now;
-	if (Now - EvacuationStartedAt < RememberDelay) return;
+	// People often notice the missing bag only at the door. Someone close to an exit
+	// remembers now, before walking out, even if the remember delay has not elapsed yet.
+	bool bNearExit = false;
+	for (TActorIterator<AYUFSExitPoint> It(GetWorld()); It && !bNearExit; ++It)
+		bNearExit = FVector::Dist2D(It->GetActorLocation(), Npc->GetActorLocation()) < RememberNearExitCm
+			&& FMath::Abs(It->GetActorLocation().Z - Npc->GetActorLocation().Z) < 200.f;
+	if (!bNearExit && Now - EvacuationStartedAt < RememberDelay) return;
+	if (bNearExit && Now - EvacuationStartedAt < RememberDelay)
+		EvacuationStartedAt = Now - RememberDelay; // decision window starts now
 
-	// Remembered the bag: decide once whether to go back for it.
+	// Remembered the bag: keep weighing it up (about once a second) until a safe moment or
+	// until the decision window closes. One unsafe instant is hesitation, not a final no.
+	if (Now < NextDecisionAt) return;
+	NextDecisionAt = Now + 1.f;
 	FName Reason;
 	if (!IsReturnSafe(Observation, Reason) || !HasSafeReturnPath(Reason))
 	{
+		// Unreachable or too far will not change by waiting.
+		const bool bFinal = Reason == TEXT("BagUnreachable") || Reason == TEXT("BagTooFar")
+			|| Reason == TEXT("StaffGuidance") || Reason == TEXT("Incapacitated")
+			|| Now - EvacuationStartedAt - RememberDelay >= DecisionWindowSeconds;
+		if (!bFinal)
+		{
+			if (HesitationReason != Reason)
+				UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] %s remembered the bag and hesitates: %s"),
+					*Npc->GetName(), *Reason.ToString());
+			HesitationReason = Reason;
+			return;
+		}
 		Phase = EYUFSBelongingsRetrievalPhase::Abandoned;
 		LastStopReason = Reason;
 		PublishOpportunity();
@@ -281,7 +308,7 @@ bool UYUFSBelongingsRetrievalComponent::Execute(float DeltaTime)
 	}
 
 	FName Reason;
-	if (!IsReturnSafe(Npc->GetLastObservation(), Reason)) { Finish(false, Reason, true); return false; }
+	if (!IsReturnSafe(Npc->GetLastObservation(), Reason, true)) { Finish(false, Reason, true); return false; }
 	const float Now = GetWorld()->GetTimeSeconds();
 	if (Now - PhaseStartedAt > MaxRetrievalSeconds) { Finish(false, TEXT("RetrievalTimeBudgetReached"), true); return false; }
 	auto* Navigator = Npc->GetNavigator();
@@ -381,6 +408,8 @@ void UYUFSBelongingsRetrievalComponent::ResetForEpisode()
 	MovementTarget = FVector::ZeroVector;
 	LastStopReason = NAME_None;
 	EvacuationStartedAt = -1.f;
+	NextDecisionAt = -1.f;
+	HesitationReason = NAME_None;
 	PhaseStartedAt = PickupElapsed = 0.f;
 	ExecutionRevision = 0;
 	bRolled = false;

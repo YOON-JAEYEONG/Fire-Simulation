@@ -17,6 +17,9 @@
 #include "Fire/YUFSBinaryManager.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "Level/YUFSExitPoint.h"
+#include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
+#include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
+#include "NPC/Navigation/YUFSLocalMovementComponent.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "Misc/ConfigCacheIni.h"
@@ -186,13 +189,19 @@ namespace
 						*Snap.GridToWorld.InverseTransformPosition(Eye).ToCompactString(), S.Smoke);
 					break;
 				}
-				UE_LOG(LogTemp, Display, TEXT("[YUFSTestNPC] t=%.0f %s state=%s action=%s smoke=%.2f heat=%.2f risk=%.2f exposure=%.2f speed=%.0f hidden=%d bag=%s direct=[%s] pos=%s"),
+				const auto* Env = It->FindComponentByClass<UYUFSNpcEnvironmentInteraction>();
+				const auto* Nav = It->GetNavigator();
+				const auto* Local = It->GetLocalMovement();
+				UE_LOG(LogTemp, Display, TEXT("[YUFSTestNPC] t=%.0f %s state=%s action=%s smoke=%.2f heat=%.2f risk=%.2f exposure=%.2f speed=%.0f hidden=%d bag=%s nav=%s local=%s env=%d/%d direct=[%s] pos=%s"),
 					W->GetTimeSeconds(), *It->GetName(),
 					*StaticEnum<EYUFSBehaviorState>()->GetNameStringByValue(int64(O.CurrentState)),
 					*StaticEnum<EYUFSAction>()->GetNameStringByValue(int64(It->GetLastAction())),
 					O.SmokeDensityAtSelf, FMath::Max(O.TemperatureAtSelf, O.NearbyHeatNormalized), O.RiskPerception,
 					O.SmokeExposureAccumulated, It->GetVelocity().Size2D(), It->IsHidden() ? 1 : 0,
 					Bag ? *StaticEnum<EYUFSBelongingsRetrievalPhase>()->GetNameStringByValue(int64(Bag->GetPhase())) : TEXT("-"),
+					Nav ? *StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(int64(Nav->GetNavigationStatus())) : TEXT("-"),
+					Local ? *StaticEnum<EYUFSLocalMovementState>()->GetNameStringByValue(int64(Local->GetState())) : TEXT("-"),
+					Env && Env->IsActive() ? 1 : 0, Env && Env->NeedsMovement() ? 1 : 0,
 					*Direct, *It->GetActorLocation().ToCompactString());
 			}
 			int32 BinFrame = INDEX_NONE; FString Status = TEXT("NoBinary"); int32 PeakSmoke = 0, SmokeCells = 0;
