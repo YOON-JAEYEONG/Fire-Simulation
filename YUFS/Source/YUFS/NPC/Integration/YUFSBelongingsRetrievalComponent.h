@@ -131,9 +131,11 @@ public:
 	 * A bag placed in the level within this distance of where the NPC starts becomes that NPC's
 	 * left-behind bag (nearest unclaimed one, same floor). When a level has placed bags, no extra
 	 * bags are spawned at random, so the designer's placement is exactly what appears.
+	 * Wide on purpose: the owner starts empty-handed somewhere else in the room or corridor
+	 * and has to walk over to fetch the bag before leaving.
 	 */
 	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="50.0"))
-	float LevelBagClaimRadiusCm = 800.f;
+	float LevelBagClaimRadiusCm = 1700.f;
 
 protected:
 	virtual void BeginPlay() override;

@@ -122,20 +122,28 @@ namespace
 		FRandomStream Rng(20260927);
 		TArray<FVector> Placed;
 		const FVector Size = Domain.GetSize();
-		// Level-placed bags first: put one NPC beside each so every bag in the map has an owner.
+		// Level-placed bags first: every bag gets an owner who starts empty-handed some 11-16 m
+		// away, so the run shows "walk to the bag -> pick it up -> evacuate with it".
 		for (TActorIterator<AYUFSBelongingsBag> It(World); It && Placed.Num() < Count; ++It)
 		{
 			if (!It->IsLevelPlaced() || It->IsClaimed()) continue;
 			const FVector BagFloor = It->GetPickupLocation();
-			for (int32 Try = 0; Try < 8; ++Try)
+			for (int32 Try = 0; Try < 48; ++Try)
 			{
-				const FVector Probe = BagFloor + FRotator(0.f, Try * 45.f, 0.f).Vector() * 110.f + FVector(0, 0, 40.f);
+				const float Distance = Rng.FRandRange(1100.f, 1600.f);
+				const FVector Probe = BagFloor + FRotator(0.f, Try * 37.f, 0.f).Vector() * Distance + FVector(0, 0, 40.f);
 				FNavLocation Floor;
-				if (!Nav->ProjectPointToNavigation(Probe, Floor, FVector(60.f, 60.f, 120.f))
-					|| FMath::Abs(Floor.Location.Z - BagFloor.Z) > 60.f) continue;
+				if (!Nav->ProjectPointToNavigation(Probe, Floor, FVector(80.f, 80.f, 120.f))
+					|| FMath::Abs(Floor.Location.Z - BagFloor.Z) > 60.f
+					|| FVector::Dist2D(Floor.Location, BagFloor) < 1000.f
+					|| Placed.ContainsByPredicate([&Floor](const FVector& P) { return FVector::DistSquared(P, Floor.Location) < FMath::Square(150.f); }))
+					continue;
+				// The walk to the bag must exist and stay within the NPC's return budget (35 m).
+				const UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(World, Floor.Location, BagFloor);
+				if (!Path || !Path->IsValid() || Path->IsPartial() || Path->GetPathLength() > 3000.f) continue;
 				FActorSpawnParameters Spawn;
 				Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-				const FRotator Facing(0.f, (BagFloor - Floor.Location).Rotation().Yaw, 0.f);
+				const FRotator Facing(0.f, Rng.FRandRange(-180.f, 180.f), 0.f);
 				if (World->SpawnActor<AYUFSEvacuationNPC>(NpcClass, Floor.Location + FVector(0, 0, 95.f), Facing, Spawn))
 				{
 					Placed.Add(Floor.Location);

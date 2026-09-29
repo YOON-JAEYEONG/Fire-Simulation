@@ -47,7 +47,7 @@ void UYUFSBelongingsRetrievalComponent::DrawDebugLabels() const
 	FColor Color = FColor::White;
 	switch (Phase)
 	{
-	case EYUFSBelongingsRetrievalPhase::LeftBehind: Label = TEXT("BAG LEFT BEHIND"); Color = FColor(200, 200, 200); break;
+	case EYUFSBelongingsRetrievalPhase::LeftBehind: Label = TEXT("NO BAG YET"); Color = FColor(200, 200, 200); break;
 	case EYUFSBelongingsRetrievalPhase::Returning:  Label = TEXT("<< GOING BACK FOR BAG"); Color = FColor::Yellow; break;
 	case EYUFSBelongingsRetrievalPhase::PickingUp:  Label = TEXT("PICKING UP BAG"); Color = FColor::Orange; break;
 	case EYUFSBelongingsRetrievalPhase::Carrying:   Label = TEXT("CARRYING BAG >>"); Color = FColor::Green; break;
