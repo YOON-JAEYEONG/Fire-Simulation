@@ -16,6 +16,8 @@
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
 #include "Engine/World.h"
+#include "DrawDebugHelpers.h"
+#include "Misc/CommandLine.h"
 #include "EngineUtils.h"
 
 namespace
@@ -32,6 +34,36 @@ void UYUFSBelongingsRetrievalComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
+	if (FParse::Param(FCommandLine::Get(), TEXT("YUFSShowBelongings"))
+		|| FCString::Strifind(FCommandLine::Get(), TEXT("-YUFSSpawnTestNPCs")))
+		bShowDebugLabels = true;
+}
+
+void UYUFSBelongingsRetrievalComponent::DrawDebugLabels() const
+{
+#if ENABLE_DRAW_DEBUG
+	if (!bShowDebugLabels || !Npc.IsValid() || !Bag.IsValid() || !GetWorld()) return;
+	const TCHAR* Label = nullptr;
+	FColor Color = FColor::White;
+	switch (Phase)
+	{
+	case EYUFSBelongingsRetrievalPhase::LeftBehind: Label = TEXT("BAG LEFT BEHIND"); Color = FColor(200, 200, 200); break;
+	case EYUFSBelongingsRetrievalPhase::Returning:  Label = TEXT("<< GOING BACK FOR BAG"); Color = FColor::Yellow; break;
+	case EYUFSBelongingsRetrievalPhase::PickingUp:  Label = TEXT("PICKING UP BAG"); Color = FColor::Orange; break;
+	case EYUFSBelongingsRetrievalPhase::Carrying:   Label = TEXT("CARRYING BAG >>"); Color = FColor::Green; break;
+	case EYUFSBelongingsRetrievalPhase::Abandoned:  Label = TEXT("GAVE UP BAG"); Color = FColor::Red; break;
+	default: return;
+	}
+	if (Phase == EYUFSBelongingsRetrievalPhase::Carrying && !Bag->IsCarried()) return; // already left the building
+	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 120.f), Label, Npc.Get(), Color, 0.f, true, 1.3f);
+	if (Phase == EYUFSBelongingsRetrievalPhase::Returning || Phase == EYUFSBelongingsRetrievalPhase::PickingUp)
+	{
+		// Line from the NPC to its bag, and a marker over the bag itself.
+		DrawDebugLine(GetWorld(), Npc->GetActorLocation(), Bag->GetActorLocation(), Color, false, 0.f, 0, 3.f);
+		DrawDebugString(GetWorld(), Bag->GetActorLocation() + FVector(0.f, 0.f, 60.f), TEXT("THIS BAG"),
+			nullptr, Color, 0.f, true, 1.1f);
+	}
+#endif
 }
 
 void UYUFSBelongingsRetrievalComponent::EndPlay(const EEndPlayReason::Type Reason)
@@ -233,6 +265,7 @@ void UYUFSBelongingsRetrievalComponent::Observe(float DeltaTime, const FYUFSNPCO
 	if (!Npc.IsValid() || !bEnabled || Npc->bUseExternalNavigationDriver) return;
 	PrepareForEpisode();
 	if (!bWantsBag) return;
+	DrawDebugLabels();
 	if (Phase != EYUFSBelongingsRetrievalPhase::LeftBehind || !Bag.IsValid()) return;
 
 	const auto* State = Npc->GetBehaviorStateMachine();
@@ -247,6 +280,15 @@ void UYUFSBelongingsRetrievalComponent::Observe(float DeltaTime, const FYUFSNPCO
 		bNearExit = FVector::Dist2D(It->GetActorLocation(), Npc->GetActorLocation()) < RememberNearExitCm
 			&& FMath::Abs(It->GetActorLocation().Z - Npc->GetActorLocation().Z) < 200.f;
 	if (!bNearExit && Now - EvacuationStartedAt < RememberDelay) return;
+	// Remember only once the bag is properly behind: a turn-back after two steps is invisible.
+	const bool bFarFromBag = FVector::Dist2D(Npc->GetActorLocation(), Bag->GetActorLocation()) >= MinRememberDistanceCm;
+	// Even at the door the bag has to be a few metres back, or the turn-back is not visible.
+	bNearExit = bNearExit && FVector::Dist2D(Npc->GetActorLocation(), Bag->GetActorLocation()) >= 400.f;
+	if (!bNearExit && !bFarFromBag)
+	{
+		EvacuationStartedAt = FMath::Max(EvacuationStartedAt, Now - RememberDelay); // window opens when far enough
+		return;
+	}
 	if (bNearExit && Now - EvacuationStartedAt < RememberDelay)
 		EvacuationStartedAt = Now - RememberDelay; // decision window starts now
 

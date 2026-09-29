@@ -79,6 +79,21 @@ public:
 	float RememberNearExitCm = 900.f;
 
 	/**
+	 * The NPC remembers the bag only once it has walked at least this far away from it (or has
+	 * reached an exit). Without this the owner turned back after two or three steps, so the
+	 * "went back for the bag" trip was too short to see.
+	 */
+	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="0.0"))
+	float MinRememberDistanceCm = 1000.f;
+
+	/**
+	 * Draw a label over bag owners (left bag / going back / picking up / carrying) and a line
+	 * to the bag while returning. Also switched on by -YUFSShowBelongings or -YUFSSpawnTestNPCs.
+	 */
+	UPROPERTY(EditAnywhere, Category="NPC|Belongings")
+	bool bShowDebugLabels = false;
+
+	/**
 	 * After remembering the bag the NPC keeps weighing it up for this long: a moment that
 	 * looks unsafe (a puff of smoke, a risk spike) makes it hesitate, not give up for good.
 	 * Only when the window closes without a safe moment is the bag abandoned.
@@ -135,6 +150,7 @@ private:
 	/** Danger the NPC has actually observed; unobserved or missing data is not treated as known danger. */
 	bool IsObservedDangerAlong(const TArray<FVector>& FloorPoints) const;
 	void BeginReturn();
+	void DrawDebugLabels() const;
 	void Finish(bool bSuccess, FName Reason, bool bResumeEvacuation);
 	void PublishOpportunity() const;
 	void DestroyBag();
