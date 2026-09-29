@@ -44,6 +44,9 @@ bool FYUFSBelongingsBagCarryTest::RunTest(const FString&)
 
 	TestEqual(TEXT("bag starts left behind"), Bag->GetBelongingsState(), EYUFSBelongingsState::LeftBehind);
 	TestEqual(TEXT("bag never blocks pawns or sight"), Bag->Body->GetCollisionEnabled(), ECollisionEnabled::NoCollision);
+	// A Static bag cannot be moved once play has begun, so it would stay on the floor in PIE.
+	TestEqual(TEXT("bag body is movable"), Bag->Body->Mobility.GetValue(), EComponentMobility::Movable);
+	TestEqual(TEXT("bag strap is movable"), Bag->Strap->Mobility.GetValue(), EComponentMobility::Movable);
 	TestTrue(TEXT("pickup point is on the floor below the bag"),
 		Bag->GetPickupLocation().Equals(FVector(100, 0, 0), 0.5f));
 	TestFalse(TEXT("another NPC cannot take someone else's bag"), Bag->AttachToCarrier(Stranger));

@@ -32,6 +32,9 @@ AYUFSBelongingsBag::AYUFSBelongingsBag()
 		if (Cube.Succeeded()) Part->SetStaticMesh(Cube.Object);
 		if (ShapeMaterial.Succeeded()) Part->SetMaterial(0, ShapeMaterial.Object);
 		// Visual target only: never an obstacle for pawns, sight traces or the navmesh.
+		// Static mesh components default to Static mobility, and the engine refuses to attach a
+		// Static component to a moving NPC at runtime -- the bag would stay on the floor.
+		Part->SetMobility(EComponentMobility::Movable);
 		Part->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Part->SetCanEverAffectNavigation(false);
 		Part->SetGenerateOverlapEvents(false);
@@ -95,10 +98,22 @@ bool AYUFSBelongingsBag::AttachToCarrier(AActor* Carrier)
 {
 	if (!IsValid(Carrier) || IsCarried() || (OwnerNpc.IsValid() && OwnerNpc.Get() != Carrier)
 		|| !Carrier->GetRootComponent()) return false;
+	// Bags saved in a map before the mobility fix may still carry Static; lift them first.
+	for (UStaticMeshComponent* Part : { Body.Get(), Strap.Get() })
+	{
+		if (Part && Part->Mobility != EComponentMobility::Movable) Part->SetMobility(EComponentMobility::Movable);
+	}
+	if (!AttachToComponent(Carrier->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[NPCBelongings] %s could not attach to %s"), *GetName(), *Carrier->GetName());
+		return false;
+	}
 	State = EYUFSBelongingsState::Carried;
-	AttachToComponent(Carrier->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
 	SetActorRelativeLocation(CarryOffset);
 	// Upright on the back, strap towards the shoulders.
 	SetActorRelativeRotation(FRotator(0.f, 90.f, 0.f));
+	UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] %s on %s's back (%.0f cm from its centre, parent=%s)"),
+		*GetName(), *Carrier->GetName(), FVector::Dist(GetActorLocation(), Carrier->GetActorLocation()),
+		GetAttachParentActor() ? *GetAttachParentActor()->GetName() : TEXT("none"));
 	return true;
 }
