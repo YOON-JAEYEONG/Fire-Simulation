@@ -29,7 +29,7 @@ LINTEL_GAP = 6.0          # leaf top to lintel
 HINGE_INSET = 8.0         # hinge distance from the west jamb (and latch-side gap)
 MIN_LEAF = 100.0
 NAV_CLEARANCE = 40.0
-DOOR_OPEN_SECONDS = 2.0
+DOOR_OPEN_SECONDS = 1.2   # AYUFSInteractionDoor default; evacuees push the door open quickly
 # Corridor-side wall line of the rooms: north rooms end at y=-800, south rooms at y=-1040.
 SIDES = {"N": (-800.0, +1.0, -400.0), "S": (-1040.0, -1.0, -1440.0)}  # corridor face y, into-room sign, room probe y
 # Bays between partition walls (inner faces), from survey_main_room_doors.py.
@@ -122,8 +122,8 @@ def place(world):
             door = eas.spawn_actor_from_class(door_class, unreal.Vector(left + HINGE_INSET, wall_y, z0 + 1.0),
                                               unreal.Rotator(0.0, 0.0, -90.0))
             door.set_actor_scale3d(unreal.Vector(1.0, leaf / 100.0, 1.0))
-            # 2 s swing (class default 1.2 s): at the editor's few frames per second a faster swing
-            # reads as the door jumping open rather than being pushed open.
+            # Swing time (class default 1.2 s). The NPC walks up to the leaf and reaches for the
+            # handle first, so the opening reads as an action without slowing the evacuation.
             door.set_editor_property("OpenSeconds", DOOR_OPEN_SECONDS)
             door.set_actor_label(tag + "_Door")
             door.set_folder_path("YUFS/RoomDoors")
