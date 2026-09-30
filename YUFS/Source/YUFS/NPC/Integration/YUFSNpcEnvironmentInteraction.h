@@ -43,6 +43,8 @@ public:
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="30.0")) float DoorStandDistanceCm=70.f;
  /** Give up walking closer after this long (blocked, yielding) and open it from where the NPC stands. */
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="0.0")) float DoorApproachSeconds=3.f;
+ /** Let go of a door whose swing has been blocked (someone in the arc) this long, then retry later. */
+ UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="0.1")) float DoorSwingBlockedGiveUpSeconds=1.5f;
 protected:
  virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:
@@ -52,7 +54,7 @@ private:
  void UpdateLocalPose(const FVector& FacingTarget, EYUFSAction Action, float Dt);
  TWeakObjectPtr<AYUFSEvacuationNPC> Npc, Person, Helper;
  TWeakObjectPtr<AYUFSInteractionDoor> Door;
- float Scan=0.f, Elapsed=0.f, Contact=0.f, RetryAt=0.f;
+ float Scan=0.f, Elapsed=0.f, Contact=0.f, RetryAt=0.f, SwingBlockedSeconds=0.f;
  int64 RequestRevision=0;
  EYUFSInteractionGoal ActiveGoal=EYUFSInteractionGoal::None;
  FName ActiveTargetId=NAME_None;

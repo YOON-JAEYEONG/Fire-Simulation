@@ -17,6 +17,27 @@
 #include "Core/YUFSObservation.h"
 
 UYUFSNpcEnvironmentInteraction::UYUFSNpcEnvironmentInteraction() { PrimaryComponentTick.bCanEverTick=false; }
+namespace
+{
+ /** True when the route from From through Points passes through this doorway (crosses the leaf plane between the jambs). */
+ bool RouteGoesThroughDoor(const FVector& From, const TArray<FVector>& Points, int32 FirstPoint, const AYUFSInteractionDoor* Door)
+ {
+  const FTransform DoorFrame=Door->GetActorTransform();
+  FVector Previous=DoorFrame.InverseTransformPosition(From);
+  for (int32 Index=FMath::Max(0,FirstPoint); Index<Points.Num(); ++Index)
+  {
+   const FVector Local=DoorFrame.InverseTransformPosition(Points[Index]);
+   // Local X is the leaf normal, local Y runs 0..100 across the (scaled) leaf.
+   if ((Previous.X<=0.f)!=(Local.X<=0.f) && !FMath::IsNearlyEqual(Previous.X,Local.X))
+   {
+    const float Across=FMath::Lerp(Previous.Y,Local.Y,Previous.X/(Previous.X-Local.X));
+    if (Across>=-10.f && Across<=110.f) return true;
+   }
+   Previous=Local;
+  }
+  return false;
+ }
+}
 bool UYUFSNpcEnvironmentInteraction::TryReserveHelper(AYUFSEvacuationNPC* Candidate)
 {
  if (!IsValid(Candidate) || Candidate==GetOwner() || !NeedsHelp() || (Helper.IsValid() && Helper.Get()!=Candidate)) return false;
@@ -83,6 +104,15 @@ void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
   if (!Direction.IsNearlyZero() && GetWorld()->SweepSingleByChannel(Hit,Start,End,FQuat::Identity,ECC_Visibility,
       FCollisionShape::MakeSphere(Radius),Params)) Door=Cast<AYUFSInteractionDoor>(Hit.GetActor());
   if (Door.IsValid() && (!Door->IsUserInReach(Npc.Get()) || !Visible(Door.Get()))) Door.Reset();
+  // A door beside the route (walking along a corridor wall full of room doors) is not on it.
+  // Only a route that goes through the doorway makes this door the next obstacle; otherwise a
+  // passer-by grabbed a room door and blocked the occupants trying to come out through it.
+  if (Door.IsValid())
+  {
+   const TArray<FVector>& Points=Nav->GetCurrentPathPoints();
+   const int32 Next=Points.IndexOfByPredicate([&](const FVector& P){ return P.Equals(Nav->GetNextWaypoint(),1.f); });
+   if (!RouteGoesThroughDoor(Npc->GetActorLocation(),Points,Next,Door.Get())) Door.Reset();
+  }
  }
  float Best=FLT_MAX;
  for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
@@ -141,7 +171,7 @@ void UYUFSNpcEnvironmentInteraction::Finish(bool Success,FName Reason)
  }
  bActive=false; bApproaching=false; bAtDoor=false; ActiveGoal=EYUFSInteractionGoal::None; ActiveTargetId=NAME_None;
  Door.Reset(); Person.Reset();
- Elapsed=Contact=0; RetryAt=GetWorld()->GetTimeSeconds()+2.f; Scan=0;
+ Elapsed=Contact=0; SwingBlockedSeconds=0.f; RetryAt=GetWorld()->GetTimeSeconds()+2.f; Scan=0;
 }
 bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
 {
@@ -222,6 +252,11 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
   if (!Aligned) { Contact=0.f; return true; }
   Contact+=Dt;
   if (Contact>=DoorReachSeconds && !Door->TryUse(Npc.Get())) Finish(false,TEXT("DoorBecameUnavailable"));
+  // Someone standing in the swing arc (often a person on the other side) keeps the leaf shut.
+  // Pushing on for the whole interaction budget looked like grinding against the door; let go,
+  // report the blocked door to the route and try again shortly.
+  SwingBlockedSeconds=Door->IsOpeningBlocked()?SwingBlockedSeconds+Dt:0.f;
+  if (bActive && SwingBlockedSeconds>=DoorSwingBlockedGiveUpSeconds) Finish(false,TEXT("DoorSwingBlocked"));
   return true;
  }
  if (!Person.IsValid()) { Finish(false,TEXT("PersonLost")); return true; }
