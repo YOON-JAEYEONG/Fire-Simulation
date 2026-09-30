@@ -43,6 +43,9 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	/** Logs any fall of more than a stair step (off a landing or into a stairwell). */
+	virtual void Falling() override;
+	virtual void Landed(const FHitResult& Hit) override;
 
 	UFUNCTION()
 	void OnCommReceived(EYUFSCommType CommType, FVector SourceLocation, float EffectiveRadius, FVector GuidanceTarget);
@@ -258,6 +261,11 @@ private:
 
 	// ── 스턱 감지 ─────────────────────────────────────────────────────
 	float StuckTimer = 0.f;
+	FVector FallStartLocation = FVector::ZeroVector;
+	bool bFallStarted = false;
+	/** Walking a route with no progress at all (and not waiting for anyone) for this long: wedged. */
+	float NoProgressSeconds = 0.f;
+	FVector NoProgressAnchor = FVector::ZeroVector;
 	FVector LastMovementSampleLocation = FVector::ZeroVector;
 	bool bHasMovementSample = false;
 
@@ -320,6 +328,19 @@ private:
 	void FlushLearningTransition(const FYUFSNPCObservation& NextObs, EYUFSTerminalReason TerminalReason);
 	EYUFSTerminalReason GetCurrentTerminalReason() const;
 	void UpdateStuckDetection(float DeltaTime);
+	/**
+	 * The navmesh is built for a 144 cm agent, the capsule is taller: where a route passes under a
+	 * lower ceiling (under a stair landing) the NPC ducks through instead of pushing against it.
+	 */
+	void UpdateDucking();
+	bool IsLowCeilingAhead() const;
+	/**
+	 * Last resort for an NPC wedged where the navmesh and the collision disagree (on top of a stair
+	 * divider, against a landing's edge): after UnstickAfterSeconds without any progress, put it
+	 * back on the navmesh next to it, or a short way along its route.
+	 */
+	bool PutBackOnRoute();
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation") float UnstickAfterSeconds = 6.f;
 	void TickEverydayBehavior(float DeltaTime);
 	void ChooseNextEverydayActivity();
 	void BeginEverydayIdle();

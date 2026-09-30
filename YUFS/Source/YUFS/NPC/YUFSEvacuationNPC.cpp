@@ -1,6 +1,8 @@
 #include "NPC/YUFSEvacuationNPC.h"
 
 #include "AIController.h"
+#include "NavigationSystem.h"
+#include "NavigationData.h"
 #include "NPC/Navigation/YUFSLocalMovementComponent.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NPC/Behavior/YUFSBehaviorConfig.h"
@@ -70,6 +72,11 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 		GetCharacterMovement()->bUseRVOAvoidance = true;
 		GetCharacterMovement()->AvoidanceConsiderationRadius = 300.f;
 		GetCharacterMovement()->AvoidanceWeight = 0.75f;
+		// Ducking brings the capsule down to the navmesh agent height (144 cm), so every place the
+		// navmesh lets an NPC walk is one it can physically get through.
+		GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+		GetCharacterMovement()->SetCrouchedHalfHeight(72.f);
+		GetCharacterMovement()->MaxWalkSpeedCrouched = 160.f;
 	}
 
 	if (UCapsuleComponent* Cap = GetCapsuleComponent())
@@ -87,6 +94,14 @@ void AYUFSEvacuationNPC::BeginPlay()
 	if (BelongingsRetrievalComp) BelongingsRetrievalComp->ResetForEpisode();
 	SpawnLocation = GetActorLocation();
 	BaseWalkSpeed = FMath::Max(200.f,GetCharacterMovement()->MaxWalkSpeed);
+	static bool bLoggedMovementSetup = false;
+	if (!bLoggedMovementSetup && GetCharacterMovement())
+	{
+		bLoggedMovementSetup = true;
+		UE_LOG(LogTemp, Log, TEXT("[YUFS][Traffic] NPC movement: walkOffLedges=%d canDuck=%d duckedHalfHeight=%.0f standingHalfHeight=%.0f radius=%.0f"),
+			GetCharacterMovement()->bCanWalkOffLedges ? 1 : 0, GetCharacterMovement()->CanEverCrouch() ? 1 : 0,
+			GetCharacterMovement()->GetCrouchedHalfHeight(), GetDefaultHalfHeight(), GetCapsuleComponent()->GetScaledCapsuleRadius());
+	}
 	LastMovementSampleLocation = SpawnLocation;
 	bHasMovementSample = true;
 	EverydayRoamOrigin = SpawnLocation;
@@ -529,12 +544,129 @@ void AYUFSEvacuationNPC::StopEverydayBehavior()
 	CurrentNavTarget = FVector::ZeroVector;
 }
 
+void AYUFSEvacuationNPC::Falling()
+{
+	Super::Falling();
+	FallStartLocation = GetActorLocation();
+	bFallStarted = true;
+}
+
+void AYUFSEvacuationNPC::Landed(const FHitResult& Hit)
+{
+	Super::Landed(Hit);
+	if (!bFallStarted) return;
+	bFallStarted = false;
+	const float Drop = FallStartLocation.Z - GetActorLocation().Z;
+	// Spawning a little above the floor is not a fall; anything more than a stair step is.
+	if (Drop > 60.f && SimulationController && SimulationController->GetCurrentPhase() == ESimPhase::FireActive)
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS][Traffic] agent=%s fell %.0f cm from %s to %s"),
+			*GetName(), Drop, *FallStartLocation.ToCompactString(), *GetActorLocation().ToCompactString());
+}
+
+bool AYUFSEvacuationNPC::PutBackOnRoute()
+{
+	UWorld* World = GetWorld();
+	UNavigationSystemV1* NavSys = World ? UNavigationSystemV1::GetCurrent(World) : nullptr;
+	const UCapsuleComponent* Cap = GetCapsuleComponent();
+	if (!NavSys || !Cap || !Navigator) return false;
+	const ANavigationData* NavData = NavSys->GetNavDataForProps(GetNavAgentPropertiesRef(), GetActorLocation());
+	if (!NavData) return false;
+	const float Half = Cap->GetScaledCapsuleHalfHeight();
+	const FVector Feet = GetActorLocation() - FVector(0.f, 0.f, Half);
+	// Off the navmesh (up on a divider, half over an edge): the walkable spot right next to it.
+	FVector Target = FVector::ZeroVector;
+	FNavLocation Projected;
+	if (NavSys->ProjectPointToNavigation(Feet, Projected, FVector(120.f, 120.f, 250.f), NavData)
+		&& FVector::Dist(Projected.Location, Feet) > 15.f)
+		Target = Projected.Location;
+	else
+	{
+		// On the navmesh but physically wedged: a short way along the route.
+		const FVector Next = Navigator->GetNextWaypoint();
+		FVector Step = Next - Feet; Step.Z = 0.f;
+		if (Step.IsNearlyZero()) return false;
+		const FVector Ahead = Feet + Step.GetClampedToMaxSize(120.f);
+		if (!NavSys->ProjectPointToNavigation(Ahead, Projected, FVector(60.f, 60.f, 150.f), NavData)) return false;
+		Target = Projected.Location;
+	}
+	FVector Centre = Target + FVector(0.f, 0.f, Half + 5.f);
+	if (!World->FindTeleportSpot(this, Centre, GetActorRotation())) return false;
+	const FVector From = GetActorLocation();
+	SetActorLocation(Centre, false, nullptr, ETeleportType::TeleportPhysics);
+	GetCharacterMovement()->StopMovementImmediately();
+	if (LocalMovement) LocalMovement->Reset();
+	Navigator->ReplanPath(GetCurrentSimFrame(), EYUFSRepathReason::Stuck);
+	UE_LOG(LogTemp, Warning, TEXT("[YUFS][Traffic] agent=%s was wedged for %.0fs at %s: put back on its route at %s"),
+		*GetName(), UnstickAfterSeconds, *From.ToCompactString(), *Centre.ToCompactString());
+	return true;
+}
+
+bool AYUFSEvacuationNPC::IsLowCeilingAhead() const
+{
+	const UCapsuleComponent* Cap = GetCapsuleComponent();
+	const UCharacterMovementComponent* Mv = GetCharacterMovement();
+	if (!Cap || !Mv || !Navigator || !Navigator->IsFollowingPath() || !GetWorld()) return false;
+	FVector Dir = Navigator->GetSteeringTarget(GetActorLocation(), 120.f) - GetActorLocation();
+	Dir.Z = 0.f;
+	if (!Dir.Normalize()) return false;
+	const float Radius = FMath::Max(5.f, Cap->GetScaledCapsuleRadius() - 1.f);
+	const float Standing = GetDefaultHalfHeight();
+	const float Ducked = FMath::Min(Standing, Mv->GetCrouchedHalfHeight());
+	const FVector Feet = GetActorLocation() - FVector(0.f, 0.f, Cap->GetScaledCapsuleHalfHeight());
+	const FVector Ahead = Dir * 50.f;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSLowCeiling), false, this);
+	// Standing up, something ahead is at head height (a wall or a person is not a low ceiling)...
+	FHitResult Hit;
+	const FVector Stand = Feet + FVector(0.f, 0.f, Standing + 2.f);
+	if (!GetWorld()->SweepSingleByProfile(Hit, Stand, Stand + Ahead, FQuat::Identity, Cap->GetCollisionProfileName(),
+		FCollisionShape::MakeCapsule(Radius, Standing - 1.f), Params)) return false;
+	if (Hit.ImpactPoint.Z < Feet.Z + 2.f * Ducked - 5.f) return false;
+	// ...and ducked down, the way on is clear.
+	const FVector Duck = Feet + FVector(0.f, 0.f, Ducked + 2.f);
+	return !GetWorld()->SweepTestByProfile(Duck, Duck + Ahead, FQuat::Identity, Cap->GetCollisionProfileName(),
+		FCollisionShape::MakeCapsule(Radius, Ducked - 1.f), Params);
+}
+
+void AYUFSEvacuationNPC::UpdateDucking()
+{
+	const UCharacterMovementComponent* Mv = GetCharacterMovement();
+	if (!Mv || !Mv->CanEverCrouch() || bTimelinePlaybackMode) return;
+	const bool bNavigating = Navigator && Navigator->IsFollowingPath();
+	if (bIsCrouched)
+	{
+		// Stand up once past it: the movement component keeps the NPC ducked until there is room.
+		if (!bNavigating || !IsLowCeilingAhead()) UnCrouch();
+		return;
+	}
+	if (bNavigating && Mv->IsMovingOnGround() && GetVelocity().Size2D() < 0.3f * FMath::Max(1.f, Mv->MaxWalkSpeed) && IsLowCeilingAhead())
+	{
+		Crouch();
+		UE_LOG(LogTemp, Log, TEXT("[YUFS][Traffic] agent=%s ducks under a low ceiling at %s"),
+			*GetName(), *GetActorLocation().ToCompactString());
+	}
+}
+
 void AYUFSEvacuationNPC::UpdateStuckDetection(float DeltaTime)
 {
 	UCharacterMovementComponent* Mv = GetCharacterMovement();
 	if (!Mv || !Navigator) return;
 
 	const FVector Pos = GetActorLocation();
+	// Wedged: a route in progress, no 40 cm of progress, and not because of waiting in traffic
+	// (that pauses the clock) or holding still for a door, a bag or a helper.
+	const EYUFSNavigationStatus NavStatus = Navigator->GetNavigationStatus();
+	const bool bOnRoute = NavStatus == EYUFSNavigationStatus::Moving || NavStatus == EYUFSNavigationStatus::Pathfinding;
+	if (!bOnRoute || IsInteractionHoldingPosition() || FVector::Dist(Pos, NoProgressAnchor) > 40.f)
+	{
+		NoProgressSeconds = 0.f;
+		NoProgressAnchor = Pos;
+	}
+	else if (!LocalMovement->IsDeliberatelyWaiting() && (NoProgressSeconds += DeltaTime) > UnstickAfterSeconds)
+	{
+		PutBackOnRoute();
+		NoProgressSeconds = 0.f;
+		NoProgressAnchor = GetActorLocation();
+	}
 	const float MaxSpeed = Mv->MaxWalkSpeed;
 	if (!Navigator->IsFollowingPath() || IsInteractionHoldingPosition() || LocalMovement->IsDeliberatelyWaiting() || MaxSpeed < KINDA_SMALL_NUMBER)
 	{
@@ -934,6 +1066,7 @@ void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& 
 	}
 	PublishTeamDirectives(Observation);
 	ExecuteCurrentAction(DeltaTime);
+	UpdateDucking();
 }
 
 EYUFSAction AYUFSEvacuationNPC::ConstrainActionForIntent(EYUFSAction ProposedAction) const
@@ -1014,6 +1147,7 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 	// Reuse the compatible walking binding for presentation without changing the policy action.
 	const EYUFSAction DisplayAction = bEverydayBehaviorActive && !bActionAnimationPreviewActive
 		? (GetVelocity().Size2D() > 5.f ? EYUFSAction::HelpOther : EYUFSAction::Idle)
+		: !bActionAnimationPreviewActive && LocalMovement && LocalMovement->IsMakingWay() ? EYUFSAction::HelpOther
 		: GetDisplayedAction();
 	const EYUFSBehaviorState DisplayState = bActionAnimationPreviewActive
 		? EYUFSBehaviorState::Normal
@@ -1120,6 +1254,14 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 		}
 	}
 	if (!BehaviorSM || BehaviorSM->IsIncapacitated()) return;
+
+	// Stepping out of the way of someone waiting to get past (this person is not walking anywhere).
+	if (LocalMovement && !IsNavigationAction(CurrentAction) && LocalMovement->TickRecovery(DeltaTime, GetCurrentSimFrame()))
+	{
+		LookAnchorYaw = GetActorRotation().Yaw;
+		LookElapsed = 0.f;
+		return;
+	}
 
 	switch (CurrentAction)
 	{
@@ -1277,6 +1419,10 @@ void AYUFSEvacuationNPC::ResumeEvacuationAfterInteraction()
 FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 {
 	if (!LevelDataMgr) return FVector::ZeroVector;
+	// Crossing smoke toward the least smoky exit: keep going there. Re-choosing an exit every frame
+	// restarts the route and leaves the NPC standing in the smoke.
+	if (Navigator && Navigator->IsEscapingThroughSmoke() && Action != EYUFSAction::HelpOther)
+		return Navigator->GetRequestedDestination();
 	const FVector Pos   = GetActorLocation();
 	const int32   Frame = GetCurrentSimFrame();
 	FVector SafeExit = FVector::ZeroVector;

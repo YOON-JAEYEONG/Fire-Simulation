@@ -115,6 +115,7 @@ void UYUFSSmokeAwareNavigator::StartPathRequest(FVector Destination, int32 Frame
 {
 	CancelPendingRequest();
 	StopOwnerMovement();
+	bSmokeEscape = false;
 	CurrentPath.Reset();
 	CurrentWaypointIndex = 0;
 	RequestedDestination = Destination;
@@ -229,14 +230,65 @@ void UYUFSSmokeAwareNavigator::OnPathFound(uint32 QueryId, ENavigationQueryResul
 			StartPathRequest(RequestedDestination, LatestFrame, EYUFSRepathReason::Smoke);
 			return;
 		}
+		const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+		if (TryAcceptSmokeEscape(LatestSnapshot, Now))
+		{
+			bSmokeEscape = true;
+			CurrentWaypointIndex = 1;
+			FailedPathRetries = 0;
+			UE_LOG(LogTemp, Log,
+				TEXT("[YUFS][Nav] agent=%s no smoke-free route: escaping through smoke to %s (pathMaxSmoke=%.2f, %.1fs after the first refusal)"),
+				*GetNameSafe(GetOwner()), *RequestedDestination.ToCompactString(), LastPathScore.MaxSmoke, Now - SmokeRefusedSince);
+			SetNavigationStatus(EYUFSNavigationStatus::Moving);
+			return;
+		}
 		CurrentPath.Reset();
 		StopOwnerMovement();
 		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::UnsafePath);
 		return;
 	}
+	// A smoke-free route exists again: nothing needs crossing.
+	SmokeRefusedSince = -1.f;
+	SmokeEscapeOptions.Reset();
 	CurrentWaypointIndex = 1;
 	FailedPathRetries = 0;
 	SetNavigationStatus(EYUFSNavigationStatus::Moving);
+}
+
+bool UYUFSSmokeAwareNavigator::TryAcceptSmokeEscape(const FYUFSHazardSnapshot& Snapshot, float Now)
+{
+	if (CurrentPath.Num() < 2) return false;
+	// Smoke may be crossed, fire may not: with the smoke limit lifted the route must be clear of heat.
+	const FYUFSHazardSettings Settings = GetHazardSettings();
+	FYUFSHazardSettings SmokeAllowed = Settings;
+	SmokeAllowed.BlockSmoke = 1.01f; // above any normalised sample
+	if (Snapshot.ScorePath(CurrentPath, SmokeAllowed).bUnsafeAhead) return false;
+
+	if (SmokeRefusedSince < 0.f) SmokeRefusedSince = Now;
+	const float Waited = Now - SmokeRefusedSince;
+	// Remember what this exit costs through the smoke; the cheapest one tried is the one taken.
+	const float Cost = LastPathScore.Length + LastPathScore.AddedCost;
+	float BestOther = FLT_MAX;
+	bool bKnown = false;
+	for (FSmokeEscapeOption& Option : SmokeEscapeOptions)
+	{
+		if (Option.Destination.Equals(RequestedDestination, 100.f)) { Option.Cost = Cost; bKnown = true; }
+		else BestOther = FMath::Min(BestOther, Option.Cost);
+	}
+	if (!bKnown)
+	{
+		if (SmokeEscapeOptions.Num() >= 4) SmokeEscapeOptions.RemoveAt(0);
+		SmokeEscapeOptions.Add({RequestedDestination, Cost});
+	}
+
+	// Already standing in dense smoke: leave almost at once. Otherwise wait a moment for it to clear.
+	const FYUFSHazardSample Here = Snapshot.Sample(GetOwnerFeetLocation() + FVector(0.f, 0.f, Settings.SampleHeightCm));
+	const bool bInDenseSmoke = Here.Status == EYUFSHazardDataStatus::Ready && Here.Smoke >= Settings.BlockSmoke;
+	const float Delay = bInDenseSmoke ? FMath::Min(0.3f, SmokeEscapeAfterSeconds) : SmokeEscapeAfterSeconds;
+	if (Waited < Delay) return false;
+	// Another exit is clearly cheaper through the smoke: refuse this one so it gets chosen instead.
+	// Comparing stops after twice the delay, so the choice cannot keep an NPC standing.
+	return Cost <= BestOther * 1.05f || Waited >= 2.f * FMath::Max(0.3f, Delay);
 }
 
 TArray<FVector> UYUFSSmokeAwareNavigator::BuildRemainingPath() const
@@ -264,6 +316,15 @@ void UYUFSSmokeAwareNavigator::CheckAndReroute(int32 Frame)
 		return;
 	}
 	LastPathScore = Snapshot.ScorePath(BuildRemainingPath(), GetHazardSettings());
+	if (bSmokeEscape)
+	{
+		// Already on the least smoky route out: denser smoke is expected, only fire ahead re-plans.
+		FYUFSHazardSettings SmokeAllowed = GetHazardSettings();
+		SmokeAllowed.BlockSmoke = 1.01f;
+		if (Snapshot.ScorePath(BuildRemainingPath(), SmokeAllowed).bUnsafeAhead)
+			ReplanPath(Frame, EYUFSRepathReason::Smoke);
+		return;
+	}
 	// Compare the same remaining geometry in old/new data to avoid re-requesting an identical route every tick.
 	const auto PreviousScore = QueryHazardSnapshot.ScorePath(BuildRemainingPath(), GetHazardSettings());
 	if (LastPathScore.bUnsafeAhead || LastPathScore.MaxSmoke > FMath::Max(SmokeBlockThreshold, PreviousScore.MaxSmoke + 0.1f) ||
@@ -283,6 +344,9 @@ void UYUFSSmokeAwareNavigator::ClearPath()
 	QueryHazardSnapshot = FYUFSHazardSnapshot();
 	LastPathScore = FYUFSHazardPathScore();
 	FailedPathRetries = 0;
+	bSmokeEscape = false;
+	SmokeRefusedSince = -1.f;
+	SmokeEscapeOptions.Reset();
 	SetNavigationStatus(EYUFSNavigationStatus::Idle);
 }
 
@@ -317,6 +381,28 @@ void UYUFSSmokeAwareNavigator::UpdateWaypoint(FVector ActorLocation, float Accep
 		StopOwnerMovement();
 		SetNavigationStatus(EYUFSNavigationStatus::Arrived);
 	}
+}
+
+bool UYUFSSmokeAwareNavigator::GetRouteDirectionNear(const FVector& FeetLocation, float Tolerance, float MaxAheadCm,
+	FVector& OutDirection) const
+{
+	if (!IsFollowingPath() || !CurrentPath.IsValidIndex(CurrentWaypointIndex)) return false;
+	FVector From = GetOwnerFeetLocation();
+	float Travelled = 0.f;
+	for (int32 Index = CurrentWaypointIndex; Index < CurrentPath.Num() && Travelled < MaxAheadCm; ++Index)
+	{
+		const FVector& To = CurrentPath[Index];
+		const FVector Closest = FMath::ClosestPointOnSegment(FeetLocation, From, To);
+		// Horizontally close to the route and at its height (not on the flight above or below).
+		if (FVector::Dist2D(Closest, FeetLocation) <= Tolerance && FMath::Abs(Closest.Z - FeetLocation.Z) < 100.f)
+		{
+			OutDirection = (To - From).GetSafeNormal2D();
+			return !OutDirection.IsNearlyZero();
+		}
+		Travelled += FVector::Dist(From, To);
+		From = To;
+	}
+	return false;
 }
 
 FVector UYUFSSmokeAwareNavigator::GetOwnerFeetLocation() const

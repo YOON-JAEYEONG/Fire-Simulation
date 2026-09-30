@@ -78,6 +78,12 @@ public:
 	bool IsLocalRecoverySafe(const FVector& FromFeet, const FVector& ToFeet, int32 Frame) const;
 	const TArray<FVector>& GetCurrentPathPoints() const { return CurrentPath; }
 	int32 GetCurrentWaypointIndex() const { return CurrentWaypointIndex; }
+	/**
+	 * FeetLocation lies on the remaining route within Tolerance (and within MaxAheadCm of travel):
+	 * the route's direction there. Lets a walker see that someone around a stair's turn is ahead in
+	 * the same queue even though they currently face the other way.
+	 */
+	bool GetRouteDirectionNear(const FVector& FeetLocation, float Tolerance, float MaxAheadCm, FVector& OutDirection) const;
 
 	// Compatibility for interaction task lifetime tracking; the JJW planner owns generations.
 	uint32 GetRequestGeneration() const { return RequestGeneration; }
@@ -115,6 +121,16 @@ public:
 	int32 MaxFailedPathRetries = 2;
 	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="1.0"))
 	float WaypointHeightTolerance = 150.f;
+	/**
+	 * When every route out crosses dense smoke, standing still is the worst choice: after this long
+	 * (at once when already standing in dense smoke) the least smoky route is taken through it.
+	 * Heat (fire) is still never entered.
+	 */
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation|Hazard", meta=(ClampMin="0.0"))
+	float SmokeEscapeAfterSeconds = 1.5f;
+	/** Following a route through smoke because no smoke-free one exists. */
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	bool IsEscapingThroughSmoke() const { return bSmokeEscape && IsFollowingPath(); }
 
 protected:
 	virtual void BeginPlay() override;
@@ -131,6 +147,15 @@ private:
 	TArray<FVector> BuildRemainingPath() const;
 	FVector GetOwnerFeetLocation() const;
 	FYUFSHazardSettings GetHazardSettings() const;
+	/** The found route crosses dense smoke: take it anyway if smoke is the only danger and nothing better exists. */
+	bool TryAcceptSmokeEscape(const FYUFSHazardSnapshot& Snapshot, float Now);
+
+	bool bSmokeEscape = false;
+	/** World time of the first smoke refusal since the last smoke-free route (-1: none). */
+	float SmokeRefusedSince = -1.f;
+	struct FSmokeEscapeOption { FVector Destination; float Cost; };
+	/** What each exit tried since then costs through the smoke, so the least smoky one is taken. */
+	TArray<FSmokeEscapeOption, TInlineAllocator<4>> SmokeEscapeOptions;
 
 	UPROPERTY()
 	AYUFSLevelDataManager* LevelDataMgr = nullptr;
@@ -156,4 +181,5 @@ private:
 	friend struct FYUFSNavigationTestAccess;
 	friend struct FYUFSCrowdIntegrationAccess;
 	friend struct FYUFSInteractionNavigationTestAccess;
+	friend struct FYUFSSmokeEscapeTestAccess;
 };
