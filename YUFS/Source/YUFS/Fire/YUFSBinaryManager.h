@@ -53,8 +53,24 @@ public:
 	bool IsDatasetAlignmentConfirmed() const { return bDatasetAlignmentConfirmed; }
 	AYUFSHeterogeneousVolume* GetHeterogeneousVolume() const { return HeterogeneousVolume; }
 
+	// ── 건물(월드) 고정 격자 ─────────────────────────────────────────────
+	// .bin 격자는 FDS 전체 도메인이라 같은 건물의 화재라면 월드에서 항상 같은 자리여야 합니다.
+	// 반면 vdb(SVT)는 연기가 있는 범위로 경계가 잡혀 화재마다 import 원점이 달라지고, 그래서
+	// 화재별 VolumeTransform도 달라집니다. 이 함수로 "기준 화재"의 볼륨 Transform을 넘겨주면
+	// 이후 격자는 현재 볼륨 Transform이 아니라 이 기준 Transform으로 계산되어 고정됩니다.
+	// (GridOriginLocal/VoxelSize는 그대로 기준 화재에 맞춰 둔 값이 적용됩니다.)
+	void SetWorldAnchoredGrid(const FTransform& ReferenceVolumeTransform);
+	// 예전 방식(격자가 현재 볼륨 Transform을 따라감)으로 되돌립니다.
+	void ClearWorldAnchoredGrid();
+	bool IsGridWorldAnchored() const { return bGridWorldAnchored; }
+
 private:
 	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation);
+	// VolumeTransform(볼륨 컴포넌트의 월드 Transform) 기준으로 격자→월드 Transform을 계산합니다.
+	bool ComputeGridToWorld(const FTransform& VolumeTransform, FTransform& OutGridToWorld) const;
+
+	bool bGridWorldAnchored = false;
+	FTransform GridAnchorVolumeTransform = FTransform::Identity;
 
 protected:
 	TArray<TSharedPtr<const FYUFSHazardGrid, ESPMode::ThreadSafe>> FramesBuffer;

@@ -472,10 +472,56 @@ void AYUFSSimulationController::ApplyFireOption(int32 OptionIndex)
 		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
 	}
 
+	ApplyHazardGridAnchor();
+
 	if (TimelineRecorder)
 	{
 		TimelineRecorder->Initialize(this, HeterogeneousVolume);
 	}
+}
+
+void AYUFSSimulationController::ApplyHazardGridAnchor()
+{
+	if (!BinaryManager)
+	{
+		return;
+	}
+	if (HazardGridReferenceFireOption < 0)
+	{
+		BinaryManager->ClearWorldAnchoredGrid();
+		return;
+	}
+	if (!FireOptions.IsValidIndex(HazardGridReferenceFireOption))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] HazardGridReferenceFireOption=%d 이(가) FireOptions 범위(%d개) 밖입니다. 격자가 볼륨을 따라가는 예전 방식으로 동작합니다."),
+			HazardGridReferenceFireOption, FireOptions.Num());
+		BinaryManager->ClearWorldAnchoredGrid();
+		return;
+	}
+
+	// 볼륨 컴포넌트가 액터의 루트이므로 컴포넌트 월드 Transform == 액터 Transform.
+	// bAutoApplyFireVolumeTransform이 꺼져 있으면 화재 전환 때 액터가 움직이지 않으므로
+	// 레벨에 배치된 현재 Transform이 곧 기준 화재 때의 Transform입니다.
+	FTransform ReferenceTransform;
+	if (bAutoApplyFireVolumeTransform)
+	{
+		ReferenceTransform = FireOptions[HazardGridReferenceFireOption].VolumeTransform;
+		if (ReferenceTransform.Equals(FTransform::Identity))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] 기준 화재 [%d]의 Volume Transform이 기본값(Identity)입니다. 격자가 월드 원점에 고정될 수 있으니 값을 확인하세요."),
+				HazardGridReferenceFireOption);
+		}
+	}
+	else if (HeterogeneousVolume)
+	{
+		ReferenceTransform = HeterogeneousVolume->GetActorTransform();
+	}
+	else
+	{
+		BinaryManager->ClearWorldAnchoredGrid();
+		return;
+	}
+	BinaryManager->SetWorldAnchoredGrid(ReferenceTransform);
 }
 
 void AYUFSSimulationController::SetPhase(ESimPhase NewPhase)
