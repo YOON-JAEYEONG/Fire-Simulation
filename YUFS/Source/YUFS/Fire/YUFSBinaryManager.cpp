@@ -176,17 +176,18 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 		Result.Status = EYUFSHazardDataStatus::InvalidMapping;
 		return Result;
 	}
-	const auto* Volume = HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>();
-	const FTransform VolumeTransform = Volume ? Volume->GetComponentTransform() : HeterogeneousVolume->GetActorTransform();
-	const double ScaleX = FMath::Abs(VolumeTransform.GetScale3D().X);
-	if (!VolumeTransform.IsValid() || ScaleX <= SMALL_NUMBER)
+	FTransform VolumeTransform;
+	if (bGridWorldAnchored)
 	{
-		Result.Status = EYUFSHazardDataStatus::InvalidMapping;
-		return Result;
+		// 건물 고정 모드: 현재 볼륨이 화재별 Transform으로 옮겨져도 격자는 기준 화재 위치에 고정.
+		VolumeTransform = GridAnchorVolumeTransform;
 	}
-	// Compatibility with IT: VoxelSize is a world-space X spacing; Y/Z follow their own transform scales.
-	Result.GridToWorld = FTransform(FQuat::Identity, GridOriginLocal, FVector(VoxelSize / ScaleX)) * VolumeTransform;
-	if (!Result.GridToWorld.IsValid() || Result.GridToWorld.GetScale3D().GetAbsMin() <= SMALL_NUMBER)
+	else
+	{
+		const auto* Volume = HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>();
+		VolumeTransform = Volume ? Volume->GetComponentTransform() : HeterogeneousVolume->GetActorTransform();
+	}
+	if (!ComputeGridToWorld(VolumeTransform, Result.GridToWorld))
 	{
 		Result.Status = EYUFSHazardDataStatus::InvalidMapping;
 		return Result;
@@ -205,6 +206,40 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 	Result.Grid = FramesBuffer[Slot];
 	Result.Status = EYUFSHazardDataStatus::Ready;
 	return Result;
+}
+
+bool AYUFSBinaryManager::ComputeGridToWorld(const FTransform& VolumeTransform, FTransform& OutGridToWorld) const
+{
+	const double ScaleX = FMath::Abs(VolumeTransform.GetScale3D().X);
+	if (!VolumeTransform.IsValid() || ScaleX <= SMALL_NUMBER)
+	{
+		return false;
+	}
+	// Compatibility with IT: VoxelSize is a world-space X spacing; Y/Z follow their own transform scales.
+	OutGridToWorld = FTransform(FQuat::Identity, GridOriginLocal, FVector(VoxelSize / ScaleX)) * VolumeTransform;
+	return OutGridToWorld.IsValid() && OutGridToWorld.GetScale3D().GetAbsMin() > SMALL_NUMBER;
+}
+
+void AYUFSBinaryManager::SetWorldAnchoredGrid(const FTransform& ReferenceVolumeTransform)
+{
+	GridAnchorVolumeTransform = ReferenceVolumeTransform;
+	bGridWorldAnchored = true;
+	FTransform GridToWorld;
+	if (ComputeGridToWorld(GridAnchorVolumeTransform, GridToWorld))
+	{
+		UE_LOG(LogTemp, Log, TEXT("[YUFS][Hazard] Grid anchored to world: origin=%s cell=%s"),
+			*GridToWorld.GetLocation().ToString(), *GridToWorld.GetScale3D().ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[YUFS][Hazard] World grid anchor is invalid (reference transform scale is zero?)."));
+	}
+}
+
+void AYUFSBinaryManager::ClearWorldAnchoredGrid()
+{
+	bGridWorldAnchored = false;
+	GridAnchorVolumeTransform = FTransform::Identity;
 }
 
 bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector Location, int32 Frame, uint8& Density)
@@ -241,10 +276,11 @@ FString AYUFSBinaryManager::GetHazardDiagnostics() const
 			}
 		}
 	}
-	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d voxelXcm=%.2f alignment=%s status=%s asset=%s"),
+	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d voxelXcm=%.2f grid=%s alignment=%s status=%s asset=%s"),
 		*BinaryFilePath, DimX, DimY, DimZ, TotalFrames, CurrentDebugFrame,
 		Volume ? *Volume->VolumeResolution.ToString() : TEXT("MissingVolume"),
 		HeterogeneousVolume ? HeterogeneousVolume->GetFrame() : INDEX_NONE, VoxelSize,
+		bGridWorldAnchored ? TEXT("WorldAnchored") : TEXT("FollowsVolume"),
 		bDatasetAlignmentConfirmed ? TEXT("UserConfirmed") : TEXT("UNVERIFIED"),
 		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(GetDataStatus())), *VisualAsset);
 }

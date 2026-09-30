@@ -328,6 +328,14 @@ public:
 	UPROPERTY(EditAnywhere, Category="Simulation|Fire")
 	bool bAutoApplyFireVolumeTransform = true;
 
+	// NPC가 읽는 연기 데이터(.bin) 격자를 건물 기준으로 고정할 때 기준이 되는 화재 (FireOptions 인덱스).
+	// 이 화재가 선택됐을 때의 볼륨 위치로 격자 위치를 계산하고, 다른 화재로 전환해도 격자는 그
+	// 자리에 고정됩니다(vdb 화면 위치만 화재별 VolumeTransform으로 바뀜). 같은 건물·같은 FDS
+	// 격자의 화재들이라면 NPC 연기 인식이 이미 잘 맞는 화재 하나를 기준으로 지정하세요.
+	// -1이면 예전 방식(격자가 현재 볼륨 Transform을 따라감)으로 동작합니다.
+	UPROPERTY(EditAnywhere, Category="Simulation|Fire", meta=(ClampMin="-1"))
+	int32 HazardGridReferenceFireOption = 0;
+
 	// ── 타임라인 기록 설정 ─────────────────────────────────────────────
 	// true면 StartSimulation()으로도 지정 시간까지 기록 후 관찰 모드로 전환합니다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline")
@@ -495,6 +503,8 @@ private:
 	void FindFireSceneActors();
 	// FireOptions[OptionIndex]의 .bin 경로와 머티리얼을 BinaryManager/HeterogeneousVolume에 적용합니다.
 	void ApplyFireOption(int32 OptionIndex);
+	// HazardGridReferenceFireOption 기준으로 BinaryManager의 .bin 격자를 월드에 고정합니다.
+	void ApplyHazardGridAnchor();
 
 	friend struct FYUFSJJWControllerTestAccess;
 };
