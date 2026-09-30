@@ -30,6 +30,8 @@ HINGE_INSET = 8.0         # hinge distance from the west jamb (and latch-side ga
 MIN_LEAF = 100.0
 NAV_CLEARANCE = 40.0
 DOOR_OPEN_SECONDS = 1.2   # AYUFSInteractionDoor default; evacuees push the door open quickly
+SLIDE_TRACK = WALL_T / 2.0 + 6.0   # leaf centre just off the room-side wall face (1 cm clear)
+SLIDE_END_GAP = 4.0                # slid leaf stops this far short of the partition wall
 # Corridor-side wall line of the rooms: north rooms end at y=-800, south rooms at y=-1040.
 SIDES = {"N": (-800.0, +1.0, -400.0), "S": (-1040.0, -1.0, -1440.0)}  # corridor face y, into-room sign, room probe y
 # Bays between partition walls (inner faces), from survey_main_room_doors.py.
@@ -62,6 +64,21 @@ def on_nav(world, x, y, z):
     if isinstance(p, tuple):
         p = p[0]
     return p is not None and not (p.x == 0 and p.y == 0 and p.z == 0)
+
+
+def configure_door(door, side, bay_west, hinge_x):
+    """Sliding room door: the leaf runs just off the ROOM-side wall face and slides toward the
+    west jamb, so an open door never sticks out into the corridor (a swung-open leaf took 110 of
+    the corridor's 240 cm, two facing leaves left 40 cm) and nobody has to keep out of a swing arc.
+    Door local X points to world -Y (yaw -90): north rooms (world +Y) are local -X."""
+    leaf = 100.0 * door.get_actor_scale3d().y
+    room_sign = -1.0 if side == "N" else 1.0
+    travel = min(leaf, hinge_x - bay_west - SLIDE_END_GAP)   # stop short of the partition wall
+    door.set_editor_property("OpenSeconds", DOOR_OPEN_SECONDS)
+    door.set_editor_property("bSliding", True)
+    door.set_editor_property("SlideTrackOffset", room_sign * SLIDE_TRACK)
+    door.set_editor_property("SlideDistance", -travel)
+    return travel
 
 
 def spawn_box(label, cx, cy, cz, sx, sy, sz, cube, material):
@@ -122,9 +139,7 @@ def place(world):
             door = eas.spawn_actor_from_class(door_class, unreal.Vector(left + HINGE_INSET, wall_y, z0 + 1.0),
                                               unreal.Rotator(0.0, 0.0, -90.0))
             door.set_actor_scale3d(unreal.Vector(1.0, leaf / 100.0, 1.0))
-            # Swing time (class default 1.2 s). The NPC walks up to the leaf and reaches for the
-            # handle first, so the opening reads as an action without slowing the evacuation.
-            door.set_editor_property("OpenSeconds", DOOR_OPEN_SECONDS)
+            configure_door(door, side, xa, left + HINGE_INSET)
             door.set_actor_label(tag + "_Door")
             door.set_folder_path("YUFS/RoomDoors")
             doors += 1
@@ -155,13 +170,17 @@ def main():
     if not les.load_level(MAP):
         log("could not load " + MAP)
         return
-    if os.environ.get("YUFS_DOORS_TIMING_ONLY") == "1":
-        # Door timing only: no walls or navmesh change, so this also works as a commandlet.
+    if os.environ.get("YUFS_DOORS_TIMING_ONLY") == "1" or os.environ.get("YUFS_DOORS_PROPS_ONLY") == "1":
+        # Door properties only (timing, sliding): no walls or navmesh change, so this also works
+        # as a commandlet on the doors already placed.
         doors = [a for a in eas.get_all_level_actors()
                  if a.get_actor_label().startswith(PREFIX) and a.get_actor_label().endswith("_Door")]
         for door in doors:
-            door.set_editor_property("OpenSeconds", DOOR_OPEN_SECONDS)
-        log("OpenSeconds=%.1f on %d doors; saved=%s" % (DOOR_OPEN_SECONDS, len(doors), les.save_current_level()))
+            floor, side, index = door.get_actor_label()[len(PREFIX):].split("_")[:3]   # 1F_N_03_Door
+            xa, _ = BAYS[(floor, side)][int(index)]
+            travel = configure_door(door, side, xa, door.get_actor_location().x)
+            log("%s sliding %.0f cm" % (door.get_actor_label(), travel))
+        log("updated %d doors; saved=%s" % (len(doors), les.save_current_level()))
         return
     world = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem).get_editor_world()
     if place(world) == 0:

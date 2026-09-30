@@ -102,4 +102,50 @@ bool FYUFSDoorNaturalFlowTest::RunTest(const FString& Parameters)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSSlidingDoorTest,
+    "YUFS.NPC.Interaction.SlidingDoorStaysOutOfTheCorridor",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::CommandletContext | EAutomationTestFlags::EngineFilter)
+
+bool FYUFSSlidingDoorTest::RunTest(const FString& Parameters)
+{
+    const auto Settings=UWorld::InitializationValues().AllowAudioPlayback(false)
+        .CreatePhysicsScene(true).CreateNavigation(false).CreateAISystem(false);
+    UWorld* World=UWorld::CreateWorld(EWorldType::Game,false,NAME_None,nullptr,true,ERHIFeatureLevel::Num,&Settings);
+    if (!TestNotNull(TEXT("isolated door physics world"),World)) return false;
+    FActorSpawnParameters Spawn;
+    Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    // Doorway plane x=0, leaf along +Y; the track runs 16 cm on the -X ("room") side.
+    auto* Door=World->SpawnActor<AYUFSInteractionDoor>(FVector::ZeroVector,FRotator::ZeroRotator,Spawn);
+    auto* User=World->SpawnActor<AYUFSEvacuationNPC>(FVector(-120,50,90),FRotator::ZeroRotator,Spawn);
+    if (!Door || !User) { AddError(TEXT("test actors missing")); World->DestroyWorld(false); return false; }
+    Door->bSliding=true; Door->SlideTrackOffset=-16.f; Door->SlideDistance=-100.f;
+    Door->OnConstruction(Door->GetActorTransform());
+    // The opener leans on the closed leaf (capsule surface on the leaf's room face, x=-19).
+    User->SetActorLocation(FVector(-19.f-User->GetSimpleCollisionRadius(),50,90));
+    const FQuat ClosedRotation=Door->Panel->GetComponentQuat();
+    TestTrue(TEXT("closed sliding leaf sits on its track"),FMath::IsNearlyEqual(Door->Panel->GetComponentLocation().X,-16.f,0.5f));
+    TestTrue(TEXT("user in reach starts the slide"),Door->TryUse(User));
+    Door->Tick(3.f);
+    TestTrue(TEXT("fully slid door clears the doorway"),Door->IsPassageClear());
+    TestTrue(TEXT("a sliding leaf never swings"),Door->Panel->GetComponentQuat().Equals(ClosedRotation));
+    TestTrue(TEXT("the leaf moved sideways along the wall"),Door->Panel->GetComponentLocation().Y < -40.f);
+    TestTrue(TEXT("the open leaf stays on its track, not in the corridor"),
+        FMath::IsNearlyEqual(Door->Panel->GetComponentLocation().X,-16.f,0.5f));
+
+    // Someone standing on the track keeps the leaf from sliding over them.
+    auto* Blocked=World->SpawnActor<AYUFSInteractionDoor>(FVector(1000,0,0),FRotator::ZeroRotator,Spawn);
+    auto* BlockedUser=World->SpawnActor<AYUFSEvacuationNPC>(FVector(880,50,90),FRotator::ZeroRotator,Spawn);
+    auto* Bystander=World->SpawnActor<AYUFSEvacuationNPC>(FVector(984,-60,90),FRotator::ZeroRotator,Spawn);
+    if (!Blocked || !BlockedUser || !Bystander) { AddError(TEXT("blocked fixture missing")); World->DestroyWorld(false); return false; }
+    Blocked->bSliding=true; Blocked->SlideTrackOffset=-16.f; Blocked->SlideDistance=-100.f;
+    Blocked->OnConstruction(Blocked->GetActorTransform());
+    TestTrue(TEXT("user starts the slide"),Blocked->TryUse(BlockedUser));
+    Blocked->Tick(3.f);
+    TestTrue(TEXT("a person on the track stops the leaf"),Blocked->IsOpeningBlocked());
+    TestFalse(TEXT("a blocked slide never releases the doorway"),Blocked->IsPassageClear());
+
+    World->DestroyWorld(false);
+    return true;
+}
+
 #endif

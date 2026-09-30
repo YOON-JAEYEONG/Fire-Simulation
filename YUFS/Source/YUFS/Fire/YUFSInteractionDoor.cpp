@@ -85,11 +85,28 @@ void AYUFSInteractionDoor::OnConstruction(const FTransform& Transform)
  for (const auto& Mesh : FrameMeshes) Mesh->SetMaterial(0,FrameFinish);
  auto* HardwareFinish = MakeFinish(FLinearColor(.65f,.69f,.73f),.15f);
  for (const auto& Mesh : HardwareMeshes) Mesh->SetMaterial(0,HardwareFinish);
+ ApplyLeafPose();
 }
 FVector AYUFSInteractionDoor::GetHandleLocation() const
 {
- // Fixed closed-handle reference: discovery/reach does not jump as the leaf rotates.
- return GetActorTransform().TransformPosition(FVector(0.f,82.f,105.f));
+ // Fixed closed-handle reference: discovery/reach does not jump as the leaf moves.
+ const float TrackX=bSliding?SlideTrackOffset/FMath::Max(KINDA_SMALL_NUMBER,FMath::Abs(GetActorScale3D().X)):0.f;
+ return GetActorTransform().TransformPosition(FVector(TrackX,82.f,105.f));
+}
+void AYUFSInteractionDoor::ApplyLeafPose()
+{
+ const float Eased=OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
+ if (bSliding)
+ {
+  // LeafPivot lives in the (scaled) actor space: convert world cm to local units.
+  const FVector Scale=GetActorScale3D().GetAbs();
+  LeafPivot->SetRelativeRotation(FRotator::ZeroRotator);
+  LeafPivot->SetRelativeLocation(FVector(SlideTrackOffset/FMath::Max(KINDA_SMALL_NUMBER,Scale.X),
+      SlideDistance/FMath::Max(KINDA_SMALL_NUMBER,Scale.Y)*Eased,0.f));
+  return;
+ }
+ LeafPivot->SetRelativeLocation(FVector::ZeroVector);
+ LeafPivot->SetRelativeRotation(FRotator(0,FMath::Abs(OpenAngle)*SwingDirection*Eased,0));
 }
 void AYUFSInteractionDoor::ApplyReviewState(float InOpenFraction,float InSwingDirection)
 {
@@ -98,8 +115,7 @@ void AYUFSInteractionDoor::ApplyReviewState(float InOpenFraction,float InSwingDi
  if (FMath::IsNearlyEqual(Fraction,OpenFraction) && Swing==SwingDirection) return;
  OpenFraction=Fraction; SwingDirection=Swing;
  Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false;
- const float Eased=OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
- LeafPivot->SetRelativeRotation(FRotator(0,FMath::Abs(OpenAngle)*SwingDirection*Eased,0));
+ ApplyLeafPose();
  PassageBlocker->SetCollisionEnabled(IsOpen()?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
 }
 bool AYUFSInteractionDoor::IsUserInReach(AActor* User) const
@@ -137,6 +153,29 @@ void AYUFSInteractionDoor::Release(AActor* User)
 bool AYUFSInteractionDoor::CanSweepLeaf(float FromFraction,float ToFraction) const
 {
  if (!GetWorld()) return false;
+ if (bSliding)
+ {
+  // The leaf only translates along its track: sample the travel in <=5 cm steps.
+  const FVector Scale=GetActorScale3D().GetAbs();
+  const float LocalX=SlideTrackOffset/FMath::Max(KINDA_SMALL_NUMBER,Scale.X);
+  const auto TravelAt=[this,&Scale](float Fraction)
+  {
+   return SlideDistance/FMath::Max(KINDA_SMALL_NUMBER,Scale.Y)*Fraction*Fraction*(3.f-2.f*Fraction);
+  };
+  const float FromY=TravelAt(FromFraction), ToY=TravelAt(ToFraction);
+  const int32 Steps=FMath::Max(1,FMath::CeilToInt(FMath::Abs(ToY-FromY)*Scale.Y/5.f));
+  FCollisionQueryParams Params(SCENE_QUERY_STAT(DoorLeafSlide),false,this);
+  // Thinner than the 6 cm leaf: the person pressing against the closed leaf to open it is not
+  // "on the track"; anyone actually standing where the leaf slides to still stops it.
+  const FVector Extent=FVector(2.5f,48.f,108.f)*Scale;
+  for (int32 Step=1;Step<=Steps;++Step)
+  {
+   const FVector Centre=GetActorTransform().TransformPosition(
+       FVector(LocalX,50.f+FMath::Lerp(FromY,ToY,float(Step)/Steps),110.f));
+   if (GetWorld()->OverlapBlockingTestByChannel(Centre,GetActorQuat(),ECC_Pawn,FCollisionShape::MakeBox(Extent),Params)) return false;
+  }
+  return true;
+ }
  auto YawAt=[this](float Fraction)
  {
   return FMath::Abs(OpenAngle)*SwingDirection*Fraction*Fraction*(3.f-2.f*Fraction);
@@ -172,9 +211,8 @@ void AYUFSInteractionDoor::Tick(float Dt)
  if (bOpeningBlocked) return;
  OpenFraction=NextFraction;
  // The actor transform stays fixed for discovery, authored placement and route
- // references; only the leaf and its hardware rotate around the hinge pivot.
- const float Eased = OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
- LeafPivot->SetRelativeRotation(FRotator(0,FMath::Abs(OpenAngle)*SwingDirection*Eased,0));
+ // references; only the leaf and its hardware move (swing about the hinge, or slide).
+ ApplyLeafPose();
  if (IsOpen())
  {
   // Only the passage guard disappears. An open solid leaf is still a physical

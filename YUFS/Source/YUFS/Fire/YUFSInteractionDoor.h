@@ -37,7 +37,18 @@ public:
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") float OpenAngle = 90.f;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door", meta=(ClampMin="0.1")) float OpenSeconds = 1.2f;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") float UseDistance = 180.f;
+ /**
+  * Sliding leaf (classroom style): the leaf runs along the wall instead of swinging, so an open
+  * door never sticks out into the corridor and nobody has to keep clear of a swing arc.
+  */
+ UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door|Sliding") bool bSliding = false;
+ /** Sliding: track offset from the doorway plane along local X (cm), e.g. just off the room-side wall face. */
+ UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door|Sliding") float SlideTrackOffset = 0.f;
+ /** Sliding: travel along local Y (cm); negative slides toward the hinge-side jamb. */
+ UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door|Sliding") float SlideDistance = -100.f;
 private:
+ /** Leaf pose for the current OpenFraction: swung about the hinge, or slid along its track. */
+ void ApplyLeafPose();
  UPROPERTY(VisibleAnywhere, Category="Door") TObjectPtr<USceneComponent> LeafPivot;
  UPROPERTY(VisibleAnywhere, Category="Door") TObjectPtr<UBoxComponent> PassageBlocker;
  UPROPERTY() TArray<TObjectPtr<UStaticMeshComponent>> FrameMeshes;
