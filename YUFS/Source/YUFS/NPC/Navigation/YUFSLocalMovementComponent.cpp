@@ -101,8 +101,12 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSTrafficSight),false,NPC); Params.AddIgnoredActor(Other);
 		if (GetWorld()->LineTraceTestByChannel(A,B,ECC_Visibility,Params)) continue;
 		const auto* Nav=Other->GetNavigator();
-		const bool Moving=IsMovingPeer(Nav && Nav->IsFollowingPath(),Other->IsInteractionHoldingPosition());
-		const FVector OtherDir=Moving ? (Nav->GetSteeringTarget(B,120.f)-B).GetSafeNormal2D() : FVector::ZeroVector;
+		// Someone visibly walking is a walker even in the frame their route is being re-requested:
+		// flipping between "walking" and "standing" every frame made the crowd stop and go.
+		const bool bOnRoute=IsMovingPeer(Nav && Nav->IsFollowingPath(),Other->IsInteractionHoldingPosition());
+		const bool Moving=bOnRoute || (!Other->IsInteractionHoldingPosition() && Other->GetVelocity().Size2D()>40.f);
+		const FVector OtherDir=bOnRoute ? (Nav->GetSteeringTarget(B,120.f)-B).GetSafeNormal2D()
+			: Moving ? Other->GetVelocity().GetSafeNormal2D() : FVector::ZeroVector;
 		if (!TrajectoriesConflict(A,Desired,Radius,B,OtherDir,Other->GetCapsuleComponent()->GetScaledCapsuleRadius(),LookAheadCm)) continue;
 		// Queue order along the route comes before the ID tie-break, also where a switchback stair
 		// turns two people in the same queue to face opposite ways: wait for the one ahead of us on
@@ -116,7 +120,7 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 			FVector RouteDir;
 			bAheadOnRoute=MyNav && MyNav->GetRouteDirectionNear(BFeet,Tolerance,400.f,RouteDir)
 				&& FVector::DotProduct(OtherHeading,RouteDir)>0.3f;
-			if (!bAheadOnRoute && Nav->GetRouteDirectionNear(AFeet,Tolerance,400.f,RouteDir)
+			if (!bAheadOnRoute && bOnRoute && Nav->GetRouteDirectionNear(AFeet,Tolerance,400.f,RouteDir)
 				&& FVector::DotProduct(Desired,RouteDir)>0.3f) continue; // they are behind us: they wait
 		}
 		// A stationary person is a real obstacle. Moving agents use a stable right of way.
@@ -128,17 +132,31 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 		const FVector B=Blocker->GetActorLocation();
 		const float OtherRadius=Blocker->GetCapsuleComponent()->GetScaledCapsuleRadius();
 		const float Ahead=FVector::DotProduct(B-A,Desired);
-		const bool bSameWay=bBlockerMoving && (FVector::DotProduct(Desired,BlockerDir)>0.5f || bBlockerAheadOnRoute);
+		// Once walking behind someone, keep doing so through a bend (less strict "same way").
+		const float SameWayDot=PacedBehind.Get()==Blocker ? 0.2f : 0.5f;
+		const bool bSameWay=bBlockerMoving && (FVector::DotProduct(Desired,BlockerDir)>SameWayDot || bBlockerAheadOnRoute);
 		const bool bInFront=Ahead>0.f || bBlockerAheadOnRoute;
 		const float BlockerSpeed=Blocker->GetVelocity().Size2D();
 		const float MyPace=FMath::Max(1.f,NPC->GetCharacterMovement()->MaxWalkSpeed);
 		const auto* BlockerTraffic=Blocker->GetLocalMovement();
+		// Coming the other way: both keep right and walk past each other. Taking turns to stop (the
+		// right of way flipped every frame as each one stopped) left two people facing each other.
+		if (bBlockerMoving && FVector::DotProduct(Desired,BlockerDir)<-0.3f)
+		{
+			FVector Veer;
+			if (FindKeepRight(Desired,Frame,Blocker,Veer))
+			{
+				YieldingTo.Reset(); YieldTime=0.f;
+				SetState(EYUFSLocalMovementState::Passing);
+				return Veer;
+			}
+		}
 		// Nobody waits behind a person who is just standing there (not busy with a door, a bag or a
 		// helper), nor behind one walking far slower who is not queueing themselves: go around.
 		const bool bStanding=!bBlockerMoving && BlockerSpeed<30.f;
 		const bool bSlowWalker=bSameWay && BlockerSpeed<OvertakeSpeedFraction*MyPace
 			&& (!BlockerTraffic || !BlockerTraffic->IsDeliberatelyWaiting());
-		if (bPassPeopleInTheWay && Ahead>0.f && !Blocker->IsInteractionHoldingPosition() && (bStanding || bSlowWalker)
+		if (bPassPeopleInTheWay && !PassingAround.IsValid() && Ahead>0.f && !Blocker->IsInteractionHoldingPosition() && (bStanding || bSlowWalker)
 			&& (PassCheckedFor.Get()!=Blocker || Now>=PassCheckAgainAt))
 		{
 			PassCheckedFor=Blocker; PassCheckAgainAt=Now+0.25f;
@@ -151,18 +169,17 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 				return PassSteering(Blocker,Desired);
 			}
 		}
-		// Walking behind someone going the same way: keep their pace instead of stop-and-go.
+		// Walking behind someone going the same way: keep their pace, down to standing still behind
+		// them when they stop, but never the stop-and-go of yielding (it flickered every frame in a
+		// crowd). A zero input lets the body slow down instead of being stopped dead.
 		if (bSameWay && bInFront)
 		{
 			const float Gap=FVector::Dist2D(A,B)-Radius-OtherRadius;
 			const float Closing=FMath::Clamp((Gap-QueueStopGapCm)/FMath::Max(1.f,QueuePaceGapCm-QueueStopGapCm),0.f,1.25f);
 			const float Fraction=FMath::Clamp(BlockerSpeed*Closing/MyPace,0.f,1.f);
-			if (Fraction>0.05f)
-			{
-				YieldingTo.Reset(); YieldTime=0.f; bPacingBehind=true;
-				SetState(EYUFSLocalMovementState::Following);
-				return Desired*Fraction;
-			}
+			YieldingTo.Reset(); YieldTime=0.f; bPacingBehind=true; PacedBehind=Blocker;
+			SetState(EYUFSLocalMovementState::Following);
+			return Desired*Fraction;
 		}
 		if (YieldingTo.Get()!=Blocker || FVector::DistSquared2D(LastBlockerPosition,Blocker->GetActorLocation())>FMath::Square(100.f))
 		{
@@ -231,6 +248,20 @@ bool UYUFSLocalMovementComponent::FindPassSide(const AYUFSEvacuationNPC* Other,F
 				FCollisionShape::MakeCapsule(FMath::Max(5.f,RA-1.f),FMath::Max(5.f,Half-3.f)),Params)) continue;
 		OutSide=S; OutOffset=Offset;
 		return true;
+	}
+	return false;
+}
+bool UYUFSLocalMovementComponent::FindKeepRight(FVector Desired,int32 Frame,const AYUFSEvacuationNPC* Other,FVector& OutDirection) const
+{
+	const auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner()); if (!NPC || !Other) return false;
+	const FVector D=Desired.GetSafeNormal2D(); if (D.IsNearlyZero()) return false;
+	const FVector Feet=NPC->GetActorLocation()-FVector(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	// Positive yaw turns right. Keep right, the everyday convention, so both people pick opposite sides;
+	// the left only where the right is walled off. Only onto level floor (not off a stair edge).
+	for (const float Angle:{35.f,60.f,-35.f,-60.f})
+	{
+		const FVector Dir=FRotator(0.f,Angle,0.f).RotateVector(D);
+		if (IsStepClear(Feet+Dir*80.f,Frame,Other,10.f)) { OutDirection=Dir; return true; }
 	}
 	return false;
 }

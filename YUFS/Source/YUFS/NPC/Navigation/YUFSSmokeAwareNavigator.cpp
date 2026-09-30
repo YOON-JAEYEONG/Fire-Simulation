@@ -405,6 +405,46 @@ bool UYUFSSmokeAwareNavigator::GetRouteDirectionNear(const FVector& FeetLocation
 	return false;
 }
 
+bool UYUFSSmokeAwareNavigator::SteerThroughDoorway(const FTransform& DoorFrame, float LeafWidthLocal, float DepthCm)
+{
+	if (!IsFollowingPath() || !CurrentPath.IsValidIndex(CurrentWaypointIndex)) return false;
+	const FVector Normal = DoorFrame.GetUnitAxis(EAxis::X).GetSafeNormal2D();
+	const float ScaleX = FMath::Max(KINDA_SMALL_NUMBER, FMath::Abs(DoorFrame.GetScale3D().X));
+	const FVector Centre = DoorFrame.TransformPosition(FVector(0.f, LeafWidthLocal * 0.5f, 0.f));
+	FVector From = GetOwnerFeetLocation();
+	FVector FromLocal = DoorFrame.InverseTransformPosition(From);
+	for (int32 Index = CurrentWaypointIndex; Index < CurrentPath.Num(); ++Index)
+	{
+		const FVector& To = CurrentPath[Index];
+		const FVector ToLocal = DoorFrame.InverseTransformPosition(To);
+		if ((FromLocal.X <= 0.f) != (ToLocal.X <= 0.f) && !FMath::IsNearlyEqual(FromLocal.X, ToLocal.X))
+		{
+			const float T = FromLocal.X / (FromLocal.X - ToLocal.X);
+			const float Across = FMath::Lerp(FromLocal.Y, ToLocal.Y, T);
+			if (Across < -10.f || Across > LeafWidthLocal + 10.f) return false; // not through this doorway
+			const float Z = FMath::Lerp(From.Z, To.Z, T);
+			const float Direction = FromLocal.X <= 0.f ? 1.f : -1.f; // towards +X or -X
+			// Never step back to line up, and never overshoot the next point of the route.
+			const float NearDepth = FMath::Min(DepthCm, FMath::Abs(FromLocal.X) * ScaleX - 20.f);
+			const float FarDepth = FMath::Min(DepthCm, FMath::Abs(ToLocal.X) * ScaleX * 0.8f);
+			FVector Far = Centre + Normal * Direction * FMath::Max(0.f, FarDepth);
+			Far.Z = Z;
+			for (const FVector& Existing : CurrentPath) if (FVector::DistSquared2D(Existing, Far) < 25.f) return false;
+			CurrentPath.Insert(Far, Index);
+			if (NearDepth > 10.f)
+			{
+				FVector Near = Centre - Normal * Direction * NearDepth;
+				Near.Z = Z;
+				CurrentPath.Insert(Near, Index);
+			}
+			return true;
+		}
+		From = To;
+		FromLocal = ToLocal;
+	}
+	return false;
+}
+
 FVector UYUFSSmokeAwareNavigator::GetOwnerFeetLocation() const
 {
 	const ACharacter* Character = Cast<ACharacter>(GetOwner());

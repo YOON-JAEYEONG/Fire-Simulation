@@ -85,33 +85,42 @@ bool UYUFSNpcEnvironmentInteraction::Visible(AActor* Target) const
  return !GetWorld()->LineTraceSingleByChannel(Hit,Npc->GetActorLocation()+FVector(0,0,45),Point,ECC_Visibility,Params) || Hit.GetActor()==Target;
 }
 FVector UYUFSNpcEnvironmentInteraction::GetTarget() const { return Person.IsValid()?Person->GetActorLocation():GetOwner()->GetActorLocation(); }
+bool UYUFSNpcEnvironmentInteraction::IsSlowingForDoor() const
+{
+ return IsOperatingDoor() && Door.IsValid() && !Door->IsPassageClear();
+}
 void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
 {
  Npc=Cast<AYUFSEvacuationNPC>(GetOwner());
  if (!Npc.IsValid() || bUseExternalExecutor) return;
- Scan-=Dt; if (Scan>0 || bActive) return; Scan=.5f;
+ Scan-=Dt; if (Scan>0 || bActive) return; Scan=.15f;
  Door.Reset(); Person.Reset();
- const auto* Nav=Npc->GetNavigator();
- // Only doors physically in front of the next path segment, never nearest-room doors.
- if (Nav && !Nav->GetCurrentPathPoints().IsEmpty())
+ auto* Nav=Npc->GetNavigator();
+ // The door the route goes through next, noticed DoorLookAheadCm ahead so that it can be opened
+ // on the way. Only a route that actually passes through the doorway counts: a door beside the
+ // route (walking along a corridor wall full of room doors) is not on it, and a passer-by grabbing
+ // it blocked the occupants trying to come out through it.
+ if (Nav && Nav->IsFollowingPath() && !Nav->GetCurrentPathPoints().IsEmpty())
  {
-  const FVector Segment=Nav->GetNextWaypoint()-Npc->GetActorLocation();
-  const FVector Direction=Segment.GetSafeNormal2D();
-  // Do not look through a path corner into a room that the route does not enter.
-  const FVector Start=Npc->GetActorLocation(), End=Start+Direction*FMath::Min(140.f,Segment.Size2D());
-  FHitResult Hit; FCollisionQueryParams Params(SCENE_QUERY_STAT(DoorAhead),false,Npc.Get());
-  const float Radius=Npc->GetCapsuleComponent()->GetScaledCapsuleRadius();
-  if (!Direction.IsNearlyZero() && GetWorld()->SweepSingleByChannel(Hit,Start,End,FQuat::Identity,ECC_Visibility,
-      FCollisionShape::MakeSphere(Radius),Params)) Door=Cast<AYUFSInteractionDoor>(Hit.GetActor());
-  if (Door.IsValid() && (!Door->IsUserInReach(Npc.Get()) || !Visible(Door.Get()))) Door.Reset();
-  // A door beside the route (walking along a corridor wall full of room doors) is not on it.
-  // Only a route that goes through the doorway makes this door the next obstacle; otherwise a
-  // passer-by grabbed a room door and blocked the occupants trying to come out through it.
-  if (Door.IsValid())
+  const TArray<FVector>& Points=Nav->GetCurrentPathPoints();
+  TArray<FVector> Ahead;
+  FVector Last=Npc->GetActorLocation(); float Travel=0.f;
+  for (int32 Index=Nav->GetCurrentWaypointIndex(); Index<Points.Num() && Travel<DoorLookAheadCm; ++Index)
+  { Travel+=FVector::Dist2D(Last,Points[Index]); Ahead.Add(Points[Index]); Last=Points[Index]; }
+  float Best=FLT_MAX;
+  for (TActorIterator<AYUFSInteractionDoor> It(GetWorld()); It; ++It)
   {
-   const TArray<FVector>& Points=Nav->GetCurrentPathPoints();
-   const int32 Next=Points.IndexOfByPredicate([&](const FVector& P){ return P.Equals(Nav->GetNextWaypoint(),1.f); });
-   if (!RouteGoesThroughDoor(Npc->GetActorLocation(),Points,Next,Door.Get())) Door.Reset();
+   const float Distance=FVector::DistSquared2D(It->GetActorLocation(),Npc->GetActorLocation());
+   if (Distance>=Best || Distance>FMath::Square(DoorLookAheadCm+150.f)
+       || FMath::Abs(It->GetActorLocation().Z-Npc->GetActorLocation().Z)>200.f) continue;
+   if (!RouteGoesThroughDoor(Npc->GetActorLocation(),Ahead,0,*It) || !Visible(*It)) continue;
+   Door=*It; Best=Distance;
+  }
+  // Already open (someone else opened it): just go through the middle, not along a jamb.
+  if (Door.IsValid() && Door->IsPassageClear() && SteeredDoor.Get()!=Door.Get())
+  {
+   Nav->SteerThroughDoorway(Door->GetActorTransform());
+   SteeredDoor=Door;
   }
  }
  float Best=FLT_MAX;
@@ -167,11 +176,19 @@ void UYUFSNpcEnvironmentInteraction::Finish(bool Success,FName Reason)
   }
   if (!WasDoor || !Success) Npc->GetHumanBehaviorSelector()->RequestReselection(Reason);
   if (!WasDoor) Npc->GetNavigator()->ClearPath();
-  UE_LOG(LogTemp,Display,TEXT("[EnvironmentInteraction] %s finished %s"),*Npc->GetName(),*Reason.ToString());
+  if (WasDoor)
+  {
+   UE_LOG(LogTemp,Display,TEXT("[EnvironmentInteraction] %s finished %s (door took %.1fs, stood still at it %.1fs)"),
+       *Npc->GetName(),*Reason.ToString(),Elapsed,DoorHeldSeconds);
+  }
+  else
+  {
+   UE_LOG(LogTemp,Display,TEXT("[EnvironmentInteraction] %s finished %s"),*Npc->GetName(),*Reason.ToString());
+  }
  }
  bActive=false; bApproaching=false; bAtDoor=false; ActiveGoal=EYUFSInteractionGoal::None; ActiveTargetId=NAME_None;
  Door.Reset(); Person.Reset();
- Elapsed=Contact=0; SwingBlockedSeconds=0.f; RetryAt=GetWorld()->GetTimeSeconds()+2.f; Scan=0;
+ Elapsed=Contact=0; SwingBlockedSeconds=DoorHeldSeconds=0.f; RetryAt=GetWorld()->GetTimeSeconds()+2.f; Scan=0;
 }
 bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
 {
@@ -218,46 +235,50 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  if (Door.IsValid())
  {
   bApproaching=false;
-  if (Door->IsPassageClear()) { Finish(true,TEXT("DoorOpened")); return true; }
+  // Open: walk on through it (no standing at the door for one more tick).
+  if (Door->IsPassageClear()) { Finish(true,TEXT("DoorOpened")); return false; }
+  const float PlaneDistance=FMath::Abs(FVector::DotProduct(
+      Npc->GetActorLocation()-Door->GetActorLocation(),Door->GetActorForwardVector()));
+  auto* Nav=Npc->GetNavigator();
+  const bool bWalkingRoute=Nav && Nav->IsFollowingPath();
+  if (!Door->CanOperate()) { Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true; }
+  if (!Door->IsUserInReach(Npc.Get()))
+  {
+   // Still walking up to it (slowed meanwhile, see IsSlowingForDoor).
+   if (bWalkingRoute && Elapsed<DoorApproachSeconds) return false;
+   Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true;
+  }
+  if (!Door->TryUse(Npc.Get()))
+  {
+   // Someone else is opening it: walk up behind them and wait at the leaf, never push past them.
+   Contact=0.f;
+   if (bWalkingRoute && PlaneDistance>DoorHoldDistanceCm+35.f) return false;
+   UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
+   DoorHeldSeconds+=Dt;
+   return true;
+  }
   if (!bAtDoor)
   {
-   // Walk the rest of the route up to the leaf first. Stopping where the door is first seen
-   // (up to 1.4 m away) made it look as if the door opened by itself. A user that is not
-   // walking a route (tests, previews) opens from where it stands, as before.
-   const float PlaneDistance=FMath::Abs(FVector::DotProduct(
-       Npc->GetActorLocation()-Door->GetActorLocation(),Door->GetActorForwardVector()));
-   const auto* Nav=Npc->GetNavigator();
-   if (Nav && Nav->IsFollowingPath() && PlaneDistance>DoorStandDistanceCm && Elapsed<DoorApproachSeconds
-       && Door->IsUserInReach(Npc.Get()))
-    return false; // the character's own route keeps moving it toward the door
+   // Within reach: the hand goes to the handle and the leaf starts moving while the NPC keeps
+   // walking. Stopping to face the handle first made every door a stop of 1.5-2 s.
    bAtDoor=true;
+   if (Nav) Nav->SteerThroughDoorway(Door->GetActorTransform());
+   SteeredDoor=Door;
    UE_LOG(LogTemp,Display,TEXT("[EnvironmentInteraction] %s at door %s, %.0f cm from the leaf after %.1fs"),
        *Npc->GetName(),*Door->GetName(),PlaneDistance,Elapsed);
   }
-  Npc->GetCharacterMovement()->StopMovementImmediately();
-  if (!Door->CanOperate() || !Door->IsUserInReach(Npc.Get()))
-  { Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true; }
-  if (!Door->TryReserve(Npc.Get()))
-  {
-   Contact=0.f;
-   UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
-   return true; // Do not crowd/push the NPC currently operating this same door.
-  }
-  const FVector Handle=Door->GetHandleLocation();
-  const FVector Facing=(Handle-Npc->GetActorLocation()).GetSafeNormal2D();
-  const bool Aligned=FVector::DotProduct(Npc->GetActorForwardVector().GetSafeNormal2D(),Facing)
-      >=FMath::Cos(FMath::DegreesToRadians(DoorFacingToleranceDegrees));
-  // Align first, then play the compatible reach gesture. No hand IK is claimed.
-  UpdateLocalPose(Handle,Aligned?EYUFSAction::GatherBelongings:EYUFSAction::Idle,Dt);
-  if (!Aligned) { Contact=0.f; return true; }
-  Contact+=Dt;
-  if (Contact>=DoorReachSeconds && !Door->TryUse(Npc.Get())) Finish(false,TEXT("DoorBecameUnavailable"));
-  // Someone standing in the swing arc (often a person on the other side) keeps the leaf shut.
-  // Pushing on for the whole interaction budget looked like grinding against the door; let go,
-  // report the blocked door to the route and try again shortly.
+  // Someone standing where the leaf goes keeps it shut: let go after a while and try again later,
+  // pushing on for the whole interaction budget looked like grinding against the door.
   SwingBlockedSeconds=Door->IsOpeningBlocked()?SwingBlockedSeconds+Dt:0.f;
-  if (bActive && SwingBlockedSeconds>=DoorSwingBlockedGiveUpSeconds) Finish(false,TEXT("DoorSwingBlocked"));
-  return true;
+  if (SwingBlockedSeconds>=DoorSwingBlockedGiveUpSeconds) { Finish(false,TEXT("DoorSwingBlocked")); return true; }
+  // Already at the leaf and it is not open yet: wait there, reaching for it, for the last moment.
+  if (!bWalkingRoute || PlaneDistance<=DoorHoldDistanceCm)
+  {
+   UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::GatherBelongings,Dt);
+   DoorHeldSeconds+=Dt;
+   return true;
+  }
+  return false;
  }
  if (!Person.IsValid()) { Finish(false,TEXT("PersonLost")); return true; }
  auto* Other=Person->FindComponentByClass<UYUFSNpcEnvironmentInteraction>();

@@ -45,6 +45,16 @@ public:
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="0.0")) float DoorApproachSeconds=3.f;
  /** Let go of a door whose swing has been blocked (someone in the arc) this long, then retry later. */
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="0.1")) float DoorSwingBlockedGiveUpSeconds=1.5f;
+ /**
+  * Doors are opened on the way, without stopping: a door on the route is noticed this far ahead,
+  * the NPC walks up to it no faster than DoorApproachSpeedCmPerSec so the leaf is open when it
+  * arrives, and only if it gets closer to the leaf than DoorHoldDistanceCm before that does it wait.
+  */
+ UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="100.0")) float DoorLookAheadCm=350.f;
+ UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="50.0")) float DoorApproachSpeedCmPerSec=200.f;
+ UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="20.0")) float DoorHoldDistanceCm=45.f;
+ /** Walking up to a door on the route that is not open yet (the walking speed is capped meanwhile). */
+ bool IsSlowingForDoor() const;
 protected:
  virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:
@@ -54,7 +64,9 @@ private:
  void UpdateLocalPose(const FVector& FacingTarget, EYUFSAction Action, float Dt);
  TWeakObjectPtr<AYUFSEvacuationNPC> Npc, Person, Helper;
  TWeakObjectPtr<AYUFSInteractionDoor> Door;
- float Scan=0.f, Elapsed=0.f, Contact=0.f, RetryAt=0.f, SwingBlockedSeconds=0.f;
+ /** The doorway the route was last straightened through (once per doorway). */
+ TWeakObjectPtr<AYUFSInteractionDoor> SteeredDoor;
+ float Scan=0.f, Elapsed=0.f, Contact=0.f, RetryAt=0.f, SwingBlockedSeconds=0.f, DoorHeldSeconds=0.f;
  int64 RequestRevision=0;
  EYUFSInteractionGoal ActiveGoal=EYUFSInteractionGoal::None;
  FName ActiveTargetId=NAME_None;

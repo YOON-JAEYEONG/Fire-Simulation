@@ -29,7 +29,7 @@ LINTEL_GAP = 6.0          # leaf top to lintel
 HINGE_INSET = 8.0         # hinge distance from the west jamb (and latch-side gap)
 MIN_LEAF = 100.0
 NAV_CLEARANCE = 40.0
-DOOR_OPEN_SECONDS = 1.2   # AYUFSInteractionDoor default; evacuees push the door open quickly
+DOOR_OPEN_SECONDS = 0.5   # evacuees slide the door open on the way; 1.2 s (class default) was a stop at every door
 SLIDE_TRACK = WALL_T / 2.0 + 6.0   # leaf centre just off the room-side wall face (1 cm clear)
 SLIDE_END_GAP = 4.0                # slid leaf stops this far short of the partition wall
 # Corridor-side wall line of the rooms: north rooms end at y=-800, south rooms at y=-1040.

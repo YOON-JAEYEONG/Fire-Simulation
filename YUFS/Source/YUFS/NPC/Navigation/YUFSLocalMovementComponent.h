@@ -57,6 +57,8 @@ private:
 	void SetState(EYUFSLocalMovementState NewState);
 	/** Room to walk around Other on one side of Desired: the side (+1/-1) and centre offset to keep. */
 	bool FindPassSide(const AYUFSEvacuationNPC* Other, FVector Desired, int32 Frame, float& OutSide, float& OutOffset) const;
+	/** Steering direction that keeps right of someone coming the other way (left if the right is blocked). */
+	bool FindKeepRight(FVector Desired, int32 Frame, const AYUFSEvacuationNPC* Other, FVector& OutDirection) const;
 	/** Steering around the person being passed, aiming beside and then beyond them. */
 	FVector PassSteering(const AYUFSEvacuationNPC* Other, FVector Desired) const;
 	/**
@@ -69,6 +71,7 @@ private:
 	TWeakObjectPtr<AYUFSEvacuationNPC> YieldingTo;
 	TWeakObjectPtr<AYUFSEvacuationNPC> PassingAround;
 	TWeakObjectPtr<const AYUFSEvacuationNPC> PassCheckedFor;
+	TWeakObjectPtr<const AYUFSEvacuationNPC> PacedBehind;
 	EYUFSLocalMovementState State=EYUFSLocalMovementState::Following;
 	FVector RecoveryTarget=FVector::ZeroVector;
 	FVector LastProgressPosition=FVector::ZeroVector;

@@ -1725,6 +1725,9 @@ float AYUFSEvacuationNPC::GetDesiredWalkingSpeed() const
 	// A big bag on the back slows its owner to a loaded jog.
 	if (BelongingsRetrievalComp && BelongingsRetrievalComp->IsCarrying())
 		Speed = FMath::Min(Speed, BelongingsRetrievalComp->CarryingMaxSpeedCmPerSec);
+	// Walking up to a door that is being opened: arrive as it opens, not before (no pushing on the leaf).
+	if (EnvironmentInteraction && EnvironmentInteraction->IsSlowingForDoor())
+		Speed = FMath::Min(Speed, EnvironmentInteraction->DoorApproachSpeedCmPerSec);
 	return Speed;
 }
 

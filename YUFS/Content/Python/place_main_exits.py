@@ -64,7 +64,21 @@ def main():
         twin = next((o for o in others if abs(o.get_actor_location().x - x) < 300.0
                      and abs(o.get_actor_location().y - y) < 300.0), None)
         if twin:
-            unreal.log("[YUFSExits] %s kept the existing exit %s" % (label, twin.get_actor_label()))
+            # It keeps its position (its NPC target and ID), but its door-frame marker assumes this
+            # script's placement: forward out of the building, the actor MarkerFloorOffset above the
+            # floor. Left at yaw 0 on the floor, the frame stood sideways across the doorway, sunk
+            # 90 cm into the floor. Align only the marker: facing out, frame on the floor, on the wall face.
+            p = twin.get_actor_location()
+            ground = project(world, p.x, p.y)
+            floor_z = ground.z if ground is not None else p.z
+            along = p.x if dx else p.y
+            twin.set_actor_rotation(unreal.Rotator(0.0, 0.0, yaw), False)
+            # Editing the properties re-runs the actor's construction, which redraws the marker.
+            twin.set_editor_property("MarkerFloorOffset", max(0.0, p.z - floor_z))
+            twin.set_editor_property("MarkerWallDistance", max(0.0, abs(along - wall_face) - 1.0))
+            unreal.log("[YUFSExits] %s kept the existing exit %s; marker faces out (yaw %.0f), floorOffset=%.0f wallDist=%.0f width=%.0f" % (
+                label, twin.get_actor_label(), yaw, twin.get_editor_property("MarkerFloorOffset"),
+                twin.get_editor_property("MarkerWallDistance"), twin.get_editor_property("ExitWidth")))
             continue
         # Walk inward from the doorway until the navmesh is hit, so NPCs can reach the point.
         ground = None

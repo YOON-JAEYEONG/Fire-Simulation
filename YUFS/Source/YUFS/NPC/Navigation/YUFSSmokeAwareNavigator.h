@@ -84,6 +84,13 @@ public:
 	 * the same queue even though they currently face the other way.
 	 */
 	bool GetRouteDirectionNear(const FVector& FeetLocation, float Tolerance, float MaxAheadCm, FVector& OutDirection) const;
+	/**
+	 * If the remaining route crosses this doorway (a door frame: local X is the wall normal, local
+	 * Y 0..LeafWidthLocal across the opening), make it go straight through the middle, square to
+	 * the wall, instead of cutting past a jamb: the navmesh agent is thinner than the body, so the
+	 * cut corner is where people scraped along the door frame. Returns true if the route changed.
+	 */
+	bool SteerThroughDoorway(const FTransform& DoorFrame, float LeafWidthLocal = 100.f, float DepthCm = 55.f);
 
 	// Compatibility for interaction task lifetime tracking; the JJW planner owns generations.
 	uint32 GetRequestGeneration() const { return RequestGeneration; }

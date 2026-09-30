@@ -273,6 +273,20 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 					It->MaxSimDurationSeconds=3600.f;
 					It->bEnableTimelineRecording=false;
 				}
+				// The building's recorded evacuation broadcast (비상방송), 10 s after the alarm. With the
+				// alarm alone, occupants who do not trust it wait until they see smoke themselves, and in
+				// this building the smoke does not reach the far end within the recorded minute: they
+				// stood in clear rooms while the other storey filled with smoke. A scenario that sets
+				// its own broadcast keeps it; -YUFSEvacuationBroadcastAt=<s after fire start> moves it,
+				// a negative value switches it off.
+				float BroadcastAt = 15.f;
+				FParse::Value(FCommandLine::Get(), TEXT("YUFSEvacuationBroadcastAt="), BroadcastAt);
+				if (!bPreviewMode && BroadcastAt >= 0.f && It->PreRecordedMsgOffsetSeconds < 0.f)
+				{
+					It->PreRecordedMsgOffsetSeconds = BroadcastAt;
+					UE_LOG(LogTemp, Log, TEXT("[YUFSTestNPC] evacuation broadcast %.0fs after the fire starts (alarm at %.0fs)"),
+						BroadcastAt, It->AlarmTriggerOffsetSeconds);
+				}
 				// Preserve the configured countdown; do not shift FDS events to accelerate a demo.
 				if (bPreviewMode)
 					It->NotifyInteractionPreviewReady(Preview && Preview->IsReady());
