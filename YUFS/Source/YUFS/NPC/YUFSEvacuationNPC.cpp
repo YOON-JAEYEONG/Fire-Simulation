@@ -28,6 +28,7 @@
 #include "NPC/Cognition/YUFSHumanCognitionComponent.h"
 #include "NPC/Integration/YUFSTeamIntegrationComponent.h"
 #include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
+#include "DrawDebugHelpers.h"
 #include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
 #include "NPC/Tasks/YUFSActionTaskComponent.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
@@ -157,6 +158,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		StopEverydayBehavior();
 		UpdateActionAnimation();
 		if (BelongingsRetrievalComp) BelongingsRetrievalComp->DrawTimelineLabels();
+		if (bReplayHandlingDoor) DrawDoorLabel();
 		if (Navigator) Navigator->ClearPath();
 		if (LocalMovement) LocalMovement->Reset();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
@@ -279,6 +281,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	UpdateEvidenceDecisionModel(DeltaTime, CurrentObs);
 	if (BelongingsRetrievalComp) BelongingsRetrievalComp->Observe(DeltaTime, CurrentObs);
 	if (EnvironmentInteraction) EnvironmentInteraction->Observe(DeltaTime);
+	if (EnvironmentInteraction && EnvironmentInteraction->IsOperatingDoor()) DrawDoorLabel();
 	LiveObservation = CurrentObs;
 
 	// 단서를 아직 인식하지 못했다면 평상시 산책을 유지한다.
@@ -719,8 +722,18 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 	{
 		BelongingsRetrievalComp->WriteTimelineSnapshot(Snapshot);
 	}
+	Snapshot.bHandlingDoor = EnvironmentInteraction && EnvironmentInteraction->IsHandlingDoor();
 
 	return Snapshot;
+}
+
+void AYUFSEvacuationNPC::DrawDoorLabel() const
+{
+#if ENABLE_DRAW_DEBUG
+	if (!BelongingsRetrievalComp || !BelongingsRetrievalComp->bShowDebugLabels || IsHidden() || !GetWorld()) return;
+	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 150.f), TEXT("OPENING DOOR"),
+		const_cast<AYUFSEvacuationNPC*>(this), FColor::Cyan, 0.f, true, 1.3f);
+#endif
 }
 
 void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot)
@@ -756,6 +769,8 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 	{
 		BelongingsRetrievalComp->ApplyTimelineSnapshot(Snapshot);
 	}
+	bReplayHandlingDoor = Snapshot.bHandlingDoor;
+	bReplayPickingUpBag = Snapshot.BelongingsPhase == static_cast<uint8>(EYUFSBelongingsRetrievalPhase::PickingUp);
 
 	CurrentAction = Snapshot.CurrentAction;
 	UpdateActionAnimation();
@@ -987,6 +1002,12 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 	if (BelongingsRetrievalComp && BelongingsRetrievalComp->IsActive()) return;
 	if (bUseExternalMotionDriver || !ActionAnimationComp)
 	{
+		return;
+	}
+	if (bTimelinePlaybackMode && (bReplayHandlingDoor || bReplayPickingUpBag))
+	{
+		// Replay: the recorded moment was a reach for a door handle or a bag, not a run.
+		ActionAnimationComp->ApplyAction(EYUFSAction::GatherBelongings, EYUFSBehaviorState::Normal, bForce);
 		return;
 	}
 

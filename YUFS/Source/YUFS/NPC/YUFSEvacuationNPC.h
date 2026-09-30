@@ -196,6 +196,12 @@ public:
 	bool IsTimelinePlaybackMode() const { return bTimelinePlaybackMode; }
 
 private:
+	// 관찰 모드: 기록 시점에 문을 여는 중/가방을 줍는 중이었으면 제자리 달리기 대신 그 동작을 보여 줍니다.
+	bool bReplayHandlingDoor = false;
+	bool bReplayPickingUpBag = false;
+	// Overlay label over an NPC that is opening a door (same switch as the bag labels).
+	void DrawDoorLabel() const;
+
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCPerceptionComponent* PerceptionComp;
 	UPROPERTY(VisibleAnywhere)

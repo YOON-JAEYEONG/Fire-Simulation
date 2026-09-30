@@ -139,7 +139,7 @@ void UYUFSNpcEnvironmentInteraction::Finish(bool Success,FName Reason)
   if (!WasDoor) Npc->GetNavigator()->ClearPath();
   UE_LOG(LogTemp,Display,TEXT("[EnvironmentInteraction] %s finished %s"),*Npc->GetName(),*Reason.ToString());
  }
- bActive=false; bApproaching=false; ActiveGoal=EYUFSInteractionGoal::None; ActiveTargetId=NAME_None;
+ bActive=false; bApproaching=false; bAtDoor=false; ActiveGoal=EYUFSInteractionGoal::None; ActiveTargetId=NAME_None;
  Door.Reset(); Person.Reset();
  Elapsed=Contact=0; RetryAt=GetWorld()->GetTimeSeconds()+2.f; Scan=0;
 }
@@ -187,8 +187,24 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  if (Elapsed>20.f) { Finish(false,TEXT("InteractionTimeout")); return true; }
  if (Door.IsValid())
  {
-  bApproaching=false; Npc->GetCharacterMovement()->StopMovementImmediately();
+  bApproaching=false;
   if (Door->IsPassageClear()) { Finish(true,TEXT("DoorOpened")); return true; }
+  if (!bAtDoor)
+  {
+   // Walk the rest of the route up to the leaf first. Stopping where the door is first seen
+   // (up to 1.4 m away) made it look as if the door opened by itself. A user that is not
+   // walking a route (tests, previews) opens from where it stands, as before.
+   const float PlaneDistance=FMath::Abs(FVector::DotProduct(
+       Npc->GetActorLocation()-Door->GetActorLocation(),Door->GetActorForwardVector()));
+   const auto* Nav=Npc->GetNavigator();
+   if (Nav && Nav->IsFollowingPath() && PlaneDistance>DoorStandDistanceCm && Elapsed<DoorApproachSeconds
+       && Door->IsUserInReach(Npc.Get()))
+    return false; // the character's own route keeps moving it toward the door
+   bAtDoor=true;
+   UE_LOG(LogTemp,Display,TEXT("[EnvironmentInteraction] %s at door %s, %.0f cm from the leaf after %.1fs"),
+       *Npc->GetName(),*Door->GetName(),PlaneDistance,Elapsed);
+  }
+  Npc->GetCharacterMovement()->StopMovementImmediately();
   if (!Door->CanOperate() || !Door->IsUserInReach(Npc.Get()))
   { Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true; }
   if (!Door->TryReserve(Npc.Get()))

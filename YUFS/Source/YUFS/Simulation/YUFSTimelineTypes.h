@@ -74,6 +74,10 @@ struct FYUFSTimelineNPCSnapshot
 	// EYUFSBelongingsRetrievalPhase 값입니다(0 = 가방 없음).
 	UPROPERTY()
 	uint8 BelongingsPhase = 0;
+
+	// 문 앞에서 손잡이를 잡고 문을 여는 중이었는지(관찰 모드 동작/표시용).
+	UPROPERTY()
+	bool bHandlingDoor = false;
 };
 
 /**
