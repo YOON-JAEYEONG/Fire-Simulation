@@ -6,6 +6,7 @@
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
 #include "Props/YUFSBelongingsBag.h"
+#include "Simulation/YUFSTimelineTypes.h"
 
 namespace
 {
@@ -110,6 +111,64 @@ bool FYUFSBelongingsComponentContractTest::RunTest(const FString&)
 	Retrieval->ResetForEpisode();
 	TestEqual(TEXT("reset leaves no pending retrieval"), Retrieval->GetPhase(), EYUFSBelongingsRetrievalPhase::None);
 	TestNull(TEXT("reset removes any bag"), Retrieval->GetBag());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSBelongingsTimelineReplayTest,
+	"YUFS.NPC.Belongings.TimelineReplayShowsTheBag",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSBelongingsTimelineReplayTest::RunTest(const FString&)
+{
+	FBelongingsWorldFixture F;
+	FActorSpawnParameters Spawn;
+	Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	auto* Npc = F.World->SpawnActor<AYUFSEvacuationNPC>(FVector(0, 0, 90), FRotator::ZeroRotator, Spawn);
+	auto* Bag = F.World->SpawnActor<AYUFSBelongingsBag>(FVector(500, 0, 20), FRotator::ZeroRotator, Spawn);
+	if (!TestNotNull(TEXT("NPC spawns"), Npc) || !TestNotNull(TEXT("bag spawns"), Bag)) return false;
+	UYUFSBelongingsRetrievalComponent* Retrieval = Npc->GetBelongingsRetrievalComponent();
+	if (!TestNotNull(TEXT("NPC has the belongings executor"), Retrieval)) return false;
+
+	// Recording side: the snapshot names this NPC's bag and where it is in the retrieval.
+	Retrieval->PrepareForEpisode();
+	if (!TestEqual(TEXT("NPC owns the nearby level bag"), Retrieval->GetBag(), Bag)) return false;
+	const FYUFSTimelineNPCSnapshot OnFloor = Npc->BuildTimelineSnapshot();
+	TestEqual(TEXT("snapshot names the bag"), OnFloor.BelongingsBag.Get(), Bag);
+	TestEqual(TEXT("snapshot records the left-behind phase"), static_cast<int32>(OnFloor.BelongingsPhase),
+		static_cast<int32>(EYUFSBelongingsRetrievalPhase::LeftBehind));
+
+	// Replay side: frames as recorded later in the run, applied out of order like a scrubbed slider.
+	FYUFSTimelineNPCSnapshot Carrying = OnFloor;
+	Carrying.BelongingsPhase = static_cast<uint8>(EYUFSBelongingsRetrievalPhase::Carrying);
+	FYUFSTimelineNPCSnapshot LeftBuilding = Carrying;
+	LeftBuilding.bVisible = false;
+
+	Retrieval->ApplyTimelineSnapshot(Carrying);
+	TestEqual(TEXT("replay puts the bag on its owner's back"), Bag->GetAttachParentActor(), static_cast<AActor*>(Npc));
+	TestFalse(TEXT("a carried bag is visible in the replay"), Bag->IsHidden());
+	Npc->SetActorLocation(FVector(900, 0, 90));
+	TestTrue(TEXT("the replayed bag moves with its owner"),
+		FVector::Dist2D(Bag->GetActorLocation(), Npc->GetActorLocation()) < 60.f);
+	Retrieval->ApplyTimelineSnapshot(LeftBuilding);
+	TestTrue(TEXT("the bag leaves the building with its owner"), Bag->IsHidden());
+	Retrieval->ApplyTimelineSnapshot(OnFloor);
+	TestNull(TEXT("scrubbing back puts the bag down"), Bag->GetAttachParentActor());
+	TestFalse(TEXT("the bag is visible on the floor again"), Bag->IsHidden());
+	TestTrue(TEXT("the bag is back on its own spot"), Bag->GetActorLocation().Equals(FVector(500, 0, 20), 0.5f));
+	TestFalse(TEXT("replay leaves the live state alone"), Bag->IsCarried());
+
+	// Live: the owner walks out with the bag. It stays on the NPC's record for the replay.
+	TestTrue(TEXT("owner picks up its bag"), Bag->AttachToCarrier(Npc));
+	Retrieval->FinishEpisode();
+	TestEqual(TEXT("the bag stays assigned for the replay"), Retrieval->GetBag(), Bag);
+	TestTrue(TEXT("a carried bag leaves the building with its owner"), Bag->IsHidden());
+	TestTrue(TEXT("nobody else can claim a bag that left the building"), Bag->IsCarried());
+
+	// The next episode puts the designer's bag back, even though it was carried out last time.
+	Retrieval->ResetForEpisode();
+	TestNull(TEXT("next episode unassigns the bag"), Retrieval->GetBag());
+	TestFalse(TEXT("next episode puts the bag down"), Bag->IsCarried());
+	TestFalse(TEXT("next episode shows the bag again"), Bag->IsHidden());
+	TestTrue(TEXT("next episode restores the designer's spot"), Bag->GetActorLocation().Equals(FVector(500, 0, 20), 0.5f));
 	return true;
 }
 #endif

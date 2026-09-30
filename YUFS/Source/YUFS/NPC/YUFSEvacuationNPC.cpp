@@ -156,6 +156,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	{
 		StopEverydayBehavior();
 		UpdateActionAnimation();
+		if (BelongingsRetrievalComp) BelongingsRetrievalComp->DrawTimelineLabels();
 		if (Navigator) Navigator->ClearPath();
 		if (LocalMovement) LocalMovement->Reset();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
@@ -689,6 +690,12 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 		Snapshot.bEvacuated = true;
 	}
 
+	// 두고 온 가방이 그 시점에 바닥에 있었는지, 등에 있었는지도 함께 기록합니다.
+	if (BelongingsRetrievalComp)
+	{
+		BelongingsRetrievalComp->WriteTimelineSnapshot(Snapshot);
+	}
+
 	return Snapshot;
 }
 
@@ -718,6 +725,12 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 	if (GetActorEnableCollision() != Snapshot.bVisible)
 	{
 		SetActorEnableCollision(Snapshot.bVisible);
+	}
+
+	// NPC를 옮긴 뒤에 가방을 그 시점 상태(바닥 / 등 / 함께 퇴장)로 되돌립니다.
+	if (BelongingsRetrievalComp)
+	{
+		BelongingsRetrievalComp->ApplyTimelineSnapshot(Snapshot);
 	}
 
 	CurrentAction = Snapshot.CurrentAction;
@@ -777,7 +790,8 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)
 {
-	if (BelongingsRetrievalComp) BelongingsRetrievalComp->ResetForEpisode();
+	// Not a reset: the bag stays with this NPC's record so the timeline replay can still show it.
+	if (BelongingsRetrievalComp) BelongingsRetrievalComp->FinishEpisode();
 	ResetRetreatKnowledge();
 	if (Navigator) { Navigator->ClearPath(); Navigator->ResetObservedHazards(); }
 	if (LocalMovement) LocalMovement->Reset();

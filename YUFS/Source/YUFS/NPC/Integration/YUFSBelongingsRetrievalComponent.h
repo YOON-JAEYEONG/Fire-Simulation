@@ -8,6 +8,7 @@
 class AYUFSEvacuationNPC;
 class AYUFSBelongingsBag;
 struct FYUFSNPCObservation;
+struct FYUFSTimelineNPCSnapshot;
 
 UENUM(BlueprintType)
 enum class EYUFSBelongingsRetrievalPhase : uint8
@@ -51,6 +52,19 @@ public:
 	void Cancel(bool bResumeEvacuation = true);
 	/** Destroy the bag and re-roll for a new episode. */
 	void ResetForEpisode();
+	/**
+	 * This NPC is out of the episode (reached an exit or incapacitated). A carried bag leaves with it,
+	 * a left-behind bag stays on its spot. The bag stays assigned until the next episode reset, so
+	 * the timeline replay can still show it and no other NPC claims it mid-run.
+	 */
+	void FinishEpisode();
+
+	/** Timeline: record this NPC's bag and phase into a snapshot. */
+	void WriteTimelineSnapshot(FYUFSTimelineNPCSnapshot& Snapshot) const;
+	/** Timeline replay: put the bag where it was at that moment (on the floor, on the back, or gone). */
+	void ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot);
+	/** Timeline replay: redraw the labels of the moment shown. Call every playback tick. */
+	void DrawTimelineLabels() const;
 
 	bool IsActive() const
 	{
@@ -152,7 +166,7 @@ private:
 	/** Danger the NPC has actually observed; unobserved or missing data is not treated as known danger. */
 	bool IsObservedDangerAlong(const TArray<FVector>& FloorPoints) const;
 	void BeginReturn();
-	void DrawDebugLabels() const;
+	void DrawLabelsFor(EYUFSBelongingsRetrievalPhase ShownPhase, const AYUFSBelongingsBag* ShownBag) const;
 	void Finish(bool bSuccess, FName Reason, bool bResumeEvacuation);
 	void PublishOpportunity() const;
 	void DestroyBag();
@@ -160,6 +174,10 @@ private:
 	TWeakObjectPtr<AYUFSEvacuationNPC> Npc;
 	TWeakObjectPtr<AYUFSBelongingsBag> Bag;
 	EYUFSBelongingsRetrievalPhase Phase = EYUFSBelongingsRetrievalPhase::None;
+	/** What the timeline replay currently shows for this NPC (the live state is left untouched). */
+	TWeakObjectPtr<AYUFSBelongingsBag> ReviewBag;
+	EYUFSBelongingsRetrievalPhase ReviewPhase = EYUFSBelongingsRetrievalPhase::None;
+	bool bEpisodeFinished = false;
 	FVector MovementTarget = FVector::ZeroVector;
 	FName LastStopReason = NAME_None;
 	float RememberDelay = 5.f;

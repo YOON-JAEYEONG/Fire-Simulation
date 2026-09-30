@@ -61,6 +61,8 @@ void AYUFSBelongingsBag::BeginPlay()
 void AYUFSBelongingsBag::AssignOwnerNpc(AActor* InOwner)
 {
 	OwnerNpc = InOwner;
+	// Runtime bags are assigned right where they were dropped: that is where a replay puts them back.
+	if (!bHomeCaptured) { HomeTransform = GetActorTransform(); bHomeCaptured = true; }
 }
 
 bool AYUFSBelongingsBag::Claim(AActor* InOwner)
@@ -98,22 +100,51 @@ bool AYUFSBelongingsBag::AttachToCarrier(AActor* Carrier)
 {
 	if (!IsValid(Carrier) || IsCarried() || (OwnerNpc.IsValid() && OwnerNpc.Get() != Carrier)
 		|| !Carrier->GetRootComponent()) return false;
-	// Bags saved in a map before the mobility fix may still carry Static; lift them first.
-	for (UStaticMeshComponent* Part : { Body.Get(), Strap.Get() })
-	{
-		if (Part && Part->Mobility != EComponentMobility::Movable) Part->SetMobility(EComponentMobility::Movable);
-	}
-	if (!AttachToComponent(Carrier->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform))
+	if (!AttachOnBack(Carrier))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[NPCBelongings] %s could not attach to %s"), *GetName(), *Carrier->GetName());
 		return false;
 	}
 	State = EYUFSBelongingsState::Carried;
-	SetActorRelativeLocation(CarryOffset);
-	// Upright on the back, strap towards the shoulders.
-	SetActorRelativeRotation(FRotator(0.f, 90.f, 0.f));
 	UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] %s on %s's back (%.0f cm from its centre, parent=%s)"),
 		*GetName(), *Carrier->GetName(), FVector::Dist(GetActorLocation(), Carrier->GetActorLocation()),
 		GetAttachParentActor() ? *GetAttachParentActor()->GetName() : TEXT("none"));
 	return true;
+}
+
+bool AYUFSBelongingsBag::AttachOnBack(AActor* Carrier)
+{
+	if (!IsValid(Carrier) || !Carrier->GetRootComponent()) return false;
+	// Bags saved in a map before the mobility fix may still carry Static; lift them first.
+	for (UStaticMeshComponent* Part : { Body.Get(), Strap.Get() })
+	{
+		if (Part && Part->Mobility != EComponentMobility::Movable) Part->SetMobility(EComponentMobility::Movable);
+	}
+	if (!AttachToComponent(Carrier->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform)) return false;
+	SetActorRelativeLocation(CarryOffset);
+	// Upright on the back, strap towards the shoulders.
+	SetActorRelativeRotation(FRotator(0.f, 90.f, 0.f));
+	return true;
+}
+
+void AYUFSBelongingsBag::ShowAtHomeForReview()
+{
+	// Replay applies a frame only when it changes, but still skip no-op transform/visibility
+	// updates: each one refreshes the render proxy and the ray tracing scene.
+	if (GetAttachParentActor()) DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	if (bHomeCaptured && !GetActorTransform().Equals(HomeTransform, 0.5f))
+		SetActorTransform(HomeTransform, false, nullptr, ETeleportType::TeleportPhysics);
+	if (IsHidden()) SetActorHiddenInGame(false);
+}
+
+void AYUFSBelongingsBag::ShowCarriedForReview(AActor* Carrier)
+{
+	if (GetAttachParentActor() != Carrier && !AttachOnBack(Carrier)) return;
+	if (IsHidden()) SetActorHiddenInGame(false);
+}
+
+void AYUFSBelongingsBag::HideForReview()
+{
+	if (GetAttachParentActor()) DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	if (!IsHidden()) SetActorHiddenInGame(true);
 }

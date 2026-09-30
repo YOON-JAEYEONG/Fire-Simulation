@@ -4,6 +4,8 @@
 #include "Core/YUFSTypes.h"
 #include "YUFSTimelineTypes.generated.h"
 
+class AYUFSBelongingsBag;
+
 /**
  * 타임라인 관찰 모드에서 NPC 한 명을 복원하기 위한 최소 정보입니다.
  * 화재 Grid 전체, NavMesh 경로, 센서 상세값은 저장하지 않습니다.
@@ -62,6 +64,15 @@ struct FYUFSTimelineNPCSnapshot
 
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	bool bIncapacitated = false;
+
+	// 두고 온 가방 표시용 정보입니다. 관찰 모드에서 가방을 바닥 / NPC 등 / 퇴장(숨김) 상태로
+	// 되돌리는 데만 쓰고, AI 판단에는 쓰지 않습니다. 가방이 없는 NPC는 비어 있습니다.
+	UPROPERTY()
+	TWeakObjectPtr<AYUFSBelongingsBag> BelongingsBag;
+
+	// EYUFSBelongingsRetrievalPhase 값입니다(0 = 가방 없음).
+	UPROPERTY()
+	uint8 BelongingsPhase = 0;
 };
 
 /**

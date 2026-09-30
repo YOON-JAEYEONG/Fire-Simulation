@@ -12,6 +12,7 @@
 #include "Level/YUFSLevelDataManager.h"
 #include "Level/YUFSExitPoint.h"
 #include "Props/YUFSBelongingsBag.h"
+#include "Simulation/YUFSTimelineTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NavigationPath.h"
 #include "NavigationSystem.h"
@@ -39,13 +40,15 @@ void UYUFSBelongingsRetrievalComponent::BeginPlay()
 		bShowDebugLabels = true;
 }
 
-void UYUFSBelongingsRetrievalComponent::DrawDebugLabels() const
+void UYUFSBelongingsRetrievalComponent::DrawLabelsFor(EYUFSBelongingsRetrievalPhase ShownPhase, const AYUFSBelongingsBag* ShownBag) const
 {
 #if ENABLE_DRAW_DEBUG
-	if (!bShowDebugLabels || !Npc.IsValid() || !Bag.IsValid() || !GetWorld()) return;
+	AActor* Owner = GetOwner();
+	// A hidden owner has left the building (or is out of the episode): nothing to label.
+	if (!bShowDebugLabels || !Owner || Owner->IsHidden() || !ShownBag || !GetWorld()) return;
 	const TCHAR* Label = nullptr;
 	FColor Color = FColor::White;
-	switch (Phase)
+	switch (ShownPhase)
 	{
 	case EYUFSBelongingsRetrievalPhase::LeftBehind: Label = TEXT("NO BAG YET"); Color = FColor(200, 200, 200); break;
 	case EYUFSBelongingsRetrievalPhase::Returning:  Label = TEXT("<< GOING BACK FOR BAG"); Color = FColor::Yellow; break;
@@ -54,13 +57,12 @@ void UYUFSBelongingsRetrievalComponent::DrawDebugLabels() const
 	case EYUFSBelongingsRetrievalPhase::Abandoned:  Label = TEXT("GAVE UP BAG"); Color = FColor::Red; break;
 	default: return;
 	}
-	if (Phase == EYUFSBelongingsRetrievalPhase::Carrying && !Bag->IsCarried()) return; // already left the building
-	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 120.f), Label, Npc.Get(), Color, 0.f, true, 1.3f);
-	if (Phase == EYUFSBelongingsRetrievalPhase::Returning || Phase == EYUFSBelongingsRetrievalPhase::PickingUp)
+	DrawDebugString(GetWorld(), FVector(0.f, 0.f, 120.f), Label, Owner, Color, 0.f, true, 1.3f);
+	if (ShownPhase == EYUFSBelongingsRetrievalPhase::Returning || ShownPhase == EYUFSBelongingsRetrievalPhase::PickingUp)
 	{
 		// Line from the NPC to its bag, and a marker over the bag itself.
-		DrawDebugLine(GetWorld(), Npc->GetActorLocation(), Bag->GetActorLocation(), Color, false, 0.f, 0, 3.f);
-		DrawDebugString(GetWorld(), Bag->GetActorLocation() + FVector(0.f, 0.f, 60.f), TEXT("THIS BAG"),
+		DrawDebugLine(GetWorld(), Owner->GetActorLocation(), ShownBag->GetActorLocation(), Color, false, 0.f, 0, 3.f);
+		DrawDebugString(GetWorld(), ShownBag->GetActorLocation() + FVector(0.f, 0.f, 60.f), TEXT("THIS BAG"),
 			nullptr, Color, 0.f, true, 1.1f);
 	}
 #endif
@@ -262,10 +264,10 @@ void UYUFSBelongingsRetrievalComponent::PrepareForEpisode()
 void UYUFSBelongingsRetrievalComponent::Observe(float DeltaTime, const FYUFSNPCObservation& Observation)
 {
 	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
-	if (!Npc.IsValid() || !bEnabled || Npc->bUseExternalNavigationDriver) return;
+	if (!Npc.IsValid() || !bEnabled || Npc->bUseExternalNavigationDriver || bEpisodeFinished) return;
 	PrepareForEpisode();
 	if (!bWantsBag) return;
-	DrawDebugLabels();
+	DrawLabelsFor(Phase, Bag.Get());
 	if (Phase != EYUFSBelongingsRetrievalPhase::LeftBehind || !Bag.IsValid()) return;
 
 	const auto* State = Npc->GetBehaviorStateMachine();
@@ -434,9 +436,9 @@ void UYUFSBelongingsRetrievalComponent::DestroyBag()
 {
 	if (Bag.IsValid())
 	{
-		// Level-placed bags belong to the map: never delete them. One that was carried out
-		// leaves with its owner; one that was left behind stays (or goes back) on its spot.
-		if (Bag->IsLevelPlaced()) Bag->IsCarried() ? Bag->LeaveWithCarrier() : Bag->ReleaseToHome();
+		// Level-placed bags belong to the map: never delete them. A new episode (or the end of play)
+		// puts one back on the designer's spot, whether it was left there or carried out last time.
+		if (Bag->IsLevelPlaced()) Bag->ReleaseToHome();
 		else Bag->Destroy();
 	}
 	Bag.Reset();
@@ -456,8 +458,50 @@ void UYUFSBelongingsRetrievalComponent::ResetForEpisode()
 	ExecutionRevision = 0;
 	bRolled = false;
 	bWantsBag = false;
+	bEpisodeFinished = false;
+	ReviewBag.Reset();
+	ReviewPhase = EYUFSBelongingsRetrievalPhase::None;
 	++EpisodeCounter;
 	if (Npc.IsValid()) PublishOpportunity();
+}
+
+void UYUFSBelongingsRetrievalComponent::FinishEpisode()
+{
+	Cancel(false);
+	bEpisodeFinished = true;
+	if (!Bag.IsValid()) return;
+	// Carried out: it left with its owner. Otherwise it simply stays where it was left.
+	// The bag is kept (not reset) so the replay can still show it and nobody else claims it this run.
+	if (Bag->IsCarried()) Bag->LeaveWithCarrier();
+	else if (Phase == EYUFSBelongingsRetrievalPhase::LeftBehind) Phase = EYUFSBelongingsRetrievalPhase::Abandoned;
+	if (Npc.IsValid()) PublishOpportunity();
+}
+
+void UYUFSBelongingsRetrievalComponent::WriteTimelineSnapshot(FYUFSTimelineNPCSnapshot& Snapshot) const
+{
+	if (!Bag.IsValid() || Phase == EYUFSBelongingsRetrievalPhase::None) return;
+	Snapshot.BelongingsBag = Bag;
+	Snapshot.BelongingsPhase = static_cast<uint8>(Phase);
+}
+
+void UYUFSBelongingsRetrievalComponent::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot)
+{
+	AYUFSBelongingsBag* ShownBag = Snapshot.BelongingsBag.Get();
+	const bool bKnownPhase = Snapshot.BelongingsPhase <= static_cast<uint8>(EYUFSBelongingsRetrievalPhase::Abandoned);
+	ReviewPhase = ShownBag && bKnownPhase
+		? static_cast<EYUFSBelongingsRetrievalPhase>(Snapshot.BelongingsPhase) : EYUFSBelongingsRetrievalPhase::None;
+	ReviewBag = ReviewPhase == EYUFSBelongingsRetrievalPhase::None ? nullptr : ShownBag;
+	AActor* Owner = GetOwner();
+	if (!ReviewBag.IsValid() || !Owner) return;
+	// Only the bag's position is replayed; its live state and ownership stay as the run left them.
+	if (ReviewPhase != EYUFSBelongingsRetrievalPhase::Carrying) ShownBag->ShowAtHomeForReview();
+	else if (Snapshot.bVisible) ShownBag->ShowCarriedForReview(Owner);
+	else ShownBag->HideForReview(); // Left the building together with its owner.
+}
+
+void UYUFSBelongingsRetrievalComponent::DrawTimelineLabels() const
+{
+	DrawLabelsFor(ReviewPhase, ReviewBag.Get());
 }
 
 FYUFSBehaviorDecision UYUFSBelongingsRetrievalComponent::MakeDecision() const

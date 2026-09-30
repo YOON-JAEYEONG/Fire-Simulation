@@ -50,6 +50,13 @@ public:
 	/** Level-placed bag carried out of the building: it left with its owner, so hide it for this run. */
 	void LeaveWithCarrier();
 
+	/** Timeline replay: show the bag lying on its original spot. Ownership and live state stay as they are. */
+	void ShowAtHomeForReview();
+	/** Timeline replay: show the bag on this carrier's back. */
+	void ShowCarriedForReview(AActor* Carrier);
+	/** Timeline replay: the bag has left the building with its owner. */
+	void HideForReview();
+
 	UPROPERTY(VisibleAnywhere, Category="Belongings")
 	TObjectPtr<UStaticMeshComponent> Body;
 
@@ -60,13 +67,17 @@ public:
 	UPROPERTY(EditAnywhere, Category="Belongings")
 	FVector CarryOffset = FVector(-42.f, 0.f, 30.f);
 
+	/** Vivid on purpose: a dark bag on a dark jacket in smoke could not be seen on the owner's back. */
 	UPROPERTY(EditAnywhere, Category="Belongings")
-	FLinearColor BagColor = FLinearColor(0.08f, 0.16f, 0.45f);
+	FLinearColor BagColor = FLinearColor(0.9f, 0.04f, 0.02f);
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	/** Attach on the carrier's back at CarryOffset. No ownership or state checks. */
+	bool AttachOnBack(AActor* Carrier);
+
 	TWeakObjectPtr<AActor> OwnerNpc;
 	EYUFSBelongingsState State = EYUFSBelongingsState::LeftBehind;
 	FTransform HomeTransform;

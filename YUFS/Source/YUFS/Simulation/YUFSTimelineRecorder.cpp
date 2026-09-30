@@ -2,6 +2,36 @@
 
 #include "Fire/YUFSHeterogeneousVolume.h"
 #include "NPC/YUFSEvacuationNPC.h"
+#include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
+
+namespace
+{
+	// 관찰 모드에서 "가방을 메고 나가는 장면"을 찾기 쉽도록, 그 장면이 처음 기록된 슬라이더 시각을 남깁니다.
+	void LogBelongingsReplayMoments(const TArray<FYUFSTimelineFrame>& Frames)
+	{
+		const uint8 Carrying = static_cast<uint8>(EYUFSBelongingsRetrievalPhase::Carrying);
+		TMap<FName, float> FirstSeenCarrying;
+		for (const FYUFSTimelineFrame& Frame : Frames)
+		{
+			for (const FYUFSTimelineNPCSnapshot& Snapshot : Frame.NPCSnapshots)
+			{
+				if (Snapshot.BelongingsPhase == Carrying && Snapshot.bVisible && !FirstSeenCarrying.Contains(Snapshot.NPCId))
+				{
+					FirstSeenCarrying.Add(Snapshot.NPCId, Frame.FireElapsedTime);
+				}
+			}
+		}
+		for (const TPair<FName, float>& Moment : FirstSeenCarrying)
+		{
+			UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] Replay: %s carries its bag from %.0fs on the timeline"),
+				*Moment.Key.ToString(), Moment.Value);
+		}
+		if (FirstSeenCarrying.IsEmpty())
+		{
+			UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] Replay: nobody carried a bag in this run"));
+		}
+	}
+}
 
 UYUFSTimelineRecorder::UYUFSTimelineRecorder()
 {
@@ -109,6 +139,7 @@ void UYUFSTimelineRecorder::EnterReviewMode(const TArray<AYUFSEvacuationNPC*>& N
 
 	UE_LOG(LogTemp, Warning, TEXT("[YUFSTimeline] Review mode entered. Frames=%d, MaxTime=%.2fs"),
 		RecordedFrames.Num(), GetMaxRecordedFireTime());
+	LogBelongingsReplayMoments(RecordedFrames);
 }
 
 void UYUFSTimelineRecorder::PlayReview()
