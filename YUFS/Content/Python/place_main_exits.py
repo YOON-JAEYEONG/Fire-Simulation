@@ -56,8 +56,16 @@ def main():
             removed += 1
 
     exit_class = unreal.load_class(None, "/Script/YUFS.YUFSExitPoint")
+    others = [a for a in actors.get_all_level_actors()
+              if a.get_class().get_name() == "YUFSExitPoint" and not a.get_actor_label().startswith("YUFS_Exit_")]
     placed = 0
     for label, exit_id, (x, y), (dx, dy), wall_face, yaw, width, familiar, leaf in EXITS:
+        # An exit the team already placed at this doorway stays; do not stack a second one on it.
+        twin = next((o for o in others if abs(o.get_actor_location().x - x) < 300.0
+                     and abs(o.get_actor_location().y - y) < 300.0), None)
+        if twin:
+            unreal.log("[YUFSExits] %s kept the existing exit %s" % (label, twin.get_actor_label()))
+            continue
         # Walk inward from the doorway until the navmesh is hit, so NPCs can reach the point.
         ground = None
         for inset in range(40, 241, 20):

@@ -26,6 +26,11 @@ public:
  UFUNCTION(BlueprintPure) bool IsPassageClear() const;
  UFUNCTION(BlueprintPure) bool IsUserInReach(AActor* User) const;
  UFUNCTION(BlueprintPure) FVector GetHandleLocation() const;
+ /** Timeline: how far the leaf is open (0..1) and which way it swings (+1/-1). */
+ float GetOpenFraction() const { return OpenFraction; }
+ float GetSwingDirection() const { return SwingDirection; }
+ /** Timeline replay: show the leaf as it was at that moment. No operator, no sweep test. */
+ void ApplyReviewState(float InOpenFraction, float InSwingDirection);
  UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Panel;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") bool bLocked = false;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") bool bHot = false;

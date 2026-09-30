@@ -1,8 +1,10 @@
 #include "Simulation/YUFSTimelineRecorder.h"
 
 #include "Fire/YUFSHeterogeneousVolume.h"
+#include "Fire/YUFSInteractionDoor.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
+#include "EngineUtils.h"
 
 namespace
 {
@@ -28,6 +30,33 @@ namespace
 		if (CarryWindow.IsEmpty())
 		{
 			UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] Replay: nobody carried a bag in this run"));
+		}
+	}
+
+	// 문이 처음 열리기 시작한 슬라이더 시각을 남겨, "문을 열고 나가는" 장면을 바로 찾을 수 있게 합니다.
+	void LogDoorReplayMoments(const TArray<FYUFSTimelineFrame>& Frames)
+	{
+		TMap<TWeakObjectPtr<AYUFSInteractionDoor>, float> FirstOpening;
+		for (const FYUFSTimelineFrame& Frame : Frames)
+		{
+			for (const FYUFSTimelineDoorSnapshot& Door : Frame.DoorSnapshots)
+			{
+				if (Door.OpenFraction > 0.f && Door.Door.IsValid() && !FirstOpening.Contains(Door.Door))
+				{
+					FirstOpening.Add(Door.Door, Frame.FireElapsedTime);
+				}
+			}
+		}
+		FirstOpening.ValueSort([](float A, float B) { return A < B; });
+		for (const TPair<TWeakObjectPtr<AYUFSInteractionDoor>, float>& Moment : FirstOpening)
+		{
+			const AYUFSInteractionDoor* Door = Moment.Key.Get();
+#if WITH_EDITOR
+			const FString Name = Door->GetActorLabel();
+#else
+			const FString Name = Door->GetName();
+#endif
+			UE_LOG(LogTemp, Display, TEXT("[YUFSDoors] Replay: %s starts opening at %.1fs on the timeline"), *Name, Moment.Value);
 		}
 	}
 }
@@ -112,6 +141,18 @@ void UYUFSTimelineRecorder::CaptureFrame(
 		Frame.NPCSnapshots.Add(NPC->BuildTimelineSnapshot());
 	}
 
+	// 문 열림 상태도 함께 기록해야 관찰 모드에서 "문을 열고 나가는" 장면이 보입니다.
+	if (UWorld* World = GetWorld())
+	{
+		for (TActorIterator<AYUFSInteractionDoor> It(World); It; ++It)
+		{
+			FYUFSTimelineDoorSnapshot& Door = Frame.DoorSnapshots.AddDefaulted_GetRef();
+			Door.Door = *It;
+			Door.OpenFraction = It->GetOpenFraction();
+			Door.SwingDirection = It->GetSwingDirection();
+		}
+	}
+
 	RecordedFrames.Add(MoveTemp(Frame));
 }
 
@@ -139,6 +180,7 @@ void UYUFSTimelineRecorder::EnterReviewMode(const TArray<AYUFSEvacuationNPC*>& N
 	UE_LOG(LogTemp, Warning, TEXT("[YUFSTimeline] Review mode entered. Frames=%d, MaxTime=%.2fs"),
 		RecordedFrames.Num(), GetMaxRecordedFireTime());
 	LogBelongingsReplayMoments(RecordedFrames);
+	LogDoorReplayMoments(RecordedFrames);
 }
 
 void UYUFSTimelineRecorder::PlayReview()
@@ -263,6 +305,14 @@ void UYUFSTimelineRecorder::ApplyFrame(const FYUFSTimelineFrame& Frame, const TA
 		if (Found && *Found)
 		{
 			NPC->ApplyTimelineSnapshot(**Found);
+		}
+	}
+
+	for (const FYUFSTimelineDoorSnapshot& Door : Frame.DoorSnapshots)
+	{
+		if (AYUFSInteractionDoor* Leaf = Door.Door.Get())
+		{
+			Leaf->ApplyReviewState(Door.OpenFraction, Door.SwingDirection);
 		}
 	}
 }

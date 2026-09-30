@@ -5,6 +5,7 @@
 #include "YUFSTimelineTypes.generated.h"
 
 class AYUFSBelongingsBag;
+class AYUFSInteractionDoor;
 
 /**
  * 타임라인 관찰 모드에서 NPC 한 명을 복원하기 위한 최소 정보입니다.
@@ -76,6 +77,26 @@ struct FYUFSTimelineNPCSnapshot
 };
 
 /**
+ * 문 한 개의 열림 상태입니다. 관찰 모드에서 "문을 열고 나가는" 장면을 되돌려 보여 주는 데만 씁니다.
+ */
+USTRUCT()
+struct FYUFSTimelineDoorSnapshot
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TWeakObjectPtr<AYUFSInteractionDoor> Door;
+
+	// 0 = 닫힘, 1 = 완전히 열림.
+	UPROPERTY()
+	float OpenFraction = 0.f;
+
+	// 문짝이 열리는 방향(+1/-1).
+	UPROPERTY()
+	float SwingDirection = 1.f;
+};
+
+/**
  * 특정 시각의 전체 시뮬레이션 스냅샷입니다.
  * 화재 상황은 FireFrame만 저장하고, 실제 화재 데이터는 기존 smoke_data.bin을 다시 사용합니다.
  */
@@ -100,4 +121,8 @@ struct FYUFSTimelineFrame
 
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	TArray<FYUFSTimelineNPCSnapshot> NPCSnapshots;
+
+	// 문 열림 상태(맵의 AYUFSInteractionDoor 전부).
+	UPROPERTY()
+	TArray<FYUFSTimelineDoorSnapshot> DoorSnapshots;
 };

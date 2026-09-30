@@ -91,6 +91,17 @@ FVector AYUFSInteractionDoor::GetHandleLocation() const
  // Fixed closed-handle reference: discovery/reach does not jump as the leaf rotates.
  return GetActorTransform().TransformPosition(FVector(0.f,82.f,105.f));
 }
+void AYUFSInteractionDoor::ApplyReviewState(float InOpenFraction,float InSwingDirection)
+{
+ const float Fraction=FMath::Clamp(InOpenFraction,0.f,1.f);
+ const float Swing=InSwingDirection<0.f?-1.f:1.f;
+ if (FMath::IsNearlyEqual(Fraction,OpenFraction) && Swing==SwingDirection) return;
+ OpenFraction=Fraction; SwingDirection=Swing;
+ Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false;
+ const float Eased=OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
+ LeafPivot->SetRelativeRotation(FRotator(0,FMath::Abs(OpenAngle)*SwingDirection*Eased,0));
+ PassageBlocker->SetCollisionEnabled(IsOpen()?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
+}
 bool AYUFSInteractionDoor::IsUserInReach(AActor* User) const
 {
  if (!IsValid(User)) return false;
