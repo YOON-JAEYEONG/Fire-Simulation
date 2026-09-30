@@ -29,6 +29,39 @@ struct FBelongingsWorldFixture
 };
 }
 
+// Test-only access to the executor's phase (declared as a friend by the component).
+struct FYUFSBelongingsRetrievalTestAccess
+{
+	static void SetPhase(UYUFSBelongingsRetrievalComponent& Retrieval, EYUFSBelongingsRetrievalPhase Phase)
+	{
+		Retrieval.Phase = Phase;
+	}
+};
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSBelongingsCarrySpeedTest,
+	"YUFS.NPC.Belongings.CarryingSlowsTheOwner",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSBelongingsCarrySpeedTest::RunTest(const FString&)
+{
+	FBelongingsWorldFixture F;
+	FActorSpawnParameters Spawn;
+	Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	auto* Npc = F.World->SpawnActor<AYUFSEvacuationNPC>(FVector(0, 0, 90), FRotator::ZeroRotator, Spawn);
+	if (!TestNotNull(TEXT("NPC spawns"), Npc)) return false;
+	UYUFSBelongingsRetrievalComponent* Retrieval = Npc->GetBelongingsRetrievalComponent();
+	if (!TestNotNull(TEXT("NPC has the belongings executor"), Retrieval)) return false;
+
+	Npc->SetMovementSpeed(1000.f);
+	const float Free = Npc->GetDesiredWalkingSpeed();
+	TestTrue(TEXT("an owner without its bag is not slowed by it"), Free > Retrieval->CarryingMaxSpeedCmPerSec);
+	FYUFSBelongingsRetrievalTestAccess::SetPhase(*Retrieval, EYUFSBelongingsRetrievalPhase::Carrying);
+	TestEqual(TEXT("carrying the bag caps the owner's speed"), Npc->GetDesiredWalkingSpeed(),
+		FMath::Min(Free, Retrieval->CarryingMaxSpeedCmPerSec));
+	FYUFSBelongingsRetrievalTestAccess::SetPhase(*Retrieval, EYUFSBelongingsRetrievalPhase::None);
+	TestEqual(TEXT("the cap ends with the carry"), Npc->GetDesiredWalkingSpeed(), Free);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSBelongingsBagCarryTest,
 	"YUFS.NPC.Belongings.BagIsCarriedOnlyByItsOwner",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)

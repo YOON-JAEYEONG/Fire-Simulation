@@ -139,7 +139,12 @@ void AYUFSBelongingsBag::ShowAtHomeForReview()
 
 void AYUFSBelongingsBag::ShowCarriedForReview(AActor* Carrier)
 {
-	if (GetAttachParentActor() != Carrier && !AttachOnBack(Carrier)) return;
+	if (GetAttachParentActor() != Carrier && !AttachOnBack(Carrier))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[NPCBelongings] Replay could not put %s on %s's back"),
+			*GetName(), Carrier ? *Carrier->GetName() : TEXT("none"));
+		return;
+	}
 	if (IsHidden()) SetActorHiddenInGame(false);
 }
 

@@ -406,6 +406,7 @@ void UYUFSBelongingsRetrievalComponent::Finish(bool bSuccess, FName Reason, bool
 	const bool bWasActive = IsActive();
 	LastStopReason = Reason;
 	Phase = bSuccess ? EYUFSBelongingsRetrievalPhase::Carrying : EYUFSBelongingsRetrievalPhase::Abandoned;
+	if (bSuccess && GetWorld()) CarryStartedAt = GetWorld()->GetTimeSeconds();
 	PickupElapsed = 0.f;
 	MovementTarget = FVector::ZeroVector;
 	if (!Npc.IsValid()) return;
@@ -455,6 +456,7 @@ void UYUFSBelongingsRetrievalComponent::ResetForEpisode()
 	NextDecisionAt = -1.f;
 	HesitationReason = NAME_None;
 	PhaseStartedAt = PickupElapsed = 0.f;
+	CarryStartedAt = -1.f;
 	ExecutionRevision = 0;
 	bRolled = false;
 	bWantsBag = false;
@@ -472,7 +474,13 @@ void UYUFSBelongingsRetrievalComponent::FinishEpisode()
 	if (!Bag.IsValid()) return;
 	// Carried out: it left with its owner. Otherwise it simply stays where it was left.
 	// The bag is kept (not reset) so the replay can still show it and nobody else claims it this run.
-	if (Bag->IsCarried()) Bag->LeaveWithCarrier();
+	if (Bag->IsCarried())
+	{
+		if (Npc.IsValid() && CarryStartedAt >= 0.f && GetWorld())
+			UE_LOG(LogTemp, Display, TEXT("[NPCBelongings] %s left the building with its bag after carrying it for %.1fs"),
+				*Npc->GetName(), GetWorld()->GetTimeSeconds() - CarryStartedAt);
+		Bag->LeaveWithCarrier();
+	}
 	else if (Phase == EYUFSBelongingsRetrievalPhase::LeftBehind) Phase = EYUFSBelongingsRetrievalPhase::Abandoned;
 	if (Npc.IsValid()) PublishOpportunity();
 }

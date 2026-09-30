@@ -138,6 +138,15 @@ public:
 	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="0.1"))
 	float PickupSeconds = 2.0f;
 
+	/**
+	 * Scenario design value: top speed while carrying the bag (a walk under a heavy bag).
+	 * A big bag slows its owner down. The Main map's owners turn back 4-8 m from a door, so the
+	 * carry is short: at full evacuation speed (~5.5 m/s) it lasted one or two seconds, at 2.5 m/s
+	 * still only 2.6-5 s, both too short to see before the owner is counted out at the exit.
+	 */
+	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="50.0"))
+	float CarryingMaxSpeedCmPerSec = 140.f;
+
 	UPROPERTY(EditAnywhere, Category="NPC|Belongings", meta=(ClampMin="10.0"))
 	float PickupRadiusCm = 90.f;
 
@@ -183,6 +192,7 @@ private:
 	float RememberDelay = 5.f;
 	float EvacuationStartedAt = -1.f;
 	float PhaseStartedAt = 0.f;
+	float CarryStartedAt = -1.f;
 	float PickupElapsed = 0.f;
 	float HazardRecheckTimer = 0.f;
 	float FailedPathSeconds = 0.f;

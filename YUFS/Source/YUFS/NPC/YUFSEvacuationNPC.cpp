@@ -1531,6 +1531,9 @@ float AYUFSEvacuationNPC::GetDesiredWalkingSpeed() const
 		* (SocialComp ? SocialComp->GetGroupSpeedMultiplier() : 1.f);
 	if (BehaviorSM && BehaviorSM->IsCrawling() && BehaviorSM->Config)
 		Speed = FMath::Min(Speed, BehaviorSM->Config->CrawlSpeed);
+	// A big bag on the back slows its owner to a loaded jog.
+	if (BelongingsRetrievalComp && BelongingsRetrievalComp->IsCarrying())
+		Speed = FMath::Min(Speed, BelongingsRetrievalComp->CarryingMaxSpeedCmPerSec);
 	return Speed;
 }
 
