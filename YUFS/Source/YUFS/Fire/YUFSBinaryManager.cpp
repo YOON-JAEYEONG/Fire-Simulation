@@ -122,6 +122,16 @@ void AYUFSBinaryManager::SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolu
 	HeterogeneousVolume = InVolume;
 }
 
+void AYUFSBinaryManager::ConfigureDatasetMapping(bool bUseTextureCoordinates, const FTransform& GridToTexture,
+	float FramesPerVisualFrame, int32 FrameOffset, bool bAlignmentConfirmed)
+{
+	bUseSparseVolumeTextureCoordinates = bUseTextureCoordinates;
+	BinaryGridToTexture = GridToTexture;
+	BinaryFramesPerVisualFrame = FramesPerVisualFrame;
+	BinaryFrameOffset = FrameOffset;
+	bDatasetAlignmentConfirmed = bAlignmentConfirmed;
+}
+
 void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 Start, int32 End, int32 Generation)
 {
 	bIsLoadingChunk = true;
@@ -184,8 +194,34 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 		Result.Status = EYUFSHazardDataStatus::InvalidMapping;
 		return Result;
 	}
-	// Compatibility with IT: VoxelSize is a world-space X spacing; Y/Z follow their own transform scales.
-	Result.GridToWorld = FTransform(FQuat::Identity, GridOriginLocal, FVector(VoxelSize / ScaleX)) * VolumeTransform;
+	if (bUseSparseVolumeTextureCoordinates)
+	{
+		USparseVolumeTexture* Texture = nullptr;
+		if (Volume && Volume->GetMaterial(0))
+		{
+			TArray<FMaterialParameterInfo> Parameters;
+			TArray<FGuid> Ids;
+			Volume->GetMaterial(0)->GetAllSparseVolumeTextureParameterInfo(Parameters, Ids);
+			for (const auto& Parameter : Parameters)
+				if (Volume->GetMaterial(0)->GetSparseVolumeTextureParameterValue(Parameter, Texture) && Texture) break;
+		}
+		const int32 VisualFrame = HeterogeneousVolume->GetFrame();
+		const auto* Streamable = Cast<UStreamableSparseVolumeTexture>(Texture);
+		const auto* TextureFrame = Streamable ? Streamable->GetFrame(VisualFrame) : Cast<USparseVolumeTextureFrame>(Texture);
+		if (!TextureFrame || !BinaryGridToTexture.IsValid()
+			|| BinaryGridToTexture.GetScale3D().GetAbsMin() <= SMALL_NUMBER)
+		{
+			// An explicitly configured SVT mapping must never silently revert to the legacy field.
+			Result.Status = EYUFSHazardDataStatus::InvalidMapping;
+			return Result;
+		}
+		Result.GridToWorld = BinaryGridToTexture * TextureFrame->GetFrameTransform() * VolumeTransform;
+	}
+	else
+	{
+		// Legacy datasets retain their previous convention until their export mapping is supplied.
+		Result.GridToWorld = FTransform(FQuat::Identity, GridOriginLocal, FVector(VoxelSize / ScaleX)) * VolumeTransform;
+	}
 	if (!Result.GridToWorld.IsValid() || Result.GridToWorld.GetScale3D().GetAbsMin() <= SMALL_NUMBER)
 	{
 		Result.Status = EYUFSHazardDataStatus::InvalidMapping;
@@ -223,6 +259,17 @@ bool AYUFSBinaryManager::GetTemperatureAtLocation(FVector Location, int32 Frame,
 
 FString AYUFSBinaryManager::GetHazardDiagnostics() const
 {
+	const auto Snapshot = GetHazardSnapshot(CurrentDebugFrame);
+	FString BoundsText = TEXT("unavailable");
+	if (Snapshot.Status == EYUFSHazardDataStatus::Ready)
+	{
+		FBox Bounds(ForceInit);
+		for (int32 X : {0, DimX})
+		for (int32 Y : {0, DimY})
+		for (int32 Z : {0, DimZ})
+			Bounds += Snapshot.GridToWorld.TransformPosition(FVector(X, Y, Z));
+		BoundsText = FString::Printf(TEXT("min(%s) max(%s)"), *Bounds.Min.ToString(), *Bounds.Max.ToString());
+	}
 	const auto* Volume = IsValid(HeterogeneousVolume) ? HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>() : nullptr;
 	FString VisualAsset = TEXT("None");
 	if (Volume && Volume->GetMaterial(0))
@@ -241,12 +288,13 @@ FString AYUFSBinaryManager::GetHazardDiagnostics() const
 			}
 		}
 	}
-	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d voxelXcm=%.2f alignment=%s status=%s asset=%s"),
+	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d voxelXcm=%.2f mapping=%s gridToTexture=%s frameRatio=%.3f offset=%d alignment=%s status=%s asset=%s binWorldBounds=%s"),
 		*BinaryFilePath, DimX, DimY, DimZ, TotalFrames, CurrentDebugFrame,
 		Volume ? *Volume->VolumeResolution.ToString() : TEXT("MissingVolume"),
 		HeterogeneousVolume ? HeterogeneousVolume->GetFrame() : INDEX_NONE, VoxelSize,
+		bUseSparseVolumeTextureCoordinates ? TEXT("SVTFrame") : TEXT("LegacyVolume"), *BinaryGridToTexture.ToString(), BinaryFramesPerVisualFrame, BinaryFrameOffset,
 		bDatasetAlignmentConfirmed ? TEXT("UserConfirmed") : TEXT("UNVERIFIED"),
-		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(GetDataStatus())), *VisualAsset);
+		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(Snapshot.Status)), *VisualAsset, *BoundsText);
 }
 
 void AYUFSBinaryManager::PlayDebugAnimation()

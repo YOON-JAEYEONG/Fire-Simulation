@@ -1,4 +1,4 @@
-#include "UI/YUFSDropZoneWidget.h"
+﻿#include "UI/YUFSDropZoneWidget.h"
 
 #include "Application/SlateApplicationBase.h"
 #include "Components/CapsuleComponent.h"
@@ -14,6 +14,8 @@
 #include "UI/YUFSNPCRotationWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Widgets/SViewport.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Blueprint/SlateBlueprintLibrary.h"
 
 void UYUFSDropZoneWidget::NativeConstruct()
 {
@@ -31,6 +33,19 @@ void UYUFSDropZoneWidget::NativeConstruct()
 	// 위젯 히트 테스트 문제를 우회하기 위한 타이머 기반 클릭 감지 (항상 실행)
 	GetWorld()->GetTimerManager().SetTimer(
 		ClickDetectionTimer, this, &UYUFSDropZoneWidget::TryDetectNPCClick, 0.016f, true);
+}
+
+void UYUFSDropZoneWidget::NativeDestruct()
+{
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(PreviewTickTimer);
+		World->GetTimerManager().ClearTimer(ClickDetectionTimer);
+	}
+	DestroyPreview();
+	if (bInRotationMode) ExitRotationMode(false);
+	HideNPCActionWidget();
+	Super::NativeDestruct();
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -138,7 +153,7 @@ void UYUFSDropZoneWidget::ShowNPCActionWidget(AYUFSEvacuationNPC* NPC)
 	SetNPCOutline(NPC, true);
 
 	NPCActionWidget = CreateWidget<UYUFSNPCActionWidget>(GetOwningPlayer(), NPCActionWidgetClass);
-	if (!NPCActionWidget) return;
+	if (!NPCActionWidget) { HideNPCActionWidget(); return; }
 
 	NPCActionWidget->OnDelete.AddDynamic(this, &UYUFSDropZoneWidget::OnNPCDeleteClicked);
 	NPCActionWidget->OnCancel.AddDynamic(this, &UYUFSDropZoneWidget::OnNPCCancelClicked);
@@ -196,15 +211,15 @@ void UYUFSDropZoneWidget::TickPreviewUpdate()
 	if (!IsValid(ActivePreview)) return;
 
 	FVector FloorPos;
-	if (GetCursorWorldLocation(FloorPos))
-	{
-		ActivePreview->UpdateLocation(FloorPos);
-	}
+	const bool bValid = GetCursorWorldLocation(FloorPos, PreviewNPCClass);
+	ActivePreview->SetActorHiddenInGame(!bValid);
+	if (bValid) ActivePreview->UpdateLocation(FloorPos);
 }
 
 void UYUFSDropZoneWidget::NativeOnDragEnter(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
 	Super::NativeOnDragEnter(InGeometry, InDragDropEvent, InOperation);
+	if (!SimController || SimController->GetCurrentPhase() != ESimPhase::WaitingToStart) return;
 
 	if (bInRotationMode || bShowingNPCAction) return;
 
@@ -213,11 +228,7 @@ void UYUFSDropZoneWidget::NativeOnDragEnter(const FGeometry& InGeometry, const F
 
 	SpawnPreview(DragOp->NPCClass);
 
-	FVector FloorPos;
-	if (GetCursorWorldLocation(FloorPos) && IsValid(ActivePreview))
-	{
-		ActivePreview->UpdateLocation(FloorPos);
-	}
+	TickPreviewUpdate();
 
 	GetWorld()->GetTimerManager().SetTimer(
 		PreviewTickTimer, this, &UYUFSDropZoneWidget::TickPreviewUpdate, 0.016f, true);
@@ -232,7 +243,8 @@ void UYUFSDropZoneWidget::NativeOnDragLeave(const FDragDropEvent& InDragDropEven
 
 bool UYUFSDropZoneWidget::NativeOnDragOver(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
 {
-	if (bInRotationMode || bShowingNPCAction) return false;
+	if (bInRotationMode || bShowingNPCAction || !SimController
+		|| SimController->GetCurrentPhase() != ESimPhase::WaitingToStart) return false;
 	return InOperation && InOperation->IsA<UYUFSNPCDragDropOperation>();
 }
 
@@ -249,14 +261,19 @@ bool UYUFSDropZoneWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragD
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS|DropZone] 유효하지 않은 DragOp."));
 		return false;
 	}
-	if (SimController && SimController->GetCurrentPhase() != ESimPhase::WaitingToStart)
+	if (!SimController || SimController->GetCurrentPhase() != ESimPhase::WaitingToStart)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS|DropZone] 시뮬레이션 시작 전에만 배치 가능합니다."));
 		return false;
 	}
 
 	FVector FloorPos;
-	if (!GetCursorWorldLocation(FloorPos)) return false;
+	const FVector2D DropPosition = InDragDropEvent.GetScreenSpacePosition();
+	if (!GetCursorWorldLocation(FloorPos, DragOp->NPCClass, &DropPosition))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS|DropZone] Placement rejected: point at a visible, walkable floor with room for the NPC."));
+		return false;
+	}
 
 	// NPC 스폰 (BeginPlay에서 SimController에 자동 등록됨)
 	AYUFSEvacuationNPC* NPC = SpawnNPC(DragOp->NPCClass, FloorPos);
@@ -274,6 +291,16 @@ void UYUFSDropZoneWidget::EnterRotationMode(AYUFSEvacuationNPC* NPC)
 {
 	bInRotationMode = true;
 	PendingNPC = NPC;
+	// WaitingToStart permits everyday wandering. Hold this NPC until placement is confirmed.
+	bPendingTickEnabled = NPC->IsActorTickEnabled();
+	NPC->SetActorTickEnabled(false);
+	if (UCharacterMovementComponent* Movement = NPC->GetCharacterMovement())
+	{
+		PendingMovementMode = static_cast<uint8>(Movement->MovementMode);
+		PendingCustomMovementMode = Movement->CustomMovementMode;
+		Movement->StopMovementImmediately();
+		Movement->DisableMovement();
+	}
 
 	SetNPCOutline(NPC, true);
 
@@ -298,6 +325,12 @@ void UYUFSDropZoneWidget::EnterRotationMode(AYUFSEvacuationNPC* NPC)
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS|DropZone] RotationWidgetClass가 설정되지 않았습니다. WBP_NPCRotation을 연결하세요."));
 	}
 
+	if (!RotationWidget)
+	{
+		ExitRotationMode(false);
+		return;
+	}
+
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] Rotation 모드 — 드래그 영역을 좌우로 드래그해 방향을 설정하세요."));
 }
 
@@ -313,7 +346,13 @@ void UYUFSDropZoneWidget::ExitRotationMode(bool bConfirm)
 
 	if (bConfirm)
 	{
-		// BeginPlay에서 이미 등록됨 — 추가 작업 없음
+		if (IsValid(PendingNPC))
+		{
+			PendingNPC->SetActorTickEnabled(bPendingTickEnabled);
+			if (UCharacterMovementComponent* Movement = PendingNPC->GetCharacterMovement())
+				Movement->SetMovementMode(static_cast<EMovementMode>(PendingMovementMode), PendingCustomMovementMode);
+		}
+		// BeginPlay already registered the NPC.
 		UE_LOG(LogTemp, Log, TEXT("[YUFS] NPC '%s' 배치 확정."),
 			IsValid(PendingNPC) ? *PendingNPC->GetName() : TEXT("(invalid)"));
 	}
@@ -366,64 +405,57 @@ void UYUFSDropZoneWidget::OnRotationCancelled()
 // 위치 계산
 // ─────────────────────────────────────────────────────────────────────────────
 
-bool UYUFSDropZoneWidget::GetCursorWorldLocation(FVector& OutWorldPos) const
+bool UYUFSDropZoneWidget::GetCursorWorldLocation(FVector& OutWorldPos,
+	TSubclassOf<AYUFSEvacuationNPC> NPCClass, const FVector2D* ScreenPosition) const
 {
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (!PC) return false;
-
-	UGameViewportClient* ViewportClient = GEngine->GameViewport;
+	UWorld* World = GetWorld();
+	APlayerController* PC = GetOwningPlayer();
+	if (!World || !PC || !NPCClass) return false;
+	UGameViewportClient* ViewportClient = World->GetGameViewport();
 	if (!ViewportClient || !ViewportClient->Viewport) return false;
 
-	FVector2D AbsCursorPos = FSlateApplication::Get().GetCursorPos();
-	FVector2D ViewportPos;
-	if (!ViewportClient->GetMousePosition(ViewportPos))
-	{
-		TSharedPtr<SViewport> ViewportWidget = ViewportClient->GetGameViewportWidget();
-		if (!ViewportWidget.IsValid()) return false;
-		FGeometry VPGeometry = ViewportWidget->GetCachedGeometry();
-		ViewportPos = VPGeometry.AbsoluteToLocal(AbsCursorPos);
-		ViewportPos *= VPGeometry.Scale;
-	}
-
-	FVector RayOrigin, RayDir;
-	if (!PC->DeprojectScreenPositionToWorld(ViewportPos.X, ViewportPos.Y, RayOrigin, RayDir))
-	{
+	// Drag/drop events use desktop coordinates. Convert through Slate's viewport geometry
+	// for both preview and drop, including editor window offsets and DPI scaling.
+	FVector2D PixelPosition, ViewportPosition;
+	USlateBlueprintLibrary::AbsoluteToViewport(this,
+		ScreenPosition ? *ScreenPosition : FSlateApplication::Get().GetCursorPos(),
+		PixelPosition, ViewportPosition);
+	const FIntPoint Size = ViewportClient->Viewport->GetSizeXY();
+	if (PixelPosition.X < 0 || PixelPosition.Y < 0 || PixelPosition.X >= Size.X || PixelPosition.Y >= Size.Y)
 		return false;
-	}
+	FVector RayOrigin, RayDirection;
+	if (!PC->DeprojectScreenPositionToWorld(PixelPosition.X, PixelPosition.Y, RayOrigin, RayDirection))
+		return false;
 
-	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
-	if (!NavSys) return false;
+	const AYUFSEvacuationNPC* CDO = NPCClass->GetDefaultObject<AYUFSEvacuationNPC>();
+	const UCapsuleComponent* Capsule = CDO ? CDO->GetCapsuleComponent() : nullptr;
+	const UCharacterMovementComponent* Movement = CDO ? CDO->GetCharacterMovement() : nullptr;
+	if (!Capsule || !Movement) return false;
 
-	const float VerticalExtent = 150.f;
-	float FloorZ = 0.f;
-	bool bFoundFloor = false;
-	for (float Dist = 200.f; Dist <= 100000.f; Dist += 300.f)
-	{
-		const FVector TestPoint = RayOrigin + RayDir * Dist;
-		FNavLocation NavLoc;
-		if (NavSys->ProjectPointToNavigation(TestPoint, NavLoc, FVector(500.f, 500.f, VerticalExtent)))
-		{
-			FloorZ = NavLoc.Location.Z;
-			bFoundFloor = true;
-			break;
-		}
-	}
+	FCollisionQueryParams Query(SCENE_QUERY_STAT(NPCPlacement), true);
+	Query.AddIgnoredActor(PC->GetPawn());
+	if (IsValid(ActivePreview)) Query.AddIgnoredActor(ActivePreview);
+	FHitResult Hit;
+	// Use the first visible surface: never search through a wall or guess another floor.
+	if (!World->LineTraceSingleByChannel(Hit, RayOrigin, RayOrigin + RayDirection * 100000.f,
+		ECC_Visibility, Query) || !Movement->IsWalkable(Hit)) return false;
 
-	if (!bFoundFloor) return false;
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(World);
+	FNavLocation Nav;
+	const float Radius = Capsule->GetScaledCapsuleRadius();
+	if (!NavSys || !NavSys->ProjectPointToNavigation(Hit.ImpactPoint, Nav,
+		FVector(Radius, Radius, 30.f), &Movement->GetNavAgentPropertiesRef())) return false;
+	// Reject a projection that moves the drop away from the visible floor.
+	if (FVector::DistSquared2D(Hit.ImpactPoint, Nav.Location) > FMath::Square(10.f)
+		|| FMath::Abs(Hit.ImpactPoint.Z - Nav.Location.Z) > 30.f) return false;
 
-	if (FMath::IsNearlyZero(RayDir.Z)) return false;
-	const float T = (FloorZ - RayOrigin.Z) / RayDir.Z;
-	if (T <= 0.f) return false;
-
-	OutWorldPos = RayOrigin + RayDir * T;
-	OutWorldPos.Z = FloorZ;
-
-	FNavLocation FinalNav;
-	if (NavSys->ProjectPointToNavigation(OutWorldPos, FinalNav, FVector(200.f, 200.f, 150.f)))
-	{
-		OutWorldPos = FinalNav.Location;
-	}
-
+	const FVector Center = Nav.Location + FVector(0, 0, Capsule->GetScaledCapsuleHalfHeight() + 2.f);
+	FCollisionQueryParams Clearance(SCENE_QUERY_STAT(NPCPlacementClearance), false);
+	if (IsValid(ActivePreview)) Clearance.AddIgnoredActor(ActivePreview);
+	if (World->OverlapBlockingTestByChannel(Center, FQuat::Identity, Capsule->GetCollisionObjectType(),
+		FCollisionShape::MakeCapsule(Radius, Capsule->GetScaledCapsuleHalfHeight()), Clearance,
+		FCollisionResponseParams(Capsule->GetCollisionResponseToChannels()))) return false;
+	OutWorldPos = Nav.Location;
 	return true;
 }
 
@@ -438,12 +470,12 @@ AYUFSEvacuationNPC* UYUFSDropZoneWidget::SpawnNPC(TSubclassOf<AYUFSEvacuationNPC
 	{
 		if (const UCapsuleComponent* Cap = CDO->GetCapsuleComponent())
 		{
-			SpawnLocation.Z += Cap->GetScaledCapsuleHalfHeight();
+			SpawnLocation.Z += Cap->GetScaledCapsuleHalfHeight() + 2.f;
 		}
 	}
 
 	FActorSpawnParameters Params;
-	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;
 
 	AYUFSEvacuationNPC* NPC = GetWorld()->SpawnActor<AYUFSEvacuationNPC>(
 		NPCClass, SpawnLocation, FRotator::ZeroRotator, Params);
@@ -464,6 +496,7 @@ AYUFSEvacuationNPC* UYUFSDropZoneWidget::SpawnNPC(TSubclassOf<AYUFSEvacuationNPC
 void UYUFSDropZoneWidget::SpawnPreview(TSubclassOf<AYUFSEvacuationNPC> NPCClass)
 {
 	DestroyPreview();
+	PreviewNPCClass = NPCClass;
 
 	TSubclassOf<AYUFSNPCPlacementPreview> SpawnClass =
 		PreviewActorClass
@@ -479,6 +512,7 @@ void UYUFSDropZoneWidget::SpawnPreview(TSubclassOf<AYUFSEvacuationNPC> NPCClass)
 	if (IsValid(ActivePreview))
 	{
 		ActivePreview->InitFromNPCClass(NPCClass);
+		ActivePreview->SetActorHiddenInGame(true);
 	}
 }
 

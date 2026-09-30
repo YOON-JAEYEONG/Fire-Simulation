@@ -36,6 +36,9 @@ public:
 	// 레벨 리로드 없이 콤보박스로 화재를 전환할 때 SimulationController가 호출합니다.
 	UFUNCTION(BlueprintCallable, Category="Fire")
 	bool LoadBinaryFile(const FString& NewRelativePath);
+	// Replaced together with the selected dataset; coordinates are SVT voxel indices.
+	void ConfigureDatasetMapping(bool bUseTextureCoordinates, const FTransform& GridToTexture,
+		float FramesPerVisualFrame, int32 FrameOffset, bool bAlignmentConfirmed);
 
 	bool GetSmokeDensityAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutDensity);
 	bool GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature);
@@ -83,6 +86,10 @@ private:
 	int32 BinaryFrameOffset = 0;
 	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
 	bool bDatasetAlignmentConfirmed = false;
+	UPROPERTY(VisibleAnywhere, Category="Fire|Data Alignment")
+	bool bUseSparseVolumeTextureCoordinates = false;
+	UPROPERTY(VisibleAnywhere, Category="Fire|Data Alignment")
+	FTransform BinaryGridToTexture = FTransform::Identity;
 
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");

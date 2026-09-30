@@ -1,0 +1,81 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "ACSLAB4",
+			"instance": "7B82C22A4725CA847751DC801AB8EE59",
+			"instanceName": "ACSLAB4-24048",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce GTX 1650",
+			"cPUModel": "AMD Ryzen 7 8700G w/ Radeon 780M Graphics      ",
+			"rAMInGB": 16,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.09.28-05.34.11",
+	"succeeded": 0,
+	"succeededWithWarnings": 0,
+	"failed": 1,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 0.083755195140838623,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "MissingDestroyedAndOrigin",
+			"fullTestPath": "YUFS.NPC.Navigation.ExitValidation.MissingDestroyedAndOrigin",
+			"tags": [],
+			"state": "Fail",
+			"deviceInstance": [
+				"7B82C22A4725CA847751DC801AB8EE59"
+			],
+			"duration": 0.083755195140838623,
+			"dateTime": "2026.09.28-05.34.11",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "No exit cannot count as evacuation: The two values are not equal.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Audit-0928\\YUFS\\Source\\YUFS\\Tests\\ExitValidationTests.cpp",
+					"lineNumber": 32,
+					"timestamp": "2026.09.28-05.34.11"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogSpawn: UWorld::DestroyActor: World has no context! World: Untitled, Actor: /Temp/Untitled_1.Untitled:PersistentLevel.YUFSExitPoint_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.34.11"
+				},
+				{
+					"event":
+					{
+						"type": "Error",
+						"message": "Destroyed exit cannot count as evacuation: The two values are not equal.",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Audit-0928\\YUFS\\Source\\YUFS\\Tests\\ExitValidationTests.cpp",
+					"lineNumber": 37,
+					"timestamp": "2026.09.28-05.34.11"
+				}
+			],
+			"warnings": 1,
+			"errors": 2,
+			"artifacts": []
+		}
+	]
+}

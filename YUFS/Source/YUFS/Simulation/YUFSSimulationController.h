@@ -70,6 +70,19 @@ struct FYUFSFireOption
 	// Transform을 복사(Copy)해서 이 필드에 붙여넣기(Paste) 하세요.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
 	FTransform VolumeTransform = FTransform::Identity;
+
+	// Optional dataset-specific BIN -> SVT voxel mapping. Defaults preserve old maps.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment")
+	bool bUseSparseVolumeTextureCoordinates = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment")
+	FTransform BinaryGridToTexture = FTransform::Identity;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment", meta=(ClampMin="0.001"))
+	float BinaryFramesPerVisualFrame = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment")
+	int32 BinaryFrameOffset = 0;
+	// Empirical spatial calibration alone does not establish FDS provenance/physical units.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment")
+	bool bDatasetAlignmentConfirmed = false;
 };
 
 // ── 한 회차 결과 요약 ──────────────────────────────────────────────────────

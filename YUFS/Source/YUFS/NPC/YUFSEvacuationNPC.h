@@ -170,6 +170,9 @@ public:
 	EYUFSAction GetDisplayedAction() const { return bActionAnimationPreviewActive ? PreviewAction : CurrentAction; }
 	bool IsActionAnimationPreviewActive() const { return bActionAnimationPreviewActive; }
 	FString GetCurrentActionAnimationName() const;
+	// Read-only, on-demand audit. Path maxima are deliberately separate from cached perception.
+	UFUNCTION(BlueprintPure, Category="NPC|Diagnostics")
+	FString GetHazardAudit() const;
 
 	UFUNCTION(BlueprintCallable, Category="NPC|Animation")
 	void SetActionAnimationPreview(EYUFSAction Action);
@@ -271,6 +274,7 @@ private:
 	void RememberFailedExit() const;
 	void ResetRetreatKnowledge();
 	friend struct FYUFSPersonalRetreatTestAccess;
+	friend struct FYUFSExitValidationTestAccess;
 	friend struct FYUFSJJWDecisionBridgeTestAccess;
 	friend struct FYUFSEverydayIntegrationTestAccess;
 	friend class UYUFSNpcSuppressionComponent;

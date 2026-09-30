@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
@@ -31,6 +31,7 @@ public:
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 	virtual void NativeOnDragEnter(const FGeometry&, const FDragDropEvent&, UDragDropOperation*) override;
 	virtual void NativeOnDragLeave(const FDragDropEvent&, UDragDropOperation*) override;
@@ -38,7 +39,8 @@ protected:
 	virtual bool NativeOnDrop(const FGeometry&, const FDragDropEvent&, UDragDropOperation*) override;
 
 private:
-	bool GetCursorWorldLocation(FVector& OutWorldPos) const;
+	bool GetCursorWorldLocation(FVector& OutWorldPos, TSubclassOf<AYUFSEvacuationNPC> NPCClass, const FVector2D* ScreenPosition = nullptr) const;
+	UPROPERTY() TSubclassOf<AYUFSEvacuationNPC> PreviewNPCClass;
 
 	// ── 드래그 미리보기 ──────────────────────────────────────────────
 	void SpawnPreview(TSubclassOf<AYUFSEvacuationNPC> NPCClass);
@@ -61,6 +63,9 @@ private:
 	UPROPERTY() AYUFSEvacuationNPC* PendingNPC = nullptr;
 	UPROPERTY() UYUFSNPCRotationWidget* RotationWidget = nullptr;
 	bool bInRotationMode = false;
+	bool bPendingTickEnabled = true;
+	uint8 PendingMovementMode = 0;
+	uint8 PendingCustomMovementMode = 0;
 
 	// ── NPC 액션 (클릭 선택 → 삭제/취소) ────────────────────────────
 	bool TryGetNPCUnderCursor(AYUFSEvacuationNPC*& OutNPC) const;

@@ -1,0 +1,56 @@
+{
+  "mode": "ordinary PIE, fire option changes before Start; no transform/threshold overrides",
+  "options": [
+    {
+      "option": 0,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "visual_bounds_min": [
+        -379.1999999999998,
+        -1985.6000000000004,
+        -144.00000000000028
+      ],
+      "visual_bounds_max": [
+        4420.800000000001,
+        -49.59999999999991,
+        719.2000000000005
+      ],
+      "actor_transform": "<Struct 'Transform' (0x00000216DD95E460) {rotation: {x: -1.000000, y: -0.000000, z: -0.000000, w: 0.000000}, translation: {x: -840.000000, y: -120.000000, z: -310.000000}, scale3d: {x: 96.000000, y: 88.000000, z: 83.000000}}>",
+      "material": "<Object '/Game/Fires/Audit0928/MI_Fire1.MI_Fire1' (0x00000216D77C0000) Class 'MaterialInstanceConstant'>",
+      "visual_frame": 0
+    },
+    {
+      "option": 1,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_2.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_2.fire_it_test_2 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "visual_bounds_min": [
+        -379.1999999999998,
+        -1985.6000000000004,
+        -144.00000000000028
+      ],
+      "visual_bounds_max": [
+        4420.800000000001,
+        -49.59999999999991,
+        719.2000000000005
+      ],
+      "actor_transform": "<Struct 'Transform' (0x00000216DD95E460) {rotation: {x: -1.000000, y: -0.000000, z: -0.000000, w: 0.000000}, translation: {x: -840.000000, y: -120.000000, z: -310.000000}, scale3d: {x: 96.000000, y: 88.000000, z: 83.000000}}>",
+      "material": "<Object '/Game/Fires/Audit0928/MI_Fire2.MI_Fire2' (0x00000216D77C0800) Class 'MaterialInstanceConstant'>",
+      "visual_frame": 0
+    },
+    {
+      "option": 2,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_3_v1.bin binary=116x53x20/998 frame=0 visual=X=120 Y=58 Z=23/0 voxelXcm=40.00 mapping=SVTFrame gridToTexture=2.000000,3.000000,1.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire__it_test_3.fire__it_test_3 frames=997 importTransform=2.800000,-2.800000,-0.800000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-90.000 Y=-1830.000 Z=26.000) max(X=4550.000 Y=290.000 Z=666.000)",
+      "visual_bounds_min": [
+        30.0,
+        -1990.0,
+        89.99999999999966
+      ],
+      "visual_bounds_max": [
+        5030.0,
+        210.0,
+        922.0000000000006
+      ],
+      "actor_transform": "<Struct 'Transform' (0x00000216DD95E460) {rotation: {x: -1.000000, y: -0.000000, z: -0.000000, w: 0.000000}, translation: {x: -450.000000, y: 130.000000, z: -70.000000}, scale3d: {x: 100.000000, y: 100.000000, z: 80.000000}}>",
+      "material": "<Object '/Game/Fires/Audit0928/MI_Fire3.MI_Fire3' (0x00000216D77C9000) Class 'MaterialInstanceConstant'>",
+      "visual_frame": 0
+    }
+  ]
+}

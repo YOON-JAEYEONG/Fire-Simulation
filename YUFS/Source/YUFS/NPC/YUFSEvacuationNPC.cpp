@@ -662,6 +662,31 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 	Out.bNearestExitSmokeFree= bFoundSafeExit && Navigator->GetPerceivedHazardSnapshot(Frame).Sample(NExit+FVector(0,0,120)).Smoke < 0.35f;
 }
 
+FString AYUFSEvacuationNPC::GetHazardAudit() const
+{
+	const int32 Frame = GetCurrentSimFrame();
+	const auto Snapshot = LevelDataMgr ? LevelDataMgr->GetHazardSnapshot(Frame) : FYUFSHazardSnapshot();
+	const FVector Eye = GetPawnViewLocation();
+	const FVector Cell = Snapshot.GridToWorld.InverseTransformPosition(Eye);
+	const int32 Index = Snapshot.CellIndex(Eye);
+	const auto Sample = Snapshot.Sample(Eye);
+	FString Raw = TEXT("unavailable");
+	if (Snapshot.Grid && Snapshot.Grid->Density.IsValidIndex(Index) && Snapshot.Grid->Temperature.IsValidIndex(Index))
+		Raw = FString::Printf(TEXT("%u/%u"), Snapshot.Grid->Density[Index], Snapshot.Grid->Temperature[Index]);
+	const auto* Sense = FindComponentByClass<UYUFSNPCPerceptionComponent>();
+	return FString::Printf(TEXT("npc=%s pos=%s eye=%s binFrame=%d cell=%s index=%d rawSmokeHeat=%s eyeStatus=%s eyeSmoke=%.4f perceptionFrame=%d self=%.4f front=%.4f above=%.4f pathMaxSmoke=%.4f pathMaxHeat=%.4f nav=%s failure=%s state=%s exposure=%.4f alarm=%d tick=%d activity=%d"),
+		*GetName(), *GetActorLocation().ToString(), *Eye.ToString(), Frame, *Cell.ToString(), Index, *Raw,
+		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(Sample.Status)), Sample.Smoke,
+		Sense ? Sense->GetLastSampleFrame() : INDEX_NONE, Sense ? Sense->GetSmokeDensity() : -1.f,
+		Sense ? Sense->GetSmokeInFrontNormalized() : -1.f, Sense ? Sense->GetSmokeAboveNormalized() : -1.f,
+		Navigator ? Navigator->GetPathSmoke() : -1.f, Navigator ? Navigator->GetPathHeat() : -1.f,
+		Navigator ? *StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(static_cast<int64>(Navigator->GetNavigationStatus())) : TEXT("None"),
+		Navigator ? *StaticEnum<EYUFSNavigationFailure>()->GetNameStringByValue(static_cast<int64>(Navigator->GetLastFailure())) : TEXT("None"),
+		BehaviorSM ? *StaticEnum<EYUFSBehaviorState>()->GetNameStringByValue(static_cast<int64>(BehaviorSM->GetCurrentState())) : TEXT("None"),
+		BehaviorSM ? BehaviorSM->GetSmokeExposure() : -1.f, bAlarmSounding, IsActorTickEnabled(),
+		!SimulationController || SimulationController->IsNPCActivityEnabled());
+}
+
 EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
 {
 	if (BehaviorSM && BehaviorSM->IsIncapacitated())
@@ -673,8 +698,7 @@ EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
 		if (State != EYUFSBehaviorState::Evacuating && State != EYUFSBehaviorState::Crawling)
 			return EYUFSTerminalReason::None;
 
-		const FVector Exit = LevelDataMgr->GetNearestSafeExit(GetActorLocation(), false, GetCurrentSimFrame());
-		if (FVector::Dist(GetActorLocation(), Exit) < 150.f)
+		if (LevelDataMgr->IsAtValidExit(GetActorLocation(), 150.f))
 			return EYUFSTerminalReason::ReachedExit;
 	}
 

@@ -1,4 +1,5 @@
 #include "Simulation/YUFSSimulationController.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "Blueprint/UserWidget.h"
 #include "Simulation/YUFSGameInstance.h"
@@ -446,6 +447,8 @@ void AYUFSSimulationController::ApplyFireOption(int32 OptionIndex)
 
 	if (BinaryManager)
 	{
+		BinaryManager->ConfigureDatasetMapping(Option.bUseSparseVolumeTextureCoordinates, Option.BinaryGridToTexture,
+			Option.BinaryFramesPerVisualFrame, Option.BinaryFrameOffset, Option.bDatasetAlignmentConfirmed);
 		BinaryManager->LoadBinaryFile(Option.BinaryFilePath);
 	}
 
@@ -625,8 +628,6 @@ void AYUFSSimulationController::UpdateLiveCounts()
 {
 	if (!CachedLDM || !BinaryManager) return;
 
-	const int32 CurrentFrame = BinaryManager->GetCurrentFrame();
-
 	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
 	{
 		if (!IsValid(NPC) || ResolvedNPCs.Contains(NPC))
@@ -658,11 +659,7 @@ void AYUFSSimulationController::UpdateLiveCounts()
 		}
 
 		// 출구 도달 여부 확인
-		const FVector NearestExit = CachedLDM->GetNearestSafeExit(
-			NPC->GetActorLocation(), false, CurrentFrame);
-		const float DistToExit = FVector::Distance(NPC->GetActorLocation(), NearestExit);
-
-		if (DistToExit < EvacuationSuccessDistanceCm)
+		if (CachedLDM->IsAtValidExit(NPC->GetActorLocation(), EvacuationSuccessDistanceCm))
 		{
 			NPC->NotifyEpisodeFinished(EYUFSTerminalReason::ReachedExit);
 			LiveEvacuatedCount++;
@@ -1018,14 +1015,18 @@ void AYUFSSimulationController::SpawnHUD()
 		return;
 	}
 
-	PC->bShowMouseCursor = true;
-	PC->SetInputMode(FInputModeGameAndUI());
-
 	HUDWidgetInstance = CreateWidget<UUserWidget>(PC, HUDWidgetClass);
 	if (HUDWidgetInstance)
 	{
 		HUDWidgetInstance->AddToViewport();
 	}
+
+	// Widget construction may change input mode; restore game input after it finishes.
+	PC->bShowMouseCursor = true;
+	FInputModeGameAndUI InputMode;
+	InputMode.SetHideCursorDuringCapture(false);
+	PC->SetInputMode(InputMode);
+	UWidgetBlueprintLibrary::SetFocusToGameViewport();
 }
 
 void AYUFSSimulationController::StartNPCActionAnimationShowcase()

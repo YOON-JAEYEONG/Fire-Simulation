@@ -116,7 +116,7 @@ FString UYUFSNPCDebugComponent::BuildStateText(const FYUFSNPCObservation& Obs) c
 		? Navigator->GetCurrentDestination().ToCompactString()
 		: FString(TEXT("None"));
 	const FString PathStatus = Navigator
-		? FString::Printf(TEXT("%s | %s | %s\nData: %s | Path smoke/heat: %.2f / %.2f"),
+		? FString::Printf(TEXT("%s | %s | %s\nData: %s | Path MAX smoke/heat: %.2f / %.2f"),
 			*StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(static_cast<int64>(Navigator->GetNavigationStatus())),
 			*StaticEnum<EYUFSRepathReason>()->GetNameStringByValue(static_cast<int64>(Navigator->GetLastRepathReason())),
 			*StaticEnum<EYUFSNavigationFailure>()->GetNameStringByValue(static_cast<int64>(Navigator->GetLastFailure())),
