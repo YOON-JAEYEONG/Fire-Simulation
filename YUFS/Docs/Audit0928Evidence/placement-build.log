@@ -1,0 +1,68 @@
+Log started at 09/30/2026 11:23:01 (2026-09-30T02:23:01Z)
+Resolved project argument C:/Users/ACSLAB4/Documents/Codex/Fire-Audit-0928/YUFS/YUFS.uproject to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\YUFS.uproject
+Log file: C:\Users\ACSLAB4\Documents\Codex\2026-09-07\https-github-com-yoon-jaeyeong-fire-2\work\placement-build.log
+
+Setting temp directory to 'C:\Users\ACSLAB4\AppData\Local\Temp\UnrealBuildTool\9de8e132'
+    Registering build platform: UnrealBuildTool.AndroidPlatformFactory
+    Registering build platform: UnrealBuildTool.IOSPlatformFactory
+    Registering build platform: UnrealBuildTool.LinuxPlatformFactory
+    Registering build platform: UnrealBuildTool.MacPlatformFactory
+    Registering build platform: UnrealBuildTool.TVOSPlatformFactory
+    Registering build platform: UnrealBuildTool.WindowsPlatformFactory
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (1)
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (2)
+Found Windows 10 SDK version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Win64 Installed SDK(s): MinVersion_Sdk=10.0.19041.0, MaxVersion_Sdk=10.9.99999.0, CurrentVersion_Sdk=10.0.26100.0, Version_AutoSdk=10.0.22621.0, CurrentVersion_AutoSdk=
+        Registering build platform: Win64 - buildable: True
+    Registering build platform: UnrealBuildTool.VisionOSPlatformFactory
+Command line: "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" YUFSEditor Win64 Development -Project=C:/Users/ACSLAB4/Documents/Codex/Fire-Audit-0928/YUFS/YUFS.uproject -WaitMutex -NoHotReloadFromIDE -NoUBTMakefiles -NoUBA -XmlConfigCache=C:/Users/ACSLAB4/Documents/Codex/2026-09-07/https-github-com-yoon-jaeyeong-fire-2/work/DefaultXmlConfigCache.bin -Log=C:/Users/ACSLAB4/Documents/Codex/2026-09-07/https-github-com-yoon-jaeyeong-fire-2/work/placement-build.log
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928).
+Skipping C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\BuildRules\UE5Rules.dll: File is installed
+Skipping C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\BuildRules\UE5ProgramRules.dll: File is installed
+Found VisualStudio2026 installation: C:\Program Files\Microsoft Visual Studio\18\Community (Product=Microsoft.VisualStudio.Product.Community, Version=18.10.12201.205)
+Found Visual Studio toolchain: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231 (Family=14.51.36231, FamilyRank=1, Version=14.51.36257, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64, Error=False, Redist=C:\Program Files\Microsoft Visual Studio\18\Community\VC\Redist\MSVC\14.51.36231)
+Available x64 toolchains (1):
+ * C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231
+    (Family=14.51.36231, FamilyRank=1, Version=14.51.36257, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2026 compiler version 14.51.36257 is not a preferred version. Please use the latest preferred version 14.44.35207
+Building UnrealEditor - YUFSEditor - Win64 - Development
+Compiler: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe
+Linker: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe
+Library Manager: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe
+Resource Compiler: C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\rc.exe
+Using EngineIncludeOrderVersion.Unreal5_7 for target YUFSEditor.Target.cs
+UHT compiled-in object format Default
+Generated code is up to date.
+Found 5 shared PCH headers (listed in order of preference):
+	UnrealEd
+	Engine
+	Slate
+	CoreUObject
+	Core
+VerseVMBytecodeGenerator.Generate, generating CPP headers in: 'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMBytecodeOps.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMBytecodesAndCaptures.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMMakeCapturesFuncs.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMCaptureSwitch.gen.h'
+Deleting outdated item: C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Binaries\Win64\UnrealEditor-YUFS.pdb
+Deleting outdated item: C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\UnrealEditor-YUFS.lib
+Building YUFSEditor...
+Using Visual Studio 2026 14.51.36257 toolchain (C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2026 compiler is not a preferred version
+Determining max actions to execute in parallel (8 physical cores, 16 logical cores)
+  Executing up to 8 processes, one per physical core
+  Requested 1.5 GB memory per action, 8.32 GB available: limiting max parallel actions to 5
+Using Parallel executor to run 4 action(s)
+------ Building 4 action(s) started ------
+[1/4] Compile [x64] Module.YUFS.8.cpp
+[2/4] Link [x64] UnrealEditor-YUFS.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Audit-0928/YUFS/Intermediate/Build/Win64/x64/UnrealEditor/Development/YUFS/UnrealEditor-YUFS.lib ���̺귯�� �� C:/Users/ACSLAB4/Documents/Codex/Fire-Audit-0928/YUFS/Intermediate/Build/Win64/x64/UnrealEditor/Development/YUFS/UnrealEditor-YUFS.exp ��ü�� �����ϰ� �ֽ��ϴ�.
+[3/4] Link [x64] UnrealEditor-YUFS.dll
+[4/4] WriteMetadata YUFSEditor.target
+
+Total time in Parallel executor: 10.53 seconds
+WriteFileIfChanged() wrote 0 changed files of 189 requested writes.
+
+Result: Succeeded
+Total execution time: 14.92 seconds

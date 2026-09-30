@@ -36,6 +36,9 @@ public:
 	// 레벨 리로드 없이 콤보박스로 화재를 전환할 때 SimulationController가 호출합니다.
 	UFUNCTION(BlueprintCallable, Category="Fire")
 	bool LoadBinaryFile(const FString& NewRelativePath);
+	// Replaced together with the selected dataset; coordinates are SVT voxel indices.
+	void ConfigureDatasetMapping(bool bUseTextureCoordinates, const FTransform& GridToTexture,
+		float FramesPerVisualFrame, int32 FrameOffset, bool bAlignmentConfirmed);
 
 	bool GetSmokeDensityAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutDensity);
 	bool GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature);
@@ -50,26 +53,27 @@ public:
 	bool IsDatasetAlignmentConfirmed() const { return bDatasetAlignmentConfirmed; }
 	AYUFSHeterogeneousVolume* GetHeterogeneousVolume() const { return HeterogeneousVolume; }
 
-	/**
-	 * Grid(cell) -> world for a BIN grid that shares the SVT's voxel lattice.
-	 * FrameTransform is the SVT frame transform as the UE importer builds it: VDB affine map with
-	 * translation += SequenceBoundsMin * Scale. The VDB map itself is assumed translation-free
-	 * (true for FDS ScaleMap exports), so SequenceBoundsMin = FrameTranslation / FrameScale.
-	 */
-	static FTransform ComputeVisualAlignedGridToWorld(const FTransform& FrameTransform,
-		const FTransform& ComponentToWorld, const FVector& BinToVisualVoxelOffset);
+	// ── 건물(월드) 고정 격자 ─────────────────────────────────────────────
+	// .bin 격자는 FDS 전체 도메인이라 같은 건물의 화재라면 월드에서 항상 같은 자리여야 합니다.
+	// 반면 vdb(SVT)는 연기가 있는 범위로 경계가 잡혀 화재마다 import 원점이 달라지고, 그래서
+	// 화재별 VolumeTransform도 달라집니다. 이 함수로 "기준 화재"의 볼륨 Transform을 넘겨주면
+	// 이후 격자는 현재 볼륨 Transform이 아니라 이 기준 Transform으로 계산되어 고정됩니다.
+	// (GridOriginLocal/VoxelSize는 그대로 기준 화재에 맞춰 둔 값이 적용됩니다.)
+	void SetWorldAnchoredGrid(const FTransform& ReferenceVolumeTransform);
+	// 예전 방식(격자가 현재 볼륨 Transform을 따라감)으로 되돌립니다.
+	void ClearWorldAnchoredGrid();
+	bool IsGridWorldAnchored() const { return bGridWorldAnchored; }
 
-	/** World-space box covered by the BIN grid (visual-aligned when possible). False if no grid/volume. */
+	/** World-space box covered by the BIN grid under the current mapping. False if no grid/volume. */
 	bool GetGridWorldBounds(FBox& OutBounds) const;
-	FIntVector GetGridDimensions() const { return FIntVector(DimX, DimY, DimZ); }
-
-private:
-	/** SVT frame transform of the fire volume: live component value, else the material's SVT asset. */
-	bool FindVisualFrameTransform(FTransform& OutFrameTransform) const;
-public:
 
 private:
 	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation);
+	// VolumeTransform(볼륨 컴포넌트의 월드 Transform) 기준으로 격자→월드 Transform을 계산합니다.
+	bool ComputeGridToWorld(const FTransform& VolumeTransform, FTransform& OutGridToWorld) const;
+
+	bool bGridWorldAnchored = false;
+	FTransform GridAnchorVolumeTransform = FTransform::Identity;
 
 protected:
 	TArray<TSharedPtr<const FYUFSHazardGrid, ESPMode::ThreadSafe>> FramesBuffer;
@@ -101,24 +105,10 @@ private:
 	int32 BinaryFrameOffset = 0;
 	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
 	bool bDatasetAlignmentConfirmed = false;
-
-	/**
-	 * Map BIN cells through the visual SVT's own frame transform instead of GridOriginLocal/VoxelSize,
-	 * so NPC smoke/heat sits exactly where the rendered smoke is (same 40 cm FDS grid, same frames).
-	 * Used only when the fire volume's material has a sparse volume texture; otherwise legacy mapping.
-	 */
-	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
-	bool bAlignGridToVisualVolume = true;
-
-	/**
-	 * BIN cell index -> VDB voxel index offset, measured from the it_test data
-	 * (3 fires, 8 frames each: VDB bbox == BIN bbox shifted by -4.5/-4.5/-0.5, +-0.5 voxel).
-	 */
-	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment", meta=(EditCondition="bAlignGridToVisualVolume"))
-	FVector BinToVisualVoxelOffset = FVector(-4.5f, -4.5f, -0.5f);
-
-	mutable TWeakObjectPtr<UMaterialInterface> CachedVisualMaterial;
-	mutable FTransform CachedVisualFrameTransform = FTransform::Identity;
+	UPROPERTY(VisibleAnywhere, Category="Fire|Data Alignment")
+	bool bUseSparseVolumeTextureCoordinates = false;
+	UPROPERTY(VisibleAnywhere, Category="Fire|Data Alignment")
+	FTransform BinaryGridToTexture = FTransform::Identity;
 
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");

@@ -37,6 +37,7 @@ public:
 	float GetNearbyHeat() const { return CachedNearbyHeat; }
 	int32 GetKnownCellCount() const { return KnownCells.Num(); }
 	EYUFSHazardDataStatus GetDataStatus() const { return DataStatus; }
+	int32 GetLastSampleFrame() const { return LastFrame; }
 	UPROPERTY(EditAnywhere, Category="Config") float HazardMemorySeconds = 30.f;
 	float SampleSmokeAtPoint(FVector WorldPos, int32 Frame) const;
 

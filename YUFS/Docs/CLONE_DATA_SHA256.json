@@ -1,0 +1,17 @@
+[
+  {
+    "file": "smoke_data_it_test_1.bin",
+    "bytes": 245182256,
+    "sha256": "228B8789D38F740921FFC5ABDC1D14F4342448D5C54E758F0A6E5D261C321DB8"
+  },
+  {
+    "file": "smoke_data_it_test_2.bin",
+    "bytes": 245182256,
+    "sha256": "FD3BE704C09409EC7FF22F8C9C48A9BA85BEA2D0FC7A70A654A906D013B593D1"
+  },
+  {
+    "file": "smoke_data_it_test_3_v1.bin",
+    "bytes": 245428176,
+    "sha256": "3EAAC79E4C26EBA6C08648E19673007B6F876A0A7047C5B1012A3BC0A514E761"
+  }
+]

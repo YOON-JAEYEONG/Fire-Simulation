@@ -1,0 +1,127 @@
+Log started at 09/30/2026 17:48:40 (2026-09-30T08:48:40Z)
+No project arugment provided while trying to parse Project File. Attempting fallback parsing to attempt to find a Project File.
+Resolved project argument C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\YUFS.uproject to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\YUFS.uproject
+No config file at C:\ProgramData\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\ACSLAB4\AppData\Local\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\ACSLAB4\Documents\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Configuration will be read from:
+  C:\Users\ACSLAB4\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\XmlConfigCache.bin): C:\Users\ACSLAB4\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\XmlConfigCache.bin): C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Saved\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\XmlConfigCache.bin): C:\Users\ACSLAB4\AppData\Local\UnrealEngine\Intermediate\Build\UnrealBuildTool.Env.BuildConfiguration.xml
+Log file: C:\Users\ACSLAB4\Documents\Codex\2026-09-07\https-github-com-yoon-jaeyeong-fire-2\work\hazard-alignment-build.log
+
+Setting temp directory to 'C:\Users\ACSLAB4\AppData\Local\Temp\UnrealBuildTool\9de8e132'
+    Registering build platform: UnrealBuildTool.AndroidPlatformFactory
+    Registering build platform: UnrealBuildTool.IOSPlatformFactory
+    Registering build platform: UnrealBuildTool.LinuxPlatformFactory
+    Registering build platform: UnrealBuildTool.MacPlatformFactory
+    Registering build platform: UnrealBuildTool.TVOSPlatformFactory
+    Registering build platform: UnrealBuildTool.WindowsPlatformFactory
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (1)
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (2)
+Found Windows 10 SDK version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Win64 Installed SDK(s): MinVersion_Sdk=10.0.19041.0, MaxVersion_Sdk=10.9.99999.0, CurrentVersion_Sdk=10.0.26100.0, Version_AutoSdk=10.0.22621.0, CurrentVersion_AutoSdk=
+        Registering build platform: Win64 - buildable: True
+    Registering build platform: UnrealBuildTool.VisionOSPlatformFactory
+Command line: "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" YUFSEditor Win64 Development C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\YUFS.uproject -WaitMutex -NoHotReloadFromIDE -Log=C:\Users\ACSLAB4\Documents\Codex\2026-09-07\https-github-com-yoon-jaeyeong-fire-2\work\hazard-alignment-build.log
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928).
+Creating makefile for YUFSEditor (no existing makefile)
+Skipping C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\BuildRules\UE5Rules.dll: File is installed
+Skipping C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\BuildRules\UE5ProgramRules.dll: File is installed
+Found VisualStudio2026 installation: C:\Program Files\Microsoft Visual Studio\18\Community (Product=Microsoft.VisualStudio.Product.Community, Version=18.10.12201.205)
+Found Visual Studio toolchain: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231 (Family=14.51.36231, FamilyRank=1, Version=14.51.36257, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64, Error=False, Redist=C:\Program Files\Microsoft Visual Studio\18\Community\VC\Redist\MSVC\14.51.36231)
+Available x64 toolchains (1):
+ * C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231
+    (Family=14.51.36231, FamilyRank=1, Version=14.51.36257, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2026 compiler version 14.51.36257 is not a preferred version. Please use the latest preferred version 14.44.35207
+Building UnrealEditor - YUFSEditor - Win64 - Development
+Compiler: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe
+Linker: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe
+Library Manager: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe
+Resource Compiler: C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\rc.exe
+Using EngineIncludeOrderVersion.Unreal5_7 for target YUFSEditor.Target.cs
+UHT compiled-in object format Default
+UnrealHeaderTool needs to run because SavedTimestamp is older than HeaderFileTimestamp (C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Source\YUFS\Fire\YUFSBinaryManager.h) for module YUFS
+Parsing headers for YUFSEditor
+  Running Internal UnrealHeaderTool C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\YUFS.uproject C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\YUFSEditor\Development\YUFSEditor.uhtmanifest -WarningsAsErrors -installed
+Reading engine version from file: C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Launch\Resources\Version.h
+Got engine version 5.7.4
+Step - Exports
+       Exporter Stats skipped
+       Exporter Json skipped
+       Running exporter CodeGen
+UHT processed YUFSEditor in 1.4261092 seconds (4 files written)
+Found 5 shared PCH headers (listed in order of preference):
+	UnrealEd
+	Engine
+	Slate
+	CoreUObject
+	Core
+VerseVMBytecodeGenerator.Generate, generating CPP headers in: 'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMBytecodeOps.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMBytecodesAndCaptures.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMMakeCapturesFuncs.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMCaptureSwitch.gen.h'
+Updating C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\Module.YUFS.8.cpp: contents have changed. Saving previous version to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\Module.YUFS.8.cpp.old.
+Updating C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\Module.YUFS.5.cpp: contents have changed. Saving previous version to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\Module.YUFS.5.cpp.old.
+Updating C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\Module.YUFS.6.cpp: contents have changed. Saving previous version to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\Module.YUFS.6.cpp.old.
+Updating C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\Module.YUFS.7.cpp: contents have changed. Saving previous version to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\Module.YUFS.7.cpp.old.
+Updating C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\LiveCodingInfo.json: contents have changed. Saving previous version to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\LiveCodingInfo.json.old.
+Updating C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\UnrealEditor-YUFS.lib.rsp: contents have changed. Saving previous version to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\UnrealEditor-YUFS.lib.rsp.old.
+Updating C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\UnrealEditor-YUFS.dll.rsp: contents have changed. Saving previous version to C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\UnrealEditor-YUFS.dll.rsp.old.
+Deleting outdated item: C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Binaries\Win64\UnrealEditor-YUFS.pdb
+Deleting outdated item: C:\Users\ACSLAB4\Documents\Codex\Fire-Audit-0928\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\UnrealEditor-YUFS.lib
+Building YUFSEditor...
+Using Visual Studio 2026 14.51.36257 toolchain (C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2026 compiler is not a preferred version
+[Adaptive Build] Excluded from YUFS unity file: YUFSNPCDebugComponent.cpp, YUFSBinaryManager.cpp, YUFSLevelDataManager.cpp, YUFSEvacuationNPC.cpp, YUFSSmokeAwareNavigator.cpp, YUFSNPCPerceptionComponent.cpp, YUFSSimHUD.cpp, YUFSSimulationController.cpp, ExitValidationTests.cpp, YUFSDropZoneWidget.cpp, YUFSNPCPaletteEntry.cpp, YUFSNPCPaletteWidget.cpp
+Determining max actions to execute in parallel (8 physical cores, 16 logical cores)
+  Executing up to 8 processes, one per physical core
+  Requested 1.5 GB memory per action, 3.93 GB available: limiting max parallel actions to 2
+Using Unreal Build Accelerator local executor to run 23 action(s)
+  Storage capacity 40Gb
+  RootDir C:\ProgramData\Epic\UnrealBuildAccelerator
+---- Starting trace: 260930_174846 ----
+UbaServer - Listening on 0.0.0.0:1345
+Cache bucket 2290394380 used. Action: Compile [x64] ExitValidationTests.cpp ()
+Cache bucket 416513229 used. Action: Link [x64] UnrealEditor-YUFS.dll ()
+All processes queued
+[1/23] Compile [x64] ExitValidationTests.cpp
+[2/23] Compile [x64] Module.YUFS.2.cpp
+[3/23] Compile [x64] Module.YUFS.1.cpp
+[4/23] Compile [x64] Module.YUFS.4.cpp
+[5/23] Compile [x64] Module.YUFS.3.cpp
+[6/23] Compile [x64] Module.YUFS.5.cpp
+[7/23] Compile [x64] Module.YUFS.6.cpp
+[8/23] Compile [x64] Module.YUFS.7.cpp
+[9/23] Compile [x64] Module.YUFS.8.cpp
+[10/23] Compile [x64] YUFSBinaryManager.cpp
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\VolumeTexture.h(75,15): warning C4996: 'UTexture::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\SparseVolumeTexture\SparseVolumeTexture.h(548,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+[11/23] Compile [x64] YUFSDropZoneWidget.cpp
+[12/23] Compile [x64] YUFSLevelDataManager.cpp
+[13/23] Compile [x64] YUFSEvacuationNPC.cpp
+[14/23] Compile [x64] YUFSNPCDebugComponent.cpp
+[15/23] Compile [x64] YUFSNPCPaletteEntry.cpp
+[16/23] Compile [x64] YUFSNPCPerceptionComponent.cpp
+[17/23] Compile [x64] YUFSNPCPaletteWidget.cpp
+[18/23] Compile [x64] YUFSSimHUD.cpp
+[19/23] Compile [x64] YUFSSimulationController.cpp
+[20/23] Compile [x64] YUFSSmokeAwareNavigator.cpp
+[21/23] Link [x64] UnrealEditor-YUFS.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Audit-0928/YUFS/Intermediate/Build/Win64/x64/UnrealEditor/Development/YUFS/UnrealEditor-YUFS.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Audit-0928/YUFS/Intermediate/Build/Win64/x64/UnrealEditor/Development/YUFS/UnrealEditor-YUFS.exp 개체를 생성하고 있습니다.
+[22/23] Link [x64] UnrealEditor-YUFS.dll
+[23/23] WriteMetadata YUFSEditor.target [NoUba]
+
+Trace written to file C:/Users/ACSLAB4/Documents/Codex/2026-09-07/https-github-com-yoon-jaeyeong-fire-2/work/hazard-alignment-build.uba with size 9.8kb
+Total time in Unreal Build Accelerator local executor: 29.69 seconds
+WriteFileIfChanged() wrote 19 changed files of 202 requested writes.
+
+Result: Succeeded
+Total execution time: 35.64 seconds

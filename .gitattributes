@@ -5,3 +5,6 @@
 
 # Preserve the downloaded CC0 model bytes for the recorded SHA-256.
 YUFS/SourceAssets/FireExtinguisher/OpenGameArt_JamesWhite_2015/fire_extinguisher_model.obj -text
+
+# Reproducible Main simulation data (downloaded automatically by Git LFS).
+YUFS/Content/Fires/FirePrototype/BinaryData/smoke_data_it_test_*.bin filter=lfs diff=lfs merge=lfs -text

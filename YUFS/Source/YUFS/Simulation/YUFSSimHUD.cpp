@@ -1,11 +1,26 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Simulation/YUFSSimHUD.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "GameFramework/PlayerController.h"
 
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Simulation/YUFSGameInstance.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
+
+namespace
+{
+void RestoreSimulationInput(APlayerController* PC)
+{
+ if (!PC) return;
+ FInputModeGameAndUI InputMode;
+ InputMode.SetHideCursorDuringCapture(false);
+ PC->SetInputMode(InputMode);
+ PC->bShowMouseCursor = true;
+ UWidgetBlueprintLibrary::SetFocusToGameViewport();
+}
+}
 
 void UYUFSSimHUD::NativeConstruct()
 {
@@ -84,6 +99,7 @@ void UYUFSSimHUD::FindFirePoints()
 
 void UYUFSSimHUD::OnStartButtonClicked()
 {
+	RestoreSimulationInput(GetOwningPlayer());
 	if (!SimController) return;
 
 	const ESimPhase Phase = SimController->GetCurrentPhase();
@@ -402,5 +418,6 @@ void UYUFSSimHUD::OnCameraPlayerViewButtonClicked()
 	}
 
 	PC->SetViewTargetWithBlend(PlayerPawn, 0.5f);
+	RestoreSimulationInput(PC);
 	UE_LOG(LogTemp, Warning, TEXT("Switched back to Player View"));
 }

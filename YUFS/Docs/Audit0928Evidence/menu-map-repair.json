@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/Game/Blueprint/UI/WBP_MainMenu.WBP_MainMenu",
+    "default_scenario": "<Struct 'YUFSScenarioConfig' (0x000001D4F5D4BF08) {simulation_map: None, display_name: \"\", npc_count: 20, placement_preset: UseLevelPlacement, policy_type: RuleBased, onnx_model_path: \"\", fire_start_delay_seconds: 30.000000, max_sim_duration_seconds: 300.000000, alarm_trigger_offset_seconds: 5.000000, pre_recorded_msg_offset_seconds: -1.000000, live_announcement_offset_seconds: -1.000000, staff_guidance_offset_seconds: -1.000000, enable_timeline_recording: True, timeline_record_end_fire_seconds: 60.000000, timeline_record_interval_seconds: 0.250000}>",
+    "working_config_error": "YUFSMainMenuWidget: Failed to find property 'working_config' for attribute 'working_config' on 'WBP_MainMenu_C'",
+    "available_maps_error": "YUFSMainMenuWidget: Failed to find property 'available_maps' for attribute 'available_maps' on 'WBP_MainMenu_C'",
+    "saved": false
+  },
+  {
+    "path": "/Game/Blueprint/UI/WBP_ScenarioSetup.WBP_ScenarioSetup",
+    "default_scenario_error": "YUFSScenarioSetupWidget: Failed to find property 'default_scenario' for attribute 'default_scenario' on 'WBP_ScenarioSetup_C'",
+    "working_config": "<Struct 'YUFSScenarioConfig' (0x000001D4DC604408) {simulation_map: None, display_name: \"\", npc_count: 20, placement_preset: UseLevelPlacement, policy_type: RuleBased, onnx_model_path: \"\", fire_start_delay_seconds: 30.000000, max_sim_duration_seconds: 300.000000, alarm_trigger_offset_seconds: 5.000000, pre_recorded_msg_offset_seconds: -1.000000, live_announcement_offset_seconds: -1.000000, staff_guidance_offset_seconds: -1.000000, enable_timeline_recording: True, timeline_record_end_fire_seconds: 60.000000, timeline_record_interval_seconds: 0.250000}>",
+    "available_maps": "[{display_name: NSLOCTEXT(\"[A7A8723810B24495C3F29B96ED7A2F54]\", \"6D8A9EB545C0C702884DF9AF6A2FBA83\", \"프로토타입\"), map: \"/Engine/Maps/Templates/Template_Default.Template_Default\", thumbnail: \"/Script/Engine.Texture2D'/Engine/MobileResources/HUD/AnalogHat.AnalogHat'\", description: NSLOCTEXT(\"[A7A8723810B24495C3F29B96ED7A2F54]\", \"6CB3E805436EE67260A518AAC4DC29E4\", \"프로토타입입니다.\")}, {display_name: NSLOCTEXT(\"[A7A8723810B24495C3F29B96ED7A2F54]\", \"CBDF50EA42CE4D0107DD7A9E479D5870\", \"프로토타입2\"), map: \"/Game/Maps/Prototype.Prototype\", thumbnail: \"/Script/Engine.Texture2D'/Engine/EngineResources/AICON-Red.AICON-Red'\", description: NSLOCTEXT(\"[A7A8723810B24495C3F29B96ED7A2F54]\", \"B55AAE2E4403F208B5B835A8236E9D1E\", \"그냥 기존 프로토타입과 동일하지만 연결해봄\")}]",
+    "after": "[{display_name: INVTEXT(\"Main (화재 시뮬레이션)\"), map: \"/Game/Maps/Main.Main\", thumbnail: \"/Script/Engine.Texture2D'/Engine/MobileResources/HUD/AnalogHat.AnalogHat'\", description: NSLOCTEXT(\"[A7A8723810B24495C3F29B96ED7A2F54]\", \"6CB3E805436EE67260A518AAC4DC29E4\", \"프로토타입입니다.\")}, {display_name: NSLOCTEXT(\"[A7A8723810B24495C3F29B96ED7A2F54]\", \"CBDF50EA42CE4D0107DD7A9E479D5870\", \"프로토타입2\"), map: \"/Game/Maps/Prototype.Prototype\", thumbnail: \"/Script/Engine.Texture2D'/Engine/EngineResources/AICON-Red.AICON-Red'\", description: NSLOCTEXT(\"[A7A8723810B24495C3F29B96ED7A2F54]\", \"B55AAE2E4403F208B5B835A8236E9D1E\", \"그냥 기존 프로토타입과 동일하지만 연결해봄\")}]",
+    "save_result": true,
+    "saved": true
+  }
+]

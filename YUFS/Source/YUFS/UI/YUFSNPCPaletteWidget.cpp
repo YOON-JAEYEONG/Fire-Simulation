@@ -1,7 +1,8 @@
-#include "UI/YUFSNPCPaletteWidget.h"
+﻿#include "UI/YUFSNPCPaletteWidget.h"
 #include "NPC/YUFSEvacuationNPC.h"
 
 #include "Components/ScrollBox.h"
+#include "Components/TextBlock.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "UI/YUFSNPCPaletteEntry.h"
 
@@ -34,7 +35,8 @@ void UYUFSNPCPaletteWidget::PopulateList()
 		}
 
 		Entry->NPCClass   = Item.NPCClass;
-		Entry->DisplayName = Item.DisplayName;
+		Entry->DisplayName = Item.DisplayName.IsEmpty() ? NSLOCTEXT("YUFS", "PlaceNPC", "NPC 배치") : Item.DisplayName;
+		if (Entry->NPCNameText) Entry->NPCNameText->SetText(Entry->DisplayName);
 
 		NPCListBox->AddChild(Entry);
 	}

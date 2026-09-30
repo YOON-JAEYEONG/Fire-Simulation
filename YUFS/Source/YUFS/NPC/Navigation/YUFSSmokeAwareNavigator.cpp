@@ -72,7 +72,7 @@ void UYUFSSmokeAwareNavigator::SetNavigationStatus(EYUFSNavigationStatus Status,
 	LastFailure = Failure;
 	bIsPathfinding = Status == EYUFSNavigationStatus::Pathfinding;
 	UE_LOG(LogTemp, Log,
-		TEXT("[YUFS][Nav] agent=%s request=%u status=%s reason=%s failure=%s requested=%s destination=%s frame=%d data=%s smoke=%.3f heat=%.3f"),
+		TEXT("[YUFS][Nav] agent=%s request=%u status=%s reason=%s failure=%s requested=%s destination=%s frame=%d data=%s pathMaxSmoke=%.3f pathMaxHeat=%.3f"),
 		*GetNameSafe(GetOwner()), RequestGeneration,
 		*StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(static_cast<int64>(Status)),
 		*StaticEnum<EYUFSRepathReason>()->GetNameStringByValue(static_cast<int64>(LastRepathReason)),

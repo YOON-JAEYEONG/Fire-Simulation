@@ -114,6 +114,17 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 	return MinAnyDist < MAX_flt ? NearestAny : From;
 }
 
+bool AYUFSLevelDataManager::IsAtValidExit(FVector Location, float RadiusCm) const
+{
+	if (Location.ContainsNaN() || !FMath::IsFinite(RadiusCm) || RadiusCm <= 0.f) return false;
+	for (const auto* Exit : CachedExits)
+	{
+		if (IsValid(Exit) && FVector::DistSquared(Location, Exit->GetActorLocation()) < FMath::Square(RadiusCm))
+			return true;
+	}
+	return false;
+}
+
 FVector AYUFSLevelDataManager::GetFamiliarExit(FVector NPCSpawnLocation) const
 {
 	FVector NearestLocation = NPCSpawnLocation;
