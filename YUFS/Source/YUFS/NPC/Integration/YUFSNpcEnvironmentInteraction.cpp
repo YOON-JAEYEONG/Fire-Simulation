@@ -84,7 +84,7 @@ bool UYUFSNpcEnvironmentInteraction::Visible(AActor* Target) const
  FCollisionQueryParams Params(SCENE_QUERY_STAT(EnvironmentInteractionSight),false,Npc.Get());
  return !GetWorld()->LineTraceSingleByChannel(Hit,Npc->GetActorLocation()+FVector(0,0,45),Point,ECC_Visibility,Params) || Hit.GetActor()==Target;
 }
-FVector UYUFSNpcEnvironmentInteraction::GetTarget() const { return Person.IsValid()?Person->GetActorLocation():GetOwner()->GetActorLocation(); }
+FVector UYUFSNpcEnvironmentInteraction::GetTarget() const { return Door.IsValid() && bApproaching ? DoorMoveTarget : (Person.IsValid()?Person->GetActorLocation():GetOwner()->GetActorLocation()); }
 bool UYUFSNpcEnvironmentInteraction::IsSlowingForDoor() const
 {
  return IsOperatingDoor() && Door.IsValid() && !Door->IsPassageClear();
@@ -133,7 +133,7 @@ void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
  }
  auto* Team=Npc->GetTeamIntegrationComponent(); auto Next=Team->GetInteractionOpportunities();
  const FName DoorId=Door.IsValid()?Door->GetFName():NAME_None, PersonId=Person.IsValid()?Person->GetFName():NAME_None;
- const bool Required=Door.IsValid()&&!Door->IsOpen();
+ const bool Required=Door.IsValid()&&!Door->IsPassageClear();
  if (Next.DoorStableId!=DoorId || Next.bDoorActionRequired!=Required || Next.AssistPersonStableId!=PersonId
      || (Person.IsValid() && !Next.AssistPersonLocation.Equals(Person->GetActorLocation(),30.f)))
  {
@@ -248,7 +248,7 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
    if (bWalkingRoute && Elapsed<DoorApproachSeconds) return false;
    Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true;
   }
-  if (!Door->TryUse(Npc.Get()))
+  if (!Door->TryReserve(Npc.Get()))
   {
    // Someone else is opening it: walk up behind them and wait at the leaf, never push past them.
    Contact=0.f;
@@ -259,8 +259,17 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
   }
   if (!bAtDoor)
   {
-   // Within reach: the hand goes to the handle and the leaf starts moving while the NPC keeps
-   // walking. Stopping to face the handle first made every door a stop of 1.5-2 s.
+   if (!Door->IsUserAtHandle(Npc.Get())) return false;
+   Npc->GetCharacterMovement()->StopMovementImmediately();
+   UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
+   const FVector Facing=(Door->GetHandleLocation()-Npc->GetActorLocation()).GetSafeNormal2D();
+   const float FacingDot=FVector::DotProduct(Npc->GetActorForwardVector(),Facing);
+   if (FacingDot<FMath::Cos(FMath::DegreesToRadians(DoorFacingToleranceDegrees))) { Contact=0.f; return true; }
+   Contact+=Dt;
+   // Geometric contact fallback. A dedicated hand montage is a separate motion asset;
+   // do not represent the old tablet animation as verified hand contact.
+   if (Contact<DoorReachSeconds) return true;
+   if (!Door->TryUse(Npc.Get())) { Contact=0.f; return true; }
    bAtDoor=true;
    if (Nav) Nav->SteerThroughDoorway(Door->GetActorTransform());
    SteeredDoor=Door;
@@ -271,10 +280,26 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
   // pushing on for the whole interaction budget looked like grinding against the door.
   SwingBlockedSeconds=Door->IsOpeningBlocked()?SwingBlockedSeconds+Dt:0.f;
   if (SwingBlockedSeconds>=DoorSwingBlockedGiveUpSeconds) { Finish(false,TEXT("DoorSwingBlocked")); return true; }
+  if (!Door->bSliding)
+  {
+   const FVector Local=Door->GetActorTransform().InverseTransformPosition(Npc->GetActorLocation());
+   const float OpenSide=Door->bOpenTowardNegativeX ? -1.f : 1.f;
+   if (Local.X*OpenSide>0.f)
+   {
+    // Pull side: make room for the fixed authored swing instead of reversing the hinge.
+    if (PlaneDistance<140.f)
+    {
+     DoorMoveTarget=Npc->GetActorLocation()+Door->GetActorForwardVector()*OpenSide*(150.f-PlaneDistance);
+     bApproaching=true; return false;
+    }
+    Npc->GetCharacterMovement()->StopMovementImmediately();
+    return true;
+   }
+  }
   // Already at the leaf and it is not open yet: wait there, reaching for it, for the last moment.
   if (!bWalkingRoute || PlaneDistance<=DoorHoldDistanceCm)
   {
-   UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::GatherBelongings,Dt);
+   UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
    DoorHeldSeconds+=Dt;
    return true;
   }

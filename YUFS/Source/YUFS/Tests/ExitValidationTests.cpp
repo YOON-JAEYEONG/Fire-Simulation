@@ -32,7 +32,7 @@ bool FYUFSExitValidationTest::RunTest(const FString&)
     TestEqual(TEXT("No exit cannot count as evacuation"), FYUFSExitValidationTestAccess::Terminal(NPC), EYUFSTerminalReason::None);
     auto* Exit = World->SpawnActor<AYUFSExitPoint>();
     Manager->DispatchBeginPlay();
-    TestEqual(TEXT("A real exit at world origin remains valid"), FYUFSExitValidationTestAccess::Terminal(NPC), EYUFSTerminalReason::ReachedExit);
+    TestEqual(TEXT("An origin marker without outward movement is not evacuation"), FYUFSExitValidationTestAccess::Terminal(NPC), EYUFSTerminalReason::None);
     Exit->Destroy();
     TestEqual(TEXT("Destroyed exit cannot count as evacuation"), FYUFSExitValidationTestAccess::Terminal(NPC), EYUFSTerminalReason::None);
     World->DestroyWorld(false);

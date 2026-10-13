@@ -464,9 +464,9 @@ bool FYUFSDoorLifecycleTest::RunTest(const FString& Parameters)
  const auto Settings=UWorld::InitializationValues().AllowAudioPlayback(false).CreatePhysicsScene(true).CreateNavigation(false).CreateAISystem(false);
  UWorld* World=UWorld::CreateWorld(EWorldType::Game,false,NAME_None,nullptr,true,ERHIFeatureLevel::Num,&Settings);
  auto* Door=World->SpawnActor<AYUFSInteractionDoor>();
- auto* A=World->SpawnActor<AYUFSEvacuationNPC>(FVector(50,0,90),FRotator::ZeroRotator);
+ auto* A=World->SpawnActor<AYUFSEvacuationNPC>(FVector(50,75,90),FRotator::ZeroRotator);
  FActorSpawnParameters Spawn; Spawn.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
- auto* B=World->SpawnActor<AYUFSEvacuationNPC>(FVector(-50,0,90),FRotator::ZeroRotator,Spawn);
+ auto* B=World->SpawnActor<AYUFSEvacuationNPC>(FVector(-50,75,90),FRotator::ZeroRotator,Spawn);
  if (!TestNotNull(TEXT("door spawned"),Door) || !TestNotNull(TEXT("user A spawned"),A) || !TestNotNull(TEXT("user B spawned"),B)) { World->DestroyWorld(false); return false; }
  Door->bLocked=true; TestFalse(TEXT("locked door rejected"),Door->TryUse(A));
  Door->bLocked=false; Door->bHot=true; TestFalse(TEXT("hot door rejected"),Door->TryUse(A));
@@ -475,6 +475,8 @@ bool FYUFSDoorLifecycleTest::RunTest(const FString& Parameters)
  TestFalse(TEXT("second operator cannot steal"),Door->TryUse(B));
  Door->Release(B); TestFalse(TEXT("non-owner cannot release"),Door->TryUse(B));
  Door->Release(A); TestTrue(TEXT("owner release enables next operator"),Door->TryUse(B));
+ B->SetActorLocation(FVector(-150,75,90));
+ A->SetActorLocation(FVector(-60,60,90)); // Authored swing is always toward -X.
  Door->Tick(.5f); TestFalse(TEXT("partial rotation blocks passage"),Door->IsOpen());
  Door->Tick(5.f); TestFalse(TEXT("waiting person in swing arc prevents forced opening"),Door->IsOpen());
  // Move the fixture's obstacle away; production interaction never teleports an NPC.

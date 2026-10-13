@@ -182,7 +182,7 @@ namespace
 			for (TActorIterator<AYUFSEvacuationNPC> It(W); It; ++It)
 			{
 				const auto& O = It->GetLastObservation();
-				++Total; Evacuated += It->IsHidden() ? 1 : 0;
+				++Total; Evacuated += It->HasPhysicallyExited() ? 1 : 0;
 				Moving += It->GetVelocity().Size2D() > 20.f ? 1 : 0;
 				Smoke += O.SmokeDensityAtSelf > 0.05f ? 1 : 0;
 				const auto* Bag = It->GetBelongingsRetrievalComponent();

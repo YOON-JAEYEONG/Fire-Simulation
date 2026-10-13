@@ -40,7 +40,8 @@ enum class EYUFSNavigationGoal : uint8
 	InvestigateTarget,
 	InteractionTarget,
 	ShelterLocation,
-	ReentryTarget
+	ReentryTarget,
+	ExteriorDispersal
 };
 
 UENUM(BlueprintType)

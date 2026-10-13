@@ -32,6 +32,7 @@
 #include "NPC/Integration/YUFSBelongingsRetrievalComponent.h"
 #include "DrawDebugHelpers.h"
 #include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
+#include "NPC/Integration/YUFSExitTraversalComponent.h"
 #include "NPC/Tasks/YUFSActionTaskComponent.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
 #include "Simulation/YUFSSimulationController.h"
@@ -60,6 +61,7 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 	TeamIntegrationComp = CreateDefaultSubobject<UYUFSTeamIntegrationComponent>(TEXT("YUFSTeamIntegrationComponent"));
 	BelongingsRetrievalComp = CreateDefaultSubobject<UYUFSBelongingsRetrievalComponent>(TEXT("BelongingsRetrieval"));
 	EnvironmentInteraction = CreateDefaultSubobject<UYUFSNpcEnvironmentInteraction>(TEXT("EnvironmentInteraction"));
+	ExitTraversal = CreateDefaultSubobject<UYUFSExitTraversalComponent>(TEXT("ExitTraversal"));
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw   = false;
@@ -89,6 +91,7 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 void AYUFSEvacuationNPC::BeginPlay()
 {
 	Super::BeginPlay();
+	ExitTraversal->Reset();
 	ResetRetreatKnowledge();
 	if (Navigator) Navigator->ResetObservedHazards();
 	if (BelongingsRetrievalComp) BelongingsRetrievalComp->ResetForEpisode();
@@ -187,6 +190,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// 화재 전에는 일상 행동을 허용하고, 일시정지/관찰 모드에서는 멈춘다.
 	if (SimulationController && !SimulationController->IsNPCActivityEnabled())
 	{
+		if (ExitTraversal) ExitTraversal->DiscardMovementSample();
 		StopEverydayBehavior();
 		// A pause preserves an interaction; leaving the live episode releases it.
 		if (SimulationController->GetCurrentPhase() != ESimPhase::FireActive)
@@ -216,6 +220,14 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 			UpdateActionAnimation();
 			return;
 		}
+	}
+
+	if (ExitTraversal && LevelDataMgr)
+	{
+		const auto State = BehaviorSM->GetCurrentState();
+		ExitTraversal->ObserveMovement(LevelDataMgr->GetExitActors(),
+			State == EYUFSBehaviorState::Evacuating || State == EYUFSBehaviorState::Crawling, DeltaTime);
+		if (HasPhysicallyExited()) { TickExteriorMovement(DeltaTime); return; }
 	}
 
 	if (bInteractionPreviewControlled)
@@ -414,7 +426,17 @@ void AYUFSEvacuationNPC::DriveMovementToward(FVector Target, float DeltaTime)
 	if (!Dir.IsNearlyZero(1.f))
 	{
 		Dir.Normalize();
-		Dir=LocalMovement->ResolveDirection(Dir,DeltaTime,GetCurrentSimFrame());
+		if (HasPhysicallyExited())
+		{
+			// Exterior presentation must not inherit indoor backtracking/recovery off the apron.
+			if (!ExitTraversal->HasExteriorSupport(Dir, FMath::Max(35.f, GetCharacterMovement()->MaxWalkSpeed * DeltaTime * 2.f)))
+			{
+				GetCharacterMovement()->StopMovementImmediately();
+				ConsumeMovementInputVector();
+				return;
+			}
+		}
+		else Dir=LocalMovement->ResolveDirection(Dir,DeltaTime,GetCurrentSimFrame());
 		if (!Dir.IsNearlyZero()) AddMovementInput(Dir,1.f);
 	}
 }
@@ -592,6 +614,7 @@ bool AYUFSEvacuationNPC::PutBackOnRoute()
 	FVector Centre = Target + FVector(0.f, 0.f, Half + 5.f);
 	if (!World->FindTeleportSpot(this, Centre, GetActorRotation())) return false;
 	const FVector From = GetActorLocation();
+	if (ExitTraversal) ExitTraversal->DiscardMovementSample();
 	SetActorLocation(Centre, false, nullptr, ETeleportType::TeleportPhysics);
 	GetCharacterMovement()->StopMovementImmediately();
 	if (LocalMovement) LocalMovement->Reset();
@@ -801,20 +824,33 @@ FString AYUFSEvacuationNPC::GetHazardAudit() const
 
 EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
 {
+	if (HasPhysicallyExited()) return EYUFSTerminalReason::ReachedExit;
 	if (BehaviorSM && BehaviorSM->IsIncapacitated())
 		return EYUFSTerminalReason::Incapacitated;
-
-	if (LevelDataMgr && BehaviorSM)
-	{
-		const EYUFSBehaviorState State = BehaviorSM->GetCurrentState();
-		if (State != EYUFSBehaviorState::Evacuating && State != EYUFSBehaviorState::Crawling)
-			return EYUFSTerminalReason::None;
-
-		if (LevelDataMgr->IsAtValidExit(GetActorLocation(), 150.f))
-			return EYUFSTerminalReason::ReachedExit;
-	}
-
 	return EYUFSTerminalReason::None;
+}
+
+bool AYUFSEvacuationNPC::HasPhysicallyExited() const { return ExitTraversal && ExitTraversal->HasExited(); }
+bool AYUFSEvacuationNPC::IsExteriorMovementPending() const { return HasPhysicallyExited() && !bExteriorMovementFinished; }
+void AYUFSEvacuationNPC::TickExteriorMovement(float Dt)
+{
+	ExteriorMovementSeconds += Dt;
+	const FVector Goal = ExitTraversal->GetExteriorDestination();
+	if (FVector::Dist2D(GetActorLocation(), Goal) < 45.f || ExteriorMovementSeconds >= 8.f)
+	{
+		if (!bExteriorMovementFinished && FVector::Dist2D(GetActorLocation(), Goal) >= 45.f)
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS][Exit] %s exited, exterior dispersal blocked; retaining visible position."), *GetName());
+		bExteriorMovementFinished = true;
+		if (TeamIntegrationComp) TeamIntegrationComp->PublishExteriorMovement(StableNPCId, Goal, true);
+		GetCharacterMovement()->StopMovementImmediately();
+		if (Navigator) Navigator->ClearPath();
+		if (!bUseExternalMotionDriver) ActionAnimationComp->ApplyAction(EYUFSAction::Idle, BehaviorSM->GetCurrentState());
+		return;
+	}
+	if (TeamIntegrationComp) TeamIntegrationComp->PublishExteriorMovement(StableNPCId, Goal, false);
+	GetCharacterMovement()->MaxWalkSpeed = FMath::Min(GetDesiredWalkingSpeed(), 180.f);
+	UpdateNavigationMovement(Goal, Dt, 180.f);
+	if (!bUseExternalMotionDriver) ActionAnimationComp->ApplyAction(EYUFSAction::HelpOther, BehaviorSM->GetCurrentState());
 }
 
 
@@ -831,7 +867,10 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 	Snapshot.PreActionCompletedCount = IntentComp ? IntentComp->GetPreActionCompletedCount() : 0;
 	Snapshot.PreActionTargetCount = IntentComp ? IntentComp->GetPreActionTargetCount() : 0;
 	Snapshot.bVisible = !IsHidden();
-	Snapshot.bEvacuated = false;
+	Snapshot.bEvacuated = HasPhysicallyExited();
+	Snapshot.bExteriorWaiting = bExteriorMovementFinished;
+	Snapshot.ExitId = ExitTraversal ? ExitTraversal->GetExitId() : NAME_None;
+	Snapshot.ExitTime = ExitTraversal ? ExitTraversal->GetExitTime() : 0.f;
 	Snapshot.bIncapacitated = false;
 
 	if (BehaviorSM)
@@ -842,12 +881,7 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 		Snapshot.bIncapacitated = BehaviorSM->IsIncapacitated();
 	}
 
-	// SimulationController가 대피 완료 NPC를 숨겼다면 관찰 모드에서도 숨김 상태로 기록합니다.
-	// 별도 bEvacuated 플래그는 Controller가 필요 시 확장할 수 있도록 남겨둡니다.
-	if (IsHidden() && !Snapshot.bIncapacitated)
-	{
-		Snapshot.bEvacuated = true;
-	}
+	// Visibility is presentation only; the explicit traversal result is authoritative.
 
 	// 두고 온 가방이 그 시점에 바닥에 있었는지, 등에 있었는지도 함께 기록합니다.
 	if (BelongingsRetrievalComp)
@@ -870,6 +904,7 @@ void AYUFSEvacuationNPC::DrawDoorLabel() const
 
 void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot)
 {
+	if (ExitTraversal) ExitTraversal->DiscardMovementSample();
 	if (BelongingsRetrievalComp) BelongingsRetrievalComp->Cancel(false);
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	ResetRetreatKnowledge();
@@ -902,10 +937,14 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 		BelongingsRetrievalComp->ApplyTimelineSnapshot(Snapshot);
 	}
 	bReplayHandlingDoor = Snapshot.bHandlingDoor;
+	bReplayExterior = Snapshot.bEvacuated;
+	bReplayExteriorWaiting = Snapshot.bExteriorWaiting;
 	bReplayPickingUpBag = Snapshot.BelongingsPhase == static_cast<uint8>(EYUFSBelongingsRetrievalPhase::PickingUp);
 
 	CurrentAction = Snapshot.CurrentAction;
 	UpdateActionAnimation();
+	if (Snapshot.bEvacuated && !bUseExternalMotionDriver && ActionAnimationComp)
+		ActionAnimationComp->ApplyAction(Snapshot.bExteriorWaiting ? EYUFSAction::Idle : EYUFSAction::HelpOther, EYUFSBehaviorState::Normal);
 
 	if (Navigator)
 	{
@@ -930,6 +969,7 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 	}
 
 	bTimelinePlaybackMode = bEnabled;
+	if (ExitTraversal) ExitTraversal->DiscardMovementSample();
 	if (BelongingsRetrievalComp) BelongingsRetrievalComp->Cancel(false);
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	ResetRetreatKnowledge();
@@ -967,7 +1007,7 @@ void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReaso
 	if (Navigator) { Navigator->ClearPath(); Navigator->ResetObservedHazards(); }
 	if (LocalMovement) LocalMovement->Reset();
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
-	if (TerminalReason == EYUFSTerminalReason::ReachedExit || TerminalReason == EYUFSTerminalReason::Incapacitated)
+	if (TerminalReason == EYUFSTerminalReason::Incapacitated)
 	{
 		// Hiding the actor does not stop CharacterMovement's component tick/RVO updates.
 		// Remove resolved residents from avoidance so they cannot crowd an invisible exit.
@@ -1139,8 +1179,13 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 	}
 	if (bTimelinePlaybackMode && (bReplayHandlingDoor || bReplayPickingUpBag))
 	{
-		// Replay: the recorded moment was a reach for a door handle or a bag, not a run.
-		ActionAnimationComp->ApplyAction(EYUFSAction::GatherBelongings, EYUFSBehaviorState::Normal, bForce);
+		// Door fallback must not replay a tablet gesture as hand contact.
+		ActionAnimationComp->ApplyAction(bReplayHandlingDoor ? EYUFSAction::Idle : EYUFSAction::GatherBelongings, EYUFSBehaviorState::Normal, bForce);
+		return;
+	}
+	if (bTimelinePlaybackMode && bReplayExterior)
+	{
+		ActionAnimationComp->ApplyAction(bReplayExteriorWaiting ? EYUFSAction::Idle : EYUFSAction::HelpOther, EYUFSBehaviorState::Normal, bForce);
 		return;
 	}
 
@@ -1613,6 +1658,8 @@ void AYUFSEvacuationNPC::ApplyDistributedSpawnLocation(const FVector& NewLocatio
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	ResetRetreatKnowledge();
 	if (Navigator) Navigator->ResetObservedHazards();
+	if (ExitTraversal) ExitTraversal->Reset();
+	ExteriorMovementSeconds = 0.f; bExteriorMovementFinished = false;
 	SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 	SpawnLocation = NewLocation;
 	if (BelongingsRetrievalComp) BelongingsRetrievalComp->PrepareForEpisode();
@@ -1799,8 +1846,8 @@ void AYUFSEvacuationNPC::UpdateNavigationMovement(const FVector& Target, float D
 		return;
 	}
 	if (SpeedCap > 0.f) GetCharacterMovement()->MaxWalkSpeed = FMath::Min(GetDesiredWalkingSpeed(), SpeedCap);
-	if (LocalMovement->TickRecovery(DeltaTime, GetCurrentSimFrame())) return;
-	if (Navigator->GetLastFailure() == EYUFSNavigationFailure::StartOffNavMesh
+	if (!HasPhysicallyExited() && LocalMovement->TickRecovery(DeltaTime, GetCurrentSimFrame())) return;
+	if (!HasPhysicallyExited() && Navigator->GetLastFailure() == EYUFSNavigationFailure::StartOffNavMesh
 		&& LocalMovement->TryRecovery((Target - GetActorLocation()).GetSafeNormal2D(), GetCurrentSimFrame())) return;
 	// JJW requests cancel the previous async generation. Never restart an empty pending/failed path every frame.
 	if (Navigator->GetNavigationStatus() == EYUFSNavigationStatus::Idle

@@ -24,7 +24,7 @@ bool FYUFSInteractionContinuityTest::RunTest(const FString& Parameters)
 
     FActorSpawnParameters Spawn;
     Spawn.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    auto* User = World->SpawnActor<AYUFSEvacuationNPC>(FVector(40, 10, 90), FRotator::ZeroRotator, Spawn);
+    auto* User = World->SpawnActor<AYUFSEvacuationNPC>(FVector(50, 75, 90), FRotator::ZeroRotator, Spawn);
     auto* Recipient = World->SpawnActor<AYUFSEvacuationNPC>(FVector(180, 100, 90), FRotator::ZeroRotator, Spawn);
     auto* Door = World->SpawnActor<AYUFSInteractionDoor>(FVector::ZeroVector, FRotator::ZeroRotator, Spawn);
     auto* Preview = World->SpawnActor<AYUFSInteractionPreview>();

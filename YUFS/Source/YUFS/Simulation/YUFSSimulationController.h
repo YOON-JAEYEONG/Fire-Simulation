@@ -318,8 +318,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="Simulation|Events")
 	float StaffGuidanceOffsetSeconds = -1.f;
 
-	// NPC가 이 거리 안에 들어오면 대피 성공으로 판정 (cm)
-	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	// Serialized legacy setting. Physical portal traversal now owns success; this value is unused.
+	UPROPERTY(meta=(DeprecatedProperty, DeprecationMessage="Success uses physical exit traversal, not radius."))
 	float EvacuationSuccessDistanceCm = 150.f;
 
 	// HUD 위젯 클래스 (에디터에서 BP 위젯 클래스를 연결)

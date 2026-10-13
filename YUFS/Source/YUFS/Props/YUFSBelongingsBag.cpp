@@ -85,10 +85,9 @@ void AYUFSBelongingsBag::ReleaseToHome()
 
 void AYUFSBelongingsBag::LeaveWithCarrier()
 {
-	if (GetAttachParentActor()) DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	SetActorHiddenInGame(true);
-	// Stays Carried so no other NPC can claim a bag that has already left the building.
-	OwnerNpc.Reset();
+	// Completion is not disappearance: retain the attachment during exterior walking.
+	SetActorHiddenInGame(GetAttachParentActor() ? GetAttachParentActor()->IsHidden() : true);
+	// State stays Carried and ownership is released only by ResetForEpisode.
 }
 
 FVector AYUFSBelongingsBag::GetPickupLocation() const

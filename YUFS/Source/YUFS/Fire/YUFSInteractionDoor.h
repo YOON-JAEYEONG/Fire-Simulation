@@ -20,12 +20,19 @@ public:
  UFUNCTION(BlueprintCallable) bool TryUse(AActor* User);
  UFUNCTION(BlueprintCallable) void Release(AActor* User);
  UFUNCTION(BlueprintPure) bool IsOpen() const { return OpenFraction >= 1.f; }
- UFUNCTION(BlueprintPure) bool CanOperate() const { return !bLocked && !bHot && !IsOpen() && FMath::Abs(OpenAngle) >= 75.f; }
+ UFUNCTION(BlueprintPure) bool CanOperate() const { return !bLocked && !bHot && !IsOpen() && (bSliding ? FMath::Abs(SlideDistance) > 1.f : FMath::Abs(OpenAngle) >= 75.f); }
  UFUNCTION(BlueprintPure) bool IsReservedBy(AActor* User) const { return Operator.IsValid() && Operator.Get()==User; }
  UFUNCTION(BlueprintPure) bool IsOpeningBlocked() const { return bOpeningBlocked; }
  UFUNCTION(BlueprintPure) bool IsPassageClear() const;
  UFUNCTION(BlueprintPure) bool IsUserInReach(AActor* User) const;
  UFUNCTION(BlueprintPure) FVector GetHandleLocation() const;
+ UFUNCTION(BlueprintPure) bool IsUserAtHandle(AActor* User) const;
+ UFUNCTION(BlueprintPure) float GetClearWidthCm() const;
+ /** Separate perception/reservation distance from the actual manual operating reach. */
+ UPROPERTY(EditAnywhere, Category="Door|Contact", meta=(ClampMin="30",ClampMax="100")) float ContactDistanceCm = 75.f;
+ /** Fixed authored swing direction. Positive yaw swings a +Y leaf toward -X. */
+ UPROPERTY(EditAnywhere, Category="Door") bool bOpenTowardNegativeX = true;
+ UPROPERTY(EditAnywhere, Category="Door", meta=(ClampMin="20")) float RequiredClearWidthCm = 90.f;
  /** Timeline: how far the leaf is open (0..1) and which way it swings (+1/-1). */
  float GetOpenFraction() const { return OpenFraction; }
  float GetSwingDirection() const { return SwingDirection; }

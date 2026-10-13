@@ -46,8 +46,11 @@ BAYS = {
 }
 FLOOR_Z = {"1F": 0.0, "2F": 350.0}
 ENTRANCE_HALL = ("1F", "N", 1810)
-# Stair halls (x range, side): NE stair 3960..4260 north, middle stair 2000..2300 south.
-STAIRS = [((3960.0, 4260.0), "N"), ((2000.0, 2300.0), "S")]
+# Stair halls (x range, side): west stair 40..340 north (part of the SketchUp 'Model' mesh, 2F hole
+# x=40..340 y=-240..-800), NE stair 3960..4260 north, middle stair 2000..2300 south. The west stair was
+# missing here until 2026-10-13, so bays 1F N (20..350) and 2F N (20..710) got a wall and a door that
+# closed the stair off from the corridor (open_main_stair_halls.py removed them).
+STAIRS = [((40.0, 340.0), "N"), ((3960.0, 4260.0), "N"), ((2000.0, 2300.0), "S")]
 
 les = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
 eas = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)

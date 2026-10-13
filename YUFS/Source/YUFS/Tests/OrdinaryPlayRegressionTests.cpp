@@ -33,17 +33,22 @@ bool FYUFSTrafficCycleRegression::RunTest(const FString&)
     return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSResolvedAvoidanceRegression,
-    "YUFS.NPC.Navigation.Traffic.EvacuatedResidentStopsAvoidance",
+    "YUFS.NPC.Navigation.Traffic.ExteriorResidentKeepsMovementAndIncapacitatedStops",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
 bool FYUFSResolvedAvoidanceRegression::RunTest(const FString&)
 {
     auto* World = UWorld::CreateWorld(EWorldType::Game, false);
     auto* Npc = World->SpawnActor<AYUFSEvacuationNPC>();
+    Npc->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
     Npc->GetCharacterMovement()->Velocity = FVector(100,0,0);
     Npc->NotifyEpisodeFinished(EYUFSTerminalReason::ReachedExit);
-    TestFalse(TEXT("Resolved NPC cannot remain an RVO obstacle"), Npc->GetCharacterMovement()->bUseRVOAvoidance);
-    TestTrue(TEXT("Resolved NPC has no residual velocity"), Npc->GetVelocity().IsNearlyZero());
-    TestEqual(TEXT("Component movement stops even before actor tick is disabled"), Npc->GetCharacterMovement()->MovementMode.GetValue(), MOVE_None);
+    TestTrue(TEXT("Visible exterior resident still participates in avoidance"), Npc->GetCharacterMovement()->bUseRVOAvoidance);
+    TestEqual(TEXT("Result alone does not stop exterior walking"), Npc->GetCharacterMovement()->MovementMode.GetValue(), MOVE_Walking);
+    TestFalse(TEXT("Result alone does not hide resident"), Npc->IsHidden());
+    Npc->NotifyEpisodeFinished(EYUFSTerminalReason::Incapacitated);
+    TestFalse(TEXT("Hidden incapacitated resident must leave RVO"), Npc->GetCharacterMovement()->bUseRVOAvoidance);
+    TestTrue(TEXT("Incapacitation stops residual velocity"), Npc->GetVelocity().IsNearlyZero());
+    TestEqual(TEXT("Incapacitation disables component movement"), Npc->GetCharacterMovement()->MovementMode.GetValue(), MOVE_None);
     Npc->SetTimelinePlaybackMode(true);
     Npc->SetTimelinePlaybackMode(false);
     TestTrue(TEXT("Resuming live mode restores avoidance"), Npc->GetCharacterMovement()->bUseRVOAvoidance);

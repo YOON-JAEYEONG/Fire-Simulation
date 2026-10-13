@@ -23,6 +23,7 @@ void AYUFSLevelDataManager::BeginPlay()
 
 void AYUFSLevelDataManager::CollectLevelActors()
 {
+	CachedExits.Reset();
 	TArray<AActor*> FoundExits;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AYUFSExitPoint::StaticClass(), FoundExits);
 	for (AActor* Actor : FoundExits)
@@ -81,9 +82,9 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 	for (int32 Index = 0; Index < CachedExits.Num(); ++Index)
 	{
 		AYUFSExitPoint* Exit = CachedExits[Index];
-		if (!IsValid(Exit)) continue;
+		if (!IsValid(Exit) || !Exit->bPhysicalPassageEnabled) continue;
 
-		const FVector ExitLoc = Exit->GetActorLocation();
+		const FVector ExitLoc = Exit->GetNavigationDestination();
 		const float DistSq = FVector::DistSquared(From, ExitLoc);
 
 		if (DistSq < MinAnyDist)
@@ -132,9 +133,9 @@ FVector AYUFSLevelDataManager::GetFamiliarExit(FVector NPCSpawnLocation) const
 	
 	for (AYUFSExitPoint* Exit : CachedExits)
 	{
-		if (!IsValid(Exit)) continue;
+		if (!IsValid(Exit) || !Exit->bPhysicalPassageEnabled) continue;
 		
-		FVector ExitLoc = Exit->GetActorLocation();
+		FVector ExitLoc = Exit->GetNavigationDestination();
 		float DistSq = FVector::DistSquared(NPCSpawnLocation, ExitLoc);
 		if (DistSq < MinDistSq)
 		{
@@ -226,6 +227,6 @@ float AYUFSLevelDataManager::GetPathDangerScore(const TArray<FVector>& Path, int
 TArray<FVector> AYUFSLevelDataManager::GetExitLocations() const
 {
 	TArray<FVector> Locations;
-	for (const auto* Exit:CachedExits) if (IsValid(Exit)) Locations.Add(Exit->GetActorLocation());
+	for (const auto* Exit:CachedExits) if (IsValid(Exit) && Exit->bPhysicalPassageEnabled) Locations.Add(Exit->GetNavigationDestination());
 	return Locations;
 }

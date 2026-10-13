@@ -56,12 +56,18 @@ struct FYUFSTimelineNPCSnapshot
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	float SmokeExposure = 0.f;
 
-	// 대피/행동불능 NPC는 Destroy하지 않고 숨긴 뒤, 이 값으로 복원합니다.
+	// Visibility is independent of evacuation outcome.
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	bool bVisible = true;
 
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	bool bEvacuated = false;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	bool bExteriorWaiting = false;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	FName ExitId;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	float ExitTime = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	bool bIncapacitated = false;

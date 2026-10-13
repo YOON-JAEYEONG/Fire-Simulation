@@ -7,6 +7,8 @@
 #include "Materials/MaterialInterface.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Fire/YUFSInteractionDoor.h"
+#include "Engine/World.h"
 
 namespace
 {
@@ -15,6 +17,61 @@ namespace
 	const FLinearColor FrameColor(0.05f, 0.35f, 0.12f);
 	const FLinearColor LeafColor(0.18f, 0.22f, 0.20f);
 	const FLinearColor SignColor(0.10f, 1.00f, 0.25f);
+}
+
+FTransform AYUFSExitPoint::GetPortalTransform() const
+{
+	return FTransform(GetActorQuat(), GetActorTransform().TransformPosition(PortalFloorOffset));
+}
+
+FVector AYUFSExitPoint::GetNavigationDestination() const
+{
+	return GetPortalTransform().TransformPosition(FVector(ExteriorDistance, 0, 0));
+}
+
+bool AYUFSExitPoint::CrossesOutward(const FVector& From, const FVector& To, float Radius, float HalfHeight) const
+{
+	if (!bPhysicalPassageEnabled || From.ContainsNaN() || To.ContainsNaN()
+		|| !FMath::IsFinite(Radius) || !FMath::IsFinite(HalfHeight) || Radius <= 0 || HalfHeight < Radius) return false;
+	const FTransform Frame = GetPortalTransform();
+	const FVector A = Frame.InverseTransformPosition(From), B = Frame.InverseTransformPosition(To);
+	if (A.X >= 0 || B.X < 0 || B.X <= A.X) return false;
+	const FVector AtPlane = FMath::Lerp(A, B, -A.X / (B.X - A.X));
+	return FMath::Abs(AtPlane.Y) + Radius + 2.f <= ExitWidth * .5f
+		&& AtPlane.Z - HalfHeight >= -5.f && AtPlane.Z - HalfHeight <= 35.f
+		&& AtPlane.Z + HalfHeight <= PassageHeight;
+}
+
+FVector AYUFSExitPoint::GetExteriorWaitingDestination(int32 StableNpcId) const
+{
+	const uint32 Slot = static_cast<uint32>(StableNpcId) % 25;
+	const float Along = ExteriorDistance + (int32(Slot / 5) - 2) * FMath::Max(0.f, ExteriorSpread.X) / 4.f;
+	const float Across = (int32(Slot % 5) - 2) * FMath::Max(0.f, ExteriorSpread.Y) / 4.f;
+	return GetPortalTransform().TransformPosition(FVector(FMath::Max(100.f, Along), Across, 0));
+}
+
+bool AYUFSExitPoint::IsExteriorClear(const FVector& Position, float Radius, float HalfHeight) const
+{
+	const FVector Local = GetPortalTransform().InverseTransformPosition(Position);
+	return bPhysicalPassageEnabled && !Local.ContainsNaN() && Local.X >= Radius + 30.f
+		&& Local.X <= ExteriorDistance + 150.f && FMath::Abs(Local.Y) + Radius <= ExitWidth * .5f
+		&& Local.Z - HalfHeight >= -5.f && Local.Z - HalfHeight <= 35.f;
+}
+
+bool AYUFSExitPoint::ValidatePhysicalTravel(const FVector& From, const FVector& To, float Radius, float HalfHeight, const AActor* User) const
+{
+	if (!bPhysicalPassageEnabled || !GetWorld() || !User || From.ContainsNaN() || To.ContainsNaN()
+		|| !FMath::IsFinite(Radius) || !FMath::IsFinite(HalfHeight)
+		|| Radius <= 0 || HalfHeight < Radius || (GatewayDoor && (!IsValid(GatewayDoor) || !GatewayDoor->IsPassageClear()))) return false;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(ExitPhysicalTravel), false, User);
+	FHitResult Hit;
+	// Small floor tolerance only, never ignore the wall or the linked solid leaf.
+	const auto Shape = FCollisionShape::MakeCapsule(Radius, FMath::Max(Radius, HalfHeight - 2.f));
+	if (GetWorld()->SweepSingleByChannel(Hit, From + FVector(0,0,2), To + FVector(0,0,2),
+		FQuat::Identity, ECC_Pawn, Shape, Params)) return false;
+	const FVector Feet = To - FVector(0,0,HalfHeight);
+	return GetWorld()->LineTraceSingleByChannel(Hit, Feet + FVector(0,0,35), Feet - FVector(0,0,45), ECC_Pawn, Params)
+		&& Hit.ImpactNormal.Z >= .7f;
 }
 
 AYUFSExitPoint::AYUFSExitPoint()
@@ -78,5 +135,6 @@ void AYUFSExitPoint::OnConstruction(const FTransform& Transform)
 	Place(DoorLeaf, FVector(X + FrameCm * 0.25f, 0.f, PostZ), FVector(FrameCm * 0.4f, HalfWidth * 2.f, DoorHeight),
 		bShow && bShowDoorLeaf, LeafColor);
 	// "EXIT" sign above the lintel, slightly proud of the frame so it reads from the corridor.
-	Place(Sign, FVector(X - FrameCm, 0.f, FloorZ + DoorHeight + FrameCm + 18.f), FVector(4.f, 60.f, 22.f), bShow, SignColor);
+	Place(Sign, FVector(X - FrameCm, 0.f, FloorZ + DoorHeight + FrameCm + 18.f), FVector(4.f, 60.f, 22.f), bShow,
+		bPhysicalPassageEnabled ? SignColor : FLinearColor(1.f,.35f,.02f)); // Amber: unimplemented physical passage.
 }

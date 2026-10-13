@@ -30,6 +30,8 @@ class YUFS_API UYUFSTeamIntegrationComponent : public UActorComponent
 
 public:
 	UYUFSTeamIntegrationComponent();
+	// Post-result presentation; never asks the route driver to select another exit.
+	void PublishExteriorMovement(int32 StableNpcId, const FVector& Destination, bool bStopped);
 
 	void PublishDecision(
 		int32 StableNpcId,

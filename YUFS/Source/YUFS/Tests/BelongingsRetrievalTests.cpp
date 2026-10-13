@@ -193,7 +193,8 @@ bool FYUFSBelongingsTimelineReplayTest::RunTest(const FString&)
 	TestTrue(TEXT("owner picks up its bag"), Bag->AttachToCarrier(Npc));
 	Retrieval->FinishEpisode();
 	TestEqual(TEXT("the bag stays assigned for the replay"), Retrieval->GetBag(), Bag);
-	TestTrue(TEXT("a carried bag leaves the building with its owner"), Bag->IsHidden());
+	TestFalse(TEXT("a visible exterior owner retains a visible bag"), Bag->IsHidden());
+	TestEqual(TEXT("exterior bag remains attached"), Bag->GetAttachParentActor(), static_cast<AActor*>(Npc));
 	TestTrue(TEXT("nobody else can claim a bag that left the building"), Bag->IsCarried());
 
 	// The next episode puts the designer's bag back, even though it was carried out last time.

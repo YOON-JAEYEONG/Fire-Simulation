@@ -116,7 +116,7 @@ void AYUFSInteractionDoor::ApplyReviewState(float InOpenFraction,float InSwingDi
  OpenFraction=Fraction; SwingDirection=Swing;
  Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false;
  ApplyLeafPose();
- PassageBlocker->SetCollisionEnabled(IsOpen()?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
+ PassageBlocker->SetCollisionEnabled(GetClearWidthCm()>=RequiredClearWidthCm?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
 }
 bool AYUFSInteractionDoor::IsUserInReach(AActor* User) const
 {
@@ -127,20 +127,39 @@ bool AYUFSInteractionDoor::IsUserInReach(AActor* User) const
 }
 bool AYUFSInteractionDoor::IsPassageClear() const
 {
- return IsOpen() && FMath::Abs(OpenAngle)>=75.f && PassageBlocker
+ return GetClearWidthCm()>=RequiredClearWidthCm && PassageBlocker
      && PassageBlocker->GetCollisionEnabled()==ECollisionEnabled::NoCollision;
+}
+float AYUFSInteractionDoor::GetClearWidthCm() const
+{
+ const float Width=100.f*FMath::Abs(GetActorScale3D().Y);
+ const float Eased=OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
+ if (bSliding) return FMath::Clamp(FMath::Abs(SlideDistance)*Eased-3.f,0.f,Width);
+ const float Angle=FMath::DegreesToRadians(FMath::Min(90.f,FMath::Abs(OpenAngle)*Eased));
+ return FMath::Clamp(Width*(1.f-FMath::Cos(Angle))-6.f*FMath::Abs(GetActorScale3D().X)*FMath::Sin(Angle),0.f,Width);
+}
+bool AYUFSInteractionDoor::IsUserAtHandle(AActor* User) const
+{
+ if (!IsUserInReach(User)) return false;
+ const FVector Handle=GetHandleLocation();
+ if (FVector::Dist2D(User->GetActorLocation(),Handle)>ContactDistanceCm
+     || FMath::Abs(User->GetActorLocation().Z-Handle.Z)>100.f) return false;
+ FHitResult Hit;
+ FCollisionQueryParams Params(SCENE_QUERY_STAT(DoorHandleReach),false,User);
+ return !GetWorld()->LineTraceSingleByChannel(Hit,User->GetActorLocation()+FVector(0,0,25),Handle,ECC_Visibility,Params)
+     || Hit.GetActor()==this;
 }
 bool AYUFSInteractionDoor::TryReserve(AActor* User)
 {
  if (!IsUserInReach(User) || !CanOperate() || (Operator.IsValid() && Operator.Get()!=User)) return false;
- // A +Y leaf rotated by positive yaw swings toward -X. Choose the opposite
- // side from the first user, then retain it when resuming a partial opening.
+ // A +Y leaf rotated by positive yaw swings toward -X. Preserve the authored side.
  if (OpenFraction <= 0.f)
-  SwingDirection = GetActorTransform().InverseTransformPosition(User->GetActorLocation()).X >= 0.f ? 1.f : -1.f;
+  SwingDirection = bOpenTowardNegativeX ? 1.f : -1.f;
  Operator=User; return true;
 }
 bool AYUFSInteractionDoor::TryUse(AActor* User)
 {
+ if (!IsUserAtHandle(User)) return false;
  if (!TryReserve(User)) return false;
  bOpeningRequested=true;
  return true;
@@ -213,11 +232,14 @@ void AYUFSInteractionDoor::Tick(float Dt)
  // The actor transform stays fixed for discovery, authored placement and route
  // references; only the leaf and its hardware move (swing about the hinge, or slide).
  ApplyLeafPose();
+ if (GetClearWidthCm()>=RequiredClearWidthCm)
+  PassageBlocker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
  if (IsOpen())
  {
   // Only the passage guard disappears. An open solid leaf is still a physical
   // obstacle and never vanishes or lets people walk through its side.
-  PassageBlocker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+  // A short sliding track can finish its animation without clearing the aperture.
+  PassageBlocker->SetCollisionEnabled(GetClearWidthCm()>=RequiredClearWidthCm?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
   Release(Operator.Get());
  }
 }

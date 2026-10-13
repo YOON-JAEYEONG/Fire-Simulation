@@ -41,6 +41,36 @@ UYUFSTeamIntegrationComponent::UYUFSTeamIntegrationComponent()
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
+void UYUFSTeamIntegrationComponent::PublishExteriorMovement(int32 StableNpcId, const FVector& Destination, bool bStopped)
+{
+	FYUFSNavigationDirective Nav;
+	Nav.StableNpcId = StableNpcId;
+	Nav.Goal = bStopped ? EYUFSNavigationGoal::None : EYUFSNavigationGoal::ExteriorDispersal;
+	Nav.DestinationHint = Destination;
+	Nav.Reason = bStopped ? TEXT("ExteriorWaiting") : TEXT("BuildingExitedDispersal");
+	if (!SameNavigationDirective(Nav, NavigationDirective))
+	{
+		Nav.Revision = ++NavigationRevision; NavigationDirective = Nav;
+		NavigationFeedback = {}; OnNavigationDirectiveChanged.Broadcast(NavigationDirective);
+	}
+	FYUFSMotionDirective Motion;
+	Motion.StableNpcId = StableNpcId;
+	Motion.Semantic = bStopped ? EYUFSMotionSemantic::Idle : EYUFSMotionSemantic::Walk;
+	Motion.LegacyAction = bStopped ? EYUFSAction::Idle : EYUFSAction::HelpOther;
+	Motion.Reason = Nav.Reason;
+	if (!SameMotionDirective(Motion, MotionDirective))
+	{
+		Motion.Revision = ++MotionRevision; MotionDirective = Motion;
+		MotionFeedback = {}; OnMotionDirectiveChanged.Broadcast(MotionDirective);
+	}
+	if (InteractionDirective.Goal != EYUFSInteractionGoal::None)
+	{
+		InteractionDirective = {}; InteractionDirective.StableNpcId = StableNpcId;
+		InteractionDirective.Revision = ++InteractionRevision;
+		InteractionFeedback = {}; OnInteractionDirectiveChanged.Broadcast(InteractionDirective);
+	}
+}
+
 void UYUFSTeamIntegrationComponent::PublishDecision(
 	int32 StableNpcId,
 	const FYUFSBehaviorDecision& Decision,

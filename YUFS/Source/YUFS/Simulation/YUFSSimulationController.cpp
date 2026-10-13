@@ -677,7 +677,7 @@ void AYUFSSimulationController::UpdateLiveCounts()
 		// A level data manager can be added after BeginPlay (runtime test setup); pick it up lazily.
 		for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It) { CachedLDM = *It; break; }
 	}
-	if (!CachedLDM || !BinaryManager) return;
+	// The traversal component owns the result; counting it does not require a hazard file.
 
 	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
 	{
@@ -710,7 +710,7 @@ void AYUFSSimulationController::UpdateLiveCounts()
 		}
 
 		// 출구 도달 여부 확인
-		if (CachedLDM->IsAtValidExit(NPC->GetActorLocation(), EvacuationSuccessDistanceCm))
+		if (NPC->HasPhysicallyExited())
 		{
 			NPC->NotifyEpisodeFinished(EYUFSTerminalReason::ReachedExit);
 			LiveEvacuatedCount++;
@@ -720,11 +720,8 @@ void AYUFSSimulationController::UpdateLiveCounts()
 			UE_LOG(LogTemp, Log, TEXT("[YUFS] NPC '%s' evacuated successfully. Total: %d"),
 				*NPC->GetName(), LiveEvacuatedCount);
 
-			// 기존 코드의 Destroy()는 타임라인 복원을 불가능하게 만듭니다.
-			// Actor는 유지하고 화면/충돌/Tick만 끕니다.
-			NPC->SetActorHiddenInGame(true);
-			NPC->SetActorEnableCollision(false);
-			NPC->SetActorTickEnabled(false);
+			// The same visible actor walks away from the doorway after the result.
+			// Replay stores the explicit outcome independently from visibility.
 		}
 	}
 }
@@ -735,6 +732,8 @@ void AYUFSSimulationController::CheckCompletionCondition()
 	const int32 TotalCount = InitialNPCCount > 0 ? InitialNPCCount : RegisteredNPCs.Num();
 	if (TotalCount > 0 && ResolvedNPCs.Num() >= TotalCount)
 	{
+		for (const auto* NPC : RegisteredNPCs)
+			if (IsValid(NPC) && NPC->IsExteriorMovementPending()) return;
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS] All NPCs resolved. Finalizing run %d."), CurrentRunIndex);
 		FinalizeRun();
 	}

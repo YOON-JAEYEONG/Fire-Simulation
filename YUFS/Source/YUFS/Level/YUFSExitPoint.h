@@ -7,6 +7,7 @@
 #include "YUFSExitPoint.generated.h"
 
 class UStaticMeshComponent;
+class AYUFSInteractionDoor;
 
 UCLASS()
 class YUFS_API AYUFSExitPoint : public AActor
@@ -17,6 +18,30 @@ public:
 	AYUFSExitPoint();
 
 	virtual void OnConstruction(const FTransform& Transform) override;
+
+	// An unconfigured decorative marker must never produce an evacuation result.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Exit|Passage")
+	bool bPhysicalPassageEnabled = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Exit|Passage")
+	FVector PortalFloorOffset = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Exit|Passage", meta=(ClampMin="100"))
+	float PassageHeight = 220.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Exit|Passage", meta=(ClampMin="100"))
+	float ExteriorDistance = 200.f;
+	// Explicitly authored walkable waiting area, in portal-local cm. Zero preserves a single target.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Exit|Passage")
+	FVector2D ExteriorSpread = FVector2D::ZeroVector;
+	FVector GetExteriorWaitingDestination(int32 StableNpcId) const;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Exit|Passage")
+	TObjectPtr<AYUFSInteractionDoor> GatewayDoor;
+	UFUNCTION(BlueprintPure, Category="Exit|Passage")
+	FTransform GetPortalTransform() const;
+	UFUNCTION(BlueprintPure, Category="Exit|Passage")
+	FVector GetNavigationDestination() const;
+	bool CrossesOutward(const FVector& From, const FVector& To, float Radius, float HalfHeight) const;
+	bool IsExteriorClear(const FVector& Position, float Radius, float HalfHeight) const;
+	UFUNCTION(BlueprintPure, Category="Exit|Passage")
+	bool ValidatePhysicalTravel(const FVector& From, const FVector& To, float Radius, float HalfHeight, const AActor* User) const;
 
 public:
 	// 에디터에서 각 출구마다 설정

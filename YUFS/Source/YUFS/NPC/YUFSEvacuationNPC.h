@@ -27,6 +27,7 @@ class UYUFSHumanBehaviorSelectorComponent;
 class UYUFSTeamIntegrationComponent;
 class UYUFSNPCDebugComponent;
 class UYUFSNpcEnvironmentInteraction;
+class UYUFSExitTraversalComponent;
 class UYUFSBelongingsRetrievalComponent;
 class UYUFSNPCPerceptionComponent;
 class AYUFSSimulationController;
@@ -186,6 +187,10 @@ public:
 	void SetAnimationShowcaseDebugSuppressed(bool bSuppressed);
 
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
+	bool HasPhysicallyExited() const;
+	bool IsExteriorMovementPending() const;
+	UPROPERTY(VisibleAnywhere, Category="YUFS|Exit")
+	TObjectPtr<UYUFSExitTraversalComponent> ExitTraversal;
 
 	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
 	// 현재 NPC 상태를 최소 정보 스냅샷으로 변환합니다.
@@ -202,6 +207,8 @@ private:
 	// 관찰 모드: 기록 시점에 문을 여는 중/가방을 줍는 중이었으면 제자리 달리기 대신 그 동작을 보여 줍니다.
 	bool bReplayHandlingDoor = false;
 	bool bReplayPickingUpBag = false;
+	bool bReplayExterior = false;
+	bool bReplayExteriorWaiting = false;
 	// Overlay label over an NPC that is opening a door (same switch as the bag labels).
 	void DrawDoorLabel() const;
 
@@ -296,6 +303,9 @@ private:
 	FYUFSBehaviorDecision ActiveInteractionDecision;
 	bool bOptionalInteractionSelected = false;
 	bool bInteractionHoldingPosition = false;
+	float ExteriorMovementSeconds = 0.f;
+	bool bExteriorMovementFinished = false;
+	void TickExteriorMovement(float Dt);
 	float PeerGuidanceSecondsRemaining = 0.f;
 	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f);
 

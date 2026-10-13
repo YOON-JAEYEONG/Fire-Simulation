@@ -25,7 +25,7 @@ bool FYUFSDoorNaturalFlowTest::RunTest(const FString& Parameters)
         return World->SpawnActor<AYUFSEvacuationNPC>(Location,FRotator::ZeroRotator,Spawn);
     };
     auto* Door=World->SpawnActor<AYUFSInteractionDoor>(FVector::ZeroVector,FRotator::ZeroRotator,Spawn);
-    auto* User=SpawnNpc(FVector(140,50,90));
+    auto* User=SpawnNpc(FVector(60,75,90));
     auto* Other=SpawnNpc(FVector(-140,50,90));
     if (!Door || !User || !Other) { AddError(TEXT("test actors missing")); World->DestroyWorld(false); return false; }
     const FTransform DoorTransform=Door->GetActorTransform();
@@ -37,6 +37,10 @@ bool FYUFSDoorNaturalFlowTest::RunTest(const FString& Parameters)
     Door->Tick(.5f);
     TestTrue(TEXT("reservation alone does not animate the leaf"),Door->Panel->GetComponentQuat().Equals(ClosedRotation));
     TestFalse(TEXT("reservation does not permit passage"),Door->IsPassageClear());
+    User->SetActorLocation(FVector(140,75,90));
+    TestTrue(TEXT("remote discovery can retain reservation"),Door->TryReserve(User));
+    TestFalse(TEXT("remote reservation cannot open a manual door"),Door->TryUse(User));
+    User->SetActorLocation(UserLocation);
     TestTrue(TEXT("reserved NPC explicitly begins opening"),Door->TryUse(User));
     Door->Tick(.4f);
     TestFalse(TEXT("partial opening is not passage completion"),Door->IsPassageClear());
@@ -46,7 +50,9 @@ bool FYUFSDoorNaturalFlowTest::RunTest(const FString& Parameters)
     Door->Tick(3.f);
     TestTrue(TEXT("cancellation stops the leaf without resetting it"),Door->Panel->GetComponentQuat().Equals(PartialRotation));
     TestFalse(TEXT("cancelled owner releases reservation"),Door->IsReservedBy(User));
+    Other->SetActorLocation(FVector(-60,75,90));
     TestTrue(TEXT("opposite-side NPC can resume the same leaf"),Door->TryUse(Other));
+    Other->SetActorLocation(FVector(-150,75,90)); // Pull-side operator steps outside the arc.
     Door->Tick(3.f);
     TestTrue(TEXT("full opening releases the doorway guard"),Door->IsPassageClear());
     TestTrue(TEXT("open solid leaf keeps physical collision"),Door->Panel->GetCollisionEnabled()==ECollisionEnabled::QueryAndPhysics);
@@ -55,7 +61,7 @@ bool FYUFSDoorNaturalFlowTest::RunTest(const FString& Parameters)
     TestFalse(TEXT("completed door releases operator"),Door->IsReservedBy(Other));
 
     auto* BlockedDoor=World->SpawnActor<AYUFSInteractionDoor>(FVector(1000,0,0),FRotator::ZeroRotator,Spawn);
-    auto* BlockedUser=SpawnNpc(FVector(1140,50,90));
+    auto* BlockedUser=SpawnNpc(FVector(1060,75,90));
     if (!BlockedDoor || !BlockedUser) { AddError(TEXT("blocked fixture missing")); World->DestroyWorld(false); return false; }
     BlockedDoor->bLocked=true;
     TestFalse(TEXT("locked door cannot be reserved"),BlockedDoor->TryUse(BlockedUser));
@@ -80,7 +86,7 @@ bool FYUFSDoorNaturalFlowTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("removing obstruction allows the reserved action to finish"),BlockedDoor->IsPassageClear());
 
     auto* PausedDoor=World->SpawnActor<AYUFSInteractionDoor>(FVector(2000,0,0),FRotator::ZeroRotator,Spawn);
-    auto* PausedUser=SpawnNpc(FVector(2140,50,90));
+    auto* PausedUser=SpawnNpc(FVector(2060,75,90));
     auto* Controller=World->SpawnActor<AYUFSSimulationController>();
     if (!PausedDoor || !PausedUser || !Controller) { AddError(TEXT("pause fixture missing")); World->DestroyWorld(false); return false; }
     Controller->bPreviewAllNPCActionAnimations=false;
@@ -134,7 +140,7 @@ bool FYUFSSlidingDoorTest::RunTest(const FString& Parameters)
 
     // Someone standing on the track keeps the leaf from sliding over them.
     auto* Blocked=World->SpawnActor<AYUFSInteractionDoor>(FVector(1000,0,0),FRotator::ZeroRotator,Spawn);
-    auto* BlockedUser=World->SpawnActor<AYUFSEvacuationNPC>(FVector(880,50,90),FRotator::ZeroRotator,Spawn);
+    auto* BlockedUser=World->SpawnActor<AYUFSEvacuationNPC>(FVector(945,75,90),FRotator::ZeroRotator,Spawn);
     auto* Bystander=World->SpawnActor<AYUFSEvacuationNPC>(FVector(984,-60,90),FRotator::ZeroRotator,Spawn);
     if (!Blocked || !BlockedUser || !Bystander) { AddError(TEXT("blocked fixture missing")); World->DestroyWorld(false); return false; }
     Blocked->bSliding=true; Blocked->SlideTrackOffset=-16.f; Blocked->SlideDistance=-100.f;
@@ -143,6 +149,11 @@ bool FYUFSSlidingDoorTest::RunTest(const FString& Parameters)
     Blocked->Tick(3.f);
     TestTrue(TEXT("a person on the track stops the leaf"),Blocked->IsOpeningBlocked());
     TestFalse(TEXT("a blocked slide never releases the doorway"),Blocked->IsPassageClear());
+
+    auto* ShortTrack=World->SpawnActor<AYUFSInteractionDoor>(FVector(2000,0,0),FRotator::ZeroRotator,Spawn);
+    ShortTrack->bSliding=true; ShortTrack->SlideDistance=40.f;
+    ShortTrack->ApplyReviewState(1.f,1.f);
+    TestFalse(TEXT("fully animated short track is still too narrow"),ShortTrack->IsPassageClear());
 
     World->DestroyWorld(false);
     return true;

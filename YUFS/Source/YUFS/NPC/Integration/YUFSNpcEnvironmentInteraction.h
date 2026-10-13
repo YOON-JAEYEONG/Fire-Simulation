@@ -41,14 +41,13 @@ public:
   * Stopping where the door is first seen (up to 1.4 m away) made the door look as if it opened by itself.
   */
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="30.0")) float DoorStandDistanceCm=70.f;
- /** Give up walking closer after this long (blocked, yielding) and open it from where the NPC stands. */
+ /** Cancel an unreachable approach; never substitute remote opening. */
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="0.0")) float DoorApproachSeconds=3.f;
  /** Let go of a door whose swing has been blocked (someone in the arc) this long, then retry later. */
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="0.1")) float DoorSwingBlockedGiveUpSeconds=1.5f;
  /**
-  * Doors are opened on the way, without stopping: a door on the route is noticed this far ahead,
-  * the NPC walks up to it no faster than DoorApproachSpeedCmPerSec so the leaf is open when it
-  * arrives, and only if it gets closer to the leaf than DoorHoldDistanceCm before that does it wait.
+  * Discover a door ahead and slow the approach. Contact range and facing are checked separately
+  * before requesting leaf motion; discovery alone never opens a manual door.
   */
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="100.0")) float DoorLookAheadCm=350.f;
  UPROPERTY(EditAnywhere, Category="NPC|Door", meta=(ClampMin="50.0")) float DoorApproachSpeedCmPerSec=200.f;
@@ -70,5 +69,6 @@ private:
  int64 RequestRevision=0;
  EYUFSInteractionGoal ActiveGoal=EYUFSInteractionGoal::None;
  FName ActiveTargetId=NAME_None;
+ FVector DoorMoveTarget=FVector::ZeroVector;
  bool bActive=false, bApproaching=false, bAtDoor=false;
 };

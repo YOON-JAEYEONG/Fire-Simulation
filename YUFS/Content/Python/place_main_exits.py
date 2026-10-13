@@ -1,5 +1,10 @@
 """Place the exits of the Main (IT building) map, plus the level data manager, and save.
 
+SUPERSEDED (2026-10-13): the end walls now have real openings and the three exits are
+physical (see configure_physical_central_exit.py / configure_physical_end_exits.py).
+Re-running this script would delete YUFS_Exit_* and re-place marker-only end exits with a
+closed door leaf; do not run it on the current Main.
+
 The real IT building has three ground-floor exits: one at each end of the building and one
 in the middle (confirmed by the team, 2026-09-29).
 
