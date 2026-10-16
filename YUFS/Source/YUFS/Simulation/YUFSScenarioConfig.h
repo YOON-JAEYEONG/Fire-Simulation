@@ -79,7 +79,17 @@ struct YUFS_API FYUFSScenarioConfig
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scenario|NPC")
 	FString OnnxModelPath;
 
+	// Retained for old saved scenarios; fresh randomness is never selected implicitly.
+	UPROPERTY()
+	bool bUseFixedRandomSeed = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Scenario|Seed")
+	int32 FixedRandomSeed = 2026;
+
 	// ── 화재 / 시간 ─────────────────────────────────────────────────────
+	// INDEX_NONE keeps the map default; saved runs retain the selected option.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scenario|Fire")
+	int32 FireOptionIndex = INDEX_NONE;
+
 	// 레벨 시작 후 불이 붙기까지의 대기 시간 (NPC 일상 상태 구간)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scenario|Fire", meta = (ClampMin = "0.0"))
 	float FireStartDelaySeconds = 30.f;

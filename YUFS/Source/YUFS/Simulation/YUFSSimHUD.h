@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/ComboBoxString.h"
 #include "Simulation/YUFSSimulationController.h"
 #include "YUFSSimHUD.generated.h"
 
@@ -105,21 +106,41 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category="YUFS|HUD|Fire")
 	AActor* FirePointB = nullptr;
 
-	// ── 화재 시나리오 전환 버튼 (Fire_A / Fire_B) ─────────────────────────
-	// 단순 Visibility 토글이 아니라, SimulationController에게 "어느 시나리오
-	// (BinaryManager+HeterogeneousVolume 데이터 쌍)를 재생할지"를 실제로 전환시킵니다.
-	// Button_A / Button_B의 OnClicked를 이 함수들로 연결하세요.
+	// ── 화재 선택 콤보박스 ───────────────────────────────────────────────
+	// WBP_SimHUD의 UMG 디자이너에서 이 이름("FireSelectComboBox")과 정확히 같은
+	// ComboBox(String) 위젯을 추가하면, NativeConstruct 시점에 자동으로
+	// SimulationController의 FireOptions 목록을 채우고 선택 이벤트를 연결합니다.
+	// 별도의 블루프린트 배선이 필요 없습니다.
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|HUD|Fire", meta=(BindWidgetOptional))
+	TObjectPtr<class UComboBoxString> FireSelectComboBox;
+
+	// 콤보박스가 없거나(BindWidgetOptional) 블루프린트에서 직접 콤보박스를 다루고 싶을 때
+	// NativeConstruct 이후 아무 때나 다시 호출해 옵션 목록/선택 상태를 갱신할 수 있습니다.
 	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Fire")
+	void PopulateFireOptions();
+
+	// 인덱스로 직접 화재를 선택합니다 (블루프린트에서 커스텀 콤보박스/버튼을 만든 경우 사용).
+	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Fire")
+	void OnFireOptionSelected(int32 OptionIndex);
+
+	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Fire")
+	TArray<FString> GetFireOptionNames() const;
+
+	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Fire")
+	int32 GetActiveFireOptionIndex() const;
+
+	// ── Deprecated: Fire_A/Fire_B 버튼 → 콤보박스로 대체되었습니다 ─────────
+	// 기존에 이미 배선된 블루프린트가 있을 수 있어 당분간 남겨둡니다.
+	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use the FireSelectComboBox / OnFireOptionSelected(int32) instead."))
 	void OnFireSceneAButtonClicked();
 
-	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Fire")
+	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use the FireSelectComboBox / OnFireOptionSelected(int32) instead."))
 	void OnFireSceneBButtonClicked();
 
-	// UI에서 현재 선택된 시나리오를 표시(버튼 강조 등)할 때 바인딩용
-	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Fire")
+	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use GetActiveFireOptionIndex() instead."))
 	bool IsFireSceneASelected() const;
 
-	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Fire")
+	UFUNCTION(BlueprintPure, Category="YUFS|HUD|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use GetActiveFireOptionIndex() instead."))
 	bool IsFireSceneBSelected() const;
 
 private:
@@ -128,4 +149,7 @@ private:
 
 	void FindSimController();
 	void FindFirePoints();
+
+	UFUNCTION()
+	void OnFireOptionComboBoxChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
 };

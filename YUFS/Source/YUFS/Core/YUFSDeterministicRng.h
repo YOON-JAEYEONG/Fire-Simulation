@@ -16,13 +16,13 @@ enum class EYUFSRngStream : uint8
 };
 
 /**
- * scenarioSeed + stableNpcId + stream tag로 초기화하는 결정적 난수 묶음.
+ * project seed + authored NPC seed + stableNpcId + stream tag로 초기화하는 결정적 난수 묶음.
  * 한 스트림의 draw 수가 늘어나도 다른 스트림의 결과는 바뀌지 않는다.
  */
 class YUFS_API FYUFSDeterministicRngSet
 {
 public:
-	void Initialize(int32 InScenarioSeed, int32 InStableNpcId);
+	void Initialize(int32 InScenarioSeed, int32 InStableNpcId, int32 InNpcSeed = 0);
 
 	bool IsInitialized() const { return bInitialized; }
 	float FRand(EYUFSRngStream Stream);

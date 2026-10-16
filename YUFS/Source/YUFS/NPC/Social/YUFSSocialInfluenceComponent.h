@@ -17,6 +17,7 @@ public:
 	UYUFSSocialInfluenceComponent();
 
 public:
+	void ResetForRun();
 	void UpdateSocialContext();
 
 	// Observation 빌드 시 읽어감

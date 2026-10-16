@@ -4,6 +4,7 @@
 #include "Simulation/YUFSGameInstance.h"
 #include "Debug/YUFSInteractionPreview.h"
 #include "Simulation/YUFSTimelineRecorder.h"
+#include "Simulation/YUFSReplayArchive.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "EngineUtils.h"
 #include "Fire/YUFSBinaryManager.h"
@@ -15,10 +16,13 @@
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
+#include "Misc/PackageName.h"
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	// Capture the displayed transform/pose after character movement and meshes.
+	PrimaryActorTick.TickGroup = TG_PostUpdateWork;
 
 	// 타임라인 기록/관찰 로직은 별도 컴포넌트에 분리합니다.
 	// SimulationController는 Phase 전환과 외부 API만 담당합니다.
@@ -48,18 +52,29 @@ void AYUFSSimulationController::BeginPlay()
 		break;
 	}
 
-	// 화재 시나리오 A/B 쌍(BinaryManager + HeterogeneousVolume)을 찾아 링크하고,
-	// 기본 시나리오(A)를 활성화합니다.
-	FindFireScenarioActors();
-	ApplyCurrentActiveScenario();
+	// 레벨의 (단일) BinaryManager/HeterogeneousVolume을 찾아 링크하고,
+	// FireOptions[0](또는 마지막으로 선택했던 인덱스)를 적용합니다.
+	FindFireSceneActors();
+	if (FireOptions.IsValidIndex(CurrentFireOptionIndex))
+	{
+		ApplyFireOption(CurrentFireOptionIndex);
+	}
+	else if (!FireOptions.IsEmpty())
+	{
+		ApplyFireOption(0);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] FireOptions가 비어 있습니다. SimulationController의 Fire Options 배열에 화재(표시 이름/.bin 경로/머티리얼)를 최소 1개 등록하세요."));
+	}
 
-	// A/B 각각의 화재 볼륨이 실제 머티리얼을 가지고 있는지 확인합니다.
+	// 화재 볼륨이 실제 머티리얼을 가지고 있는지 확인합니다.
 	for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
 	{
 		const auto* VolumeComponent = It->FindComponentByClass<UHeterogeneousVolumeComponent>();
 		if (!VolumeComponent || !VolumeComponent->GetMaterial(0))
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[YUFS][Merge] Recorded fire volume '%s' has no material. JJW Scenario_04 requires /Game/Fires/vdb/Scenario_04/vdb/SparseVolumeMaterial_Inst_Scenario_04; obtain the matching external assets. No substitute fire or material is created."), *It->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] Fire volume '%s' has no material. Set FireMaterial on the matching FireOptions entry (or assign a material on the HeterogeneousVolume directly) so playback is visible."), *It->GetName());
 		}
 	}
 
@@ -77,7 +92,7 @@ void AYUFSSimulationController::BeginPlay()
 	{
 		if (GI->bHasPendingReplaySeed)
 		{
-			ApplyReplayNPCTransforms(GI->PendingReplayNPCTransforms, GI->PendingReplayNPCClasses);
+			ApplyReplayNPCTransforms(GI->PendingReplayNPCTransforms, GI->PendingReplayNPCClasses, GI->PendingReplayNPCStableIds);
 			InitialNPCCount = RegisteredNPCs.Num();
 		}
 	}
@@ -125,6 +140,8 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 		if (TimelineRecorder)
 		{
 			TimelineRecorder->TickReview(DeltaTime, RegisteredNPCs);
+			LiveEvacuatedCount = TimelineRecorder->GetCurrentEvacuatedCount();
+			LiveIncapacitatedCount = TimelineRecorder->GetCurrentIncapacitatedCount();
 		}
 		return;
 	}
@@ -146,6 +163,7 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 		{
 			SetPhase(ESimPhase::FireActive);
 		}
+		RecordCurrentFrame(DeltaTime);
 	}
 	else if (CurrentPhase == ESimPhase::FireActive)
 	{
@@ -160,6 +178,14 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 void AYUFSSimulationController::StartSimulation()
 {
 	if (CurrentPhase != ESimPhase::WaitingToStart) return;
+	if (const UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>();
+		GI && !GI->IsBuildingInteractionSetupReady(GetWorld()))
+	{
+		bStartRequestedBeforeBuildingSetupReady = true;
+		UE_LOG(LogTemp, Display, TEXT("[YUFS] Start queued until the building interaction environment is ready."));
+		return;
+	}
+	bStartRequestedBeforeBuildingSetupReady = false;
 	if (IsWaitingForInteractionPreview())
 	{
 		bStartRequestedBeforePreviewReady = true;
@@ -184,14 +210,30 @@ void AYUFSSimulationController::StartSimulation()
 	TotalEvacuationTime = 0.f;
 	AllRunResults.Empty();
 	ResolvedNPCs.Empty();
+	bRunResultStored = false;
+	bLoadedRecordedReplay = false;
 
-	// 결과 화면의 "이 회차 재현" 요청이 있으면 그 시드로, 아니면 새 랜덤 시드로 시작합니다.
-	InitializeRunSeed();
+	// Replays retain their original seed; new runs reuse the configured project seed.
+	if (!InitializeRunSeed()) return;
+	if (bLoadedRecordedReplay)
+	{
+		// Result-screen replay consumes the original recording, never reruns AI.
+		SetPhase(ESimPhase::TimelineReview);
+		TimelineRecorder->EnterReviewMode(RegisteredNPCs);
+		SeekTimelineBySeconds(TimelineRecorder->GetMinRecordedFireTime());
+		TimelineRecorder->PlayReview();
+		return;
+	}
 
 	SetPhase(ESimPhase::FireStartDelay);
+	if (TimelineRecorder)
+	{
+		TimelineRecorder->BeginRecording(MaxSimDurationSeconds, TimelineRecordIntervalSeconds);
+	}
 	// Both HUD implementations enter here. Start exactly one visual sequence.
 	for (TActorIterator<AYUFSInteractionPreview> It(GetWorld()); It; ++It)
 		It->StartSequence();
+	RecordCurrentFrame(0.f);
 
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation started. Fire in %.0f seconds."), FireStartDelaySeconds);
 }
@@ -204,6 +246,13 @@ void AYUFSSimulationController::NotifyInteractionPreviewReady(bool bReady)
 	if (bReady && bStartRequestedBeforePreviewReady) StartSimulation();
 }
 
+void AYUFSSimulationController::NotifyBuildingInteractionSetupReady()
+{
+	if (!bStartRequestedBeforeBuildingSetupReady) return;
+	bStartRequestedBeforeBuildingSetupReady = false;
+	StartSimulation();
+}
+
 void AYUFSSimulationController::PauseSimulation()
 {
 	if (CurrentPhase == ESimPhase::TimelineReview)
@@ -214,6 +263,7 @@ void AYUFSSimulationController::PauseSimulation()
 	if (CurrentPhase == ESimPhase::WaitingToStart)
 	{
 		bStartRequestedBeforePreviewReady = false;
+		bStartRequestedBeforeBuildingSetupReady = false;
 		return;
 	}
 
@@ -287,6 +337,8 @@ void AYUFSSimulationController::StopAndResetSimulation()
 	// 여기서 또 저장하면 같은 회차가 기록에 중복으로 쌓입니다.
 	if (CurrentPhase == ESimPhase::FireStartDelay || CurrentPhase == ESimPhase::FireActive)
 	{
+		RecordCurrentFrame(0.f);
+		if (TimelineRecorder) TimelineRecorder->StopRecording();
 		StoreRunResult(BuildRunResult());
 	}
 
@@ -297,24 +349,54 @@ void AYUFSSimulationController::StopAndResetSimulation()
 	UGameplayStatics::OpenLevel(GetWorld(), *GetWorld()->GetName());
 }
 
-void AYUFSSimulationController::SelectFireScenario(EFireScenario NewScenario)
+void AYUFSSimulationController::SelectFireOption(int32 OptionIndex)
 {
 	if (CurrentPhase != ESimPhase::WaitingToStart)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 시뮬레이션이 진행 중일 때는 화재 시나리오를 전환할 수 없습니다. 먼저 Stop 하세요."));
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 시뮬레이션이 진행 중일 때는 화재를 전환할 수 없습니다. 먼저 Stop 하세요."));
 		return;
 	}
 
-	if (CurrentActiveScenario == NewScenario)
+	if (!FireOptions.IsValidIndex(OptionIndex))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 잘못된 화재 인덱스 %d (등록된 화재 %d개)."), OptionIndex, FireOptions.Num());
+		return;
+	}
+
+	if (CurrentFireOptionIndex == OptionIndex)
 	{
 		return;
 	}
 
-	CurrentActiveScenario = NewScenario;
-	ApplyCurrentActiveScenario();
+	ApplyFireOption(OptionIndex);
 
-	UE_LOG(LogTemp, Warning, TEXT("[YUFS] 화재 시나리오 전환 → %s"),
-		NewScenario == EFireScenario::ScenarioA ? TEXT("A") : TEXT("B"));
+	UE_LOG(LogTemp, Warning, TEXT("[YUFS] 화재 전환 → [%d] %s"), OptionIndex, *FireOptions[OptionIndex].DisplayName);
+}
+
+void AYUFSSimulationController::SelectFireScenario(EFireScenario NewScenario)
+{
+	SelectFireOption(NewScenario == EFireScenario::ScenarioA ? 0 : 1);
+}
+
+TArray<FString> AYUFSSimulationController::GetFireOptionNames() const
+{
+	TArray<FString> Names;
+	Names.Reserve(FireOptions.Num());
+	for (int32 Index = 0; Index < FireOptions.Num(); ++Index)
+	{
+		Names.Add(GetFireOptionName(Index));
+	}
+	return Names;
+}
+
+FString AYUFSSimulationController::GetFireOptionName(int32 OptionIndex) const
+{
+	if (!FireOptions.IsValidIndex(OptionIndex))
+	{
+		return FString();
+	}
+	const FString& DisplayName = FireOptions[OptionIndex].DisplayName;
+	return DisplayName.IsEmpty() ? FString::Printf(TEXT("Fire %d"), OptionIndex + 1) : DisplayName;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -331,6 +413,9 @@ void AYUFSSimulationController::ApplyActiveScenario()
 
 	bHasActiveScenario = true;
 	ActiveScenario = GI->ActiveScenario;
+	FixedRandomSeed = ActiveScenario.FixedRandomSeed;
+	if (FireOptions.IsValidIndex(ActiveScenario.FireOptionIndex))
+		ApplyFireOption(ActiveScenario.FireOptionIndex);
 
 	// 스칼라 파라미터 반영 (NPC 수/정책/배치 프리셋은 NPC 스폰 시스템이 ActiveScenario에서 직접 읽습니다.)
 	FireStartDelaySeconds          = ActiveScenario.FireStartDelaySeconds;
@@ -347,95 +432,85 @@ void AYUFSSimulationController::ApplyActiveScenario()
 		*ActiveScenario.DisplayName.ToString(), FireStartDelaySeconds);
 }
 
-void AYUFSSimulationController::FindFireScenarioActors()
+void AYUFSSimulationController::FindFireSceneActors()
 {
 	if (!GetWorld()) return;
 
-	// 이름(에디터 표시 이름)이 "_A"/"_B"로 끝나는 HeterogeneousVolume 액터를 각각 매칭합니다.
-	// (WBP_SimHUD::FindFirePoints()와 동일한 규칙 — GetActorLabel()을 써야 월드 파티션에서도 매칭됩니다.)
+	int32 VolumeCount = 0;
 	for (TActorIterator<AYUFSHeterogeneousVolume> It(GetWorld()); It; ++It)
 	{
-		AYUFSHeterogeneousVolume* Volume = *It;
-		if (!Volume) continue;
-
-#if WITH_EDITOR
-		const FString Name = Volume->GetActorLabel();
-#else
-		const FString Name = Volume->GetName();
-#endif
-		if (Name.EndsWith(TEXT("_A")))
+		if (!*It) continue;
+		++VolumeCount;
+		if (!HeterogeneousVolume)
 		{
-			HeterogeneousVolumeA = Volume;
-		}
-		else if (Name.EndsWith(TEXT("_B")))
-		{
-			HeterogeneousVolumeB = Volume;
+			HeterogeneousVolume = *It;
 		}
 	}
 
-	// 이름이 "_A"/"_B"로 끝나는 BinaryManager 액터를 각각 매칭합니다.
-	// 아직 이름 규칙을 따르지 않는 기존(단일) BinaryManager만 있는 경우엔 하위 호환을 위해 A로 취급합니다.
+	int32 ManagerCount = 0;
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)
 	{
-		AYUFSBinaryManager* Manager = *It;
-		if (!Manager) continue;
-
-#if WITH_EDITOR
-		const FString Name = Manager->GetActorLabel();
-#else
-		const FString Name = Manager->GetName();
-#endif
-		if (Name.EndsWith(TEXT("_A")))
+		if (!*It) continue;
+		++ManagerCount;
+		if (!BinaryManager)
 		{
-			BinaryManagerA = Manager;
-		}
-		else if (Name.EndsWith(TEXT("_B")))
-		{
-			BinaryManagerB = Manager;
-		}
-		else if (!BinaryManagerA)
-		{
-			BinaryManagerA = Manager;
+			BinaryManager = *It;
 		}
 	}
 
-	if (BinaryManagerA && HeterogeneousVolumeA)
+	if (BinaryManager && HeterogeneousVolume)
 	{
-		BinaryManagerA->SetHeterogeneousVolume(HeterogeneousVolumeA);
-	}
-	if (BinaryManagerB && HeterogeneousVolumeB)
-	{
-		BinaryManagerB->SetHeterogeneousVolume(HeterogeneousVolumeB);
+		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
 	}
 
-	if (!HeterogeneousVolumeA)
+	if (VolumeCount == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 시나리오 A용 HeterogeneousVolume(이름이 '_A'로 끝나는 액터)을 찾지 못했습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 레벨에 AYUFSHeterogeneousVolume 액터가 없습니다. 화재 볼륨을 하나 배치하세요."));
 	}
-	if (!HeterogeneousVolumeB || !BinaryManagerB)
+	if (ManagerCount == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 시나리오 B용 BinaryManager/HeterogeneousVolume(이름이 '_B'로 끝나는 액터)을 찾지 못했습니다. "
-			"레벨에 AYUFSBinaryManager_B, AYUFSHeterogeneousVolume_B를 배치하고 B용 .bin 파일 경로를 설정하세요."));
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 레벨에 AYUFSBinaryManager 액터가 없습니다. 데이터 매니저를 하나 배치하세요."));
+	}
+	if (VolumeCount > 1 || ManagerCount > 1)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] HeterogeneousVolume %d개 / BinaryManager %d개가 발견되었습니다 — 화재 전환은 이제 FireOptions + 콤보박스로 하므로 각각 1개씩만 있으면 됩니다. 남는 액터는 삭제하세요."),
+			VolumeCount, ManagerCount);
 	}
 }
 
-void AYUFSSimulationController::ApplyCurrentActiveScenario()
+void AYUFSSimulationController::ApplyFireOption(int32 OptionIndex)
 {
-	const bool bIsA = (CurrentActiveScenario == EFireScenario::ScenarioA);
-
-	BinaryManager = bIsA ? BinaryManagerA : BinaryManagerB;
-	HeterogeneousVolume = bIsA ? HeterogeneousVolumeA : HeterogeneousVolumeB;
-
-	// 선택되지 않은 시나리오의 화재 볼륨은 화면에서 숨기고 정지시킵니다.
-	if (HeterogeneousVolumeA)
+	if (!FireOptions.IsValidIndex(OptionIndex))
 	{
-		HeterogeneousVolumeA->SetActorHiddenInGame(!bIsA);
-		if (!bIsA) HeterogeneousVolumeA->PauseFire();
+		return;
 	}
-	if (HeterogeneousVolumeB)
+
+	CurrentFireOptionIndex = OptionIndex;
+	const FYUFSFireOption& Option = FireOptions[OptionIndex];
+
+	if (BinaryManager)
 	{
-		HeterogeneousVolumeB->SetActorHiddenInGame(bIsA);
-		if (bIsA) HeterogeneousVolumeB->PauseFire();
+		BinaryManager->LoadBinaryFile(Option.BinaryFilePath);
+	}
+
+	if (HeterogeneousVolume)
+	{
+		// 화재마다 FDS 도메인 크기/비율이 달라서, 머티리얼과 함께 이 화재 전용으로
+		// 맞춰둔 위치/회전/크기도 같이 적용해야 건물과 어긋나지 않습니다.
+		// 단, 새 vdb를 뷰포트에서 눈으로 맞춰보는 동안에는 bAutoApplyFireVolumeTransform을
+		// false로 꺼서 이 강제 적용을 건너뛸 수 있습니다.
+		if (bAutoApplyFireVolumeTransform)
+		{
+			HeterogeneousVolume->SetActorTransform(Option.VolumeTransform);
+		}
+		HeterogeneousVolume->SetFireMaterial(Option.FireMaterial);
+		HeterogeneousVolume->SetIgnitionMetadataFile(Option.IgnitionMetadataFile);
+		HeterogeneousVolume->ResetFire();
+	}
+
+	if (BinaryManager && HeterogeneousVolume)
+	{
+		BinaryManager->SetHeterogeneousVolume(HeterogeneousVolume);
 	}
 
 	if (TimelineRecorder)
@@ -462,10 +537,6 @@ void AYUFSSimulationController::SetPhase(ESimPhase NewPhase)
 	case ESimPhase::FireActive:
 		// 화재 시작: HeterogeneousVolume 재생 개시
 		if (HeterogeneousVolume) HeterogeneousVolume->StartFire();
-		if (bEnableTimelineRecording && TimelineRecorder)
-		{
-			TimelineRecorder->BeginRecording(TimelineRecordEndFireSeconds, TimelineRecordIntervalSeconds);
-		}
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS] Phase: FireActive === 🔥 Fire STARTED ==="));
 		break;
 
@@ -547,18 +618,10 @@ void AYUFSSimulationController::TickFireActivePhase(float DeltaTime)
 	}
 
 	UpdateLiveCounts();
+	RecordCurrentFrame(DeltaTime);
 
-	const int32 CurrentFrame = BinaryManager ? BinaryManager->GetCurrentFrame() : 0;
 	if (bEnableTimelineRecording && TimelineRecorder)
 	{
-		TimelineRecorder->TickRecording(
-			DeltaTime,
-			FireElapsed,
-			CurrentFrame,
-			RegisteredNPCs,
-			LiveEvacuatedCount,
-			LiveIncapacitatedCount);
-
 		// 사용자가 지정한 시간까지 기록이 끝나면 종료가 아니라 관찰 모드로 전환합니다.
 		if (FireElapsed >= TimelineRecordEndFireSeconds)
 		{
@@ -682,6 +745,7 @@ FSimRunResult AYUFSSimulationController::BuildRunResult() const
 	Result.ScenarioConfig = CaptureScenarioSnapshot();
 	Result.InitialNPCTransforms = InitialNPCTransforms;
 	Result.InitialNPCClasses = InitialNPCClasses;
+	Result.InitialNPCStableIds = InitialNPCStableIds;
 	return Result;
 }
 
@@ -690,6 +754,9 @@ FYUFSScenarioConfig AYUFSSimulationController::CaptureScenarioSnapshot() const
 	// 메뉴에서 넘어온 시나리오가 있으면 그걸 베이스로(맵/NPC수/정책 등 포함),
 	// 없으면(메뉴 없이 바로 PIE) 빈 기본값에서 시작합니다.
 	FYUFSScenarioConfig Snapshot = bHasActiveScenario ? ActiveScenario : FYUFSScenarioConfig();
+	Snapshot.bUseFixedRandomSeed = true;
+	Snapshot.FixedRandomSeed = FixedRandomSeed;
+	Snapshot.FireOptionIndex = FireOptions.IsValidIndex(CurrentFireOptionIndex) ? CurrentFireOptionIndex : INDEX_NONE;
 
 	// 스칼라 파라미터는 항상 이 회차가 실제로 사용한 현재 값으로 덮어써서,
 	// 메뉴 없이 시작한 경우에도(EditAnywhere 기본값 사용 시) 정확한 값이 들어가게 합니다.
@@ -706,90 +773,172 @@ FYUFSScenarioConfig AYUFSSimulationController::CaptureScenarioSnapshot() const
 	if (!bHasActiveScenario)
 	{
 		Snapshot.NPCCount = InitialNPCCount;
+		// PIE runs also need a real map reference for result-screen playback.
+		FString MapPackage = GetWorld()->GetOutermost()->GetName();
+		if (!GetWorld()->StreamingLevelsPrefix.IsEmpty())
+			MapPackage.ReplaceInline(*GetWorld()->StreamingLevelsPrefix, TEXT(""));
+		Snapshot.SimulationMap = TSoftObjectPtr<UWorld>(FSoftObjectPath(MapPackage + TEXT(".") + FPackageName::GetShortName(MapPackage)));
 	}
 
 	return Snapshot;
 }
 
-void AYUFSSimulationController::InitializeRunSeed()
+bool AYUFSSimulationController::InitializeRunSeed()
 {
 	UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>();
 
 	if (GI && GI->bHasPendingReplaySeed)
 	{
+		const int32 FireOption = GI->ActiveScenario.FireOptionIndex;
+		if (GI->PendingReplayFrames.IsEmpty() || !TimelineRecorder
+			|| (FireOption != INDEX_NONE && !FireOptions.IsValidIndex(FireOption))
+			|| !ApplyReplayNPCTransforms(GI->PendingReplayNPCTransforms, GI->PendingReplayNPCClasses, GI->PendingReplayNPCStableIds))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] Replay could not restore all original NPCs, frames or the fire option. Playback was not started."));
+			return false;
+		}
+		if (FireOption != INDEX_NONE) ApplyFireOption(FireOption);
 		// 결과 화면에서 "이 회차 재현"으로 넘어온 경우: 그 회차의 시드를 그대로 씁니다.
 		CurrentRunSeed = GI->PendingReplaySeed;
-		ApplyReplayNPCTransforms(GI->PendingReplayNPCTransforms, GI->PendingReplayNPCClasses);
+		if (TimelineRecorder && !GI->PendingReplayFrames.IsEmpty())
+		{
+			TimelineRecorder->LoadRecording(GI->PendingReplayFrames);
+			bLoadedRecordedReplay = true;
+		}
 		GI->bHasPendingReplaySeed = false;
 		GI->PendingReplayNPCTransforms.Reset();
 		GI->PendingReplayNPCClasses.Reset();
+		GI->PendingReplayNPCStableIds.Reset();
+		GI->PendingReplayFrames.Reset();
 	}
 	else
 	{
-		CurrentRunSeed = FMath::RandRange(0, MAX_int32 - 1);
+		// Old maps may serialize bUseFixedRandomSeed=false. That legacy value must
+		// not silently replace the authored seed when the user repeats a run.
+		CurrentRunSeed = FixedRandomSeed;
 	}
 
 	FMath::RandInit(CurrentRunSeed);
+	TSet<int32> UsedIds;
+	int32 NextId = 0;
+	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
+	{
+		if (!IsValid(NPC)) continue;
+		if (NPC->StableNPCId == INDEX_NONE || UsedIds.Contains(NPC->StableNPCId))
+		{
+			while (UsedIds.Contains(NextId)) ++NextId;
+			NPC->StableNPCId = NextId++;
+		}
+		UsedIds.Add(NPC->StableNPCId);
+		if (!bLoadedRecordedReplay) NPC->InitializeForRun(CurrentRunSeed);
+	}
 
 	// 재현으로 위치를 되돌린 경우 그 값을, 아니면 레벨에 배치된 현재 값을 이번 회차의
 	// "시작 시점" 스냅샷으로 캡처합니다. BuildRunResult()가 이걸 그대로 결과에 담습니다.
 	CaptureInitialNPCTransforms();
+	return true;
 }
 
 void AYUFSSimulationController::CaptureInitialNPCTransforms()
 {
 	InitialNPCTransforms.Reset(RegisteredNPCs.Num());
 	InitialNPCClasses.Reset(RegisteredNPCs.Num());
+	InitialNPCStableIds.Reset(RegisteredNPCs.Num());
 	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
 	{
 		InitialNPCTransforms.Add(IsValid(NPC) ? NPC->GetActorTransform() : FTransform::Identity);
 		InitialNPCClasses.Add(IsValid(NPC) ? NPC->GetClass() : nullptr);
+		InitialNPCStableIds.Add(IsValid(NPC) ? NPC->GetStableNPCId() : INDEX_NONE);
 	}
 }
 
-void AYUFSSimulationController::ApplyReplayNPCTransforms(const TArray<FTransform>& Transforms, const TArray<TSubclassOf<AYUFSEvacuationNPC>>& Classes)
+bool AYUFSSimulationController::ApplyReplayNPCTransforms(const TArray<FTransform>& Transforms, const TArray<TSubclassOf<AYUFSEvacuationNPC>>& Classes, const TArray<int32>& StableIds)
 {
-	// 레벨에 원래부터 배치된(=레벨 리로드 후에도 살아남는) NPC는 여기 먼저 등록되어 있으므로
-	// 그 범위까지는 위치만 되돌립니다.
-	const int32 ExistingCount = FMath::Min(Transforms.Num(), RegisteredNPCs.Num());
-	for (int32 Index = 0; Index < ExistingCount; ++Index)
+	if (Transforms.Num() != Classes.Num() || Transforms.Num() != StableIds.Num()) return false;
+	TSet<int32> SavedIds;
+	for (int32 Index = 0; Index < Transforms.Num(); ++Index)
 	{
-		if (IsValid(RegisteredNPCs[Index]))
+		if (!Classes[Index] || Classes[Index]->HasAnyClassFlags(CLASS_Abstract)
+			|| StableIds[Index] == INDEX_NONE || SavedIds.Contains(StableIds[Index])
+			|| Transforms[Index].ContainsNaN()) return false;
+		SavedIds.Add(StableIds[Index]);
+	}
+	const TArray<AYUFSEvacuationNPC*> Existing = RegisteredNPCs;
+	TArray<AYUFSEvacuationNPC*> Restored;
+	for (int32 Index = 0; Index < Transforms.Num(); ++Index)
+	{
+		UClass* Class = Classes.IsValidIndex(Index) ? Classes[Index].Get() : nullptr;
+		if (!Class) continue;
+		const int32 Id = StableIds.IsValidIndex(Index) ? StableIds[Index] : Index;
+		AYUFSEvacuationNPC* Match = nullptr;
+		for (AYUFSEvacuationNPC* Candidate : Existing)
 		{
-			RegisteredNPCs[Index]->SetActorTransform(Transforms[Index], false, nullptr, ETeleportType::TeleportPhysics);
+			if (IsValid(Candidate) && !Restored.Contains(Candidate) && Candidate->GetClass() == Class
+				&& Candidate->GetStableNPCId() == Id) { Match = Candidate; break; }
+		}
+		if (!Match)
+		{
+			FActorSpawnParameters Params;
+			Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			Match = GetWorld()->SpawnActor<AYUFSEvacuationNPC>(Class, Transforms[Index], Params);
+		}
+		if (Match)
+		{
+			Match->StableNPCId = Id;
+			Match->SetTimelinePlaybackMode(true);
+			Match->SetActorTransform(Transforms[Index], false, nullptr, ETeleportType::TeleportPhysics);
+			Restored.Add(Match);
 		}
 	}
-
-	// 배치 도구로 런타임에 추가 배치했던 NPC는 레벨 자체엔 저장되지 않아 리로드 후
-	// 존재하지 않으므로, 저장해둔 클래스로 다시 스폰해서 채워 넣습니다.
-	// (스폰된 NPC는 자신의 BeginPlay에서 RegisterNPC()를 호출해 자동으로 등록됩니다.)
-	FActorSpawnParameters Params;
-	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-
-	for (int32 Index = RegisteredNPCs.Num(); Index < Transforms.Num(); ++Index)
+	for (AYUFSEvacuationNPC* Extra : Existing)
 	{
-		if (TSubclassOf<AYUFSEvacuationNPC> NPCClass = Classes.IsValidIndex(Index) ? Classes[Index] : nullptr)
+		if (IsValid(Extra) && !Restored.Contains(Extra))
 		{
-			GetWorld()->SpawnActor<AYUFSEvacuationNPC>(NPCClass, Transforms[Index], Params);
+			Extra->SetTimelinePlaybackMode(true);
+			Extra->SetActorHiddenInGame(true);
+			Extra->SetActorEnableCollision(false);
 		}
+	}
+	RegisteredNPCs = MoveTemp(Restored);
+	InitialNPCCount = RegisteredNPCs.Num();
+	return RegisteredNPCs.Num() == Transforms.Num();
+}
+
+void AYUFSSimulationController::RecordCurrentFrame(float DeltaTime)
+{
+	if (TimelineRecorder && TimelineRecorder->IsRecording())
+	{
+		TimelineRecorder->TickRecording(DeltaTime, ElapsedSimTime - FireStartDelaySeconds,
+			BinaryManager ? BinaryManager->GetCurrentFrame() : 0, RegisteredNPCs,
+			LiveEvacuatedCount, LiveIncapacitatedCount);
 	}
 }
 
 void AYUFSSimulationController::StoreRunResult(const FSimRunResult& Result)
 {
-	AllRunResults.Add(Result);
-	OnRunCompleted.Broadcast(Result);
+	if (bRunResultStored || bLoadedRecordedReplay) return;
+	bRunResultStored = true;
+	FSimRunResult SavedResult = Result;
+	if (TimelineRecorder && !TimelineRecorder->GetRecordedFrames().IsEmpty())
+	{
+		if (!YUFSReplayArchive::Save(TimelineRecorder->GetRecordedFrames(), SavedResult.ReplayRecordingId))
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] Could not save the exact replay recording."));
+	}
+	AllRunResults.Add(SavedResult);
+	OnRunCompleted.Broadcast(SavedResult);
 
 	// 결과 화면(UYUFSResultsWidget 등)이 읽을 수 있도록 GameInstance에 회차 결과를 보존합니다.
 	if (UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>())
 	{
-		GI->StoreRunResults(AllRunResults);
+		GI->StoreRunResults(TArray<FSimRunResult>{SavedResult});
 	}
 }
 
 void AYUFSSimulationController::FinalizeRun()
 {
 	if (CurrentPhase == ESimPhase::Completed) return;
+	RecordCurrentFrame(0.f);
+	if (TimelineRecorder) TimelineRecorder->StopRecording();
 	if (!RegisteredNPCs.IsEmpty())
 	{
 		for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
@@ -842,6 +991,8 @@ void AYUFSSimulationController::EnterTimelineReviewMode()
 	// 타임라인 기록 종료 시점의 대피 결과를 결과 화면용으로 확정해 둡니다.
 	// (기록 모드에서는 FinalizeRun()이 호출되지 않고 곧바로 관찰 모드로 들어가므로,
 	//  여기서 저장하지 않으면 LastRunResults가 비어 있어 결과 화면에 아무것도 뜨지 않습니다.)
+	RecordCurrentFrame(0.f);
+	if (TimelineRecorder) TimelineRecorder->StopRecording();
 	StoreRunResult(BuildRunResult());
 
 	bIsPaused = false;
@@ -878,6 +1029,8 @@ void AYUFSSimulationController::SeekTimelineBySeconds(float FireElapsedSeconds)
 	}
 
 	TimelineRecorder->SeekToFireTime(FireElapsedSeconds, RegisteredNPCs);
+	LiveEvacuatedCount = TimelineRecorder->GetCurrentEvacuatedCount();
+	LiveIncapacitatedCount = TimelineRecorder->GetCurrentIncapacitatedCount();
 }
 
 void AYUFSSimulationController::SeekTimelineByNormalizedValue(float NormalizedValue)
@@ -887,12 +1040,15 @@ void AYUFSSimulationController::SeekTimelineByNormalizedValue(float NormalizedVa
 		return;
 	}
 
-	const float TargetTime = FMath::Clamp(NormalizedValue, 0.f, 1.f) * TimelineRecorder->GetMaxRecordedFireTime();
+	const float TargetTime = FMath::Lerp(TimelineRecorder->GetMinRecordedFireTime(),
+		TimelineRecorder->GetMaxRecordedFireTime(), FMath::Clamp(NormalizedValue, 0.f, 1.f));
 	SeekTimelineBySeconds(TargetTime);
 }
 
 void AYUFSSimulationController::PlayTimeline()
 {
+	if (CurrentPhase == ESimPhase::Completed && TimelineRecorder && TimelineRecorder->GetRecordedFrameCount() > 0)
+		EnterTimelineReviewMode();
 	if (CurrentPhase == ESimPhase::TimelineReview && TimelineRecorder)
 	{
 		TimelineRecorder->PlayReview();
@@ -917,6 +1073,11 @@ float AYUFSSimulationController::GetTimelineMaxTime() const
 	return TimelineRecorder ? TimelineRecorder->GetMaxRecordedFireTime() : 0.f;
 }
 
+float AYUFSSimulationController::GetTimelineMinTime() const
+{
+	return TimelineRecorder ? TimelineRecorder->GetMinRecordedFireTime() : 0.f;
+}
+
 float AYUFSSimulationController::GetTimelineProgress01() const
 {
 	return TimelineRecorder ? TimelineRecorder->GetTimelineProgress01() : 0.f;
@@ -939,6 +1100,19 @@ void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 		else if (CurrentPhase == ESimPhase::FireStartDelay || CurrentPhase == ESimPhase::FireActive)
 		{
 			++InitialNPCCount;
+			TSet<int32> Ids;
+			for (const auto* Other : RegisteredNPCs)
+				if (IsValid(Other) && Other != NPC) Ids.Add(Other->GetStableNPCId());
+			if (NPC->StableNPCId == INDEX_NONE || Ids.Contains(NPC->StableNPCId))
+			{
+				int32 Id = 0;
+				while (Ids.Contains(Id) || InitialNPCStableIds.Contains(Id)) ++Id;
+				NPC->StableNPCId = Id;
+			}
+			NPC->InitializeForRun(CurrentRunSeed);
+			InitialNPCTransforms.Add(NPC->GetActorTransform());
+			InitialNPCClasses.Add(NPC->GetClass());
+			InitialNPCStableIds.Add(NPC->GetStableNPCId());
 		}
 	}
 }

@@ -12,6 +12,7 @@ void UYUFSSimHUD::NativeConstruct()
 	Super::NativeConstruct();
 	FindSimController();
 	FindFirePoints();
+	PopulateFireOptions();
 }
 
 void UYUFSSimHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -114,30 +115,83 @@ void UYUFSSimHUD::OnMainMenuButtonClicked()
 	}
 }
 
-void UYUFSSimHUD::OnFireSceneAButtonClicked()
+void UYUFSSimHUD::PopulateFireOptions()
+{
+	if (!SimController) return;
+
+	const TArray<FString> Names = SimController->GetFireOptionNames();
+
+	if (FireSelectComboBox)
+	{
+		FireSelectComboBox->ClearOptions();
+		for (const FString& Name : Names)
+		{
+			FireSelectComboBox->AddOption(Name);
+		}
+
+		const int32 ActiveIndex = SimController->GetActiveFireOptionIndex();
+		if (Names.IsValidIndex(ActiveIndex))
+		{
+			// ESelectInfo::Direct로 들어오므로 아래 OnFireOptionComboBoxChanged가
+			// 다시 SelectFireOption을 호출하는 피드백 루프는 생기지 않습니다.
+			FireSelectComboBox->SetSelectedOption(Names[ActiveIndex]);
+		}
+
+		FireSelectComboBox->OnSelectionChanged.RemoveDynamic(this, &UYUFSSimHUD::OnFireOptionComboBoxChanged);
+		FireSelectComboBox->OnSelectionChanged.AddDynamic(this, &UYUFSSimHUD::OnFireOptionComboBoxChanged);
+	}
+}
+
+void UYUFSSimHUD::OnFireOptionComboBoxChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	// PopulateFireOptions()의 SetSelectedOption() 호출 자체가 발생시키는 이벤트(Direct)는 무시합니다.
+	if (SelectionType == ESelectInfo::Direct) return;
+	if (!SimController) return;
+
+	const TArray<FString> Names = SimController->GetFireOptionNames();
+	const int32 Index = Names.IndexOfByKey(SelectedItem);
+	if (Index != INDEX_NONE)
+	{
+		SimController->SelectFireOption(Index);
+	}
+}
+
+void UYUFSSimHUD::OnFireOptionSelected(int32 OptionIndex)
 {
 	if (SimController)
 	{
-		SimController->SelectFireScenario(EFireScenario::ScenarioA);
+		SimController->SelectFireOption(OptionIndex);
 	}
+}
+
+TArray<FString> UYUFSSimHUD::GetFireOptionNames() const
+{
+	return SimController ? SimController->GetFireOptionNames() : TArray<FString>();
+}
+
+int32 UYUFSSimHUD::GetActiveFireOptionIndex() const
+{
+	return SimController ? SimController->GetActiveFireOptionIndex() : INDEX_NONE;
+}
+
+void UYUFSSimHUD::OnFireSceneAButtonClicked()
+{
+	OnFireOptionSelected(0);
 }
 
 void UYUFSSimHUD::OnFireSceneBButtonClicked()
 {
-	if (SimController)
-	{
-		SimController->SelectFireScenario(EFireScenario::ScenarioB);
-	}
+	OnFireOptionSelected(1);
 }
 
 bool UYUFSSimHUD::IsFireSceneASelected() const
 {
-	return SimController && SimController->GetActiveFireScenario() == EFireScenario::ScenarioA;
+	return GetActiveFireOptionIndex() == 0;
 }
 
 bool UYUFSSimHUD::IsFireSceneBSelected() const
 {
-	return SimController && SimController->GetActiveFireScenario() == EFireScenario::ScenarioB;
+	return GetActiveFireOptionIndex() == 1;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

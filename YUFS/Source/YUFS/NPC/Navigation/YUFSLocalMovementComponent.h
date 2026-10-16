@@ -34,6 +34,7 @@ public:
 	bool IsCandidateReachable(FVector CandidateFeet,int32 Frame,FVector& ProjectedFeet) const;
 	bool IsPhysicalCorridorClear(FVector TargetFeet) const;
 private:
+	static uint32 GetTrafficPriorityId(const AYUFSEvacuationNPC* NPC);
 	void SetState(EYUFSLocalMovementState NewState);
 	TWeakObjectPtr<AYUFSEvacuationNPC> YieldingTo;
 	EYUFSLocalMovementState State=EYUFSLocalMovementState::Following;

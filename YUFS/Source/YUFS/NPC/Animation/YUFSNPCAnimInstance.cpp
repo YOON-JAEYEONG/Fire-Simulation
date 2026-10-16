@@ -12,6 +12,22 @@ void UYUFSNPCAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		OwnerNPC = Cast<AYUFSEvacuationNPC>(GetOwningActor());
 		if (!OwnerNPC) return;
 	}
+	if (OwnerNPC->IsTimelinePlaybackMode())
+	{
+		const auto& Snapshot = OwnerNPC->GetTimelinePlaybackSnapshot();
+		Speed = Snapshot.Velocity.Size2D();
+		bIsMoving = Speed > 10.f;
+		BehaviorState = Snapshot.BehaviorState;
+		LastAction = Snapshot.DisplayAction;
+		bIsCrawling = BehaviorState == EYUFSBehaviorState::Crawling;
+		bIsIncapacitated = BehaviorState == EYUFSBehaviorState::Incapacitated;
+		SmokeExposure = Snapshot.SmokeExposure;
+		RiskPerception = Snapshot.RiskPerception;
+		bIsCoughing = LastAction == EYUFSAction::Cough;
+		bIsLookingAround = LastAction == EYUFSAction::SeekInformation;
+		bIsFilming = LastAction == EYUFSAction::Film;
+		return;
+	}
 
 	Speed = OwnerNPC->GetVelocity().Size2D();
 	bIsMoving = Speed > 10.f;

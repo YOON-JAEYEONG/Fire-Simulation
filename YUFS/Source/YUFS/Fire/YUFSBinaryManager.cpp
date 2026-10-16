@@ -18,12 +18,32 @@ void AYUFSBinaryManager::BeginPlay()
 	Super::BeginPlay();
 	if (!IsValid(HeterogeneousVolume))
 		HeterogeneousVolume = Cast<AYUFSHeterogeneousVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSHeterogeneousVolume::StaticClass()));
+	LoadBinaryFile(BinaryFilePath);
+}
+
+bool AYUFSBinaryManager::LoadBinaryFile(const FString& NewRelativePath)
+{
+	// 이전 파일에 대해 진행 중이던 비동기 청크 로드를 무시하도록 세대를 올립니다.
+	++LoadGeneration;
+	bHeaderValid = false;
+	bIsLoadingChunk = false;
+	CurrentDebugFrame = 0;
+	LastCurrentFrame = -1;
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(DebugTimerHandle);
+	}
+	FramesBuffer.Reset();
+	LoadedFrameIndices.Reset();
+
+	BinaryFilePath = NewRelativePath;
+
 	const FString FullPath = FPaths::ProjectContentDir() / BinaryFilePath;
 	TUniquePtr<IFileHandle> File(FPlatformFileManager::Get().GetPlatformFile().OpenRead(*FullPath));
 	if (!File)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[YUFS][Hazard] Missing binary: %s"), *FullPath);
-		return;
+		return false;
 	}
 	int32 Header[4] = {};
 	if (!File->Read(reinterpret_cast<uint8*>(Header), sizeof(Header)) ||
@@ -31,13 +51,13 @@ void AYUFSBinaryManager::BeginPlay()
 		Header[1] <= 0 || Header[1] > 4096 || Header[2] <= 0 || Header[2] > 4096 || Header[3] <= 0 || Header[3] > 4096)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[YUFS][Hazard] Invalid binary header: %s"), *FullPath);
-		return;
+		return false;
 	}
 	const int64 GridSize = static_cast<int64>(Header[1]) * Header[2] * Header[3];
 	if (GridSize > 4 * 1024 * 1024 || File->Size() != 16 + 2 * GridSize * Header[0])
 	{
 		UE_LOG(LogTemp, Error, TEXT("[YUFS][Hazard] Binary dimensions/length invalid: %s"), *FullPath);
-		return;
+		return false;
 	}
 	TotalFrames = Header[0]; DimX = Header[1]; DimY = Header[2]; DimZ = Header[3];
 	bHeaderValid = true;
@@ -45,8 +65,9 @@ void AYUFSBinaryManager::BeginPlay()
 	LoadedFrameIndices.Init(INDEX_NONE, MaxBufferSize);
 	UE_LOG(LogTemp, Log, TEXT("Parsed Binary Header -> Frames: %d, DimX: %d, DimY: %d, DimZ: %d"), TotalFrames, DimX, DimY, DimZ);
 	UE_LOG(LogTemp, Warning, TEXT("[YUFS][Hazard] %s"), *GetHazardDiagnostics());
-	if (bDrawVoxelDebug)
+	if (bDrawVoxelDebug && GetWorld())
 		GetWorld()->GetTimerManager().SetTimer(DebugTimerHandle, this, &AYUFSBinaryManager::PlayDebugAnimation, 0.1f, true);
+	return true;
 }
 
 void AYUFSBinaryManager::EndPlay(const EEndPlayReason::Type Reason)

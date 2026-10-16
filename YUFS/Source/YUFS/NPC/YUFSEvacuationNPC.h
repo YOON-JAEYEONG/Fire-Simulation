@@ -7,6 +7,7 @@
 #include "Core/YUFSTypes.h"
 #include "GameFramework/Character.h"
 #include "NPC/Decision/YUFSOnnxPolicy.h"
+#include "NPC/Cognition/YUFSHumanCognitionTypes.h"
 #include "NPC/Integration/YUFSTeamIntegrationTypes.h"
 #include "Simulation/YUFSTimelineTypes.h"
 #include "YUFSEvacuationNPC.generated.h"
@@ -82,6 +83,7 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="AI|Determinism")
 	int32 StableNPCId = INDEX_NONE;
 
+	// Authored per-NPC seed. Run initialization combines it with the project seed.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI|Determinism")
 	int32 ScenarioSeed = 20260831;
 
@@ -111,6 +113,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="1.0"))
 	float EverydayMaxRoamSeconds = 18.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior")
+	// 프로젝트 시드, NPC ScenarioSeed, StableNPCId에 더해지는 평상시 행동용 salt다.
 	int32 EverydayBehaviorSeed = 2026;
 
 	// 경험 전이는 정책 주기와 같은 최대 10Hz로 기록한다.
@@ -123,6 +126,10 @@ public:
 	float GetDesiredWalkingSpeed() const;
 	bool AllowsOptionalInteractions() const;
 	void ReceivePeerGuidance();
+	// 같은 회차 시드와 StableNPCId에는 같은 대기 시간/산책 목적지 순서를 만든다.
+	void InitializeEverydayBehaviorForRun(int32 RunSeed);
+	// Combine project and authored NPC seeds without overwriting either setting.
+	void InitializeForRun(int32 RunSeed);
 	bool IsInteractionHoldingPosition() const;
 
 	UYUFSLocalMovementComponent* GetLocalMovement() const { return LocalMovement; }
@@ -167,7 +174,8 @@ public:
 
 	const FYUFSNPCObservation& GetLastObservation() const { return LiveObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
-	EYUFSAction GetDisplayedAction() const { return bActionAnimationPreviewActive ? PreviewAction : CurrentAction; }
+	EYUFSAction GetDisplayedAction() const { return bTimelinePlaybackMode && bHasTimelinePlaybackSnapshot
+		? TimelinePlaybackSnapshot.DisplayAction : (bActionAnimationPreviewActive ? PreviewAction : CurrentAction); }
 	bool IsActionAnimationPreviewActive() const { return bActionAnimationPreviewActive; }
 	FString GetCurrentActionAnimationName() const;
 
@@ -191,6 +199,7 @@ public:
 	// 관찰 모드에서는 AI/이동/정책 Tick을 정지하고 기록된 Transform만 적용합니다.
 	void SetTimelinePlaybackMode(bool bEnabled);
 	bool IsTimelinePlaybackMode() const { return bTimelinePlaybackMode; }
+	const FYUFSTimelineNPCSnapshot& GetTimelinePlaybackSnapshot() const { return TimelinePlaybackSnapshot; }
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -236,7 +245,19 @@ private:
 
 	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
 	bool bTimelinePlaybackMode = false;
+	bool bHasTimelinePlaybackSnapshot = false;
+	UPROPERTY(Transient)
+	FYUFSTimelineNPCSnapshot TimelinePlaybackSnapshot;
 	float SavedWalkSpeedBeforeTimeline = 300.f;
+	TEnumAsByte<EMovementMode> SavedMovementModeBeforeTimeline = MOVE_Walking;
+	uint8 SavedCustomMovementModeBeforeTimeline = 0;
+	bool bSavedMovementTickEnabled = true;
+	bool bSavedAvoidanceEnabled = true;
+	bool bSavedCollisionEnabled = true;
+	bool bSavedControllerTickEnabled = true;
+	bool bPausedBrainForTimeline = false;
+	bool bSavedPauseAnims = false;
+	bool bSavedAnimationPlaying = true;
 
 	// ── CSV 로깅 ──────────────────────────────────────────────────────
 	FYUFSNPCObservation PrevObservation{};
@@ -258,6 +279,13 @@ private:
 	// ── MLP 정책 (ONNX 추론, RuleBasedPolicy 폴백 내장) ──────────────
 	FYUFSOnnxPolicy MLPolicy;
 	FYUFSDeterministicRngSet DeterministicRng;
+	int32 ActiveProjectSeed = 0;
+	FYUFSHumanTraits InitialHumanTraits;
+	FYUFSHumanTraits LastSeededHumanTraits;
+	TSet<FName> OverriddenHumanTraitFields;
+	bool bSeedDefaultsCaptured = false;
+	bool bInitialTrainingCompleted = false;
+	bool bLastSeededTrainingCompleted = false;
 	bool bHasSafeExit = false;
 	FVector LastSafeExit = FVector::ZeroVector;
 	// A verified retreat is handed back by the interaction, never recomputed from global FDS truth.
@@ -312,6 +340,7 @@ private:
 	void UpdateStuckDetection(float DeltaTime);
 	void TickEverydayBehavior(float DeltaTime);
 	void ChooseNextEverydayActivity();
+	FVector SampleEverydayRoamOffset(float RadiusCm);
 	void BeginEverydayIdle();
 	void StopEverydayBehavior();
 

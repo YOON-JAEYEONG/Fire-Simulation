@@ -5,6 +5,7 @@
 #include "Animation/AnimationAsset.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "Simulation/YUFSTimelineTypes.h"
 
 namespace
 {
@@ -171,6 +172,40 @@ void UYUFSActionAnimationComponent::ApplyAction(
 		*Animation->GetName(),
 		PlayRate,
 		bLoop ? TEXT("true") : TEXT("false"));
+}
+
+bool UYUFSActionAnimationComponent::ApplyTimelineAnimation(
+	USkeletalMeshComponent* InMesh, const FYUFSTimelineNPCSnapshot& Snapshot)
+{
+	if (!IsValid(InMesh) || !Snapshot.bHasAnimationState || Snapshot.AnimationAssetPath.IsNull()) return false;
+	UAnimationAsset* Animation = Cast<UAnimationAsset>(Snapshot.AnimationAssetPath.ResolveObject());
+	if (!Animation) Animation = Cast<UAnimationAsset>(Snapshot.AnimationAssetPath.TryLoad());
+	const USkeletalMesh* SkeletalMesh = InMesh->GetSkeletalMeshAsset();
+	if (!Animation || !SkeletalMesh || !Animation->GetSkeleton()
+		|| Animation->GetSkeleton() != SkeletalMesh->GetSkeleton()) return false;
+
+	// Only a captured single-node animation authorizes taking over the driver.
+	// Missing/legacy animation data must not replace an unrelated Animation Blueprint.
+	UAnimSingleNodeInstance* SingleNode = InMesh->GetSingleNodeInstance();
+	if (!SingleNode || SingleNode->GetCurrentAsset() != Animation)
+	{
+		InMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+		InMesh->PlayAnimation(Animation, Snapshot.bAnimationLooping);
+		SingleNode = InMesh->GetSingleNodeInstance();
+	}
+	if (!SingleNode) return false;
+	SingleNode->SetLooping(Snapshot.bAnimationLooping);
+	SingleNode->SetPlayRate(Snapshot.AnimationPlayRate);
+	SingleNode->SetPlaying(false);
+	SingleNode->SetPosition(Snapshot.AnimationPositionSeconds, false);
+	// Seeking happens after normal mesh ticks; evaluate the pose for this render.
+	InMesh->TickAnimation(0.f, false);
+	InMesh->RefreshBoneTransforms();
+	Mesh = InMesh;
+	ActiveAnimation = Animation;
+	ActiveAction = Snapshot.DisplayAction;
+	ActiveBehaviorState = Snapshot.BehaviorState;
+	return true;
 }
 
 bool UYUFSActionAnimationComponent::HasAnimationForAction(EYUFSAction Action) const

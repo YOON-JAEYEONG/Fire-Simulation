@@ -15,6 +15,18 @@ UYUFSSocialInfluenceComponent::UYUFSSocialInfluenceComponent()
 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
 }
 
+void UYUFSSocialInfluenceComponent::ResetForRun()
+{
+	NearbyNPCs.Reset();
+	OverlappingActors.Reset();
+	ActorsToIgnore.Reset();
+	EvacuatingCount = 0;
+	bPeerWarning = false;
+	bHasNPCNeedingHelp = false;
+	bCachedShouldHelpNearbyNPC = false;
+	CachedNearbyNPCCount = -1;
+}
+
 void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 {
 	NearbyNPCs.Reset();
@@ -85,7 +97,10 @@ void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 			1.0f - (CurrentCount * 0.1f * BystanderEffectStrength),
 			0.1f,
 			1.0f);
-		bCachedShouldHelpNearbyNPC = FMath::FRand() <= ProbabilityToHelp;
+		auto* OwnerNPC = Cast<AYUFSEvacuationNPC>(GetOwner());
+		bCachedShouldHelpNearbyNPC = OwnerNPC
+			? OwnerNPC->RollSocialProbability(ProbabilityToHelp)
+			: ProbabilityToHelp >= 0.5f;
 		CachedNearbyNPCCount = CurrentCount;
 	}
 }

@@ -10,6 +10,12 @@
 
 UYUFSLocalMovementComponent::UYUFSLocalMovementComponent() { PrimaryComponentTick.bCanEverTick=false; }
 FString UYUFSLocalMovementComponent::GetYieldingTo() const { return GetNameSafe(YieldingTo.Get()); }
+uint32 UYUFSLocalMovementComponent::GetTrafficPriorityId(const AYUFSEvacuationNPC* NPC)
+{
+	if (!NPC) return MAX_uint32;
+	const int32 StableId = NPC->GetStableNPCId();
+	return StableId == INDEX_NONE ? NPC->GetUniqueID() : static_cast<uint32>(StableId);
+}
 void UYUFSLocalMovementComponent::SetState(EYUFSLocalMovementState NewState)
 {
 	if (State==NewState) return;
@@ -57,7 +63,7 @@ bool UYUFSLocalMovementComponent::IsCycleLeader(const AYUFSEvacuationNPC* Blocke
 		if (Peer == Self) return Leader == Self;
 		if (Visited.Contains(Peer)) return false;
 		Visited.Add(Peer);
-		if (Peer->GetUniqueID() < Leader->GetUniqueID()) Leader = Peer;
+		if (GetTrafficPriorityId(Peer) < GetTrafficPriorityId(Leader)) Leader = Peer;
 		const auto* Traffic = Peer->FindComponentByClass<UYUFSLocalMovementComponent>();
 		if (!Traffic || Traffic->State != EYUFSLocalMovementState::Yielding) return false;
 		Peer = Traffic->YieldingTo.Get();
@@ -88,8 +94,14 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 		const FVector OtherDir=Moving ? (Nav->GetSteeringTarget(B,120.f)-B).GetSafeNormal2D() : FVector::ZeroVector;
 		if (!TrajectoriesConflict(A,Desired,Radius,B,OtherDir,Other->GetCapsuleComponent()->GetScaledCapsuleRadius(),LookAheadCm)) continue;
 		// A stationary person is a real obstacle. Moving agents use a stable right of way.
-		if ((!Moving || ShouldYieldTo(A,Desired,NPC->GetUniqueID(),B,OtherDir,Other->GetUniqueID())) && !IsCycleLeader(Other) && Dist<Nearest)
-		{ Blocker=Other; Nearest=Dist; }
+		if (!Moving || ShouldYieldTo(A,Desired,GetTrafficPriorityId(NPC),B,OtherDir,GetTrafficPriorityId(Other)))
+		{
+			const bool bNearer = Dist < Nearest - 1.f;
+			const bool bStableTie = FMath::IsNearlyEqual(Dist, Nearest, 1.f)
+				&& (!Blocker || GetTrafficPriorityId(Other) < GetTrafficPriorityId(Blocker));
+			if (!IsCycleLeader(Other) && (bNearer || bStableTie))
+			{ Blocker=Other; Nearest=Dist; }
+		}
 	}
 	if (Blocker)
 	{
@@ -154,7 +166,7 @@ bool UYUFSLocalMovementComponent::TryRecovery(FVector Desired,int32 Frame)
 	if (Attempts>=FMath::Max(1,MaxRecoveryAttempts)) { SetState(EYUFSLocalMovementState::Blocked); return false; }
 	++Attempts; Cooldown=FMath::Max(0.2f,RecoveryCooldownSeconds);
 	Desired=Desired.GetSafeNormal2D(); if (Desired.IsNearlyZero()) Desired=NPC->GetActorForwardVector();
-	const FVector Back=-Desired, Side=FVector(-Desired.Y,Desired.X,0)*(NPC->GetUniqueID()%2 ? 1.f : -1.f);
+	const FVector Back=-Desired, Side=FVector(-Desired.Y,Desired.X,0)*(GetTrafficPriorityId(NPC)%2 ? 1.f : -1.f);
 	const FVector Feet=NPC->GetActorLocation()-FVector(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 	for (float Distance:{90.f,150.f,210.f}) for (FVector D:{Back,(Back+Side).GetSafeNormal(),(Back-Side).GetSafeNormal(),Side,-Side})
 	{

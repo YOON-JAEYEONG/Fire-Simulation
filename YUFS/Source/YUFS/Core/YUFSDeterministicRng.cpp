@@ -15,9 +15,14 @@ constexpr uint32 StreamTags[] =
 static_assert(UE_ARRAY_COUNT(StreamTags) == static_cast<int32>(EYUFSRngStream::Count));
 }
 
-void FYUFSDeterministicRngSet::Initialize(int32 InScenarioSeed, int32 InStableNpcId)
+void FYUFSDeterministicRngSet::Initialize(int32 InScenarioSeed, int32 InStableNpcId, int32 InNpcSeed)
 {
-	const uint32 ScenarioBits = MixBits(static_cast<uint32>(InScenarioSeed));
+	uint32 ScenarioBits = MixBits(static_cast<uint32>(InScenarioSeed));
+	if (InNpcSeed != 0)
+	{
+		// Ordered mixing avoids cancellation when project and NPC seeds match.
+		ScenarioBits = MixBits(ScenarioBits ^ (MixBits(static_cast<uint32>(InNpcSeed)) + 0x9e3779b9u));
+	}
 	const uint32 NpcBits = MixBits(static_cast<uint32>(InStableNpcId));
 
 	for (int32 Index = 0; Index < StreamCount; ++Index)

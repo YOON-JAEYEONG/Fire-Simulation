@@ -7,6 +7,7 @@
 
 class UAnimationAsset;
 class USkeletalMeshComponent;
+struct FYUFSTimelineNPCSnapshot;
 
 USTRUCT(BlueprintType)
 struct FYUFSActionAnimationBinding
@@ -44,6 +45,10 @@ public:
 
 	void Initialize(USkeletalMeshComponent* InMesh, int32 StableNpcId);
 	void ApplyAction(EYUFSAction Action, EYUFSBehaviorState BehaviorState, bool bForce = false);
+	/** Restore the recorded single-node pose without letting world time advance it. */
+	bool ApplyTimelineAnimation(USkeletalMeshComponent* InMesh, const FYUFSTimelineNPCSnapshot& Snapshot);
+	EYUFSAction GetActiveAction() const { return ActiveAction; }
+	bool HasActiveAnimation() const { return IsValid(ActiveAnimation); }
 
 	/** Read-only preflight of the actual configured bindings, including custom overrides. */
 	UFUNCTION(BlueprintPure, Category="NPC|Animation")

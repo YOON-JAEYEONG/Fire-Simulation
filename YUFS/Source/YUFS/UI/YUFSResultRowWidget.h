@@ -50,8 +50,7 @@ public:
 	void OnRowDataSet();
 
 	// ── 이 회차만 재현 ─────────────────────────────────────────────────
-	// 이 행에 저장된 시나리오 설정 스냅샷 + 랜덤 시드로, 배치 반복 없이 이 회차 하나만
-	// 그대로 재현합니다.
+	// 이 행의 시나리오와 시드에 연결된 원본 기록을 재생합니다.
 	UFUNCTION(BlueprintCallable, Category = "YUFS|Results")
 	bool ReplayThisRun();
 
