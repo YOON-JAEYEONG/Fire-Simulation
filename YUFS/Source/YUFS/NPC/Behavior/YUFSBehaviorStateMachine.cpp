@@ -82,7 +82,10 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& O)
 {
 	if (CurrentState==EYUFSBehaviorState::Incapacitated) return;
 	if (SmokeExposureAccumulated>=Config->IncapacitationThreshold) { CurrentState=EYUFSBehaviorState::Incapacitated; return; }
-	if (SmokeExposureAccumulated>=Config->CrawlThreshold) { bCommitted=true; CurrentState=EYUFSBehaviorState::Crawling; return; }
+	const float RecoveryThreshold = FMath::Clamp(Config->CrawlRecoveryThreshold, 0.f, Config->CrawlThreshold);
+	if (SmokeExposureAccumulated>=Config->CrawlThreshold ||
+		(CurrentState==EYUFSBehaviorState::Crawling && SmokeExposureAccumulated>RecoveryThreshold))
+	{ bCommitted=true; CurrentState=EYUFSBehaviorState::Crawling; return; }
 	if (CheckEmergencyOverride(O))
 	{
 		bCommitted=true; CurrentState=EYUFSBehaviorState::Evacuating;
@@ -133,7 +136,7 @@ void UYUFSBehaviorStateMachine::AccumulateSmokeExposure(const FYUFSNPCObservatio
 	// 연기가 있을 때만 누적. 연기 농도에 비례하여 더 빠르게 누적.
 	if (Obs.SmokeDensityAtSelf > 0.f)
 	{
-		const float ExposureRate = Config->SmokeExposureAccumRate * Obs.SmokeDensityAtSelf;
+		const float ExposureRate = Config->SmokeExposureAccumRate * FMath::Clamp(Config->SmokeExposureTimeScale, 0.1f, 10.f) * FMath::Clamp(Obs.SmokeDensityAtSelf, 0.f, 1.f);
 		SmokeExposureAccumulated = FMath::Clamp(SmokeExposureAccumulated + ExposureRate * DeltaTime, 0.f, 1.f);
 	}
 	// 연기가 없는 곳에서는 아주 천천히 회복 (신선한 공기 찾는 중)

@@ -8,6 +8,7 @@ class UMaterialInstanceDynamic;
 class USceneComponent;
 class UStaticMeshComponent;
 class UTextRenderComponent;
+struct FYUFSTimelineExtinguisherSnapshot;
 
 UENUM(BlueprintType)
 enum class EYUFSFireExtinguisherState : uint8
@@ -63,6 +64,8 @@ public:
 	UFUNCTION(BlueprintPure, Category="Fire|Extinguisher")
 	FVector GetNozzleWorldLocation() const;
 	void ShowSprayToward(const FVector& Target);
+	FYUFSTimelineExtinguisherSnapshot BuildTimelineSnapshot() const;
+	void ApplyTimelineSnapshot(const FYUFSTimelineExtinguisherSnapshot& Snapshot);
 
 private:
 	void RefreshVisualState();
@@ -118,4 +121,5 @@ private:
 	float RemainingAgent = 6.f;
 
 	TWeakObjectPtr<AActor> ReservationOwner;
+	bool bTimelinePresentation = false;
 };

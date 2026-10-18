@@ -179,6 +179,28 @@ bool UYUFSActionAnimationComponent::HasAnimationForAction(EYUFSAction Action) co
 	return Binding && !Binding->Animation.IsNull();
 }
 
+bool UYUFSActionAnimationComponent::IsNativePlaybackActive() const
+{
+	return bInitialized && IsValid(Mesh) && Mesh->GetSingleNodeInstance() && IsValid(ActiveAnimation);
+}
+
+bool UYUFSActionAnimationComponent::ApplyRecordedPose(UAnimationAsset* Asset, float Position, float PlayRate, bool bLoop)
+{
+	if (!bInitialized || !IsValid(Mesh) || !Asset || !Mesh->GetSkeletalMeshAsset()
+		|| Asset->GetSkeleton() != Mesh->GetSkeletalMeshAsset()->GetSkeleton()) return false;
+	if (!Mesh->GetSingleNodeInstance() || Mesh->GetSingleNodeInstance()->GetAnimationAsset() != Asset)
+		Mesh->PlayAnimation(Asset, bLoop);
+	auto* Single = Mesh->GetSingleNodeInstance();
+	if (!Single) return false;
+	ActiveAnimation = Asset;
+	Mesh->bPauseAnims = false; // Evaluate this explicit cursor; never advance an independent live clock.
+	Single->SetLooping(bLoop);
+	Single->SetPlayRate(PlayRate);
+	Single->SetPosition(FMath::Clamp(Position, 0.f, Single->GetLength()), false);
+	Single->SetPlaying(false); // Seeking must not replay gameplay animation notifies.
+	return true;
+}
+
 FString UYUFSActionAnimationComponent::GetActiveAnimationName() const
 {
 	return IsValid(ActiveAnimation) ? ActiveAnimation->GetName() : TEXT("None");

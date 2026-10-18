@@ -8,6 +8,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Engine/World.h"
 #include "NPC/Perception/YUFSNPCPerceptionComponent.h"
+#include "Level/YUFSLevelDataManager.h"
+#include "Components/CapsuleComponent.h"
 
 UYUFSSocialInfluenceComponent::UYUFSSocialInfluenceComponent()
 {
@@ -49,6 +51,8 @@ void UYUFSSocialInfluenceComponent::UpdateSocialContext()
 			FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSPeerSight),false,GetOwner()); Params.AddIgnoredActor(NPC);
 			if (GetWorld()->LineTraceTestByChannel(Origin,NPC->GetActorLocation(),ECC_Visibility,Params)) continue;
 			NearbyNPCs.Add(NPC);
+			if (NPC->GetLastAction()==EYUFSAction::AlertNearbyOccupants)
+				if (auto* Listener=Cast<AYUFSEvacuationNPC>(GetOwner())) Listener->ReceiveExitGuidance(NPC);
 			if (NPC->GetBehaviorStateMachine() && NPC->GetBehaviorStateMachine()->HasRecentDirectEvidence())
 			{
 				bPeerWarning=true;
@@ -101,8 +105,12 @@ int32 UYUFSSocialInfluenceComponent::GetNearbyNPCCount() const
 	return NearbyNPCs.Num();
 }
 
-// Compatibility name: return an actual nearby agent's exit, never the midpoint of two exits inside a wall.
+// Compatibility name: follow an observable local leader, never that leader's private distant goal.
 FVector UYUFSSocialInfluenceComponent::GetAverageEvacuationDestination() const
+{
+	FVector Out=FVector::ZeroVector;TryGetObservedEvacuationDestination(Out);return Out;
+}
+bool UYUFSSocialInfluenceComponent::TryGetObservedEvacuationDestination(FVector& Out) const
 {
 	float Best=FLT_MAX; FVector Target=FVector::ZeroVector;
 	for (const auto& Weak:NearbyNPCs)
@@ -112,12 +120,19 @@ FVector UYUFSSocialInfluenceComponent::GetAverageEvacuationDestination() const
 		// Interaction travel is not an evacuation destination. In particular, never
 		// make a crowd follow a helper or an extinguisher carrier toward the fire.
 		const EYUFSAction Action = NPC->GetLastAction();
-		if (Action != EYUFSAction::EvacuateToNearestExit && Action != EYUFSAction::EvacuateToFamiliarExit
-			&& Action != EYUFSAction::FollowCrowd) continue;
+		if ((Action != EYUFSAction::EvacuateToNearestExit && Action != EYUFSAction::EvacuateToFamiliarExit)
+			|| NPC->GetVelocity().Size2D()<5.f) continue; // No mutual follower cycles or stationary false leaders.
+		// Observe the nearby person, never read that person's private distant route goal.
+		if (const auto* Observer=Cast<AYUFSEvacuationNPC>(GetOwner()))
+		{
+			const auto* Sense=Observer->GetNPCPerceptionComponent();const auto* Map=Observer->GetLevelDataManager();
+			if (Sense && Sense->Config && Map && !Sense->EvaluateSightToPoint(Map->GetHazardSnapshot(Map->GetCurrentHazardFrame()),NPC->GetActorLocation()).bReachedTarget) continue;
+		}
 		const float D=FVector::DistSquared(GetOwner()->GetActorLocation(),NPC->GetActorLocation());
-		if (D<Best) { Best=D; Target=NPC->GetNavigator()->GetRequestedDestination(); }
+		if (D<Best) { Best=D; Target=NPC->GetActorLocation()-FVector(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()); }
 	}
-	return Target;
+	if (Best==FLT_MAX) return false;
+	Out=Target;return true;
 }
 
 FVector UYUFSSocialInfluenceComponent::GetNearestNPCNeedingHelpLocation() const

@@ -44,21 +44,20 @@ public:
 	bool GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature);
 	FYUFSHazardSnapshot GetHazardSnapshot(int32 FrameIndex) const;
 	UFUNCTION(BlueprintPure, Category="Fire|Diagnostics")
-	EYUFSHazardDataStatus GetDataStatus() const { return GetHazardSnapshot(CurrentDebugFrame).Status; }
+	EYUFSHazardDataStatus GetDataStatus() const { return GetHazardSnapshot(GetCurrentFrame()).Status; }
 	UFUNCTION(BlueprintPure, Category="Fire|Diagnostics")
 	FString GetHazardDiagnostics() const;
 	
-	int32 GetCurrentFrame() const { return CurrentDebugFrame; }
+	// Read playback now; NPC/component tick order must not expose the previous streaming cursor.
+	int32 GetCurrentFrame() const;
 	// Provenance gate for optional FDS-targeted interactions; navigation keeps the JJW diagnostics contract.
 	bool IsDatasetAlignmentConfirmed() const { return bDatasetAlignmentConfirmed; }
 	AYUFSHeterogeneousVolume* GetHeterogeneousVolume() const { return HeterogeneousVolume; }
 
 	// ── 건물(월드) 고정 격자 ─────────────────────────────────────────────
-	// .bin 격자는 FDS 전체 도메인이라 같은 건물의 화재라면 월드에서 항상 같은 자리여야 합니다.
-	// 반면 vdb(SVT)는 연기가 있는 범위로 경계가 잡혀 화재마다 import 원점이 달라지고, 그래서
-	// 화재별 VolumeTransform도 달라집니다. 이 함수로 "기준 화재"의 볼륨 Transform을 넘겨주면
-	// 이후 격자는 현재 볼륨 Transform이 아니라 이 기준 Transform으로 계산되어 고정됩니다.
-	// (GridOriginLocal/VoxelSize는 그대로 기준 화재에 맞춰 둔 값이 적용됩니다.)
+	// Legacy exports can opt into a shared building anchor once their origin/spacing is known.
+	// An explicit per-dataset BIN-to-SVT calibration takes precedence: never combine another
+	// fire's volume transform with the selected fire's SVT transform.
 	void SetWorldAnchoredGrid(const FTransform& ReferenceVolumeTransform);
 	// 예전 방식(격자가 현재 볼륨 Transform을 따라감)으로 되돌립니다.
 	void ClearWorldAnchoredGrid();

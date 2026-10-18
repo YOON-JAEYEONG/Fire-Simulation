@@ -26,6 +26,7 @@ public:
 	FVector GetAverageEvacuationDestination() const;
 	// Compatibility alias: JJW already selects an actual visible neighbor's destination, never an average.
 	FVector GetObservedEvacuationDestination() const { return GetAverageEvacuationDestination(); }
+	bool TryGetObservedEvacuationDestination(FVector& Out) const;
 	FVector GetNearestNPCNeedingHelpLocation() const;
 
 	bool  ShouldHelpNearbyNPC()      const;
@@ -37,6 +38,7 @@ public:
 	UPROPERTY(EditAnywhere) float SocialDelayPerMember    = 1.2f;
 
 private:
+	friend struct FYUFSPersonalExitTestAccess;
 	bool bPeerWarning = false;
 	TArray<TWeakObjectPtr<ACharacter>> NearbyNPCs;
 	TArray<AActor*> OverlappingActors;

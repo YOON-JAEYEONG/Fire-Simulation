@@ -67,13 +67,20 @@ public:
 	float EmergencyOverrideMultiplier = 2.0f;
 
 	// ── 행동 불능 (Incapacitation) ─────────────────────────────────────
-	// 연기 흡입량 누적 속도 (단위: /초, 1.0 이면 100초에 완전 행동불능)
+	// Normalized exposure per second at smoke=1; not a physiological dose model.
 	UPROPERTY(EditAnywhere, Category="Incapacitation")
 	float SmokeExposureAccumRate = 0.008f;
+	// Short demonstration runs: 3x gives crawl ~25s / incapacitation ~37.5s at constant smoke=1.
+	// Set to 1 to restore the earlier 75s / 112.5s timing. Shared assets are never mutated at runtime.
+	UPROPERTY(EditAnywhere, Category="Incapacitation|Simulation Timing", meta=(ClampMin="0.1", ClampMax="10.0"))
+	float SmokeExposureTimeScale = 3.f;
 
 	// 행동불능 전 '기어가기' 단계 진입 임계값 [0,1]
 	UPROPERTY(EditAnywhere, Category="Incapacitation")
 	float CrawlThreshold = 0.60f;
+	// Hysteresis prevents repeatedly standing into the smoke layer immediately after lowering the head.
+	UPROPERTY(EditAnywhere, Category="Incapacitation", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float CrawlRecoveryThreshold = 0.45f;
 
 	// 완전 행동불능(쓰러짐) 임계값 [0,1]
 	UPROPERTY(EditAnywhere, Category="Incapacitation")
@@ -82,4 +89,11 @@ public:
 	// 기어갈 때 이동 속도 (cm/s)
 	UPROPERTY(EditAnywhere, Category="Incapacitation")
 	float CrawlSpeed = 80.f;
+
+	// Vertical collision approximation; runtime clamps half-height to the capsule radius.
+	UPROPERTY(EditAnywhere, Category="Incapacitation|Posture", meta=(ClampMin="1.0"))
+	float CrawlCapsuleHalfHeightCm = 44.f;
+	// Height above the capsule feet, not above its moving centre. Not a physiological calibration.
+	UPROPERTY(EditAnywhere, Category="Incapacitation|Posture", meta=(ClampMin="1.0"))
+	float CrawlBreathingHeightCm = 55.f;
 };

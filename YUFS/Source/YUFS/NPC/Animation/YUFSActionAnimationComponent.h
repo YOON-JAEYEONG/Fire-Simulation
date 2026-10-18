@@ -44,6 +44,8 @@ public:
 
 	void Initialize(USkeletalMeshComponent* InMesh, int32 StableNpcId);
 	void ApplyAction(EYUFSAction Action, EYUFSBehaviorState BehaviorState, bool bForce = false);
+	bool IsNativePlaybackActive() const;
+	bool ApplyRecordedPose(UAnimationAsset* Asset, float Position, float PlayRate, bool bLoop);
 
 	/** Read-only preflight of the actual configured bindings, including custom overrides. */
 	UFUNCTION(BlueprintPure, Category="NPC|Animation")

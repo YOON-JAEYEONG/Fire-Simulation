@@ -2,7 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Core/YUFSTypes.h"
+#include "Fire/YUFSFireExtinguisher.h"
 #include "YUFSTimelineTypes.generated.h"
+
+class UAnimationAsset;
 
 /**
  * 타임라인 관찰 모드에서 NPC 한 명을 복원하기 위한 최소 정보입니다.
@@ -62,6 +65,41 @@ struct FYUFSTimelineNPCSnapshot
 
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	bool bIncapacitated = false;
+
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	bool bLowPosture = false;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	float CapsuleHalfHeightCm = 0.f;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	float LowBreathingHeightCm = 55.f;
+	// Native single-node presentation only. External AnimBP graphs are never replaced by replay.
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") TObjectPtr<UAnimationAsset> AnimationClip = nullptr;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") float AnimationPosition = 0.f;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") float AnimationPlayRate = 1.f;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") bool bAnimationLooping = false;
+};
+
+USTRUCT(BlueprintType)
+struct FYUFSTimelineDoorSnapshot
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") FName DoorId = NAME_None;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") float OpenFraction = 0.f;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") float SwingDirection = 1.f;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") bool bVisible = true;
+};
+
+USTRUCT(BlueprintType)
+struct FYUFSTimelineExtinguisherSnapshot
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") FName ToolId = NAME_None;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") FTransform Transform = FTransform::Identity;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") EYUFSFireExtinguisherState State = EYUFSFireExtinguisherState::Available;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") float RemainingAgent = 0.f;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") bool bVisible = true;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") bool bSprayVisible = false;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") FTransform SprayRelativeTransform = FTransform::Identity;
 };
 
 /**
@@ -86,7 +124,15 @@ struct FYUFSTimelineFrame
 
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	int32 IncapacitatedCount = 0;
+	// Preserve the population and simulation clock at capture time. A later
+	// placement/withdrawal or timing setting must not rewrite an earlier HUD.
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	int32 TotalNPCCount = 0;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
+	float SimulationElapsedTime = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	TArray<FYUFSTimelineNPCSnapshot> NPCSnapshots;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") TArray<FYUFSTimelineDoorSnapshot> DoorSnapshots;
+	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline") TArray<FYUFSTimelineExtinguisherSnapshot> ExtinguisherSnapshots;
 };

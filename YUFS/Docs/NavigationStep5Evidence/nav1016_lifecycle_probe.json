@@ -1,0 +1,234 @@
+{
+  "mode": "Rendered saved Main PIE, runtime palette NPCs and one temporary door. Explicit authored suppression gesture for lifecycle coverage only; no claims of autonomous suppression or fire mutation. Pause/resume, recorded native pose/props, seek/play/pause, then actual Stop/reload and a second Start. No assets saved.",
+  "events": [
+    {
+      "label": "paused_start",
+      "sim_time": 3.0039596557617188,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "frame": 24,
+      "npc_xyz": [
+        3500.0,
+        -300.0,
+        90.0
+      ],
+      "animation": "Standing_Using_Touchscreen_Tablet",
+      "clip_position": 1.5491029024124146,
+      "mesh_paused": true,
+      "actor_tick": false,
+      "nav_tick": false,
+      "movement_tick": false,
+      "tool_state": "<YUFSFireExtinguisherState.SPRAYING: 3>",
+      "tool_owner": "BP_YUFSRLEvacuationNPC_C_0",
+      "tool_fuel": 1.0,
+      "tool_xyz": [
+        3518.931172356887,
+        -302.1708782979803,
+        76.21639613922676
+      ],
+      "door_fraction": 0.3797230124473572,
+      "exposure": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=24 cell=X=94.021 Y=10.114 Z=4.976 index=99844 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=23 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+    },
+    {
+      "label": "paused_after_2_wall_seconds",
+      "sim_time": 3.0039596557617188,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "frame": 24,
+      "npc_xyz": [
+        3500.0,
+        -300.0,
+        90.0
+      ],
+      "animation": "Standing_Using_Touchscreen_Tablet",
+      "clip_position": 1.5491029024124146,
+      "mesh_paused": true,
+      "actor_tick": false,
+      "nav_tick": false,
+      "movement_tick": false,
+      "tool_state": "<YUFSFireExtinguisherState.SPRAYING: 3>",
+      "tool_owner": "BP_YUFSRLEvacuationNPC_C_0",
+      "tool_fuel": 1.0,
+      "tool_xyz": [
+        3518.931172356887,
+        -302.1708782979803,
+        76.21639613922676
+      ],
+      "door_fraction": 0.3797230124473572,
+      "exposure": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=24 cell=X=94.021 Y=10.114 Z=4.976 index=99844 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=23 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+    },
+    {
+      "label": "automatic_review_end",
+      "sim_time": 12.004775047302246,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "frame": 95,
+      "npc_xyz": [
+        3500.0,
+        -300.0,
+        90.0
+      ],
+      "animation": "Idle",
+      "clip_position": 1.4516854286193848,
+      "mesh_paused": false,
+      "actor_tick": true,
+      "nav_tick": false,
+      "movement_tick": false,
+      "tool_state": "<YUFSFireExtinguisherState.AVAILABLE: 0>",
+      "tool_owner": null,
+      "tool_fuel": 1.0,
+      "tool_xyz": [
+        3560.0,
+        -300.0,
+        3.0
+      ],
+      "door_fraction": 1.0,
+      "exposure": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=95 cell=X=94.021 Y=10.114 Z=4.976 index=99844 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+    },
+    {
+      "label": "seek_5_exact_recorded_pose",
+      "sim_time": 12.004775047302246,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "frame": 40,
+      "npc_xyz": [
+        3500.0,
+        -300.0,
+        90.0
+      ],
+      "animation": "Standing_Using_Touchscreen_Tablet",
+      "clip_position": 2.998987913131714,
+      "mesh_paused": false,
+      "actor_tick": true,
+      "nav_tick": false,
+      "movement_tick": false,
+      "tool_state": "<YUFSFireExtinguisherState.SPRAYING: 3>",
+      "tool_owner": null,
+      "tool_fuel": 1.0,
+      "tool_xyz": [
+        3520.689831660488,
+        -303.6910509972472,
+        78.36172063787491
+      ],
+      "door_fraction": 0.7139557003974915,
+      "exposure": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=40 cell=X=94.021 Y=10.114 Z=4.976 index=99844 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+    },
+    {
+      "label": "review_pause_start",
+      "sim_time": 12.004775047302246,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "frame": 40,
+      "npc_xyz": [
+        3500.0,
+        -300.0,
+        90.0
+      ],
+      "animation": "Standing_Using_Touchscreen_Tablet",
+      "clip_position": 2.998987913131714,
+      "mesh_paused": false,
+      "actor_tick": true,
+      "nav_tick": false,
+      "movement_tick": false,
+      "tool_state": "<YUFSFireExtinguisherState.SPRAYING: 3>",
+      "tool_owner": null,
+      "tool_fuel": 1.0,
+      "tool_xyz": [
+        3520.689831660488,
+        -303.6910509972472,
+        78.36172063787491
+      ],
+      "door_fraction": 0.7139557003974915,
+      "exposure": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=40 cell=X=94.021 Y=10.114 Z=4.976 index=99844 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+    },
+    {
+      "label": "review_pause_after_2_wall_seconds",
+      "sim_time": 12.004775047302246,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "frame": 40,
+      "npc_xyz": [
+        3500.0,
+        -300.0,
+        90.0
+      ],
+      "animation": "Standing_Using_Touchscreen_Tablet",
+      "clip_position": 2.998987913131714,
+      "mesh_paused": false,
+      "actor_tick": true,
+      "nav_tick": false,
+      "movement_tick": false,
+      "tool_state": "<YUFSFireExtinguisherState.SPRAYING: 3>",
+      "tool_owner": null,
+      "tool_fuel": 1.0,
+      "tool_xyz": [
+        3520.689831660488,
+        -303.6910509972472,
+        78.36172063787491
+      ],
+      "door_fraction": 0.7139557003974915,
+      "exposure": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=40 cell=X=94.021 Y=10.114 Z=4.976 index=99844 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+    },
+    {
+      "label": "seek_start",
+      "sim_time": 12.004775047302246,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "frame": 3,
+      "npc_xyz": [
+        3500.0,
+        -300.0,
+        90.0
+      ],
+      "animation": "Idle",
+      "clip_position": 0.7256234884262085,
+      "mesh_paused": false,
+      "actor_tick": true,
+      "nav_tick": false,
+      "movement_tick": false,
+      "tool_state": "<YUFSFireExtinguisherState.AVAILABLE: 0>",
+      "tool_owner": null,
+      "tool_fuel": 1.0,
+      "tool_xyz": [
+        3560.0,
+        -300.0,
+        3.0
+      ],
+      "door_fraction": 0.0,
+      "exposure": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=3 cell=X=94.021 Y=10.114 Z=4.976 index=-1 rawSmokeHeat=unavailable eyeStatus=Loading eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+    },
+    {
+      "label": "review_play_then_pause",
+      "sim_time": 12.004775047302246,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "frame": 16,
+      "npc_xyz": [
+        3500.0,
+        -300.0,
+        90.0
+      ],
+      "animation": "Standing_Using_Touchscreen_Tablet",
+      "clip_position": 0.8341923952102661,
+      "mesh_paused": false,
+      "actor_tick": true,
+      "nav_tick": false,
+      "movement_tick": false,
+      "tool_state": "<YUFSFireExtinguisherState.HELD: 2>",
+      "tool_owner": null,
+      "tool_fuel": 1.0,
+      "tool_xyz": [
+        3519.614584537066,
+        -294.4534647398878,
+        65.09021662772624
+      ],
+      "door_fraction": 0.21284562349319458,
+      "exposure": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=16 cell=X=94.021 Y=10.114 Z=4.976 index=99844 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+    }
+  ],
+  "restart": {
+    "phase": "<SimPhase.WAITING_TO_START: 0>",
+    "clock": 0.0,
+    "npc": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3500.000 Y=-300.000 Z=90.000 eye=X=3500.000 Y=-300.000 Z=154.000 binFrame=0 cell=X=94.021 Y=10.114 Z=4.976 index=-1 rawSmokeHeat=unavailable eyeStatus=Loading eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+    "mesh_paused": false,
+    "tools_available": true
+  },
+  "second_start": {
+    "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+    "clock": 1.0385669469833374,
+    "frame": 8
+  },
+  "complete": true
+}

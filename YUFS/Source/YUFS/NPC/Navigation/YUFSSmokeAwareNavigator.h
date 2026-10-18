@@ -69,6 +69,8 @@ public:
 	bool IsFollowingPath() const { return NavigationStatus == EYUFSNavigationStatus::Moving; }
 	bool ShouldRetryPath() const;
 	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
+	bool IsWaitingForSaferPath() const { return NavigationStatus == EYUFSNavigationStatus::Failed && LastFailure == EYUFSNavigationFailure::UnsafePath && !bUnsafeRetryReady; }
+	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
 	EYUFSHazardDataStatus GetHazardDataStatus() const { return HazardDataStatus; }
 	UFUNCTION(BlueprintPure, Category="YUFS|Navigation")
 	float GetPathSmoke() const { return LastPathScore.MaxSmoke; }
@@ -88,6 +90,7 @@ public:
 	bool IsKnownLocationDangerous(const FVector& WorldLocation) const;
 	// One authoritative memory store, in JJW perception (no parallel hazard-patch model).
 	void ResetObservedHazards();
+	FYUFSHazardSettings GetHazardSettings() const;
 
 	UPROPERTY(BlueprintAssignable, Category="YUFS|Navigation")
 	FYUFSNavigationStateChanged OnNavigationStateChanged;
@@ -111,6 +114,9 @@ public:
 	float HazardSampleHeightCm = 120.f;
 	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="0.1"))
 	float FailedPathRetryInterval = 2.f;
+	// Reassess a rejected route without issuing another NavMesh query every new fire frame.
+	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="0.5"))
+	float UnsafePathRecheckInterval = 2.f;
 	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="0"))
 	int32 MaxFailedPathRetries = 2;
 	UPROPERTY(EditAnywhere, Category="YUFS|Navigation", meta=(ClampMin="1.0"))
@@ -130,7 +136,8 @@ private:
 	void StopOwnerMovement();
 	TArray<FVector> BuildRemainingPath() const;
 	FVector GetOwnerFeetLocation() const;
-	FYUFSHazardSettings GetHazardSettings() const;
+	bool TrySafeHazardDetour(const FYUFSHazardSnapshot& Snapshot);
+	void RefreshUnsafeRetryGate(const FYUFSHazardSnapshot& Snapshot);
 
 	UPROPERTY()
 	AYUFSLevelDataManager* LevelDataMgr = nullptr;
@@ -147,6 +154,11 @@ private:
 	float TimeSinceRequest = 0.f;
 	FYUFSHazardSnapshot QueryHazardSnapshot;
 	FYUFSHazardPathScore LastPathScore;
+	TArray<FVector> RejectedUnsafePath;
+	TArray<FVector> RejectedHazardWitnesses;
+	FVector UnsafeRejectionFeet = FVector::ZeroVector;
+	float UnsafeRecheckTimer = 0.f;
+	bool bUnsafeRetryReady = false;
 	EYUFSHazardDataStatus HazardDataStatus = EYUFSHazardDataStatus::MissingData;
 	EYUFSNavigationStatus NavigationStatus = EYUFSNavigationStatus::Idle;
 	EYUFSNavigationFailure LastFailure = EYUFSNavigationFailure::None;
@@ -156,4 +168,6 @@ private:
 	friend struct FYUFSNavigationTestAccess;
 	friend struct FYUFSCrowdIntegrationAccess;
 	friend struct FYUFSInteractionNavigationTestAccess;
+	friend struct FYUFSPersonalExitTestAccess;
+	friend struct FYUFSTrafficRegressionAccess;
 };

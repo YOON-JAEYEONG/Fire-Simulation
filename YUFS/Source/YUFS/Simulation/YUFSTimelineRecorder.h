@@ -58,8 +58,16 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="YUFS|Timeline")
 	int32 GetRecordedFrameCount() const { return RecordedFrames.Num(); }
+	// Read-only diagnostics of the exact frame currently displayed (not live AI state).
+	UFUNCTION(BlueprintPure, Category="YUFS|Timeline|Diagnostics")
+	FYUFSTimelineFrame GetCurrentReviewFrameSnapshot() const
+	{
+		return LastAppliedReviewFrame ? *LastAppliedReviewFrame : FYUFSTimelineFrame();
+	}
 
 	const TArray<FYUFSTimelineFrame>& GetRecordedFrames() const { return RecordedFrames; }
+	// Native presentation readers avoid copying all NPC/prop snapshots every HUD binding.
+	const FYUFSTimelineFrame* GetCurrentReviewFrame() const { return LastAppliedReviewFrame; }
 
 private:
 	UPROPERTY()

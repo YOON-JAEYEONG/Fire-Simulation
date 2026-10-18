@@ -127,6 +127,9 @@ struct YUFS_API FYUFSNavigationDirective
 
 	UPROPERTY(BlueprintReadOnly)
 	FVector DestinationHint = FVector::ZeroVector;
+	// Origin is a valid goal; Goal=None/bHasDestination=false means no route target.
+	UPROPERTY(BlueprintReadOnly) bool bHasDestination = false;
+	UPROPERTY(BlueprintReadOnly) bool bSearchingForExit = false;
 
 	UPROPERTY(BlueprintReadOnly)
 	FName TargetStableId = NAME_None;

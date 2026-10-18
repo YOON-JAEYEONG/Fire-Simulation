@@ -1,0 +1,367 @@
+{
+  "mode": "Exit geometry regression. Main rendered PIE: same 20 ground / 20 upstairs palette NPCs with temporary early alarm config and fixed frame0; plus one stationary evacuee behind a temporary closed door, then open the door. No scene assets saved.",
+  "runs": [
+    {
+      "case": 2,
+      "count": 1,
+      "positions": [
+        "<Struct 'Vector' (0x000001E12F51DF50) {x: 2150.000000, y: -120.000000, z: 90.000000}>"
+      ],
+      "samples": [
+        {
+          "t": 0,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E12F537BC0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 1,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E12F537BC0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 2,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E12F55DD20) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 3,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E12F55F080) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 4,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B2220) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 5,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B2540) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 6,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B2720) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 7,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B29A0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 8,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B2A40) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Idle"
+            }
+          ]
+        },
+        {
+          "t": 9,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B2CC0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        },
+        {
+          "t": 10,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B2E00) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        },
+        {
+          "t": 11,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B3080) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        },
+        {
+          "t": 12,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B31C0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        },
+        {
+          "t": 13,
+          "evacuated": 0,
+          "success_radius": 150.0,
+          "door_fraction": 0.8304592370986938,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B3120) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        },
+        {
+          "t": 14,
+          "evacuated": 1,
+          "success_radius": 150.0,
+          "door_fraction": 1.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B2950) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        },
+        {
+          "t": 15,
+          "evacuated": 1,
+          "success_radius": 150.0,
+          "door_fraction": 1.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B3800) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        },
+        {
+          "t": 16,
+          "evacuated": 1,
+          "success_radius": 150.0,
+          "door_fraction": 1.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B3940) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        },
+        {
+          "t": 17,
+          "evacuated": 1,
+          "success_radius": 150.0,
+          "door_fraction": 1.0,
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 cachedFrame=0 visualTimeFrame=0.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+          "npcs": [
+            {
+              "name": "BP_YUFSRLEvacuationNPC_C_0",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-120.000 Z=90.000 eye=X=2150.000 Y=-120.000 Z=154.000 binFrame=0 cell=X=58.865 Y=5.000 Z=4.976 index=61564 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00",
+              "velocity": "<Struct 'Vector' (0x000001E0B23B3AD0) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+              "traffic": "<YUFSLocalMovementState.FOLLOWING: 0>",
+              "yielding_to": "None",
+              "traffic_diagnostics": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000",
+              "animation": "Fast_Run"
+            }
+          ]
+        }
+      ],
+      "closed_count": 0,
+      "open_request": true
+    }
+  ],
+  "fixture": {
+    "door_rotation": "<Struct 'Rotator' (0x000001E0B238F940) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+    "door_bounds": "(<Struct 'Vector' (0x000001E0B238F940) {x: 2150.000000, y: -70.000000, z: 113.000000}>, <Struct 'Vector' (0x000001E0B2370380) {x: 56.000000, y: 10.750000, z: 113.000000}>)",
+    "handle": "<Struct 'Vector' (0x000001E0B238F940) {x: 2182.000000, y: -70.000000, z: 105.000000}>",
+    "exit_positions": [
+      "<Struct 'Vector' (0x000001E0B238F940) {x: 2150.000000, y: -20.000000, z: 0.000000}>"
+    ]
+  },
+  "complete": true
+}

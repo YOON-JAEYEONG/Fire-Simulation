@@ -1,6 +1,6 @@
 # JJW_NPC_BEHAVIOR 실행 안내
 
-이 브랜치의 최신 실행 대상은 `YUFS/Content/Maps/Main.umap`이다. 이전 Prototype 장면과 다르다. Final_merge_2의 통합본을 기반으로 메뉴, NPC 배치, 실제 출구 판정, 화재 표시, NPC 위험 감지 연결을 수정한 버전이다.
+이 브랜치의 최신 실행 대상은 `YUFS/Content/Maps/Main.umap`이다. `merge_JJW_Kim_Eung_Gang@83cb710` 통합본을 기반으로 NPC 경로 탐색 완성 단계 1~11과 배포 점검을 반영했다. 메뉴의 **Main (화재 시뮬레이션)**에서 확인한다.
 
 ## Windows에서 처음 받기
 
@@ -17,7 +17,15 @@ git rev-parse HEAD
 
 브랜치 출력이 `JJW_NPC_BEHAVIOR`인지 확인한다. GitHub ZIP 다운로드 대신 Git LFS를 사용하는 클론을 권장한다. LFS 다운로드 오류가 있으면 실행하지 말고 먼저 해결한다.
 
-`YUFS.uproject`를 우클릭하여 Visual Studio 프로젝트 파일을 생성한다. 생성된 솔루션에서 **Development Editor / Win64**, **YUFS**를 빌드한 뒤 `YUFS.uproject`를 연다. 엔진이 모듈 재빌드를 제안하면 빌드한다. 이 저장소는 C++ 소스 프로젝트이므로 각 컴퓨터의 엔진에 맞는 DLL을 최초 한 번 생성해야 한다. 이전 프로젝트의 Binaries를 복사하지 않는다.
+프로젝트 에디터를 닫고 저장소 최상위의 **`Build-And-Launch-YUFS-Safe.cmd`**를 실행한다. 해당 폴더의 데이터·맵을 검사하고 **Development Editor / Win64**를 빌드한 후 바로 그 폴더의 `YUFS.uproject`를 연다. 첫 클론 및 C++ 변경을 받은 뒤 이 파일을 사용한다. 빌드 도구가 설치되어 있어야 한다. 엔진 설치 위치가 다르면 환경 변수 `YUFS_ENGINE_ROOT`를 UE_5.7 폴더로 지정한다.
+
+직접 빌드하려면 `YUFS.uproject` 우클릭으로 Visual Studio 프로젝트 파일을 생성하고 **Development Editor / Win64**, **YUFS**를 빌드한다. 각 컴퓨터의 엔진에 맞는 DLL이 필요하므로 다른 프로젝트의 Binaries를 복사하지 않는다. 빌드한 뒤 소스 변경이 없을 때는 `Launch-YUFS-Safe.cmd`로 다시 열 수 있다. 두 실행 파일은 공용 `C:\CodexWork` 연결을 사용하지 않는다.
+
+다운로드만 검사하려면 다음을 실행한다. 실제 데이터 SHA256, Unreal 맵·SVT 파일, 현재 브랜치·커밋을 확인한다.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\Test-YUFSCheckout.ps1 -ExpectedBranch JJW_NPC_BEHAVIOR
+```
 
 ## 필요한 화재 파일
 
@@ -43,6 +51,12 @@ git rev-parse HEAD
 
 ## 검증과 남은 문제
 
-UE 5.7.4 Windows 빌드, 기존 NPC 테스트 71개와 최신 위험/경로 테스트 5개, 실제 메뉴/팔레트 배치/화재 감지/계단 대피를 확인했다. 화재 BIN→화면 SVT 변환은 선택 프레임 비교에 근거한 경험적 보정이며 정밀 물리 단위/전체 시간 정합은 미확인이다. 일부 위험 경로 반복 거부와 벽/문 막힘은 남아 있다. 기본 60초 기록 종료 후 TimelineReview로 전환된다.
+UE 5.7.4 Windows 빌드와 전체 자동 검사 **119개**(NPC115개 포함)를 확인했다. 개인별 경보·연기·열 인지, 연기에 따른 시야 감쇠, 개인 출구 기억/탐색/안내, 위험 경로 재검사, 양보·대기·물리 복구, 실제 낮은 자세, 출구 영역 판정, 보이는 행동 불능 상태, 일시정지·타임라인 재생·과거 HUD·재시작을 포함한다. 이동 결과를 맞추기 위한 강제 대피/사망 처리는 넣지 않았다.
 
-최신 설명: `YUFS/Docs/NPC_HAZARD_RESPONSE_20260930.md`. 과거 감사 문서의 “외부 BIN 별도 복사”, “OutsideDomain”, “아직 커밋하지 않음”은 당시 상태 기록이다. 현재 배포 방법은 이 문서를 따른다.
+화재 BIN→SVT 변환은 경험적 보정이며 물리 단위·출처·전체 시퀀스 정합은 아직 미확인이다. `bDatasetAlignmentConfirmed=false`를 유지한다. 확인된 발화 위치 메타데이터가 없는 화재에는 자율 소화를 허용하지 않는다. 명시적인 소화 동작 프리뷰는 실제 화재 인식·진압 성공과 별개이며 원본 FDS 재생을 바꾸지 않는다.
+
+기본 화재 후 60초에 TimelineReview로 바뀐다. 그때 미해결 NPC는 성공/사망으로 자동 분류하지 않는다. 리뷰 중 상세 감지/경로 조회는 멈춘 현재 상태일 수 있으며, 과거 인원·시간은 HUD와 기록 프레임으로 확인한다. 모든 고밀도 교착이나 맵의 모든 문을 해결했다는 보장은 아니다.
+
+`Launch-InteractionPreview.ps1`, `Launch-NaturalNpcInteractions.ps1` 등의 Prototype 시연 실행 파일은 일반 Main 시뮬레이션의 실행 경로가 아니다.
+
+최신 검증 조건·결과는 `YUFS/Docs/NPC_NAVIGATION_RELEASE_20261018.md`, 단계별 구현은 `YUFS/Docs/NPC_NAVIGATION_STEP*_*.md`를 참고한다. 과거 문서의 “외부 BIN 별도 복사”, “아직 커밋하지 않음” 등은 당시 상태 기록이다. 현재 배포 방법은 이 README를 따른다.

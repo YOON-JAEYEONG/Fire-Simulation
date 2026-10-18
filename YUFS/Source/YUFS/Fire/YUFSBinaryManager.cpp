@@ -85,13 +85,7 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (!bHeaderValid || !IsValid(HeterogeneousVolume)) return;
-	if (!FMath::IsFinite(BinaryFramesPerVisualFrame) || BinaryFramesPerVisualFrame <= 0)
-	{
-		CurrentDebugFrame = INDEX_NONE;
-		return;
-	}
-	const double MappedFrame = static_cast<double>(HeterogeneousVolume->GetFrame()) * BinaryFramesPerVisualFrame + BinaryFrameOffset;
-	CurrentDebugFrame = MappedFrame >= 0 && MappedFrame < TotalFrames ? FMath::FloorToInt(MappedFrame) : INDEX_NONE;
+	CurrentDebugFrame = GetCurrentFrame();
 	if (FMath::Abs(CurrentDebugFrame - LastCurrentFrame) > 50)
 	{
 		++LoadGeneration;
@@ -115,6 +109,17 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 			break;
 		}
 	}
+}
+
+int32 AYUFSBinaryManager::GetCurrentFrame() const
+{
+	if (!bHeaderValid || !IsValid(HeterogeneousVolume)
+		|| !FMath::IsFinite(BinaryFramesPerVisualFrame) || BinaryFramesPerVisualFrame <= 0)
+		return INDEX_NONE;
+	const auto* Volume = HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>();
+	if (!Volume || !FMath::IsFinite(Volume->Frame)) return INDEX_NONE;
+	const double MappedFrame = static_cast<double>(Volume->Frame) * BinaryFramesPerVisualFrame + BinaryFrameOffset;
+	return MappedFrame >= 0 && MappedFrame < TotalFrames ? FMath::FloorToInt(MappedFrame) : INDEX_NONE;
 }
 
 void AYUFSBinaryManager::SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolume)
@@ -188,7 +193,7 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 	}
 	const auto* Volume = HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>();
 	FTransform VolumeTransform;
-	if (bGridWorldAnchored)
+	if (bGridWorldAnchored && !bUseSparseVolumeTextureCoordinates)
 	{
 		// 건물 고정 모드: 현재 볼륨이 화재별 Transform으로 옮겨져도 격자는 기준 화재 위치에 고정.
 		VolumeTransform = GridAnchorVolumeTransform;
@@ -296,7 +301,8 @@ bool AYUFSBinaryManager::GetTemperatureAtLocation(FVector Location, int32 Frame,
 
 FString AYUFSBinaryManager::GetHazardDiagnostics() const
 {
-	const auto Snapshot = GetHazardSnapshot(CurrentDebugFrame);
+	const int32 SampleFrame = GetCurrentFrame();
+	const auto Snapshot = GetHazardSnapshot(SampleFrame);
 	FString BoundsText = TEXT("unavailable");
 	if (Snapshot.Status == EYUFSHazardDataStatus::Ready)
 	{
@@ -325,19 +331,20 @@ FString AYUFSBinaryManager::GetHazardDiagnostics() const
 			}
 		}
 	}
-	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d voxelXcm=%.2f mapping=%s gridToTexture=%s frameRatio=%.3f offset=%d grid=%s alignment=%s status=%s asset=%s binWorldBounds=%s"),
-		*BinaryFilePath, DimX, DimY, DimZ, TotalFrames, CurrentDebugFrame,
+	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d cachedFrame=%d visualTimeFrame=%.3f voxelXcm=%.2f mapping=%s gridToTexture=%s frameRatio=%.3f offset=%d grid=%s alignment=%s status=%s asset=%s binWorldBounds=%s"),
+		*BinaryFilePath, DimX, DimY, DimZ, TotalFrames, SampleFrame,
 		Volume ? *Volume->VolumeResolution.ToString() : TEXT("MissingVolume"),
-		HeterogeneousVolume ? HeterogeneousVolume->GetFrame() : INDEX_NONE, VoxelSize,
+		IsValid(HeterogeneousVolume) ? HeterogeneousVolume->GetFrame() : INDEX_NONE,
+		CurrentDebugFrame, Volume ? Volume->Frame : -1.f, VoxelSize,
 		bUseSparseVolumeTextureCoordinates ? TEXT("SVTFrame") : TEXT("LegacyVolume"), *BinaryGridToTexture.ToString(), BinaryFramesPerVisualFrame, BinaryFrameOffset,
-		bGridWorldAnchored ? TEXT("WorldAnchored") : TEXT("FollowsVolume"),
+		bUseSparseVolumeTextureCoordinates ? TEXT("DatasetVolume") : bGridWorldAnchored ? TEXT("LegacyWorldAnchored") : TEXT("FollowsVolume"),
 		bDatasetAlignmentConfirmed ? TEXT("UserConfirmed") : TEXT("UNVERIFIED"),
 		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(Snapshot.Status)), *VisualAsset, *BoundsText);
 }
 
 void AYUFSBinaryManager::PlayDebugAnimation()
 {
-	const auto Snapshot = GetHazardSnapshot(CurrentDebugFrame);
+	const auto Snapshot = GetHazardSnapshot(GetCurrentFrame());
 	if (Snapshot.Status != EYUFSHazardDataStatus::Ready) return;
 	const int32 Step = FMath::Max(4, DebugStep);
 	const FVector Extent = Snapshot.GridToWorld.GetScale3D().GetAbs() * 0.45f;
