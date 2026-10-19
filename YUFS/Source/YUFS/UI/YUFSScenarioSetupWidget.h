@@ -3,9 +3,13 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Simulation/YUFSScenarioConfig.h"
+#include "Types/SlateEnums.h"
 #include "YUFSScenarioSetupWidget.generated.h"
 
 class UYUFSGameInstance;
+class UComboBoxString;
+class UImage;
+class UTextBlock;
 
 /**
  * YUFS 시나리오 설정 위젯 베이스 클래스.
@@ -24,6 +28,7 @@ class YUFS_API UYUFSScenarioSetupWidget : public UUserWidget
 
 public:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 	// 편집 중인 설정. UMG 컨트롤과 양방향으로 연결합니다.
 	UPROPERTY(BlueprintReadWrite, Category = "YUFS|Setup")
@@ -44,6 +49,14 @@ public:
 	// ── 개별 값 설정 헬퍼 (UMG OnValueChanged 등에 연결) ──────────────
 	UFUNCTION(BlueprintCallable, Category = "YUFS|Setup")
 	void SelectMapByIndex(int32 Index);
+
+	// AvailableMaps를 변경한 뒤 호출하면 맵 목록, 선택 상태와 미리보기를 갱신합니다.
+	UFUNCTION(BlueprintCallable, Category = "YUFS|Setup")
+	void RefreshMapOptions();
+
+	// 현재 선택된 맵의 썸네일 표시 (위젯이 없으면 해당 부분은 생략).
+	UFUNCTION(BlueprintCallable, Category = "YUFS|Setup")
+	void UpdateMapPreview();
 
 	UFUNCTION(BlueprintCallable, Category = "YUFS|Setup")
 	void SetNPCCount(int32 Count);
@@ -92,5 +105,22 @@ public:
 	void OnConfigRefreshed();
 
 protected:
+	UPROPERTY(BlueprintReadOnly, Category = "YUFS|Setup", meta = (BindWidgetOptional))
+	TObjectPtr<UComboBoxString> MapCombo;
+
+	UPROPERTY(BlueprintReadOnly, Category = "YUFS|Setup", meta = (BindWidgetOptional))
+	TObjectPtr<UImage> Image_MapThumbnail;
+
+	UPROPERTY(BlueprintReadOnly, Category = "YUFS|Setup", meta = (BindWidgetOptional))
+	TObjectPtr<UTextBlock> Text_MapPreviewHint;
+
 	UYUFSGameInstance* GetYUFSGameInstance() const;
+
+private:
+	UFUNCTION()
+	void HandleMapSelectionChanged(FString SelectedItem, ESelectInfo::Type SelectionType);
+
+	void SynchronizeMapSelection();
+
+	bool bUpdatingMapCombo = false;
 };

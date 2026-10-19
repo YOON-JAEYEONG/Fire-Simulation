@@ -1,0 +1,18 @@
+Use case: ui-mockup
+Asset type: polished 16:9 desktop settings screen concept for YUFS Unreal WBP_Settings.
+Reference image 1: the existing YUFS results screen. Match exactly its calm scientific software design language: slim header, pale left sidebar, white rounded outlined cards, slate Korean typography, restrained teal selected controls, light gray workspace. A finished flat application screen with no Unreal Editor interface, monitor frame, cinematic imagery or gaming menu treatment.
+Primary request: create a settings page consistent with MainMenu, ScenarioSetup and Results, preserving the user's existing controls: resolution ComboBox; three screen-mode Buttons "전체 화면", "테두리 없는 창", "창 모드"; four graphics-quality Buttons "낮음", "보통", "높음", "최고"; NPC debugging overlay CheckBox; Apply, Cancel and Back buttons.
+Layout at approx1920x1080: header72 high, sidebar280 wide. Header exact "YUFS" and "화재 · 대피 시뮬레이션"; right status "환경 설정". Sidebar entries "새 시뮬레이션", "결과보기", "설정", with "설정" selected using a soft teal row; bottom "메인화면으로".
+Page title exact "환경 설정", subtitle "화면 표시와 그래픽 품질, 디버깅 옵션을 조정합니다".
+Main left content column approx1050px wide, right guidance column approx516px wide, generous 20px gutters.
+Left card 1 heading "화면 설정", small monitor line icon. First row label "해상도", a clean closed dropdown showing example "1920 × 1080" and down-chevron. Second row label "화면 모드", three adjacent equal-height segmented buttons exact "전체 화면", "테두리 없는 창", "창 모드"; select "테두리 없는 창" with teal tint and border, the other two white with gray outlines. Small muted helper "사용 환경에 맞는 해상도와 화면 모드를 선택하세요".
+Left card 2 heading "그래픽 품질", small restrained line icon. One row of four evenly sized segmented buttons exact "낮음", "보통", "높음", "최고"; select "높음" with solid or soft teal. Helper "표시 품질과 실행 성능의 균형을 조정합니다". No unsupported per-feature controls.
+Left card 3 heading "디버깅", small minimal diagnostic line icon. A square unchecked checkbox exact label "NPC 디버깅 오버레이". Supporting line "NPC 디버깅 정보를 화면에 표시합니다". Small pale neutral info strip exact "디버깅 표시 변경은 즉시 반영됩니다".
+Right white guidance card heading "설정 안내", three readable spaced icon-and-text entries with fine separators:
+"화면 표시" / "모니터와 창 크기에 맞춰 표시 방식을 선택하세요"
+"그래픽 품질" / "화면이 느리면 품질을 낮춰 확인하세요"
+"변경 적용" / "화면과 그래픽 설정은 적용 버튼을 눌러 저장합니다"
+At bottom a restrained pale teal information block exact "취소는 저장된 화면·그래픽 설정으로 되돌립니다". This wording matters: NPC overlay is immediate and is not rolled back by graphics Cancel. No claiming all changes are reverted.
+Bottom action bar right-aligned three clearly separated buttons: neutral outlined "뒤로", outlined "취소", strong teal "적용". Keep button hit areas spacious. Small bottom-left caption above status "해상도와 선택 상태는 예시입니다".
+Bottom status strip green dot and text exact "설정 준비".
+Palette #F1F5F8 background, #FFFFFF cards, #DCE4EB borders, #253448 primary text, #526174 secondary text, #147F8A teal. Modern clean Korean sans serif, title hierarchy and well-spaced form labels, about8px radii. Only these existing setting controls. Do not add sound, language, VSync, camera controls, reset-to-defaults, FPS or hardware data. No settings for scenario fire delays or NPC counts. No fake performance metric, logo invention or watermark. Complete single screen with all three bottom buttons visible.
