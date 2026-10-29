@@ -40,6 +40,7 @@ public:
 private:
 	bool IsPhysicalCorridorClearFrom(FVector StartFeet,FVector TargetFeet,bool bIgnorePeerNPCs,FVector* OutSupportedFloor=nullptr) const;
 	int32 SelectRecoverySpace(const TArray<FVector>& ReachableCandidates,FVector Desired) const;
+	static uint32 GetTrafficPriorityId(const AYUFSEvacuationNPC* NPC);
 	void SetState(EYUFSLocalMovementState NewState);
 	TWeakObjectPtr<AYUFSEvacuationNPC> YieldingTo;
 	EYUFSLocalMovementState State=EYUFSLocalMovementState::Following;

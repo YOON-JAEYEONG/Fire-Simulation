@@ -7,6 +7,7 @@
 #include "Blueprint/UserWidget.h"
 #include "TimerManager.h"
 #include "YUFSScenarioConfig.h"
+#include "Simulation/YUFSTimelineTypes.h"
 #include "YUFSSimulationController.generated.h"
 
 class AYUFSLevelDataManager;
@@ -118,6 +119,10 @@ struct FSimRunResult
 	// 이 배열이 더 길면(배치 도구로 런타임에 추가 배치한 경우), 재현 시 부족한 만큼
 	// 이 클래스로 다시 스폰합니다(그런 NPC는 레벨 자체엔 저장되지 않으므로).
 	UPROPERTY(BlueprintReadOnly) TArray<TSubclassOf<AYUFSEvacuationNPC>> InitialNPCClasses;
+	UPROPERTY(BlueprintReadOnly) TArray<int32> InitialNPCStableIds;
+
+	// Compressed recording lives separately from the lightweight results list.
+	UPROPERTY(BlueprintReadOnly) FString ReplayRecordingId;
 };
 
 // ── 이벤트 델리게이트 ──────────────────────────────────────────────────────
@@ -168,6 +173,8 @@ public:
 
 	// The visual fixture must be ready before Start leaves the distribution phase.
 	void NotifyInteractionPreviewReady(bool bReady);
+	// Delayed building interaction setup must also finish before a live run starts.
+	void NotifyBuildingInteractionSetupReady();
 	bool IsWaitingForInteractionPreview() const { return bWaitForInteractionPreview && !bInteractionPreviewReady; }
 	bool IsSimulationPaused() const { return bIsPaused; }
 
@@ -221,6 +228,9 @@ public:
 	int32 GetCurrentRunIndex() const { return CurrentRunIndex; }
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
+	int32 GetCurrentRunSeed() const { return CurrentRunSeed; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
 	bool IsNPCSimulationEnabled() const
 	{
 		// 관찰 모드에서는 NPC AI가 다시 계산되면 안 되므로 FireActive에서만 true입니다.
@@ -230,10 +240,10 @@ public:
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	bool IsNPCActivityEnabled() const
 	{
-		// 시작 전에는 일상 행동만, FireActive에서는 상태에 맞는 일상/비상 행동을 실행합니다.
+		// Start 버튼을 누른 뒤에만 NPC 활동을 허용합니다. 카운트다운 중에는
+		// 일상 행동을, FireActive에서는 상태에 맞는 일상/비상 행동을 실행합니다.
 		return !bIsPaused
-			&& (CurrentPhase == ESimPhase::WaitingToStart
-				|| CurrentPhase == ESimPhase::FireStartDelay
+			&& (CurrentPhase == ESimPhase::FireStartDelay
 				|| CurrentPhase == ESimPhase::FireActive);
 	}
 
@@ -285,6 +295,9 @@ public:
 	float GetTimelineMaxTime() const;
 
 	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	float GetTimelineMinTime() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
 	float GetTimelineProgress01() const;
 
 	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
@@ -309,6 +322,12 @@ public:
 	FOnSimRunCompleted OnRunCompleted;
 
 	// ── 편집 가능 파라미터 ───────────────────────────────────────────
+	// Retained for serialized assets. Runs always use the configured project seed.
+	UPROPERTY()
+	bool bUseFixedRandomSeed = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Seed")
+	int32 FixedRandomSeed = 2026;
+
 	// 화재 시뮬레이션 시작까지 대기 시간 (초)
 	UPROPERTY(EditAnywhere, Category="Simulation|Timing")
 	float FireStartDelaySeconds = 30.f;
@@ -375,7 +394,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.0"))
 	float TimelineRecordEndFireSeconds = 60.f;
 
-	// 너무 많은 정보를 저장하지 않기 위한 기록 간격입니다. 0.25초면 초당 4개 스냅샷입니다.
+	// Legacy serialized setting. Exact movement playback now captures every frame.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.05"))
 	float TimelineRecordIntervalSeconds = 0.25f;
 
@@ -465,6 +484,7 @@ private:
 	bool bWaitForInteractionPreview = false;
 	bool bInteractionPreviewReady = false;
 	bool bStartRequestedBeforePreviewReady = false;
+	bool bStartRequestedBeforeBuildingSetupReady = false;
 
 	float ElapsedSimTime = 0.f;    // 현재 회차 경과 시간
 	float FirePhaseTimer = 0.f;    // FireStartDelay 단계 타이머
@@ -495,6 +515,10 @@ private:
 	// 그대로 결과에 담아 "이 회차 재현" 시 복원(또는 재스폰)할 수 있게 합니다.
 	TArray<FTransform> InitialNPCTransforms;
 	TArray<TSubclassOf<AYUFSEvacuationNPC>> InitialNPCClasses;
+	UPROPERTY()
+	TArray<int32> InitialNPCStableIds;
+	bool bRunResultStored = false;
+	bool bLoadedRecordedReplay = false;
 
 	// 대피/행동불능 처리를 이미 끝낸 NPC를 기억해서 카운트 중복 증가를 막습니다.
 	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;
@@ -521,9 +545,11 @@ private:
 	FSimRunResult BuildRunResult() const;
 	FYUFSScenarioConfig CaptureScenarioSnapshot() const;
 	void StoreRunResult(const FSimRunResult& Result);
-	void InitializeRunSeed();
+	bool InitializeRunSeed();
 	void CaptureInitialNPCTransforms();
-	void ApplyReplayNPCTransforms(const TArray<FTransform>& Transforms, const TArray<TSubclassOf<AYUFSEvacuationNPC>>& Classes);
+	bool ApplyReplayNPCTransforms(const TArray<FTransform>& Transforms, const TArray<TSubclassOf<AYUFSEvacuationNPC>>& Classes,
+		const TArray<int32>& StableIds);
+	void RecordCurrentFrame(float DeltaTime);
 	void FinalizeRun();
 	void UpdateLiveCounts();
 	void SpawnHUD();

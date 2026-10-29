@@ -5,6 +5,7 @@
 #include "Animation/AnimationAsset.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/SkeletalMesh.h"
+#include "Simulation/YUFSTimelineTypes.h"
 
 namespace
 {
@@ -173,6 +174,40 @@ void UYUFSActionAnimationComponent::ApplyAction(
 		bLoop ? TEXT("true") : TEXT("false"));
 }
 
+bool UYUFSActionAnimationComponent::ApplyTimelineAnimation(
+	USkeletalMeshComponent* InMesh, const FYUFSTimelineNPCSnapshot& Snapshot)
+{
+	if (!IsValid(InMesh) || !Snapshot.bHasAnimationState || Snapshot.AnimationAssetPath.IsNull()) return false;
+	UAnimationAsset* Animation = Cast<UAnimationAsset>(Snapshot.AnimationAssetPath.ResolveObject());
+	if (!Animation) Animation = Cast<UAnimationAsset>(Snapshot.AnimationAssetPath.TryLoad());
+	const USkeletalMesh* SkeletalMesh = InMesh->GetSkeletalMeshAsset();
+	if (!Animation || !SkeletalMesh || !Animation->GetSkeleton()
+		|| Animation->GetSkeleton() != SkeletalMesh->GetSkeleton()) return false;
+
+	// Only a captured single-node animation authorizes taking over the driver.
+	// Missing/legacy animation data must not replace an unrelated Animation Blueprint.
+	UAnimSingleNodeInstance* SingleNode = InMesh->GetSingleNodeInstance();
+	if (!SingleNode || SingleNode->GetCurrentAsset() != Animation)
+	{
+		InMesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+		InMesh->PlayAnimation(Animation, Snapshot.bAnimationLooping);
+		SingleNode = InMesh->GetSingleNodeInstance();
+	}
+	if (!SingleNode) return false;
+	SingleNode->SetLooping(Snapshot.bAnimationLooping);
+	SingleNode->SetPlayRate(Snapshot.AnimationPlayRate);
+	SingleNode->SetPlaying(false);
+	SingleNode->SetPosition(Snapshot.AnimationPositionSeconds, false);
+	// Seeking happens after normal mesh ticks; evaluate the pose for this render.
+	InMesh->TickAnimation(0.f, false);
+	InMesh->RefreshBoneTransforms();
+	Mesh = InMesh;
+	ActiveAnimation = Animation;
+	ActiveAction = Snapshot.DisplayAction;
+	ActiveBehaviorState = Snapshot.BehaviorState;
+	return true;
+}
+
 bool UYUFSActionAnimationComponent::HasAnimationForAction(EYUFSAction Action) const
 {
 	const FYUFSActionAnimationBinding* Binding = FindBinding(Action);
@@ -182,23 +217,6 @@ bool UYUFSActionAnimationComponent::HasAnimationForAction(EYUFSAction Action) co
 bool UYUFSActionAnimationComponent::IsNativePlaybackActive() const
 {
 	return bInitialized && IsValid(Mesh) && Mesh->GetSingleNodeInstance() && IsValid(ActiveAnimation);
-}
-
-bool UYUFSActionAnimationComponent::ApplyRecordedPose(UAnimationAsset* Asset, float Position, float PlayRate, bool bLoop)
-{
-	if (!bInitialized || !IsValid(Mesh) || !Asset || !Mesh->GetSkeletalMeshAsset()
-		|| Asset->GetSkeleton() != Mesh->GetSkeletalMeshAsset()->GetSkeleton()) return false;
-	if (!Mesh->GetSingleNodeInstance() || Mesh->GetSingleNodeInstance()->GetAnimationAsset() != Asset)
-		Mesh->PlayAnimation(Asset, bLoop);
-	auto* Single = Mesh->GetSingleNodeInstance();
-	if (!Single) return false;
-	ActiveAnimation = Asset;
-	Mesh->bPauseAnims = false; // Evaluate this explicit cursor; never advance an independent live clock.
-	Single->SetLooping(bLoop);
-	Single->SetPlayRate(PlayRate);
-	Single->SetPosition(FMath::Clamp(Position, 0.f, Single->GetLength()), false);
-	Single->SetPlaying(false); // Seeking must not replay gameplay animation notifies.
-	return true;
 }
 
 FString UYUFSActionAnimationComponent::GetActiveAnimationName() const

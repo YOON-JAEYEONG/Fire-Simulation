@@ -30,6 +30,10 @@ struct FYUFSTrafficRegressionAccess
         auto* Nav=A->GetNavigator();Nav->NavigationStatus=EYUFSNavigationStatus::Moving;
         Nav->CurrentPath={A->GetActorLocation()-FVector(0,0,88),Goal};Nav->CurrentWaypointIndex=1;
     }
+	static uint32 PriorityId(const AYUFSEvacuationNPC* Npc)
+	{
+		return UYUFSLocalMovementComponent::GetTrafficPriorityId(Npc);
+	}
 };
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSStationaryPeerRecoveryRegression,
@@ -177,6 +181,24 @@ bool FYUFSTrafficCycleRegression::RunTest(const FString&)
     TestFalse(TEXT("An ordinary queue is not a cycle"), Actors[0]->GetLocalMovement()->IsCycleLeader(Actors[1]));
     World->DestroyWorld(false);
     return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSTrafficStableIdentityRegression,
+	"YUFS.NPC.Navigation.Traffic.UsesStableIdentityAcrossRuns",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSTrafficStableIdentityRegression::RunTest(const FString&)
+{
+	auto* World = UWorld::CreateWorld(EWorldType::Game, false);
+	auto* First = World->SpawnActor<AYUFSEvacuationNPC>();
+	auto* Second = World->SpawnActor<AYUFSEvacuationNPC>();
+	First->StableNPCId = 42;
+	Second->StableNPCId = 7;
+	TestEqual(TEXT("Traffic priority uses the authored stable ID"),
+		FYUFSTrafficRegressionAccess::PriorityId(First), 42u);
+	TestEqual(TEXT("Traffic priority is independent from UObject allocation order"),
+		FYUFSTrafficRegressionAccess::PriorityId(Second), 7u);
+	World->DestroyWorld(false);
+	return true;
 }
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSResolvedAvoidanceRegression,
     "YUFS.NPC.Navigation.Traffic.EvacuatedResidentStopsAvoidance",

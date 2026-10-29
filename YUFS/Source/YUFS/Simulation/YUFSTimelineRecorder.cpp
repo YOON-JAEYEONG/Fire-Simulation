@@ -7,9 +7,95 @@
 #include "Fire/YUFSFireExtinguisher.h"
 #include "EngineUtils.h"
 
+namespace
+{
+	struct FTimelineSnapshotLookup
+	{
+		TMap<int32, const FYUFSTimelineNPCSnapshot*> ByStableId;
+		TMap<FName, const FYUFSTimelineNPCSnapshot*> ByName;
+
+		explicit FTimelineSnapshotLookup(const TArray<FYUFSTimelineNPCSnapshot>& Snapshots)
+		{
+			ByStableId.Reserve(Snapshots.Num());
+			ByName.Reserve(Snapshots.Num());
+			for (const FYUFSTimelineNPCSnapshot& Snapshot : Snapshots)
+			{
+				if (Snapshot.StableNPCId != INDEX_NONE)
+				{
+					ByStableId.Add(Snapshot.StableNPCId, &Snapshot);
+				}
+				ByName.Add(Snapshot.NPCId, &Snapshot);
+			}
+		}
+
+		const FYUFSTimelineNPCSnapshot* Find(int32 StableId, FName Name) const
+		{
+			if (StableId != INDEX_NONE)
+			{
+				if (const FYUFSTimelineNPCSnapshot* const* Found = ByStableId.Find(StableId))
+				{
+					return *Found;
+				}
+			}
+			const FYUFSTimelineNPCSnapshot* const* Found = ByName.Find(Name);
+			// Actor names can be reused by a different resident after a map reload.
+			// Name fallback is valid only for legacy snapshots without stable identity.
+			return Found && (StableId == INDEX_NONE || (*Found)->StableNPCId == INDEX_NONE) ? *Found : nullptr;
+		}
+	};
+
+	void InterpolateSnapshot(
+		FYUFSTimelineNPCSnapshot& Result,
+		const FYUFSTimelineNPCSnapshot& Upper,
+		float Alpha,
+		float FrameDuration)
+	{
+		// Discrete state remains that of the lower sample until the upper timestamp.
+		Result.Location = FMath::Lerp(Result.Location, Upper.Location, Alpha);
+		Result.Rotation = FQuat::Slerp(Result.Rotation.Quaternion(), Upper.Rotation.Quaternion(), Alpha).GetNormalized().Rotator();
+		Result.Velocity = FMath::Lerp(Result.Velocity, Upper.Velocity, Alpha);
+
+		const bool bSameAnimation = Result.bHasAnimationState && Upper.bHasAnimationState
+			&& Result.AnimationAssetPath == Upper.AnimationAssetPath
+			&& Result.BehaviorState == Upper.BehaviorState
+			&& Result.CurrentAction == Upper.CurrentAction
+			&& Result.DisplayAction == Upper.DisplayAction
+			&& Result.bVisible == Upper.bVisible
+			&& Result.bEvacuated == Upper.bEvacuated
+			&& Result.bIncapacitated == Upper.bIncapacitated
+			&& Result.bAnimationLooping == Upper.bAnimationLooping;
+		if (!bSameAnimation)
+		{
+			return;
+		}
+
+		const float ClipLength = Result.AnimationLengthSeconds;
+		float PhaseAdvance = Upper.AnimationPositionSeconds - Result.AnimationPositionSeconds;
+		if (Result.bAnimationLooping && ClipLength > SMALL_NUMBER)
+		{
+			// Unwrap a forward loop before interpolation. Use the recorded rate to
+			// recover additional full loops if a slow simulation frame spans a clip.
+			if (PhaseAdvance < 0.f)
+			{
+				PhaseAdvance += ClipLength;
+			}
+			const float ExpectedAdvance = FrameDuration * FMath::Max(0.f,
+				0.5f * (Result.AnimationPlayRate + Upper.AnimationPlayRate));
+			const int32 ExtraLoops = FMath::Max(0, FMath::RoundToInt((ExpectedAdvance - PhaseAdvance) / ClipLength));
+			PhaseAdvance += ExtraLoops * ClipLength;
+			Result.AnimationPositionSeconds = FMath::Fmod(Result.AnimationPositionSeconds + Alpha * PhaseAdvance, ClipLength);
+		}
+		else if (PhaseAdvance >= 0.f)
+		{
+			Result.AnimationPositionSeconds += Alpha * PhaseAdvance;
+		}
+		Result.AnimationPlayRate = FMath::Lerp(Result.AnimationPlayRate, Upper.AnimationPlayRate, Alpha);
+	}
+}
+
 UYUFSTimelineRecorder::UYUFSTimelineRecorder()
 {
-	// 직접 Tick하지 않고, SimulationController가 현재 Phase에 맞춰 명시적으로 호출합니다.
+	// The controller records after NPC movement and animation have ticked.
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -25,13 +111,31 @@ void UYUFSTimelineRecorder::BeginRecording(float InTargetFireTimeSeconds, float 
 	LastAppliedReviewFrame = nullptr;
 	bRecording = true;
 	bReviewPlaying = false;
-	TargetFireTimeSeconds = FMath::Max(0.f, InTargetFireTimeSeconds);
-	RecordIntervalSeconds = FMath::Max(0.05f, InRecordIntervalSeconds);
-	TimeSinceLastRecord = RecordIntervalSeconds; // 시작 직후 첫 프레임을 바로 저장하기 위한 값
+	bRestartReviewOnNextTick = false;
 	CurrentReviewFireTime = 0.f;
+	CurrentEvacuatedCount = 0;
+	CurrentIncapacitatedCount = 0;
 
-	UE_LOG(LogTemp, Log, TEXT("[YUFSTimeline] Recording started. Target=%.2fs, Interval=%.2fs"),
-		TargetFireTimeSeconds, RecordIntervalSeconds);
+	// Keep the interval argument for existing callers, but never discard observed
+	// movement/animation samples. The controller owns the recording end condition.
+	UE_LOG(LogTemp, Log, TEXT("[YUFSTimeline] Recording every simulation frame. Target=%.2fs, LegacyInterval=%.2fs"),
+		InTargetFireTimeSeconds, InRecordIntervalSeconds);
+}
+
+void UYUFSTimelineRecorder::LoadRecording(const TArray<FYUFSTimelineFrame>& Frames)
+{
+	RecordedFrames = Frames;
+	LastAppliedReviewFrame = nullptr;
+	RecordedFrames.StableSort([](const FYUFSTimelineFrame& A, const FYUFSTimelineFrame& B)
+	{
+		return A.FireElapsedTime < B.FireElapsedTime;
+	});
+	bRecording = false;
+	bReviewPlaying = false;
+	bRestartReviewOnNextTick = false;
+	CurrentReviewFireTime = GetMinRecordedFireTime();
+	CurrentEvacuatedCount = RecordedFrames.IsEmpty() ? 0 : RecordedFrames[0].EvacuatedCount;
+	CurrentIncapacitatedCount = RecordedFrames.IsEmpty() ? 0 : RecordedFrames[0].IncapacitatedCount;
 }
 
 void UYUFSTimelineRecorder::StopRecording()
@@ -48,19 +152,10 @@ void UYUFSTimelineRecorder::TickRecording(
 	int32 EvacuatedCount,
 	int32 IncapacitatedCount)
 {
-	if (!bRecording)
+	if (bRecording)
 	{
-		return;
+		CaptureFrame(FireElapsedTime, FireFrame, NPCs, EvacuatedCount, IncapacitatedCount);
 	}
-
-	TimeSinceLastRecord += DeltaTime;
-	if (TimeSinceLastRecord < RecordIntervalSeconds && FireElapsedTime < TargetFireTimeSeconds)
-	{
-		return;
-	}
-
-	TimeSinceLastRecord = 0.f;
-	CaptureFrame(FireElapsedTime, FireFrame, NPCs, EvacuatedCount, IncapacitatedCount);
 }
 
 void UYUFSTimelineRecorder::CaptureFrame(
@@ -71,20 +166,17 @@ void UYUFSTimelineRecorder::CaptureFrame(
 	int32 IncapacitatedCount)
 {
 	FYUFSTimelineFrame Frame;
-	Frame.FireElapsedTime = FMath::Max(0.f, FireElapsedTime);
+	Frame.FireElapsedTime = FireElapsedTime;
 	Frame.FireFrame = FMath::Max(0, FireFrame);
 	Frame.EvacuatedCount = EvacuatedCount;
 	Frame.IncapacitatedCount = IncapacitatedCount;
 	Frame.NPCSnapshots.Reserve(NPCs.Num());
-	
 	for (AYUFSEvacuationNPC* NPC : NPCs)
 	{
-		if (!IsValid(NPC))
+		if (IsValid(NPC))
 		{
-			continue;
+			Frame.NPCSnapshots.Add(NPC->BuildTimelineSnapshot());
 		}
-
-		Frame.NPCSnapshots.Add(NPC->BuildTimelineSnapshot());
 	}
 	Frame.TotalNPCCount = OwnerController ? OwnerController->GetTotalNPCCount()
 		: FMath::Max(Frame.NPCSnapshots.Num(), EvacuatedCount + IncapacitatedCount);
@@ -94,15 +186,17 @@ void UYUFSTimelineRecorder::CaptureFrame(
 		Frame.DoorSnapshots.Add(It->BuildTimelineSnapshot());
 	for (TActorIterator<AYUFSFireExtinguisher> It(GetWorld()); It; ++It)
 		Frame.ExtinguisherSnapshots.Add(It->BuildTimelineSnapshot());
-	RecordedFrames.Add(MoveTemp(Frame));
+	if (!RecordedFrames.IsEmpty() && RecordedFrames.Last().FireElapsedTime == Frame.FireElapsedTime)
+		RecordedFrames.Last() = MoveTemp(Frame);
+	else
+		RecordedFrames.Add(MoveTemp(Frame));
 }
 
 void UYUFSTimelineRecorder::EnterReviewMode(const TArray<AYUFSEvacuationNPC*>& NPCs)
 {
 	StopRecording();
 	bReviewPlaying = false;
-	LastAppliedReviewFrame = nullptr;
-
+	bRestartReviewOnNextTick = false;
 	for (AYUFSEvacuationNPC* NPC : NPCs)
 	{
 		if (IsValid(NPC))
@@ -111,16 +205,10 @@ void UYUFSTimelineRecorder::EnterReviewMode(const TArray<AYUFSEvacuationNPC*>& N
 		}
 	}
 
-	// 기록된 마지막 시점부터 관찰을 시작합니다.
-	if (!RecordedFrames.IsEmpty())
-	{
-		CurrentReviewFireTime = RecordedFrames.Last().FireElapsedTime;
-		ApplyFrame(RecordedFrames.Last(), NPCs);
-		LastAppliedReviewFrame = &RecordedFrames.Last();
-	}
-
-	UE_LOG(LogTemp, Warning, TEXT("[YUFSTimeline] Review mode entered. Frames=%d, MaxTime=%.2fs"),
-		RecordedFrames.Num(), GetMaxRecordedFireTime());
+	// Review initially displays the simulation's completed state.
+	SeekToFireTime(GetMaxRecordedFireTime(), NPCs);
+	UE_LOG(LogTemp, Log, TEXT("[YUFSTimeline] Review mode entered. Frames=%d, TimeRange=[%.2f, %.2f]s"),
+		RecordedFrames.Num(), GetMinRecordedFireTime(), GetMaxRecordedFireTime());
 }
 
 void UYUFSTimelineRecorder::PlayReview()
@@ -129,7 +217,7 @@ void UYUFSTimelineRecorder::PlayReview()
 	{
 		return;
 	}
-
+	bRestartReviewOnNextTick = CurrentReviewFireTime >= GetMaxRecordedFireTime();
 	bReviewPlaying = true;
 	if (HeterogeneousVolume)
 	{
@@ -141,6 +229,7 @@ void UYUFSTimelineRecorder::PlayReview()
 void UYUFSTimelineRecorder::PauseReview()
 {
 	bReviewPlaying = false;
+	bRestartReviewOnNextTick = false;
 	if (HeterogeneousVolume)
 	{
 		HeterogeneousVolume->PauseFire();
@@ -153,16 +242,19 @@ void UYUFSTimelineRecorder::TickReview(float DeltaTime, const TArray<AYUFSEvacua
 	{
 		return;
 	}
-
-	CurrentReviewFireTime += DeltaTime;
-	const float MaxTime = GetMaxRecordedFireTime();
-	if (CurrentReviewFireTime >= MaxTime)
+	if (bRestartReviewOnNextTick)
 	{
-		CurrentReviewFireTime = MaxTime;
-		PauseReview();
+		bRestartReviewOnNextTick = false;
+		SeekToFireTime(GetMinRecordedFireTime(), NPCs);
+		return;
 	}
 
-	SeekToFireTime(CurrentReviewFireTime, NPCs);
+	const float NextTime = FMath::Min(CurrentReviewFireTime + FMath::Max(0.f, DeltaTime), GetMaxRecordedFireTime());
+	SeekToFireTime(NextTime, NPCs);
+	if (NextTime >= GetMaxRecordedFireTime())
+	{
+		PauseReview();
+	}
 }
 
 void UYUFSTimelineRecorder::SeekToFireTime(float TargetFireTime, const TArray<AYUFSEvacuationNPC*>& NPCs)
@@ -171,15 +263,22 @@ void UYUFSTimelineRecorder::SeekToFireTime(float TargetFireTime, const TArray<AY
 	{
 		return;
 	}
+	bRestartReviewOnNextTick = false;
+	CurrentReviewFireTime = FMath::Clamp(TargetFireTime, GetMinRecordedFireTime(), GetMaxRecordedFireTime());
+	int32 LowerIndex;
+	int32 UpperIndex;
+	FindBracketingFrames(CurrentReviewFireTime, LowerIndex, UpperIndex);
+	const FYUFSTimelineFrame& Lower = RecordedFrames[LowerIndex];
+	const FYUFSTimelineFrame& Upper = RecordedFrames[UpperIndex];
+	const float Duration = Upper.FireElapsedTime - Lower.FireElapsedTime;
+	const float Alpha = Duration > SMALL_NUMBER ? (CurrentReviewFireTime - Lower.FireElapsedTime) / Duration : 0.f;
+	ApplyFrames(Lower, Upper, Alpha, NPCs);
+	LastAppliedReviewFrame = &Lower;
+}
 
-	CurrentReviewFireTime = FMath::Clamp(TargetFireTime, 0.f, GetMaxRecordedFireTime());
-
-	const FYUFSTimelineFrame* Frame = FindNearestFrame(CurrentReviewFireTime);
-	if (Frame && Frame != LastAppliedReviewFrame)
-	{
-		ApplyFrame(*Frame, NPCs);
-		LastAppliedReviewFrame = Frame;
-	}
+float UYUFSTimelineRecorder::GetMinRecordedFireTime() const
+{
+	return RecordedFrames.IsEmpty() ? 0.f : RecordedFrames[0].FireElapsedTime;
 }
 
 float UYUFSTimelineRecorder::GetMaxRecordedFireTime() const
@@ -189,81 +288,91 @@ float UYUFSTimelineRecorder::GetMaxRecordedFireTime() const
 
 float UYUFSTimelineRecorder::GetTimelineProgress01() const
 {
-	const float MaxTime = GetMaxRecordedFireTime();
-	if (MaxTime <= KINDA_SMALL_NUMBER)
-	{
-		return 0.f;
-	}
-	return FMath::Clamp(CurrentReviewFireTime / MaxTime, 0.f, 1.f);
+	const float MinTime = GetMinRecordedFireTime();
+	const float Duration = GetMaxRecordedFireTime() - MinTime;
+	return Duration > SMALL_NUMBER ? FMath::Clamp((CurrentReviewFireTime - MinTime) / Duration, 0.f, 1.f) : 0.f;
 }
 
-const FYUFSTimelineFrame* UYUFSTimelineRecorder::FindNearestFrame(float TargetFireTime) const
+void UYUFSTimelineRecorder::FindBracketingFrames(float TargetFireTime, int32& OutLowerIndex, int32& OutUpperIndex) const
 {
-	if (RecordedFrames.IsEmpty())
+	// Upper bound selects the last sample at or before the requested timestamp.
+	// Therefore a future action or disappearance never leaks into an earlier time.
+	int32 First = 0;
+	int32 End = RecordedFrames.Num();
+	while (First < End)
 	{
-		return nullptr;
-	}
-
-	int32 BestIndex = 0;
-	float BestDiff = TNumericLimits<float>::Max();
-
-	for (int32 i = 0; i < RecordedFrames.Num(); ++i)
-	{
-		const float Diff = FMath::Abs(RecordedFrames[i].FireElapsedTime - TargetFireTime);
-		if (Diff < BestDiff)
+		const int32 Middle = First + (End - First) / 2;
+		if (RecordedFrames[Middle].FireElapsedTime <= TargetFireTime)
 		{
-			BestDiff = Diff;
-			BestIndex = i;
+			First = Middle + 1;
+		}
+		else
+		{
+			End = Middle;
 		}
 	}
-
-	return &RecordedFrames[BestIndex];
+	OutLowerIndex = FMath::Max(0, First - 1);
+	OutUpperIndex = FMath::Min(First, RecordedFrames.Num() - 1);
 }
 
-void UYUFSTimelineRecorder::ApplyFrame(const FYUFSTimelineFrame& Frame, const TArray<AYUFSEvacuationNPC*>& NPCs)
+void UYUFSTimelineRecorder::ApplyFrames(
+	const FYUFSTimelineFrame& LowerFrame,
+	const FYUFSTimelineFrame& UpperFrame,
+	float Alpha,
+	const TArray<AYUFSEvacuationNPC*>& NPCs)
 {
-	// 화재 데이터 전체를 저장하지 않고, 프레임 번호만 HeterogeneousVolume에 적용합니다.
+	CurrentEvacuatedCount = LowerFrame.EvacuatedCount;
+	CurrentIncapacitatedCount = LowerFrame.IncapacitatedCount;
 	if (HeterogeneousVolume)
 	{
-		HeterogeneousVolume->SetFrame(Frame.FireFrame);
+		HeterogeneousVolume->SetActorHiddenInGame(CurrentReviewFireTime < 0.f);
+		if (HeterogeneousVolume->GetFrame() != LowerFrame.FireFrame)
+		{
+			HeterogeneousVolume->SetFrame(LowerFrame.FireFrame);
+		}
 		HeterogeneousVolume->PauseFire();
 	}
 
-	TMap<FName, const FYUFSTimelineNPCSnapshot*> SnapshotById;
-	for (const FYUFSTimelineNPCSnapshot& Snapshot : Frame.NPCSnapshots)
-	{
-		SnapshotById.Add(Snapshot.NPCId, &Snapshot);
-	}
-
+	const FTimelineSnapshotLookup LowerLookup(LowerFrame.NPCSnapshots);
+	const FTimelineSnapshotLookup UpperLookup(UpperFrame.NPCSnapshots);
 	for (AYUFSEvacuationNPC* NPC : NPCs)
 	{
 		if (!IsValid(NPC))
 		{
 			continue;
 		}
-
-		const FYUFSTimelineNPCSnapshot* const* Found = SnapshotById.Find(NPC->GetFName());
-		if (Found && *Found)
+		const FYUFSTimelineNPCSnapshot* Lower = LowerLookup.Find(NPC->GetStableNPCId(), NPC->GetFName());
+		if (!Lower)
 		{
-			NPC->ApplyTimelineSnapshot(**Found);
-		}
-		else
-		{
-			// A resident placed after this frame must not remain visible in its future pose.
+			// Actors spawned later must not remain visible when scrubbing backwards.
 			NPC->SetActorHiddenInGame(true);
 			NPC->SetActorEnableCollision(false);
+			continue;
 		}
+		if (Alpha <= 0.f)
+		{
+			NPC->ApplyTimelineSnapshot(*Lower);
+			continue;
+		}
+
+		FYUFSTimelineNPCSnapshot Interpolated = *Lower;
+		if (const FYUFSTimelineNPCSnapshot* Upper = UpperLookup.Find(Lower->StableNPCId, Lower->NPCId))
+		{
+			InterpolateSnapshot(Interpolated, *Upper, Alpha, UpperFrame.FireElapsedTime - LowerFrame.FireElapsedTime);
+		}
+		NPC->ApplyTimelineSnapshot(Interpolated);
 	}
+	// Legacy (v1) recordings carry no prop state; leave props as they are instead of hiding them.
 	TMap<FName, const FYUFSTimelineDoorSnapshot*> Doors;
-	for (const auto& Snapshot : Frame.DoorSnapshots) Doors.Add(Snapshot.DoorId, &Snapshot);
-	for (TActorIterator<AYUFSInteractionDoor> It(GetWorld()); It; ++It)
+	for (const auto& Snapshot : LowerFrame.DoorSnapshots) Doors.Add(Snapshot.DoorId, &Snapshot);
+	for (TActorIterator<AYUFSInteractionDoor> It(GetWorld()); !LowerFrame.DoorSnapshots.IsEmpty() && It; ++It)
 	{
 		if (const auto* Found = Doors.Find(It->GetFName())) It->ApplyTimelineSnapshot(**Found);
 		else { auto Hidden=It->BuildTimelineSnapshot(); Hidden.bVisible=false; It->ApplyTimelineSnapshot(Hidden); }
 	}
 	TMap<FName, const FYUFSTimelineExtinguisherSnapshot*> Tools;
-	for (const auto& Snapshot : Frame.ExtinguisherSnapshots) Tools.Add(Snapshot.ToolId, &Snapshot);
-	for (TActorIterator<AYUFSFireExtinguisher> It(GetWorld()); It; ++It)
+	for (const auto& Snapshot : LowerFrame.ExtinguisherSnapshots) Tools.Add(Snapshot.ToolId, &Snapshot);
+	for (TActorIterator<AYUFSFireExtinguisher> It(GetWorld()); !LowerFrame.ExtinguisherSnapshots.IsEmpty() && It; ++It)
 	{
 		if (const auto* Found = Tools.Find(It->GetFName())) It->ApplyTimelineSnapshot(**Found);
 		else { auto Hidden=It->BuildTimelineSnapshot(); Hidden.bVisible=false; It->ApplyTimelineSnapshot(Hidden); }

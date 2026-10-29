@@ -21,7 +21,9 @@ class YUFS_API UYUFSHumanCognitionComponent : public UActorComponent
 public:
 	UYUFSHumanCognitionComponent();
 
-	void Initialize(int32 StableNpcId, FYUFSDeterministicRngSet& RandomSource);
+	// Explicit runtime overrides are applied after seeded variation and before state reset.
+	void Initialize(int32 StableNpcId, FYUFSDeterministicRngSet& RandomSource,
+		const FYUFSHumanTraits* Overrides = nullptr, const TSet<FName>* OverrideFields = nullptr);
 	void UpdateCognition(float DeltaTime, const FYUFSNPCObservation& Observation);
 	void NotifyPlanChanged();
 

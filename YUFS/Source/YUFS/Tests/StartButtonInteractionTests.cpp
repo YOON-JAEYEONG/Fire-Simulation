@@ -43,9 +43,11 @@ bool FYUFSStartButtonLifecycleTest::RunTest(const FString& Parameters)
     Controller->Tick(.5f);
     TestEqual(TEXT("waiting does not run the clock"), Controller->GetElapsedTime(), 0.f);
     TestFalse(TEXT("waiting does not enable NPC simulation"), Controller->IsNPCSimulationEnabled());
+	TestFalse(TEXT("waiting keeps NPC activity disabled before Start"), Controller->IsNPCActivityEnabled());
 
     Controller->StartSimulation();
     TestTrue(TEXT("Start enters the fire countdown"), Controller->GetCurrentPhase() == ESimPhase::FireStartDelay);
+	TestTrue(TEXT("Start enables NPC activity during the fire countdown"), Controller->IsNPCActivityEnabled());
     Controller->Tick(.5f);
     TestEqual(TEXT("countdown advances after Start"), Controller->GetElapsedTime(), .5f);
     Controller->StartSimulation();
@@ -54,6 +56,7 @@ bool FYUFSStartButtonLifecycleTest::RunTest(const FString& Parameters)
 
     Controller->PauseSimulation();
     Controller->PauseSimulation();
+	TestFalse(TEXT("Pause disables NPC activity"), Controller->IsNPCActivityEnabled());
     Controller->Tick(4.f);
     TestEqual(TEXT("paused countdown does not advance"), Controller->GetElapsedTime(), .5f);
     TestTrue(TEXT("paused countdown cannot ignite"), Controller->GetCurrentPhase() == ESimPhase::FireStartDelay);

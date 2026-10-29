@@ -10,6 +10,8 @@
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimSingleNodeInstance.h"
+#include "Animation/AnimationAsset.h"
+#include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Core/YUFSDecisionTraceLogger.h"
@@ -22,6 +24,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "Navigation/YUFSSmokeAwareNavigator.h"
+#include "NavigationPath.h"
 #include "Navigation/PathFollowingComponent.h"
 #include "NavigationSystem.h"
 #include "NPC/Decision/YUFSBeliefComponent.h"
@@ -36,6 +39,7 @@
 #include "Simulation/YUFSSimulationController.h"
 #include "Social/YUFSSocialInfluenceComponent.h"
 #include "Misc/Crc.h"
+#include "UObject/UnrealType.h"
 
 AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 {
@@ -93,21 +97,10 @@ void AYUFSEvacuationNPC::BeginPlay()
 	BaseWalkSpeed = FMath::Max(200.f,GetCharacterMovement()->MaxWalkSpeed);
 	LastMovementSampleLocation = SpawnLocation;
 	bHasMovementSample = true;
-	EverydayRoamOrigin = SpawnLocation;
-	EverydayLookAnchorYaw = GetActorRotation().Yaw;
-	EverydayRandomStream.Initialize(EverydayBehaviorSeed ^ static_cast<int32>(GetTypeHash(GetFName())));
-	EverydayActivityTimer = EverydayRandomStream.FRandRange(
-		FMath::Min(EverydayMinIdleSeconds, EverydayMaxIdleSeconds),
-		FMath::Max(EverydayMinIdleSeconds, EverydayMaxIdleSeconds));
 
-	if (StableNPCId == INDEX_NONE)
-	{
-		StableNPCId = static_cast<int32>(FCrc::StrCrc32(*GetPathName()) & 0x7fffffffu);
-	}
-	DeterministicRng.Initialize(ScenarioSeed, StableNPCId);
+	InitializeForRun(ScenarioSeed);
 	if (HumanCognitionComp)
 	{
-		HumanCognitionComp->Initialize(StableNPCId, DeterministicRng);
 		if (HumanBehaviorSelector && !HumanBehaviorSelector->PolicyAsset)
 		{
 			HumanBehaviorSelector->PolicyAsset = HumanCognitionComp->PolicyAsset;
@@ -147,6 +140,18 @@ void AYUFSEvacuationNPC::BeginPlay()
 		SimulationController->RegisterNPC(this);
 		break;
 	}
+	// Freeze before the very first component tick as well as in Tick(). Merely
+	// setting speed to zero still lets CharacterMovement depenetrate overlapping
+	// capsules, so a longer wait before Start would change the next run's origin.
+	if (SimulationController && !SimulationController->IsNPCActivityEnabled())
+	{
+		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
+		{
+			Mv->StopMovementImmediately();
+			Mv->MaxWalkSpeed = 0.f;
+			Mv->DisableMovement();
+		}
+	}
 }
 
 void AYUFSEvacuationNPC::Tick(float DeltaTime)
@@ -158,18 +163,11 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// 저장된 스냅샷만 SimulationController/TimelineRecorder가 적용합니다.
 	if (bTimelinePlaybackMode)
 	{
-		StopEverydayBehavior();
-		if (Navigator) Navigator->ClearPath();
-		if (LocalMovement) LocalMovement->Reset();
-		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
-		{
-			Mv->StopMovementImmediately();
-			Mv->DisableMovement();
-		}
+		// Playback owns pose and transforms. Never select a new live animation.
 		return;
 	}
 
-	// 화재 전에는 일상 행동을 허용하고, 일시정지/관찰 모드에서는 멈춘다.
+	// Start 버튼을 누르기 전과 일시정지/관찰 모드에서는 모든 이동을 멈춘다.
 	if (SimulationController && !SimulationController->IsNPCActivityEnabled())
 	{
 		StopEverydayBehavior();
@@ -188,6 +186,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		{
 			Mv->StopMovementImmediately();
 			Mv->MaxWalkSpeed = 0.f;
+			Mv->DisableMovement();
 		}
 		return;
 	}
@@ -205,7 +204,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	{
 		const ESimPhase Phase = SimulationController->GetCurrentPhase();
 		if (!bInteractionPreviewControlled
-			&& (Phase == ESimPhase::WaitingToStart || Phase == ESimPhase::FireStartDelay))
+			&& Phase == ESimPhase::FireStartDelay)
 		{
 			TickEverydayBehavior(DeltaTime);
 			UpdateActionAnimation();
@@ -444,6 +443,84 @@ void AYUFSEvacuationNPC::SetMovementSpeed(float Speed)
 		Mv->MaxWalkSpeed = Speed;
 }
 
+void AYUFSEvacuationNPC::InitializeForRun(int32 RunSeed)
+{
+	if (StableNPCId == INDEX_NONE)
+	{
+		FString IdentityPath = GetPathName();
+		if (GetWorld() && !GetWorld()->StreamingLevelsPrefix.IsEmpty())
+			IdentityPath.ReplaceInline(*GetWorld()->StreamingLevelsPrefix, TEXT(""));
+		StableNPCId = static_cast<int32>(FCrc::StrCrc32(*IdentityPath) & 0x7fffffffu);
+	}
+	ActiveProjectSeed = RunSeed;
+	DeterministicRng.Initialize(RunSeed, StableNPCId, ScenarioSeed);
+	if (SocialComp) SocialComp->ResetForRun();
+	MLPolicy.SetFallbackRandomSource(&DeterministicRng);
+	if (!bSeedDefaultsCaptured)
+	{
+		if (HumanCognitionComp) InitialHumanTraits = HumanCognitionComp->Traits;
+		bInitialTrainingCompleted = BeliefComp && BeliefComp->bTrainingCompleted;
+		bSeedDefaultsCaptured = true;
+	}
+	else
+	{
+		// Keep explicit runtime edits, but never feed previously jittered values
+		// back into the next seed initialization.
+		if (HumanCognitionComp)
+		{
+			for (TFieldIterator<FProperty> Field(FYUFSHumanTraits::StaticStruct()); Field; ++Field)
+			{
+				if (!Field->Identical_InContainer(&HumanCognitionComp->Traits, &LastSeededHumanTraits))
+				{
+					Field->CopyCompleteValue_InContainer(&InitialHumanTraits, &HumanCognitionComp->Traits);
+					OverriddenHumanTraitFields.Add(Field->GetFName());
+				}
+			}
+		}
+		if (BeliefComp && BeliefComp->bTrainingCompleted != bLastSeededTrainingCompleted)
+			bInitialTrainingCompleted = BeliefComp->bTrainingCompleted;
+	}
+	if (HumanCognitionComp)
+	{
+		HumanCognitionComp->Traits = InitialHumanTraits;
+		HumanCognitionComp->Initialize(StableNPCId, DeterministicRng, &InitialHumanTraits, &OverriddenHumanTraitFields);
+		LastSeededHumanTraits = HumanCognitionComp->Traits;
+		if (BeliefComp) BeliefComp->bTrainingCompleted = bInitialTrainingCompleted
+			|| HumanCognitionComp->GetTraits().FireTraining >= .55f;
+	}
+	bLastSeededTrainingCompleted = BeliefComp && BeliefComp->bTrainingCompleted;
+	if (BehaviorSM) BehaviorSM->InitializePersonality(DeterministicRng.GetStreamSeed(EYUFSRngStream::Traits));
+	InitializeEverydayBehaviorForRun(RunSeed);
+}
+
+void AYUFSEvacuationNPC::InitializeEverydayBehaviorForRun(int32 RunSeed)
+{
+	// 전역 난수 소비 순서와 무관하도록 회차/NPC별 독립 스트림을 만든다.
+	uint32 MixedSeed = static_cast<uint32>(RunSeed);
+	MixedSeed ^= static_cast<uint32>(ScenarioSeed) + 0x9e3779b9u + (MixedSeed << 6) + (MixedSeed >> 2);
+	MixedSeed ^= static_cast<uint32>(StableNPCId) + 0x9e3779b9u + (MixedSeed << 6) + (MixedSeed >> 2);
+	MixedSeed ^= static_cast<uint32>(EverydayBehaviorSeed) + 0x9e3779b9u + (MixedSeed << 6) + (MixedSeed >> 2);
+	MixedSeed ^= MixedSeed >> 16;
+	MixedSeed *= 0x7feb352du;
+	MixedSeed ^= MixedSeed >> 15;
+	MixedSeed *= 0x846ca68bu;
+	MixedSeed ^= MixedSeed >> 16;
+	EverydayRandomStream.Initialize(static_cast<int32>(MixedSeed & 0x7fffffffu));
+
+	if (AAIController* AI = Cast<AAIController>(GetController())) AI->StopMovement();
+	if (UCharacterMovementComponent* Mv = GetCharacterMovement()) Mv->StopMovementImmediately();
+	EverydayRoamOrigin = GetActorLocation();
+	EverydayDestination = FVector::ZeroVector;
+	EverydayLookAnchorYaw = GetActorRotation().Yaw;
+	EverydayLookElapsed = 0.f;
+	bEverydayBehaviorActive = false;
+	bEverydayRoaming = false;
+
+	const float MinIdle = FMath::Max(0.1f, FMath::Min(EverydayMinIdleSeconds, EverydayMaxIdleSeconds));
+	const float MaxIdle = FMath::Max(MinIdle, FMath::Max(EverydayMinIdleSeconds, EverydayMaxIdleSeconds));
+	EverydayActivityTimer = EverydayRandomStream.FRandRange(MinIdle, MaxIdle);
+}
+
 void AYUFSEvacuationNPC::TickEverydayBehavior(float DeltaTime)
 {
 	AAIController* AI = Cast<AAIController>(GetController());
@@ -509,9 +586,23 @@ void AYUFSEvacuationNPC::ChooseNextEverydayActivity()
 	bool bFoundDestination = false;
 	for (int32 Attempt = 0; Attempt < 4; ++Attempt)
 	{
-		if (NavSystem->GetRandomReachablePointInRadius(
-			EverydayRoamOrigin, FMath::Max(100.f, EverydayRoamRadiusCm), Candidate)
-			&& FVector::DistSquared2D(GetActorLocation(), Candidate.Location) > FMath::Square(150.f))
+		// GetRandomReachablePointInRadius는 NavSystem의 공유 난수 상태를 소비하므로 NPC
+		// 실행 순서에 따라 결과가 달라질 수 있다. 전용 스트림으로 후보를 만든 뒤
+		// NavMesh 투영/경로 검증만 수행한다.
+		const FVector CandidatePoint = EverydayRoamOrigin
+			+ SampleEverydayRoamOffset(FMath::Max(100.f, EverydayRoamRadiusCm));
+		if (!NavSystem->ProjectPointToNavigation(CandidatePoint, Candidate, FVector(100.f, 100.f, 200.f)))
+		{
+			continue;
+		}
+		if (FVector::DistSquared2D(GetActorLocation(), Candidate.Location) <= FMath::Square(150.f))
+		{
+			continue;
+		}
+
+		const UNavigationPath* Path = UNavigationSystemV1::FindPathToLocationSynchronously(
+			GetWorld(), GetActorLocation(), Candidate.Location, this);
+		if (Path && Path->IsValid() && !Path->IsPartial())
 		{
 			bFoundDestination = true;
 			break;
@@ -534,6 +625,14 @@ void AYUFSEvacuationNPC::ChooseNextEverydayActivity()
 	bEverydayRoaming = true;
 	EverydayActivityTimer = FMath::Max(1.f, EverydayMaxRoamSeconds);
 	CurrentNavTarget = EverydayDestination;
+}
+
+FVector AYUFSEvacuationNPC::SampleEverydayRoamOffset(float RadiusCm)
+{
+	const float AngleRadians = EverydayRandomStream.FRandRange(0.f, 2.f * PI);
+	// sqrt를 적용하면 원의 면적 전체에 균일하게 분포한다.
+	const float Distance = FMath::Sqrt(EverydayRandomStream.FRand()) * FMath::Max(0.f, RadiusCm);
+	return FVector(FMath::Cos(AngleRadians) * Distance, FMath::Sin(AngleRadians) * Distance, 0.f);
 }
 
 void AYUFSEvacuationNPC::BeginEverydayIdle()
@@ -788,11 +887,33 @@ EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
 
 FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 {
+	if (bTimelinePlaybackMode && bHasTimelinePlaybackSnapshot) return TimelinePlaybackSnapshot;
 	FYUFSTimelineNPCSnapshot Snapshot;
 	Snapshot.NPCId = GetFName();
+	Snapshot.StableNPCId = StableNPCId;
 	Snapshot.Location = GetActorLocation();
 	Snapshot.Rotation = GetActorRotation();
+	Snapshot.Velocity = GetVelocity();
 	Snapshot.CurrentAction = CurrentAction;
+	Snapshot.DisplayAction = ActionAnimationComp && ActionAnimationComp->HasActiveAnimation()
+		? ActionAnimationComp->GetActiveAction() : GetDisplayedAction();
+	// External graph state is not serialized; only an owned native clip is recorded.
+	if (USkeletalMeshComponent* ReplayMesh = !bUseExternalMotionDriver && ActionAnimationComp
+		&& ActionAnimationComp->IsNativePlaybackActive() ? GetMesh() : nullptr)
+	{
+		if (UAnimSingleNodeInstance* Single = ReplayMesh->GetSingleNodeInstance())
+		{
+			if (UAnimationAsset* Asset = Single->GetCurrentAsset())
+			{
+				Snapshot.bHasAnimationState = true;
+				Snapshot.AnimationAssetPath = FSoftObjectPath(Asset);
+				Snapshot.AnimationPositionSeconds = Single->GetCurrentTime();
+				Snapshot.AnimationPlayRate = Single->IsPlaying() ? Single->GetPlayRate() : 0.f;
+				Snapshot.AnimationLengthSeconds = Single->GetLength();
+				Snapshot.bAnimationLooping = Single->IsLooping();
+			}
+		}
+	}
 	Snapshot.Intent = IntentComp ? IntentComp->GetCurrentIntent() : EYUFSIntent::Observe;
 	Snapshot.ActionTask = ActionTaskComp ? ActionTaskComp->GetCurrentTask() : EYUFSActionTask::None;
 	Snapshot.CommitProbability = BeliefComp ? BeliefComp->GetCommitProbability() : 0.f;
@@ -804,14 +925,6 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 	Snapshot.bLowPosture = IsCrouched();
 	Snapshot.CapsuleHalfHeightCm = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
 	Snapshot.LowBreathingHeightCm = LowBreathingHeightCm;
-	if (!bUseExternalMotionDriver && ActionAnimationComp && ActionAnimationComp->IsNativePlaybackActive())
-	{
-		const auto* Single = GetMesh()->GetSingleNodeInstance();
-		Snapshot.AnimationClip = Single->GetAnimationAsset();
-		Snapshot.AnimationPosition = Single->GetCurrentTime();
-		Snapshot.AnimationPlayRate = Single->GetPlayRate();
-		Snapshot.bAnimationLooping = Single->IsLooping();
-	}
 
 	if (BehaviorSM)
 	{
@@ -833,10 +946,9 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 
 void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& Snapshot)
 {
-	if (SuppressionComp) SuppressionComp->Cancel(false);
-	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
-	ResetRetreatKnowledge();
-	if (Navigator) Navigator->ResetObservedHazards();
+	SetTimelinePlaybackMode(true);
+	TimelinePlaybackSnapshot = Snapshot;
+	bHasTimelinePlaybackSnapshot = true;
 	// 관찰 모드에서는 물리 이동이 아니라 기록된 위치로 직접 배치합니다.
 	// Replay restores recorded geometry, never a live stand-up query against other replay actors.
 	if (Snapshot.CapsuleHalfHeightCm > 0.f)
@@ -855,8 +967,8 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 	TimelineDisplayState = Snapshot.BehaviorState;
 	// Transform/가시성 변경은 렌더 프록시와 Ray Tracing Scene 갱신을 유발하므로,
 	// 스냅샷이 현재 상태와 실제로 다를 때만 적용합니다.
-	constexpr float LocationToleranceCm = 1.0f;
-	constexpr float RotationToleranceDeg = 0.1f;
+	constexpr float LocationToleranceCm = 0.f;
+	constexpr float RotationToleranceDeg = 0.f;
 	if (!GetActorLocation().Equals(Snapshot.Location, LocationToleranceCm) ||
 		!GetActorRotation().Equals(Snapshot.Rotation, RotationToleranceDeg))
 	{
@@ -877,28 +989,13 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 	}
 
 	CurrentAction = Snapshot.CurrentAction;
-	if (!bUseExternalMotionDriver && ActionAnimationComp && Snapshot.AnimationClip)
-		ActionAnimationComp->ApplyRecordedPose(Snapshot.AnimationClip, Snapshot.AnimationPosition,
-			Snapshot.AnimationPlayRate, Snapshot.bAnimationLooping);
-	else if (!bUseExternalMotionDriver && ActionAnimationComp)
-	{
-		UpdateActionAnimation();
-		if (auto* Single = GetMesh()->GetSingleNodeInstance()) Single->SetPlaying(false);
-	}
-
-	if (Navigator)
-	{
-		Navigator->ClearPath();
-	}
+	UpdateActionAnimation();
 
 	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 	{
-		Mv->StopMovementImmediately();
-		Mv->DisableMovement();
+		// Expose recorded velocity to compatible AnimBPs without moving the actor.
+		Mv->Velocity = Snapshot.Velocity;
 	}
-
-	// 현재 BehaviorStateMachine은 외부에서 상태를 강제로 세팅하는 API가 없으므로
-	// 상태값은 Snapshot에 저장하되, 실제 AI 상태머신은 관찰 모드에서 갱신하지 않습니다.
 }
 
 void AYUFSEvacuationNPC::SetLiveSimulationPaused(bool bPaused)
@@ -942,23 +1039,14 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 
 	if (bEnabled) SetLiveSimulationPaused(false);
 	bTimelinePlaybackMode = bEnabled;
-	if (bEnabled)
+	if (Navigator)
 	{
-		bMeshPausedBeforeTimeline = GetMesh()->bPauseAnims;
-		bMovementTickBeforeTimeline = GetCharacterMovement()->IsComponentTickEnabled();
-		bNavigatorTickBeforeTimeline = Navigator && Navigator->IsComponentTickEnabled();
-		GetCharacterMovement()->SetComponentTickEnabled(false);
-		if (Navigator) Navigator->SetComponentTickEnabled(false);
-		// External graph state is not serialized. Freeze its current pose without replacing its driver.
-		GetMesh()->bPauseAnims = bUseExternalMotionDriver || !ActionAnimationComp || !ActionAnimationComp->IsNativePlaybackActive();
-		if (auto* Single = GetMesh()->GetSingleNodeInstance()) Single->SetPlaying(false);
-	}
-	else
-	{
-		GetMesh()->bPauseAnims = bMeshPausedBeforeTimeline;
-		GetCharacterMovement()->SetComponentTickEnabled(bMovementTickBeforeTimeline);
-		if (Navigator) Navigator->SetComponentTickEnabled(bNavigatorTickBeforeTimeline);
-		UpdateActionAnimation(true);
+		if (bEnabled)
+		{
+			bNavigatorTickBeforeTimeline = Navigator->IsComponentTickEnabled();
+			Navigator->SetComponentTickEnabled(false);
+		}
+		else Navigator->SetComponentTickEnabled(bNavigatorTickBeforeTimeline);
 	}
 	if (SuppressionComp) SuppressionComp->Cancel(false);
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
@@ -970,14 +1058,21 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 		if (bEnabled)
 		{
 			SavedWalkSpeedBeforeTimeline = Mv->MaxWalkSpeed;
+			SavedMovementModeBeforeTimeline = Mv->MovementMode;
+			SavedCustomMovementModeBeforeTimeline = Mv->CustomMovementMode;
+			bSavedMovementTickEnabled = Mv->IsComponentTickEnabled();
+			bSavedAvoidanceEnabled = Mv->bUseRVOAvoidance;
 			Mv->StopMovementImmediately();
+			Mv->SetAvoidanceEnabled(false);
 			Mv->DisableMovement();
+			Mv->SetComponentTickEnabled(false);
 		}
 		else
 		{
 			Mv->SetMovementMode(MOVE_Walking);
 			Mv->MaxWalkSpeed = FMath::Max(1.f, SavedWalkSpeedBeforeTimeline);
 			Mv->SetAvoidanceEnabled(true);
+			Mv->SetComponentTickEnabled(bSavedMovementTickEnabled);
 		}
 	}
 
@@ -985,9 +1080,61 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 	{
 		Navigator->ClearPath();
 	}
+	if (bEnabled)
+	{
+		StopEverydayBehavior();
+		ConsumeMovementInputVector();
+		if (LocalMovement) LocalMovement->Reset();
+		bSavedCollisionEnabled = GetActorEnableCollision();
+		SetActorEnableCollision(false);
+	}
+	else
+	{
+		SetActorEnableCollision(bSavedCollisionEnabled);
+		bHasTimelinePlaybackSnapshot = false;
+	}
+	if (AAIController* AI = Cast<AAIController>(GetController()))
+	{
+		if (bEnabled)
+		{
+			AI->StopMovement();
+			bSavedControllerTickEnabled = AI->IsActorTickEnabled();
+			AI->SetActorTickEnabled(false);
+			if (UBrainComponent* Brain = AI->GetBrainComponent())
+			{
+				bPausedBrainForTimeline = true;
+				Brain->PauseLogic(TEXT("Recorded playback"));
+			}
+		}
+		else
+		{
+			AI->SetActorTickEnabled(bSavedControllerTickEnabled);
+			if (bPausedBrainForTimeline && AI->GetBrainComponent()) AI->GetBrainComponent()->ResumeLogic(TEXT("Leaving playback"));
+			bPausedBrainForTimeline = false;
+		}
+	}
+	if (USkeletalMeshComponent* ReplayMesh = GetMesh())
+	{
+		if (bEnabled)
+		{
+			bSavedPauseAnims = ReplayMesh->bPauseAnims;
+			// External graph state is not serialized. Freeze its current pose without replacing its driver.
+			ReplayMesh->bPauseAnims = bUseExternalMotionDriver || !ActionAnimationComp || !ActionAnimationComp->IsNativePlaybackActive();
+			if (auto* Single = ReplayMesh->GetSingleNodeInstance())
+			{
+				bSavedAnimationPlaying = Single->IsPlaying();
+				Single->SetPlaying(false);
+			}
+		}
+		else
+		{
+			ReplayMesh->bPauseAnims = bSavedPauseAnims;
+			if (auto* Single = ReplayMesh->GetSingleNodeInstance()) Single->SetPlaying(bSavedAnimationPlaying);
+		}
+	}
 
 	SetActorTickEnabled(true);
-	if (bEnabled) if (auto* Single = GetMesh()->GetSingleNodeInstance()) Single->SetPlaying(false);
+	if (!bEnabled) UpdateActionAnimation(true);
 }
 
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)
@@ -1173,6 +1320,19 @@ void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
 
 void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 {
+	if (bTimelinePlaybackMode)
+	{
+		if (bHasTimelinePlaybackSnapshot && ActionAnimationComp && !bUseExternalMotionDriver)
+		{
+			if (!ActionAnimationComp->ApplyTimelineAnimation(GetMesh(), TimelinePlaybackSnapshot))
+			{
+				ActionAnimationComp->ApplyAction(TimelinePlaybackSnapshot.DisplayAction,
+					TimelinePlaybackSnapshot.BehaviorState, bForce);
+				if (auto* Single = GetMesh()->GetSingleNodeInstance()) Single->SetPlaying(false);
+			}
+		}
+		return;
+	}
 	const bool bLiveInteraction = !bTimelinePlaybackMode
 		&& (!SimulationController || SimulationController->IsNPCSimulationEnabled());
 	if (bLiveInteraction && EnvironmentInteraction
@@ -1761,7 +1921,7 @@ void AYUFSEvacuationNPC::TraceTaskEvent(
 FString AYUFSEvacuationNPC::GetScenarioHash() const
 {
 	const FString MapName = GetWorld() ? GetWorld()->GetMapName() : TEXT("NoWorld");
-	const FString Canonical = FString::Printf(TEXT("%s|seed=%d"), *MapName, ScenarioSeed);
+	const FString Canonical = FString::Printf(TEXT("%s|seed=%d|npcSeed=%d"), *MapName, ActiveProjectSeed, ScenarioSeed);
 	return FString::Printf(TEXT("crc32:%08x"), FCrc::StrCrc32(*Canonical));
 }
 EYUFSIntent AYUFSEvacuationNPC::GetCurrentIntent() const

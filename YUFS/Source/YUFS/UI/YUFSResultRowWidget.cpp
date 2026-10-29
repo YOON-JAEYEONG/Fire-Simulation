@@ -1,6 +1,7 @@
 #include "UI/YUFSResultRowWidget.h"
 
 #include "Simulation/YUFSGameInstance.h"
+#include "Simulation/YUFSReplayArchive.h"
 #include "UI/YUFSResultEntryObject.h"
 
 void UYUFSResultRowWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -55,5 +56,5 @@ bool UYUFSResultRowWidget::ReplayThisRun()
 bool UYUFSResultRowWidget::CanReplayThisRun() const
 {
 	FText Error;
-	return CachedResult.ScenarioConfig.IsValid(Error);
+	return CachedResult.ScenarioConfig.IsValid(Error) && YUFSReplayArchive::Exists(CachedResult.ReplayRecordingId);
 }

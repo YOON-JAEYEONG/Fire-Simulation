@@ -72,7 +72,7 @@ bool FYUFSExternalPauseLifecycleTest::RunTest(const FString&)
     TestFalse(TEXT("An externally disabled movement component stays disabled"),F.NPC->GetCharacterMovement()->IsComponentTickEnabled());
     TestFalse(TEXT("An externally disabled navigator stays disabled"),F.NPC->GetNavigator()->IsComponentTickEnabled());
     TestTrue(TEXT("An existing animation hold remains a hold"),F.NPC->GetMesh()->bPauseAnims);
-    auto Snapshot=F.NPC->BuildTimelineSnapshot(); TestNull(TEXT("External driver graph is not serialized as an owned native clip"),Snapshot.AnimationClip.Get());
+    auto Snapshot=F.NPC->BuildTimelineSnapshot(); TestFalse(TEXT("External driver graph is not serialized as an owned native clip"),Snapshot.bHasAnimationState);
     F.NPC->SetTimelinePlaybackMode(true); F.NPC->ApplyTimelineSnapshot(Snapshot);
     TestEqual(TEXT("Review never replaces the external animation mode"),F.NPC->GetMesh()->GetAnimationMode(),Mode);
     TestTrue(TEXT("External pose is frozen instead of running a live graph during review"),F.NPC->GetMesh()->bPauseAnims);

@@ -23,6 +23,9 @@ public:
 	// ── 건물 상호작용 소품 배치 (소화기 등) ─────────────────────────────
 	// Called for every play world, including Stop/Reset level reloads. Idempotent.
 	void SetupBuildingInteractions(UWorld* World);
+	// Start must not race the delayed prop/population setup. A repeated run must
+	// enter simulation with the same environment as the first run.
+	bool IsBuildingInteractionSetupReady(const UWorld* World) const;
 
 	UPROPERTY(Config, EditAnywhere, Category="NPC|Interactions")
 	bool bEnableBuildingInteractions = true;
@@ -77,9 +80,13 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = "YUFS|Scenario")
 	TArray<TSubclassOf<AYUFSEvacuationNPC>> PendingReplayNPCClasses;
+	UPROPERTY()
+	TArray<int32> PendingReplayNPCStableIds;
+	UPROPERTY(Transient)
+	TArray<FYUFSTimelineFrame> PendingReplayFrames;
 
 	// 결과 화면에서 특정 회차(RunResult)를 골라 "이 회차만 재현"할 때 호출합니다.
-	// 같은 시나리오 설정 + 그 회차의 랜덤 시드로 단일 회차(1회)만 다시 실행합니다.
+	// 같은 시나리오/시드의 원본 움직임 기록을 불러옵니다. 기록 없는 과거 회차는 거부합니다.
 	UFUNCTION(BlueprintCallable, Category = "YUFS|Scenario")
 	bool ReplayRun(const FSimRunResult& RunResult);
 
@@ -97,6 +104,11 @@ public:
 
 private:
 	void LoadRunResultsFromDisk();
+	void ClearPendingReplay();
+	void MarkBuildingInteractionSetupReady(UWorld* World);
+	// ReplayRun uses this after preparing its handoff; ordinary launches clear it first.
+	bool LaunchScenarioInternal(const FYUFSScenarioConfig& Config);
 
 	TWeakObjectPtr<UWorld> BuildingInteractionSetupWorld;
+	TWeakObjectPtr<UWorld> BuildingInteractionReadyWorld;
 };

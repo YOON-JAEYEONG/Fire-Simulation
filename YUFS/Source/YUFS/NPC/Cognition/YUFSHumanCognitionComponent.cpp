@@ -3,6 +3,7 @@
 #include "Core/YUFSDeterministicRng.h"
 #include "Core/YUFSObservation.h"
 #include "NPC/Cognition/YUFSBehaviorPolicy.h"
+#include "UObject/UnrealType.h"
 
 namespace
 {
@@ -24,7 +25,8 @@ UYUFSHumanCognitionComponent::UYUFSHumanCognitionComponent()
 
 void UYUFSHumanCognitionComponent::Initialize(
 	int32 StableNpcId,
-	FYUFSDeterministicRngSet& RandomSource)
+	FYUFSDeterministicRngSet& RandomSource,
+	const FYUFSHumanTraits* Overrides, const TSet<FName>* OverrideFields)
 {
 	if (PolicyAsset)
 	{
@@ -54,6 +56,11 @@ void UYUFSHumanCognitionComponent::Initialize(
 		Traits.HabitStrength = Jitter(Traits.HabitStrength);
 	}
 
+	if (Overrides && OverrideFields)
+	{
+		for (TFieldIterator<FProperty> Field(FYUFSHumanTraits::StaticStruct()); Field; ++Field)
+			if (OverrideFields->Contains(Field->GetFName())) Field->CopyCompleteValue_InContainer(&Traits, Overrides);
+	}
 	CognitiveState = FYUFSCognitiveState{};
 	CognitiveState.NormalcyBias = Traits.HabitStrength;
 	CognitiveState.LastEvidenceTrigger = TEXT("Initialized");

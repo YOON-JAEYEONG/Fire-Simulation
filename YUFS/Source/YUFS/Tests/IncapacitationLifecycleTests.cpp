@@ -130,7 +130,7 @@ bool FYUFSIncapacitationReplayTest::RunTest(const FString&)
     Single=F.NPC->GetMesh()->GetSingleNodeInstance();
     TestFalse(TEXT("Recorded incapacitated actor remains visible"),F.NPC->IsHidden());
     TestFalse(TEXT("Visible replay body retains the live terminal no-collision policy"),F.NPC->GetActorEnableCollision());
-    TestEqual(TEXT("Review restores the actual collapse clip"),Single->GetAnimationAsset(),Terminal.AnimationClip.Get());
+    TestEqual(TEXT("Review restores the actual collapse clip"),Single->GetAnimationAsset(),Cast<UAnimationAsset>(Terminal.AnimationAssetPath.ResolveObject()));
     TestTrue(TEXT("Review restores the exact collapse cursor"),FMath::IsNearlyEqual(Single->GetCurrentTime(),.4f,.001f));
     F.NPC->Tick(.3f);
     TestTrue(TEXT("Review actor tick does not advance or override the terminal pose"),FMath::IsNearlyEqual(Single->GetCurrentTime(),.4f,.001f) && !Single->IsPlaying());
@@ -149,7 +149,7 @@ bool FYUFSIncapacitationExternalTest::RunTest(const FString&)
     TestFalse(TEXT("External motion owner also retains a visible resident"),F.NPC->IsHidden());
     TestEqual(TEXT("Native resolution never replaces the external animation mode"),F.NPC->GetMesh()->GetAnimationMode(),Mode);
     TestEqual(TEXT("External owner keeps its animation asset"),F.NPC->GetMesh()->GetSingleNodeInstance()->GetAnimationAsset(),Clip);
-    TestNull(TEXT("External driver is not misrecorded as an owned native clip"),F.NPC->BuildTimelineSnapshot().AnimationClip.Get());
+    TestFalse(TEXT("External driver is not misrecorded as an owned native clip"),F.NPC->BuildTimelineSnapshot().bHasAnimationState);
     TestFalse(TEXT("External animation ownership does not keep live navigation running"),F.NPC->GetNavigator()->IsComponentTickEnabled());
     return true;
 }
