@@ -1,0 +1,2899 @@
+{
+  "mode": "Rendered saved Main PIE: default4 movers/progressing fire; unfamiliar upstairs explorer/fixed0 with pause and explicit nearby guide; ground-floor visual exit discovery. Temporary runtime fixtures only.",
+  "runs": [
+    {
+      "case": 0,
+      "exits": [
+        {
+          "id": "MainEntrance",
+          "entry": true,
+          "xyz": [
+            2150.0,
+            -20.0,
+            0.0
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 0.5470467805862427,
+          "frame": 4,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1140.0,
+                -300.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1140.000 Y=-300.000 Z=440.150 eye=X=1140.000 Y=-300.000 Z=504.150 binFrame=4 cell=X=32.562 Y=10.114 Z=15.523 index=34135 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1387.0,
+                -450.0,
+                440.15001058365965
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1387.000 Y=-450.000 Z=440.150 eye=X=1387.000 Y=-450.000 Z=504.150 binFrame=4 cell=X=38.995 Y=14.375 Z=15.523 index=40575 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=3 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=38.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=4 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=3 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=85.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=4 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=3 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=505.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 1.2286972999572754,
+          "frame": 9,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1140.0,
+                -300.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1140.000 Y=-300.000 Z=440.150 eye=X=1140.000 Y=-300.000 Z=504.150 binFrame=9 cell=X=32.562 Y=10.114 Z=15.523 index=34135 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=7 self=0.0000 front=0.0182 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=387.66 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1387.0,
+                -450.0,
+                440.15001058365965
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1387.000 Y=-450.000 Z=440.150 eye=X=1387.000 Y=-450.000 Z=504.150 binFrame=9 cell=X=38.995 Y=14.375 Z=15.523 index=40575 rawSmokeHeat=28/0 eyeStatus=Ready eyeSmoke=0.1098 perceptionFrame=7 self=0.0000 front=0.1464 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=51.58 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=9 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=7 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=85.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=9 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=7 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=505.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 2.0010592937469482,
+          "frame": 16,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1222.0239159570147,
+                -477.9952184330464,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1222.024 Y=-477.995 Z=440.150 eye=X=1222.024 Y=-477.995 Z=504.150 binFrame=16 cell=X=34.699 Y=15.170 Z=15.523 index=36355 rawSmokeHeat=254/4 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=15 self=0.9961 front=0.9932 above=0.9932 pathMaxSmoke=0.9961 pathMaxHeat=0.0784 nav=Moving failure=None state=Evacuating exposure=0.0055 alarm=0 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=0.3462 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1387.0,
+                -722.9879804324198,
+                440.15001058365965
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1387.000 Y=-722.988 Z=440.150 eye=X=1387.000 Y=-722.988 Z=504.150 binFrame=16 cell=X=38.995 Y=22.130 Z=15.523 index=40735 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=15 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0071 alarm=0 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=16 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=15 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=85.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=16 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=15 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=505.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 3.001547336578369,
+          "frame": 24,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1468.6174246073774,
+                -876.1707805241526,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1468.617 Y=-876.171 Z=440.150 eye=X=1468.617 Y=-876.171 Z=504.150 binFrame=24 cell=X=41.120 Y=26.482 Z=15.523 index=43995 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=23 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0130 alarm=0 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1752.9635641479395,
+                -963.6301593188972,
+                440.15001058365965
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1752.964 Y=-963.630 Z=440.150 eye=X=1752.964 Y=-963.630 Z=504.150 binFrame=24 cell=X=48.525 Y=28.967 Z=15.523 index=51455 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=23 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0063 alarm=0 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=816.67 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=24 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=23 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=102.26 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=24 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=23 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=505.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 4.002321243286133,
+          "frame": 32,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1940.8135193248052,
+                -1031.9899917084535,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1940.814 Y=-1031.990 Z=440.150 eye=X=1940.814 Y=-1031.990 Z=504.150 binFrame=32 cell=X=53.417 Y=30.909 Z=15.523 index=56795 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=31 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0122 alarm=0 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=634.40 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2192.8532033959636,
+                -1182.7290252366547,
+                440.15001058365965
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2192.853 Y=-1182.729 Z=440.150 eye=X=2192.853 Y=-1182.729 Z=504.150 binFrame=32 cell=X=59.981 Y=35.191 Z=15.523 index=63255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=31 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0055 alarm=0 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=655.28 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=32 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=31 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=85.61 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=32 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=31 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=505.05 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 5.005649566650391,
+          "frame": 40,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                2208.8059337065915,
+                -1388.990602341826,
+                332.5704498269763
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2208.806 Y=-1388.991 Z=332.570 eye=X=2208.806 Y=-1388.991 Z=396.570 binFrame=40 cell=X=60.396 Y=41.051 Z=12.282 index=64432 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=39 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0114 alarm=1 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=440.14 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2071.4432425936475,
+                -1334.2926710953634,
+                265.1499929406848
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2071.443 Y=-1334.293 Z=265.150 eye=X=2071.443 Y=-1334.293 Z=329.150 binFrame=40 cell=X=56.819 Y=39.497 Z=10.252 index=60150 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=39 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0047 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=40 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=39 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=88.24 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=40 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=39 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=608.62 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 6.006396293640137,
+          "frame": 48,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                2044.9910394734695,
+                -1127.8431260951531,
+                167.57585954453612
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2044.991 Y=-1127.843 Z=167.576 eye=X=2044.991 Y=-1127.843 Z=231.576 binFrame=48 cell=X=56.130 Y=33.632 Z=7.313 index=60027 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=47 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0106 alarm=1 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                1983.022934450336,
+                -850.1138396257838,
+                90.14999961640501
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1983.023 Y=-850.114 Z=90.150 eye=X=1983.023 Y=-850.114 Z=154.150 binFrame=48 cell=X=54.516 Y=25.742 Z=4.980 index=57744 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=47 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=48 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=47 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=95.76 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=48 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=47 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 7.001540184020996,
+          "frame": 56,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                2027.5812048304426,
+                -647.6450743133621,
+                90.14999770905638
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2027.581 Y=-647.645 Z=90.150 eye=X=2027.581 Y=-647.645 Z=154.150 binFrame=56 cell=X=55.677 Y=19.990 Z=4.980 index=58684 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=55 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0098 alarm=1 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2088.210479721825,
+                -359.26395480942267,
+                90.14999961640501
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2088.210 Y=-359.264 Z=90.150 eye=X=2088.210 Y=-359.264 Z=154.150 binFrame=56 cell=X=57.255 Y=11.797 Z=4.980 index=60644 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=55 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0031 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=56 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=55 self=0.0000 front=0.0035 above=0.0353 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=119.26 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=56 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=55 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=627.16 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 8.002043724060059,
+          "frame": 64,
+          "evacuated": 1,
+          "npcs": [
+            {
+              "xyz": [
+                2086.8062806823405,
+                -149.46704387347916,
+                90.14999770905638
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2086.806 Y=-149.467 Z=90.150 eye=X=2086.806 Y=-149.467 Z=154.150 binFrame=64 cell=X=57.219 Y=5.837 Z=4.980 index=60524 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=63 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0090 alarm=1 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=64 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=64 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=63 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=114.35 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=64 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=63 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=505.32 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 9.003049850463867,
+          "frame": 72,
+          "evacuated": 2,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=72 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=72 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=72 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=71 self=0.0000 front=0.0138 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=91.94 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=72 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=71 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 10.007696151733398,
+          "frame": 80,
+          "evacuated": 2,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=80 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=80 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                1700.0,
+                -650.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1700.000 Y=-650.000 Z=440.150 eye=X=1700.000 Y=-650.000 Z=504.150 binFrame=80 cell=X=47.146 Y=20.057 Z=15.523 index=50235 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=79 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=85.92 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=80 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=79 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=679.87 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 11.000191688537598,
+          "frame": 88,
+          "evacuated": 2,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=88 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=88 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                1940.5697478770826,
+                -993.6236189982765,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1940.570 Y=-993.624 Z=440.150 eye=X=1940.570 Y=-993.624 Z=504.150 binFrame=88 cell=X=53.411 Y=29.819 Z=15.523 index=56775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=87 self=0.0039 front=0.0039 above=0.7908 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=729.62 sightTransmission=0.9985 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=88 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=87 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=547.90 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 12.00097942352295,
+          "frame": 96,
+          "evacuated": 2,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=96 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=96 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2190.2267726727073,
+                -1458.9965788510838,
+                286.8184452035632
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2190.227 Y=-1458.997 Z=286.818 eye=X=2190.227 Y=-1458.997 Z=350.818 binFrame=96 cell=X=59.912 Y=43.040 Z=10.904 index=63410 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=95 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=410.62 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=96 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=95 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=525.41 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 13.001715660095215,
+          "frame": 104,
+          "evacuated": 2,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=104 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=104 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2002.481810125332,
+                -988.1722383455403,
+                90.15000009324217
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2002.482 Y=-988.172 Z=90.150 eye=X=2002.482 Y=-988.172 Z=154.150 binFrame=104 cell=X=55.023 Y=29.664 Z=4.980 index=58884 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=103 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=802.60 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            },
+            {
+              "xyz": [
+                2000.0,
+                -500.0,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2000.000 Y=-500.000 Z=440.150 eye=X=2000.000 Y=-500.000 Z=504.150 binFrame=104 cell=X=54.958 Y=15.795 Z=15.523 index=57555 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=103 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=689.54 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 14.002321243286133,
+          "frame": 112,
+          "evacuated": 2,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=112 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=112 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2073.731631564568,
+                -402.4271701321025,
+                90.15000009324217
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2073.732 Y=-402.427 Z=90.150 eye=X=2073.732 Y=-402.427 Z=154.150 binFrame=112 cell=X=56.878 Y=13.023 Z=4.980 index=59624 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=111 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2023.9672885087364,
+                -586.3527306564808,
+                440.150008676311
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2023.967 Y=-586.353 Z=440.150 eye=X=2023.967 Y=-586.353 Z=504.150 binFrame=112 cell=X=55.582 Y=18.249 Z=15.523 index=58675 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=111 self=0.0000 front=0.5377 above=0.8219 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=0.9962 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 15.003076553344727,
+          "frame": 120,
+          "evacuated": 3,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=120 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=120 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=120 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2121.8964305316886,
+                -1086.0311940399092,
+                440.1500084672042
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2121.896 Y=-1086.031 Z=440.150 eye=X=2121.896 Y=-1086.031 Z=504.150 binFrame=120 cell=X=58.133 Y=32.444 Z=15.523 index=62135 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=119 self=0.0000 front=0.0000 above=0.7300 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=890.58 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 16.00417137145996,
+          "frame": 128,
+          "evacuated": 3,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=128 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=128 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=128 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2057.525725828965,
+                -1352.4140941001237,
+                265.15001943445884
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2057.526 Y=-1352.414 Z=265.150 eye=X=2057.526 Y=-1352.414 Z=329.150 binFrame=128 cell=X=56.456 Y=40.012 Z=10.252 index=60170 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=127 self=0.0000 front=0.0000 above=0.6929 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 17.005027770996094,
+          "frame": 136,
+          "evacuated": 3,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=136 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=136 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=136 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                1996.5666818120244,
+                -732.0173094116844,
+                90.15000369883262
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                2150.0,
+                -20.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=1996.567 Y=-732.017 Z=90.150 eye=X=1996.567 Y=-732.017 Z=154.150 binFrame=136 cell=X=54.869 Y=22.387 Z=4.980 index=57684 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=135 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 18.006120681762695,
+          "frame": 144,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=144 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=144 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=144 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=144 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 19.00739860534668,
+          "frame": 152,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=152 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=152 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=152 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=152 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 20.000158309936523,
+          "frame": 160,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=160 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=160 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=160 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=160 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 21.001279830932617,
+          "frame": 168,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=168 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=168 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=168 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=168 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 22.001956939697266,
+          "frame": 176,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=176 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=176 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=176 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=176 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 23.003074645996094,
+          "frame": 184,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=184 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=184 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=184 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=184 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 24.00421142578125,
+          "frame": 192,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=192 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=192 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=192 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=192 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 25.00524139404297,
+          "frame": 200,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=200 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=200 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=200 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=200 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        },
+        {
+          "label": "default_end",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 25.00524139404297,
+          "frame": 200,
+          "evacuated": 4,
+          "npcs": [
+            {
+              "xyz": [
+                2081.483247077516,
+                -115.21294861535843,
+                90.14999770905638
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2081.483 Y=-115.213 Z=90.150 eye=X=2081.483 Y=-115.213 Z=154.150 binFrame=200 cell=X=57.080 Y=4.864 Z=4.980 index=60504 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0089 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2136.6436107026943,
+                -137.23014869204363,
+                90.14999961640501
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2136.644 Y=-137.230 Z=90.150 eye=X=2136.644 Y=-137.230 Z=154.150 binFrame=200 cell=X=58.517 Y=5.489 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0027 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.960718744762,
+                -136.08570504920795,
+                90.15000009324217
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2135.961 Y=-136.086 Z=90.150 eye=X=2135.961 Y=-136.086 Z=154.150 binFrame=200 cell=X=58.499 Y=5.457 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            },
+            {
+              "xyz": [
+                2135.4029309323278,
+                -138.01265732836845,
+                90.15000369883262
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=2135.403 Y=-138.013 Z=90.150 eye=X=2135.403 Y=-138.013 Z=154.150 binFrame=200 cell=X=58.484 Y=5.512 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+            }
+          ]
+        }
+      ],
+      "displacement_cm": [
+        1021.2918128027452,
+        884.4718936357742,
+        759.3876854751908,
+        521.4103886995049
+      ]
+    },
+    {
+      "case": 1,
+      "exits": [
+        {
+          "id": "MainEntrance",
+          "entry": true,
+          "xyz": [
+            2150.0,
+            -20.0,
+            0.0
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 0.4108489155769348,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1100.0,
+                -850.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1100.000 Y=-850.000 Z=440.150 eye=X=1100.000 Y=-850.000 Z=504.150 binFrame=0 cell=X=31.521 Y=25.739 Z=15.523 index=33375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 1.0055696964263916,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1100.0,
+                -850.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1100.000 Y=-850.000 Z=440.150 eye=X=1100.000 Y=-850.000 Z=504.150 binFrame=0 cell=X=31.521 Y=25.739 Z=15.523 index=33375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=412.63 sightTransmission=1.0000 sightDataComplete=1 knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 2.0056231021881104,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1100.0,
+                -850.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1100.000 Y=-850.000 Z=440.150 eye=X=1100.000 Y=-850.000 Z=504.150 binFrame=0 cell=X=31.521 Y=25.739 Z=15.523 index=33375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=717.15 sightTransmission=1.0000 sightDataComplete=1 knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 3.0068607330322266,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1100.0,
+                -850.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1100.000 Y=-850.000 Z=440.150 eye=X=1100.000 Y=-850.000 Z=504.150 binFrame=0 cell=X=31.521 Y=25.739 Z=15.523 index=33375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=1 knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 4.008233070373535,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1100.0,
+                -850.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1100.000 Y=-850.000 Z=440.150 eye=X=1100.000 Y=-850.000 Z=504.150 binFrame=0 cell=X=31.521 Y=25.739 Z=15.523 index=33375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=389.41 sightTransmission=1.0000 sightDataComplete=1 knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0"
+            }
+          ]
+        },
+        {
+          "label": "progress",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 5.007838249206543,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1100.0,
+                -850.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1100.000 Y=-850.000 Z=440.150 eye=X=1100.000 Y=-850.000 Z=504.150 binFrame=0 cell=X=31.521 Y=25.739 Z=15.523 index=33375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=458.32 sightTransmission=1.0000 sightDataComplete=1 knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0"
+            }
+          ]
+        },
+        {
+          "label": "search_pause_start",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 5.805331230163574,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1100.0,
+                -850.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": true,
+              "has_target": true,
+              "queries": 8,
+              "knowledge": "knownExits=0 searchingExit=1 searchTarget=1 searchQueries=8",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1100.000 Y=-850.000 Z=440.150 eye=X=1100.000 Y=-850.000 Z=504.150 binFrame=0 cell=X=31.521 Y=25.739 Z=15.523 index=33375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=447.14 sightTransmission=1.0000 sightDataComplete=1 knownExits=0 searchingExit=1 searchTarget=1 searchQueries=8"
+            }
+          ]
+        },
+        {
+          "label": "search_pause_after2s",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 5.805331230163574,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1100.0,
+                -850.0,
+                440.1500091531482
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": true,
+              "has_target": true,
+              "queries": 8,
+              "knowledge": "knownExits=0 searchingExit=1 searchTarget=1 searchQueries=8",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1100.000 Y=-850.000 Z=440.150 eye=X=1100.000 Y=-850.000 Z=504.150 binFrame=0 cell=X=31.521 Y=25.739 Z=15.523 index=33375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=447.14 sightTransmission=1.0000 sightDataComplete=1 knownExits=0 searchingExit=1 searchTarget=1 searchQueries=8"
+            }
+          ]
+        },
+        {
+          "label": "before_explicit_peer_guidance",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 7.006699085235596,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1122.6425023089823,
+                -1030.3848204322005,
+                440.1500092245345
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": true,
+              "has_target": true,
+              "queries": 8,
+              "knowledge": "knownExits=0 searchingExit=1 searchTarget=1 searchQueries=8",
+              "goal": [
+                1128.5958590424123,
+                -1299.430220738907,
+                354.94278096940184
+              ],
+              "animation": "Walking",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1122.643 Y=-1030.385 Z=440.150 eye=X=1122.643 Y=-1030.385 Z=504.150 binFrame=0 cell=X=32.110 Y=30.863 Z=15.523 index=34535 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=788.70 sightTransmission=1.0000 sightDataComplete=0 knownExits=0 searchingExit=1 searchTarget=1 searchQueries=8"
+            }
+          ]
+        },
+        {
+          "label": "peer_guidance_received",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 7.006699085235596,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                1122.6425023089823,
+                -1030.3848204322005,
+                440.1500092245345
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 8,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=8 [MainEntrance:Peer]",
+              "goal": [
+                1128.5958590424123,
+                -1299.430220738907,
+                354.94278096940184
+              ],
+              "animation": "Walking",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1122.643 Y=-1030.385 Z=440.150 eye=X=1122.643 Y=-1030.385 Z=504.150 binFrame=0 cell=X=32.110 Y=30.863 Z=15.523 index=34535 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=788.70 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=8 [MainEntrance:Peer]"
+            }
+          ]
+        },
+        {
+          "label": "guided_end",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 32.004676818847656,
+          "frame": 0,
+          "evacuated": 1,
+          "npcs": [
+            {
+              "xyz": [
+                2135.8422564407615,
+                -136.75481886002456,
+                90.14999781003263
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 8,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=8 [MainEntrance:Seen]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2135.842 Y=-136.755 Z=90.150 eye=X=2135.842 Y=-136.755 Z=154.150 binFrame=0 cell=X=58.496 Y=5.476 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=5 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=8 [MainEntrance:Seen]"
+            }
+          ]
+        }
+      ],
+      "guide_fixture": "Explicit co-located non-colliding stationary speaker; tests message transfer, not autonomous help selection."
+    },
+    {
+      "case": 2,
+      "exits": [
+        {
+          "id": "MainEntrance",
+          "entry": true,
+          "xyz": [
+            2150.0,
+            -20.0,
+            0.0
+          ]
+        }
+      ],
+      "samples": [
+        {
+          "label": "spawn_looking_away",
+          "phase": "<SimPhase.WAITING_TO_START: 0>",
+          "time": 0.0,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                2150.0,
+                -350.0,
+                90.0
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-350.000 Z=90.000 eye=X=2150.000 Y=-350.000 Z=154.000 binFrame=0 cell=X=58.865 Y=11.534 Z=4.976 index=61704 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0"
+            }
+          ]
+        },
+        {
+          "label": "still_looking_away",
+          "phase": "<SimPhase.WAITING_TO_START: 0>",
+          "time": 0.0,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                2150.0,
+                -350.0,
+                90.0
+              ],
+              "hidden": false,
+              "known": 0,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-350.000 Z=90.000 eye=X=2150.000 Y=-350.000 Z=154.000 binFrame=0 cell=X=58.865 Y=11.534 Z=4.976 index=61704 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=0 searchingExit=0 searchTarget=0 searchQueries=0"
+            }
+          ]
+        },
+        {
+          "label": "exit_seen_before_fire",
+          "phase": "<SimPhase.WAITING_TO_START: 0>",
+          "time": 0.0,
+          "frame": 0,
+          "evacuated": 0,
+          "npcs": [
+            {
+              "xyz": [
+                2150.0,
+                -350.0,
+                90.0
+              ],
+              "hidden": false,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Idle",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2150.000 Y=-350.000 Z=90.000 eye=X=2150.000 Y=-350.000 Z=154.000 binFrame=0 cell=X=58.865 Y=11.534 Z=4.976 index=61704 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen]"
+            }
+          ]
+        },
+        {
+          "label": "seen_exit_escape",
+          "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+          "time": 25.001834869384766,
+          "frame": 200,
+          "evacuated": 1,
+          "npcs": [
+            {
+              "xyz": [
+                2193.8986009942364,
+                -126.067022233052,
+                89.99999996570233
+              ],
+              "hidden": true,
+              "known": 1,
+              "searching": false,
+              "has_target": false,
+              "queries": 0,
+              "knowledge": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen]",
+              "goal": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "animation": "Fast_Run",
+              "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2193.899 Y=-126.067 Z=90.000 eye=X=2193.899 Y=-126.067 Z=154.000 binFrame=200 cell=X=60.008 Y=5.172 Z=4.976 index=63704 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen]"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "complete": true
+}

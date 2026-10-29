@@ -1,0 +1,37 @@
+{
+  "date": "2026-10-16",
+  "branch": "codex/merged-navigation-completion",
+  "base": "merge_JJW_Kim_Eung_Gang@83cb710",
+  "build": "Succeeded",
+  "tests": {
+    "passed": 89,
+    "failed": 0,
+    "baseline_failing_cases": [
+      "YUFS.NPC.Integration.PauseFreezesAllOwnedClocks",
+      "YUFS.NPC.Integration.ReviewRestoresActualInteractionClipAndTime",
+      "YUFS.NPC.Integration.ReviewRestoresDoorWithoutOperatingIt",
+      "YUFS.NPC.Integration.ReviewRestoresToolWithoutConsumingOrReserving"
+    ]
+  },
+  "rendered_main": {
+    "complete": true,
+    "event_count": 8,
+    "pause_wall_seconds": 2,
+    "review_pause_wall_seconds": 2,
+    "review_frame_exact_match": true,
+    "reset_phase": "<SimPhase.WAITING_TO_START: 0>",
+    "reset_clock": 0.0,
+    "second_start": {
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "clock": 1.0385669469833374,
+      "frame": 8
+    }
+  },
+  "limits": [
+    "Explicit suppression gesture fixture: not autonomous hazard recognition or physical suppression validation.",
+    "Native single-node motion is recorded. External AnimBP driver is preserved/frozen, not internally rewound.",
+    "0.25 second snapshots, nearest frame; no smooth interpolation or restart from historical AI state.",
+    "Rendered command returned1 with existing startup errors and RiderLink shutdown socket output; complete JSON and normal editor shutdown confirmed.",
+    "No map/assets/raw hazard data, physiological thresholds, exit-count policy or timeline default length changed. No commit/push."
+  ]
+}

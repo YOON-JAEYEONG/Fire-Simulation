@@ -1,0 +1,78 @@
+{
+  "source": "/Game/Fires/Fire/SparseVolumeMaterial_Inst.SparseVolumeMaterial_Inst",
+  "parent": "/Game/Fires/Material/SparseVolumeMaterial.SparseVolumeMaterial",
+  "materials": [
+    {
+      "path": "/Game/Fires/Audit0928/MI_Fire1.MI_Fire1",
+      "texture": "/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1",
+      "settings": {
+        "Albedo Scale": "0.18000000715255737",
+        "Density Scale": "1.0",
+        "Blackbody Temperature Scale": "4500.0",
+        "Density Clamp Min": "0.0",
+        "Density Clamp Max": "1.0",
+        "Temperature Clamp Min": "0.0",
+        "Temperature Clamp Max": "1.0",
+        "Blackbody Scale": "1.0",
+        "Temperature Scale": "1.0",
+        "Albedo Color": "<Struct 'LinearColor' (0x00000286C3196D60) {r: 1.000000, g: 1.000000, b: 1.000000, a: 0.000000}>",
+        "Blackbody Tint": "<Struct 'LinearColor' (0x00000286C3195C20) {r: 1.000000, g: 1.000000, b: 1.000000, a: 0.200000}>",
+        "Temperature Color": "<Struct 'LinearColor' (0x00000286C3197160) {r: 1.000000, g: 0.165217, b: 0.000000, a: 0.173913}>",
+        "Use Blackbody Temperature": "False",
+        "Density (Attributes A)": "True",
+        "Temperature (Attributes B)": "True",
+        "Clamp SVT Density": "False",
+        "Clamp SVT Temperature": "False"
+      },
+      "saved": true
+    },
+    {
+      "path": "/Game/Fires/Audit0928/MI_Fire2.MI_Fire2",
+      "texture": "/Game/Fires/Audit0928/fire_it_test_2.fire_it_test_2",
+      "settings": {
+        "Albedo Scale": "0.18000000715255737",
+        "Density Scale": "1.0",
+        "Blackbody Temperature Scale": "4500.0",
+        "Density Clamp Min": "0.0",
+        "Density Clamp Max": "1.0",
+        "Temperature Clamp Min": "0.0",
+        "Temperature Clamp Max": "1.0",
+        "Blackbody Scale": "1.0",
+        "Temperature Scale": "1.0",
+        "Albedo Color": "<Struct 'LinearColor' (0x00000286C3195860) {r: 1.000000, g: 1.000000, b: 1.000000, a: 0.000000}>",
+        "Blackbody Tint": "<Struct 'LinearColor' (0x00000286C3195EE0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 0.200000}>",
+        "Temperature Color": "<Struct 'LinearColor' (0x00000286C31961A0) {r: 1.000000, g: 0.165217, b: 0.000000, a: 0.173913}>",
+        "Use Blackbody Temperature": "False",
+        "Density (Attributes A)": "True",
+        "Temperature (Attributes B)": "True",
+        "Clamp SVT Density": "False",
+        "Clamp SVT Temperature": "False"
+      },
+      "saved": true
+    },
+    {
+      "path": "/Game/Fires/Audit0928/MI_Fire3.MI_Fire3",
+      "texture": "/Game/Fires/Audit0928/fire__it_test_3.fire__it_test_3",
+      "settings": {
+        "Albedo Scale": "0.18000000715255737",
+        "Density Scale": "1.0",
+        "Blackbody Temperature Scale": "4500.0",
+        "Density Clamp Min": "0.0",
+        "Density Clamp Max": "1.0",
+        "Temperature Clamp Min": "0.0",
+        "Temperature Clamp Max": "1.0",
+        "Blackbody Scale": "1.0",
+        "Temperature Scale": "1.0",
+        "Albedo Color": "<Struct 'LinearColor' (0x00000286C3196EE0) {r: 1.000000, g: 1.000000, b: 1.000000, a: 0.000000}>",
+        "Blackbody Tint": "<Struct 'LinearColor' (0x00000286C3197320) {r: 1.000000, g: 1.000000, b: 1.000000, a: 0.200000}>",
+        "Temperature Color": "<Struct 'LinearColor' (0x00000286C3197020) {r: 1.000000, g: 0.165217, b: 0.000000, a: 0.173913}>",
+        "Use Blackbody Temperature": "False",
+        "Density (Attributes A)": "True",
+        "Temperature (Attributes B)": "True",
+        "Clamp SVT Density": "False",
+        "Clamp SVT Temperature": "False"
+      },
+      "saved": true
+    }
+  ]
+}

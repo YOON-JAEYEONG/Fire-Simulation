@@ -1,5 +1,13 @@
 #include "Fire/YUFSHazardField.h"
 
+bool FYUFSHazardSnapshot::IsObservedAt(const FVector& P) const
+{
+	const int32 Index = CellIndex(P);
+	if (Status != EYUFSHazardDataStatus::Ready || Index == INDEX_NONE) return false;
+	if (!KnownCells.IsValid()) return true;
+	return ObservedCells.IsValid() && ObservedCells->Contains(Index);
+}
+
 FYUFSHazardSample FYUFSHazardSnapshot::Sample(const FVector& WorldLocation) const
 {
 	FYUFSHazardSample Result;
@@ -42,17 +50,17 @@ FYUFSHazardSample FYUFSHazardSnapshot::Sample(const FVector& WorldLocation) cons
 
 namespace
 {
-	FYUFSHazardSample SampleBody(const FYUFSHazardSnapshot& Field, const FVector& Feet, float Height)
+	FYUFSHazardSample SampleBody(const FYUFSHazardSnapshot& Field, const FVector& Feet, const FYUFSHazardSettings& Settings)
 	{
-		auto Value = Field.Sample(Feet + FVector(0, 0, Height));
+		auto Value = Field.Sample(Feet + FVector(0, 0, Settings.SampleHeightCm));
 		// Ground fire and smoke at breathing height both matter.
-		for (const float Z : {FMath::Min(20.f, Height), Height * 0.5f})
+		Settings.ForEachBodyProbe([&](float Z, bool bHeatOnly)
 		{
 			const auto Other = Field.Sample(Feet + FVector(0, 0, Z));
-			Value.Smoke = FMath::Max(Value.Smoke, Other.Smoke);
+			if (!bHeatOnly) Value.Smoke = FMath::Max(Value.Smoke, Other.Smoke);
 			Value.Heat = FMath::Max(Value.Heat, Other.Heat);
 			if (Other.Status == EYUFSHazardDataStatus::Ready) Value.Status = Other.Status;
-		}
+		});
 		return Value;
 	}
 	int32 SampleCount(const FVector& A, const FVector& B, const FYUFSHazardSettings& Settings)
@@ -73,7 +81,7 @@ float FYUFSHazardSnapshot::SegmentAddedCost(const FVector& Start, const FVector&
 	float Sum = 0.f;
 	for (int32 I = 0; I < Count; ++I)
 	{
-		const auto Value = SampleBody(*this, FMath::Lerp(Start, End, (I + 0.5f) / Count), Settings.SampleHeightCm);
+		const auto Value = SampleBody(*this, FMath::Lerp(Start, End, (I + 0.5f) / Count), Settings);
 		Sum += Penalty(Value, Settings);
 	}
 	return FVector::Distance(Start, End) * Sum / Count;
@@ -95,7 +103,7 @@ FYUFSHazardPathScore FYUFSHazardSnapshot::ScorePath(const TArray<FVector>& Floor
 		const int32 Count = SampleCount(A, B, Settings);
 		for (int32 I = 0; I <= Count; ++I)
 		{
-			const auto Value = SampleBody(*this, FMath::Lerp(A, B, static_cast<float>(I) / Count), Settings.SampleHeightCm);
+			const auto Value = SampleBody(*this, FMath::Lerp(A, B, static_cast<float>(I) / Count), Settings);
 			Score.OutsideSamples += Value.Status == EYUFSHazardDataStatus::OutsideDomain ? 1 : 0;
 			Score.MaxSmoke = FMath::Max(Score.MaxSmoke, Value.Smoke);
 			Score.MaxHeat = FMath::Max(Score.MaxHeat, Value.Heat);

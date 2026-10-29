@@ -10,7 +10,7 @@ class AYUFSHeterogeneousVolume;
 class AYUFSEvacuationNPC;
 
 /**
- * 화재 시작 후 지정 시간까지의 시뮬레이션 결과를 최소 정보로 기록하고,
+ * 카운트다운부터 종료까지 매 시뮬레이션 프레임의 표시 상태를 기록하고,
  * 기록 종료 후 관찰 모드에서 시간 이동/재생/일시정지를 담당합니다.
  */
 UCLASS(ClassGroup=(YUFS), meta=(BlueprintSpawnableComponent))
@@ -25,10 +25,11 @@ public:
 
 	// 기록 시작/종료 ---------------------------------------------------------
 	void BeginRecording(float InTargetFireTimeSeconds, float InRecordIntervalSeconds);
+	void LoadRecording(const TArray<FYUFSTimelineFrame>& Frames);
 	void StopRecording();
 	bool IsRecording() const { return bRecording; }
 
-	// FireActive 단계에서 SimulationController가 호출합니다.
+	// Countdown/FireActive 단계에서 SimulationController가 호출합니다.
 	void TickRecording(
 		float DeltaTime,
 		float FireElapsedTime,
@@ -51,6 +52,9 @@ public:
 	float GetCurrentReviewFireTime() const { return CurrentReviewFireTime; }
 
 	UFUNCTION(BlueprintPure, Category="YUFS|Timeline")
+	float GetMinRecordedFireTime() const;
+
+	UFUNCTION(BlueprintPure, Category="YUFS|Timeline")
 	float GetMaxRecordedFireTime() const;
 
 	UFUNCTION(BlueprintPure, Category="YUFS|Timeline")
@@ -58,8 +62,19 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="YUFS|Timeline")
 	int32 GetRecordedFrameCount() const { return RecordedFrames.Num(); }
+	// Read-only diagnostics of the exact frame currently displayed (not live AI state).
+	UFUNCTION(BlueprintPure, Category="YUFS|Timeline|Diagnostics")
+	FYUFSTimelineFrame GetCurrentReviewFrameSnapshot() const
+	{
+		return LastAppliedReviewFrame ? *LastAppliedReviewFrame : FYUFSTimelineFrame();
+	}
+
+	int32 GetCurrentEvacuatedCount() const { return CurrentEvacuatedCount; }
+	int32 GetCurrentIncapacitatedCount() const { return CurrentIncapacitatedCount; }
 
 	const TArray<FYUFSTimelineFrame>& GetRecordedFrames() const { return RecordedFrames; }
+	// Native presentation readers avoid copying all NPC/prop snapshots every HUD binding.
+	const FYUFSTimelineFrame* GetCurrentReviewFrame() const { return LastAppliedReviewFrame; }
 
 private:
 	UPROPERTY()
@@ -73,14 +88,12 @@ private:
 
 	bool bRecording = false;
 	bool bReviewPlaying = false;
+	bool bRestartReviewOnNextTick = false;
 
-	float TargetFireTimeSeconds = 0.f;
-	float RecordIntervalSeconds = 0.25f;
-	float TimeSinceLastRecord = 0.f;
 	float CurrentReviewFireTime = 0.f;
-
-	// 리뷰 재생은 표시 프레임보다 자주 Tick될 수 있다. 같은 기록 프레임을
-	// 반복 적용하면 모든 NPC의 렌더 상태와 Ray Tracing Scene을 불필요하게 갱신한다.
+	int32 CurrentEvacuatedCount = 0;
+	int32 CurrentIncapacitatedCount = 0;
+	// Points into RecordedFrames; reset whenever that array is replaced or rebuilt.
 	const FYUFSTimelineFrame* LastAppliedReviewFrame = nullptr;
 
 	void CaptureFrame(
@@ -90,6 +103,10 @@ private:
 		int32 EvacuatedCount,
 		int32 IncapacitatedCount);
 
-	const FYUFSTimelineFrame* FindNearestFrame(float TargetFireTime) const;
-	void ApplyFrame(const FYUFSTimelineFrame& Frame, const TArray<AYUFSEvacuationNPC*>& NPCs);
+	void FindBracketingFrames(float TargetFireTime, int32& OutLowerIndex, int32& OutUpperIndex) const;
+	void ApplyFrames(
+		const FYUFSTimelineFrame& LowerFrame,
+		const FYUFSTimelineFrame& UpperFrame,
+		float Alpha,
+		const TArray<AYUFSEvacuationNPC*>& NPCs);
 };

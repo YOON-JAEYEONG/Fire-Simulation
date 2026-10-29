@@ -1,0 +1,24 @@
+{
+  "required_build": {
+    "exit": 0,
+    "output": "Project: C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-1008\\YUFS\\YUFS.uproject\r\nBranch: codex/merged-navigation-completion\r\nCommit: 83cb71030d7196fe8a9c6460504cb83aae4277c2\r\nPASS: required maps, visual assets and three BIN files are present in THIS checkout.\r\n"
+  },
+  "wrong_commit": {
+    "exit": 1,
+    "output": ""
+  },
+  "wrong_branch": {
+    "exit": 1,
+    "output": ""
+  },
+  "Build-And-Launch-YUFS-Safe.cmd": {
+    "exit": 0,
+    "output": "Project: C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-1008\\YUFS\\YUFS.uproject\r\nBranch: codex/merged-navigation-completion\r\nCommit: 83cb71030d7196fe8a9c6460504cb83aae4277c2\r\nPASS: required maps, visual assets and three BIN files are present in THIS checkout.\r\n",
+    "error": ""
+  },
+  "Launch-YUFS-Safe.cmd": {
+    "exit": 0,
+    "output": "Project: C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-1008\\YUFS\\YUFS.uproject\r\nBranch: codex/merged-navigation-completion\r\nCommit: 83cb71030d7196fe8a9c6460504cb83aae4277c2\r\nPASS: required maps, visual assets and three BIN files are present in THIS checkout.\r\n",
+    "error": ""
+  }
+}

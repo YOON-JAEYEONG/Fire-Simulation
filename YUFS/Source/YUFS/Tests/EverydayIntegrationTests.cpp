@@ -68,10 +68,15 @@ bool FEverydayPauseReplayTest::RunTest(const FString&)
 {
     FEverydayFixture F;
     F.Npc->Tick(.1f);
-    TestTrue(TEXT("Waiting retains CYW everyday activity"), FYUFSEverydayIntegrationTestAccess::IsEverydayActive(F.Npc));
+	TestFalse(TEXT("Waiting keeps everyday activity stopped before Start"), FYUFSEverydayIntegrationTestAccess::IsEverydayActive(F.Npc));
+	TestEqual(TEXT("Waiting keeps NPC movement speed at zero"), F.Npc->GetCharacterMovement()->MaxWalkSpeed, 0.f);
+	TestEqual(TEXT("Waiting disables physical movement and collision depenetration before Start"),
+		F.Npc->GetCharacterMovement()->MovementMode.GetValue(), MOVE_None);
+	F.Controller->StartSimulation();
+	F.Npc->Tick(.1f);
+	TestTrue(TEXT("Start enables CYW everyday activity"), FYUFSEverydayIntegrationTestAccess::IsEverydayActive(F.Npc));
     TestEqual(TEXT("Everyday walking speed is preserved"), F.Npc->GetCharacterMovement()->MaxWalkSpeed, F.Npc->EverydayWalkSpeedCmPerSecond);
     TestEqual(TEXT("Everyday movement is not an evacuation policy action"), F.Npc->GetLastAction(), EYUFSAction::Idle);
-    F.Controller->StartSimulation();
     F.Controller->PauseSimulation();
     F.Npc->Tick(.1f);
     TestFalse(TEXT("Pause stops everyday movement"), FYUFSEverydayIntegrationTestAccess::IsEverydayActive(F.Npc));
@@ -111,6 +116,7 @@ bool FEverydayExternalDriverTest::RunTest(const FString&)
 {
     FEverydayFixture F;
     FYUFSEverydayIntegrationTestAccess::UseExternalNavigation(F.Npc);
+	F.Controller->StartSimulation();
     F.Npc->Tick(.1f);
     TestFalse(TEXT("Native everyday movement does not compete with the external driver"), FYUFSEverydayIntegrationTestAccess::IsEverydayActive(F.Npc));
     return true;
@@ -127,6 +133,7 @@ bool FEverydayNativeAnimationTest::RunTest(const FString&)
     F.Npc->GetMesh()->SetSkeletalMesh(Mesh);
     F.Npc->bUseExternalMotionDriver = false;
     F.Npc->GetActionAnimationComponent()->Initialize(F.Npc->GetMesh(), 37);
+	F.Controller->StartSimulation();
     F.Npc->Tick(.1f);
     F.Npc->GetCharacterMovement()->Velocity = FVector(140, 0, 0);
     FYUFSEverydayIntegrationTestAccess::Animate(F.Npc);

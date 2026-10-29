@@ -1,0 +1,580 @@
+{
+  "assetCount": 82,
+  "dimensionsVerified": true,
+  "assets": [
+    {
+      "file": "Buttons/btn_primary_normal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_primary_hover.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_primary_pressed.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_primary_disabled.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_secondary_normal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_secondary_hover.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_secondary_pressed.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_secondary_disabled.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_nav_normal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_nav_hover.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_nav_pressed.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_nav_disabled.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/btn_nav_selected.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Buttons/nav_selection_bar.png",
+      "width": 8,
+      "height": 64,
+      "cornerAlpha": 255,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/panel_card.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/panel_subcard.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/panel_legend.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/bg_workspace.png",
+      "width": 16,
+      "height": 16,
+      "cornerAlpha": 255,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/bg_sidebar.png",
+      "width": 16,
+      "height": 16,
+      "cornerAlpha": 255,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/bg_header.png",
+      "width": 16,
+      "height": 16,
+      "cornerAlpha": 255,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/bg_table_header.png",
+      "width": 16,
+      "height": 16,
+      "cornerAlpha": 255,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/divider.png",
+      "width": 64,
+      "height": 64,
+      "cornerAlpha": 255,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Panels/technical_grid_tile.png",
+      "width": 256,
+      "height": 256,
+      "cornerAlpha": 44,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_home_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_document_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_history_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_results_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_settings_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_power_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_folder_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_people_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_fire_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_model_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_clock_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_smoke_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_route_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_exit_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_chevron_right_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_minimize_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_maximize_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_close_slate.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_home_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_document_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_history_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_results_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_settings_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_power_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_folder_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_people_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_fire_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_model_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_clock_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_smoke_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_route_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_exit_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_chevron_right_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_minimize_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_maximize_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_close_teal.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_home_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_document_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_history_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_results_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_settings_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_power_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_folder_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_people_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_fire_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_model_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_clock_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_smoke_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_route_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_exit_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_chevron_right_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_minimize_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_maximize_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/ic_close_white.png",
+      "width": 128,
+      "height": 128,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/status_ready.png",
+      "width": 64,
+      "height": 64,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/status_warning.png",
+      "width": 64,
+      "height": 64,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Icons/status_neutral.png",
+      "width": 64,
+      "height": 64,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Brand/logo_yufs.png",
+      "width": 512,
+      "height": 160,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    },
+    {
+      "file": "Illustrations/building-preview.png",
+      "width": 1536,
+      "height": 1024,
+      "cornerAlpha": 0,
+      "pixelFormat": "Format32bppArgb"
+    }
+  ]
+}

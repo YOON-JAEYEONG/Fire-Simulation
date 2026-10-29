@@ -1,0 +1,1220 @@
+﻿{
+	"devices": [
+		{
+			"deviceName": "ACSLAB4",
+			"instance": "5EFCE46C49FD6D69FF5FFCA49DF73EA5",
+			"instanceName": "ACSLAB4-23880",
+			"platform": "WindowsEditor",
+			"oSVersion": "Windows 11 (25H2) [10.0.26200.9457] ",
+			"model": "Default",
+			"gPU": "NVIDIA GeForce GTX 1650",
+			"cPUModel": "AMD Ryzen 7 8700G w/ Radeon 780M Graphics      ",
+			"rAMInGB": 16,
+			"renderMode": "SM6",
+			"rHI": "",
+			"appInstanceLog": ""
+		}
+	],
+	"reportCreatedOn": "2026.09.28-05.37.23",
+	"succeeded": 66,
+	"succeededWithWarnings": 5,
+	"failed": 0,
+	"notRun": 0,
+	"inProcess": 0,
+	"totalDuration": 1.2184175252914429,
+	"comparisonExported": false,
+	"comparisonExportDirectory": "",
+	"tests": [
+		{
+			"testDisplayName": "CompatibleRLPreservesNativeActions",
+			"fullTestPath": "YUFS.NPC.Animation.JJW.CompatibleRLPreservesNativeActions",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.12788760662078857,
+			"dateTime": "2026.09.28-05.37.21",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CustomBindingsAndPhysicalStatesAreChecked",
+			"fullTestPath": "YUFS.NPC.Animation.JJW.CustomBindingsAndPhysicalStatesAreChecked",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.10103300213813782,
+			"dateTime": "2026.09.28-05.37.21",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "IncompatibleDefaultsPreserveOriginalDriver",
+			"fullTestPath": "YUFS.NPC.Animation.JJW.IncompatibleDefaultsPreserveOriginalDriver",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.35529661178588867,
+			"dateTime": "2026.09.28-05.37.21",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ActionMappingCoverage",
+			"fullTestPath": "YUFS.NPC.Animation.ActionMappingCoverage",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0070669017732143402,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ActionTaskLifecycle",
+			"fullTestPath": "YUFS.NPC.Decision.ActionTaskLifecycle",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0084397979080677032,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "BeliefOdds",
+			"fullTestPath": "YUFS.NPC.Decision.BeliefOdds",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.00827769935131073,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DeterministicRng",
+			"fullTestPath": "YUFS.NPC.Decision.DeterministicRng",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0081559009850025177,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "HumanBehaviorSelection",
+			"fullTestPath": "YUFS.NPC.Decision.HumanBehaviorSelection",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0085083991289138794,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "HumanCognitionEvidenceRevision",
+			"fullTestPath": "YUFS.NPC.Decision.HumanCognitionEvidenceRevision",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0083266980946063995,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "IntentDecisionPoint",
+			"fullTestPath": "YUFS.NPC.Decision.IntentDecisionPoint",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082591995596885681,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AlarmDiversityAndDeterminism",
+			"fullTestPath": "YUFS.NPC.Individual.AlarmDiversityAndDeterminism",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0087845996022224426,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "HeatSmokePeersAndIncapacitation",
+			"fullTestPath": "YUFS.NPC.Individual.HeatSmokePeersAndIncapacitation",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082560963928699493,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WallsOccludeHeatAndSmoke",
+			"fullTestPath": "YUFS.NPC.Individual.WallsOccludeHeatAndSmoke",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.01044829934835434,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AlarmHandsOffToJJW",
+			"fullTestPath": "YUFS.NPC.Integration.Everyday.AlarmHandsOffToJJW",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0092529989778995514,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PauseResumeAndReplay",
+			"fullTestPath": "YUFS.NPC.Integration.Everyday.PauseResumeAndReplay",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0096122026443481445,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RespectsExternalNavigation",
+			"fullTestPath": "YUFS.NPC.Integration.Everyday.RespectsExternalNavigation",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0098014995455741882,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WalkingAnimationKeepsIdlePolicy",
+			"fullTestPath": "YUFS.NPC.Integration.Everyday.WalkingAnimationKeepsIdlePolicy",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0099311992526054382,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EmergencyBypassesActionHold",
+			"fullTestPath": "YUFS.NPC.Integration.JJWDecisionBridge.EmergencyBypassesActionHold",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0088895000517368317,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PreparationRejectsLegacyIntentWrites",
+			"fullTestPath": "YUFS.NPC.Integration.JJWDecisionBridge.PreparationRejectsLegacyIntentWrites",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0093480981886386871,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PreservesAuthoritativeHelpingAction",
+			"fullTestPath": "YUFS.NPC.Integration.JJWDecisionBridge.PreservesAuthoritativeHelpingAction",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0092427991330623627,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EvacueeSuppressionLifecycle",
+			"fullTestPath": "YUFS.NPC.Integration.EvacueeSuppressionLifecycle",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.008355800062417984,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ExistingFireDemonstrationContract",
+			"fullTestPath": "YUFS.NPC.Integration.ExistingFireDemonstrationContract",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082626007497310638,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SuppressionProbabilityRatio",
+			"fullTestPath": "YUFS.NPC.Integration.SuppressionProbabilityRatio",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.016982097178697586,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Info",
+						"message": "35 percent policy: 366 / 1000 eligible agents selected suppression",
+						"context": "",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.22"
+				}
+			],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TeamContracts",
+			"fullTestPath": "YUFS.NPC.Integration.TeamContracts",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0085536018013954163,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AssistDirectiveTarget",
+			"fullTestPath": "YUFS.NPC.Interaction.AssistDirectiveTarget",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082127004861831665,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ContinuousDoorHelpEvacuation",
+			"fullTestPath": "YUFS.NPC.Interaction.ContinuousDoorHelpEvacuation",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.010114800184965134,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DoorLifecycle",
+			"fullTestPath": "YUFS.NPC.Interaction.DoorLifecycle",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.00982699915766716,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DoorReservationAndCollision",
+			"fullTestPath": "YUFS.NPC.Interaction.DoorReservationAndCollision",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.011679898947477341,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogSpawn: UWorld::DestroyActor: World has no context! World: Untitled, Actor: /Temp/Untitled_14.Untitled:PersistentLevel.Actor_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.22"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: [YUFS] Phase: FireActive === 🔥 Fire STARTED ===",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.22"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "StartButtonLifecycle",
+			"fullTestPath": "YUFS.NPC.Interaction.StartButtonLifecycle",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0095686018466949463,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: [YUFS] Phase: FireActive === 🔥 Fire STARTED ===",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.22"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MissingDestroyedAndOrigin",
+			"fullTestPath": "YUFS.NPC.Navigation.ExitValidation.MissingDestroyedAndOrigin",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.010052699595689774,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogSpawn: UWorld::DestroyActor: World has no context! World: Untitled, Actor: /Temp/Untitled_16.Untitled:PersistentLevel.YUFSExitPoint_0",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.22"
+				}
+			],
+			"warnings": 1,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ActualDetourChoosesOtherCorridor",
+			"fullTestPath": "YUFS.NPC.Navigation.Hazard.ActualDetourChoosesOtherCorridor",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0080156996846199036,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PersonalKnowledgeAndMemory",
+			"fullTestPath": "YUFS.NPC.Navigation.Hazard.PersonalKnowledgeAndMemory",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0096827000379562378,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "SmokeHeatAndEscape",
+			"fullTestPath": "YUFS.NPC.Navigation.Hazard.SmokeHeatAndEscape",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0080613978207111359,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "StreamingSnapshotIsolation",
+			"fullTestPath": "YUFS.NPC.Navigation.Hazard.StreamingSnapshotIsolation",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0092841982841491699,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TransformAndFloors",
+			"fullTestPath": "YUFS.NPC.Navigation.Hazard.TransformAndFloors",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0084202997386455536,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CancelAndLatestDestination",
+			"fullTestPath": "YUFS.NPC.Navigation.Interaction.CancelAndLatestDestination",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0096835978329181671,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CancellationPreservesPhysicalActor",
+			"fullTestPath": "YUFS.NPC.Navigation.Interaction.CancellationPreservesPhysicalActor",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0091802030801773071,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CompletePathCornersAndFloors",
+			"fullTestPath": "YUFS.NPC.Navigation.Interaction.CompletePathCornersAndFloors",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.010163102298974991,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MissingNavmeshBoundedRetry",
+			"fullTestPath": "YUFS.NPC.Navigation.Interaction.MissingNavmeshBoundedRetry",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.009232599288225174,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PersonalKnowledgeSnapshot",
+			"fullTestPath": "YUFS.NPC.Navigation.Interaction.PersonalKnowledgeSnapshot",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0093866027891635895,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "DoorOperatorIsStationaryObstacle",
+			"fullTestPath": "YUFS.NPC.Navigation.JJWInteraction.DoorOperatorIsStationaryObstacle",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0079641975462436676,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "GenerationAndKnowledgeReset",
+			"fullTestPath": "YUFS.NPC.Navigation.JJWInteraction.GenerationAndKnowledgeReset",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0086047016084194183,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "UnavailableIsNotSafe",
+			"fullTestPath": "YUFS.NPC.Navigation.JJWInteraction.UnavailableIsNotSafe",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.010384298861026764,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EvacuatedResidentStopsAvoidance",
+			"fullTestPath": "YUFS.NPC.Navigation.Traffic.EvacuatedResidentStopsAvoidance",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0094598978757858276,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RecoveryChecksCapsuleAndFloor",
+			"fullTestPath": "YUFS.NPC.Navigation.Traffic.RecoveryChecksCapsuleAndFloor",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.010102100670337677,
+			"dateTime": "2026.09.28-05.37.22",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "StableYieldAndFloors",
+			"fullTestPath": "YUFS.NPC.Navigation.Traffic.StableYieldAndFloors",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0080724991858005524,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ThreeAgentCycleHasOneLeader",
+			"fullTestPath": "YUFS.NPC.Navigation.Traffic.ThreeAgentCycleHasOneLeader",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0096465982496738434,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "TwoNPCsYieldAndRelease",
+			"fullTestPath": "YUFS.NPC.Navigation.Traffic.TwoNPCsYieldAndRelease",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0094708018004894257,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CancelIgnoresLateResult",
+			"fullTestPath": "YUFS.NPC.Navigation.CancelIgnoresLateResult",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0087359994649887085,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CornersFinalSegmentAndArrival",
+			"fullTestPath": "YUFS.NPC.Navigation.CornersFinalSegmentAndArrival",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0096853002905845642,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MissingNavMeshAndBoundedRetry",
+			"fullTestPath": "YUFS.NPC.Navigation.MissingNavMeshAndBoundedRetry",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0092606022953987122,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "NewDestinationWins",
+			"fullTestPath": "YUFS.NPC.Navigation.NewDestinationWins",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0096250995993614197,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RejectsPartialPath",
+			"fullTestPath": "YUFS.NPC.Navigation.RejectsPartialPath",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0092674009501934052,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ManualPlacementAndDefaults",
+			"fullTestPath": "YUFS.NPC.Simulation.JJWMerge.ManualPlacementAndDefaults",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.010314397513866425,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "MidRunRemovalDoesNotBlockCompletion",
+			"fullTestPath": "YUFS.NPC.Simulation.JJWMerge.MidRunRemovalDoesNotBlockCompletion",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0096274986863136292,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: [YUFS] All NPCs resolved. Finalizing run 1.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.23"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: [YUFS] Phase: Completed — Volume paused.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.23"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: [YUFS] Run Done | Evacuated: 1/1 (100.0%) | Incapacitated: 0 | Duration: 0.0s",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.23"
+				}
+			],
+			"warnings": 3,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ResolvedParticipantsCountOnce",
+			"fullTestPath": "YUFS.NPC.Simulation.JJWMerge.ResolvedParticipantsCountOnce",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0097170993685722351,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: [YUFS] Phase: Completed — Volume paused.",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.23"
+				},
+				{
+					"event":
+					{
+						"type": "Warning",
+						"message": "LogTemp: [YUFS] Run Done | Evacuated: 1/2 (50.0%) | Incapacitated: 1 | Duration: 0.0s",
+						"context": "log",
+						"artifact": "00000000000000000000000000000000"
+					},
+					"filename": "",
+					"lineNumber": -1,
+					"timestamp": "2026.09.28-05.37.23"
+				}
+			],
+			"warnings": 2,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EmergencyAndExternalOwnership",
+			"fullTestPath": "YUFS.NPC.Suppression.Authored.EmergencyAndExternalOwnership",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.011103197932243347,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PickupThenApproachBeforeSpraying",
+			"fullTestPath": "YUFS.NPC.Suppression.Authored.PickupThenApproachBeforeSpraying",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.012137699872255325,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "WaitingAndPausedDoNotStart",
+			"fullTestPath": "YUFS.NPC.Suppression.Authored.WaitingAndPausedDoNotStart",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0099749006330966949,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ExplicitGestureDoesNotForgeFireKnowledge",
+			"fullTestPath": "YUFS.NPC.Suppression.Presentation.ExplicitGestureDoesNotForgeFireKnowledge",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.010519701987504959,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "ReplayCancelsAndReleasesProp",
+			"fullTestPath": "YUFS.NPC.Suppression.Presentation.ReplayCancelsAndReleasesProp",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.010376900434494019,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CancellationRestoresNativeExecution",
+			"fullTestPath": "YUFS.NPC.Suppression.CancellationRestoresNativeExecution",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0098964981734752655,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "EmergencyAndAuthorityPriority",
+			"fullTestPath": "YUFS.NPC.Suppression.EmergencyAndAuthorityPriority",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082392990589141846,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "JjwCommitPreparationAndConfiguredEmergency",
+			"fullTestPath": "YUFS.NPC.Suppression.JjwCommitPreparationAndConfiguredEmergency",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082556977868080139,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "NoLocalFireEffectsOrFallbackTarget",
+			"fullTestPath": "YUFS.NPC.Suppression.NoLocalFireEffectsOrFallbackTarget",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0095345973968505859,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "PersonalRiskAndHysteresis",
+			"fullTestPath": "YUFS.NPC.Suppression.PersonalRiskAndHysteresis",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0079989992082118988,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "RuntimeHeatPreserves28Inputs",
+			"fullTestPath": "YUFS.NPC.Suppression.RuntimeHeatPreserves28Inputs",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082074999809265137,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "AlarmAndOfficialEvidenceStillRaiseUrgency",
+			"fullTestPath": "YUFS.NPC.UnknownHazard.AlarmAndOfficialEvidenceStillRaiseUrgency",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082949995994567871,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "CognitionRetainsThreatUntilValidClearSample",
+			"fullTestPath": "YUFS.NPC.UnknownHazard.CognitionRetainsThreatUntilValidClearSample",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0082767978310585022,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "JJWCommunicationNeedsObservation",
+			"fullTestPath": "YUFS.NPC.UnknownHazard.JJWCommunicationNeedsObservation",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0085247978568077087,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		},
+		{
+			"testDisplayName": "JJWPerceptionDistinguishesUnavailableAndClear",
+			"fullTestPath": "YUFS.NPC.UnknownHazard.JJWPerceptionDistinguishesUnavailableAndClear",
+			"tags": [],
+			"state": "Success",
+			"deviceInstance": [
+				"5EFCE46C49FD6D69FF5FFCA49DF73EA5"
+			],
+			"duration": 0.0095980986952781677,
+			"dateTime": "2026.09.28-05.37.23",
+			"entries": [],
+			"warnings": 0,
+			"errors": 0,
+			"artifacts": []
+		}
+	]
+}

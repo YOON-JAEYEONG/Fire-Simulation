@@ -1,0 +1,26 @@
+Use case: ui-mockup
+Asset type: one polished 16:9 landscape Korean desktop application main-menu design for the existing Unreal YUFS fire evacuation research program.
+Primary request: Fill the existing MainMenu's four empty cards with useful basic usage guidance. This must be a HOME / GETTING STARTED screen, visually distinct from the ScenarioSetup input form. No settings inputs or dropdowns. Make the content immediately useful to a first-time researcher.
+Reference image 1 is a STYLE reference for the YUFS application: preserve its existing pale gray workspace, white cards with fine gray borders, dark slate Korean sans serif typography and teal accents. Preserve the four-card layout: a large upper-left card, a narrow upper-right card, two shorter bottom cards. The user's current sidebar has only "새 시뮬레이션", "결과보기", "설정", with "종료" at bottom. Use these four exact menu labels, no extra sidebar navigation.
+Render a finished flat app screen, not a monitor photograph, not an Unreal Editor screenshot.
+Design frame approximately 1920x1080: header72 high, sidebar280 wide. Page title near x320 y110: "실험 워크스페이스". Subtitle exact "처음 사용하는 분을 위한 실험 진행 안내입니다".
+Header wordmark "YUFS" and "화재 · 대피 시뮬레이션". Right small quiet status "시작 안내".
+Large upper-left white card x310 y218 width1150 height580. Heading exact "처음 사용하는 방법", small subtitle "설정부터 결과 확인까지, 세 단계로 시작하세요".
+Inside this card make three clearly numbered columns / mini steps with lots of space:
+01 heading "실험 조건 설정"; copy two lines "새 시뮬레이션에서 맵과 행동 정책을 선택합니다." and "화재 지연과 비상 통신 시간을 설정합니다." Icon illustration: elegant small line-art document and simple map thumbnail, no real dropdowns.
+02 heading "시뮬레이션 실행"; copy two lines "설정을 확인한 뒤 시뮬레이션을 시작합니다." and "화재 확산과 대피 행동을 관찰합니다." Icon illustration: restrained small top-down floorplan with teal route and one small orange heat marker, not a large cinematic building.
+03 heading "결과 확인"; copy two lines "실험 종료 후 결과보기로 이동합니다." and "대피율과 평균 대피 시간을 확인합니다." Icon illustration: small abstract analytical report with understated teal bars, no invented numerical data.
+Use subtle horizontal connectors or arrows between the numbered steps. These are instructional illustrations, not actionable controls.
+Along bottom of this large card a pale teal strip containing short line exact "첫 실험은 규칙 기반 정책으로 시작해 보세요." and a teal main action button exact "새 시뮬레이션 시작" aligned at right. Single main CTA in this home screen.
+
+Upper-right narrow white card x1478 y218 width418 height580. Heading exact "시작 전 확인". Four compact vertically separated checklist entries with small line icons and brief Korean text:
+"실험 맵" / "사용할 공간을 확인하세요"
+"행동 정책" / "규칙 기반 또는 ML 선택"
+"통신 시점" / "화재 시작 기준으로 설정"
+"기록 범위" / "타임라인 기록 여부 확인"
+Small quiet note at bottom exact "세부 값은 새 시뮬레이션에서 설정합니다". No numeric fields, no actual checkboxes, no toggles, no parameter readouts.
+
+Bottom-left card x310 y819 width750 height202. Heading exact "시간 설정은 이렇게 읽어요". A small calm instructional timeline with three labeled markers: "실험 시작" then "+30초" then "화재 시작" then "+5초" then "경보". A small sentence below exact "예시: 화재 지연 30초 + 경보 지연 5초 → 실험 시작 35초에 경보". Mark "예시" visibly so these are not current config values. Teal line and small restrained orange fire dot only.
+Bottom-right card x1078 y819 width818 height202. Heading exact "결과에서 확인할 항목". Three evenly spaced small icon-text groups exact labels "대피율", "평균 대피 시간", "대피 인원". Helper sentence exact "실험 조건을 바꾸며 회차별 결과를 살펴보세요".
+Bottom status strip full width small green dot and exact "준비됨".
+Constraints: This is a calm scientific experiment application welcome/help screen, not a game menu and not the ScenarioSetup screen. Only four main white content cards as specified. No map dropdowns, no policy checkbox, no offset spinners, no form fields, no selected experiment config, no fake recent run records, no invented keyboard shortcuts, no export or save promises, no ML superiority claims, no unimplemented performance metrics. All Korean copy legible and accurate, ample reading space, clear text hierarchy, precise alignment, refined minimal line icons, white/gray/slate/teal palette with tiny orange only in illustration. No watermark, no additional branding.

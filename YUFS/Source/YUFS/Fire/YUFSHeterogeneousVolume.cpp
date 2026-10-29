@@ -3,6 +3,7 @@
 #include "EngineUtils.h"
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/Paths.h"
+#include "Materials/MaterialInterface.h"
 
 AYUFSHeterogeneousVolume::AYUFSHeterogeneousVolume()
 {
@@ -59,6 +60,25 @@ void AYUFSHeterogeneousVolume::ResetFire()
 	HeterogeneousVolumeComponent->Frame = 0.f;
 	HeterogeneousVolumeComponent->bPlaying = false;
 }
+void AYUFSHeterogeneousVolume::SetFireMaterial(UMaterialInterface* NewMaterial)
+{
+	if (!HeterogeneousVolumeComponent || !NewMaterial) return;
+	HeterogeneousVolumeComponent->SetMaterial(0, NewMaterial);
+}
+
+void AYUFSHeterogeneousVolume::SetIgnitionMetadataFile(const FString& NewMetadataFile)
+{
+	// 화재 옵션에 지정하지 않은 경우(빈 문자열)는 기존 메타데이터를 그대로 둡니다.
+	if (NewMetadataFile.IsEmpty()) return;
+
+	IgnitionMetadataFile = NewMetadataFile;
+	const FString File = FPaths::IsRelative(IgnitionMetadataFile)
+		? FPaths::Combine(FPaths::ProjectContentDir(), IgnitionMetadataFile) : IgnitionMetadataFile;
+	bMetadataLoaded = FYUFSFdsIgnitionMetadata::LoadFile(File, IgnitionMetadata, MetadataDiagnostic);
+	UE_LOG(LogTemp, Display, TEXT("[FDSIgnition] %s metadata reload=%d status=%s."),
+		*GetName(), bMetadataLoaded, *MetadataDiagnostic);
+}
+
 int32 AYUFSHeterogeneousVolume::GetFrame() const
 {
 	return HeterogeneousVolumeComponent ? static_cast<int32>(HeterogeneousVolumeComponent->Frame) : 0;

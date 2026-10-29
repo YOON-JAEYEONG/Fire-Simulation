@@ -6,6 +6,7 @@ class UStaticMeshComponent;
 class USceneComponent;
 class UBoxComponent;
 class AYUFSSimulationController;
+struct FYUFSTimelineDoorSnapshot;
 /** Place at a real doorway: origin at the floor hinge, closed leaf along local +Y. */
 UCLASS()
 class YUFS_API AYUFSInteractionDoor : public AActor
@@ -26,6 +27,9 @@ public:
  UFUNCTION(BlueprintPure) bool IsPassageClear() const;
  UFUNCTION(BlueprintPure) bool IsUserInReach(AActor* User) const;
  UFUNCTION(BlueprintPure) FVector GetHandleLocation() const;
+ UFUNCTION(BlueprintPure) float GetOpenFraction() const { return OpenFraction; }
+ FYUFSTimelineDoorSnapshot BuildTimelineSnapshot() const;
+ void ApplyTimelineSnapshot(const FYUFSTimelineDoorSnapshot& Snapshot);
  UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Panel;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") bool bLocked = false;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") bool bHot = false;
@@ -43,5 +47,6 @@ private:
  float SwingDirection = 1.f;
  bool bOpeningRequested = false;
  bool bOpeningBlocked = false;
+ bool bTimelinePresentation = false;
  bool CanSweepLeaf(float FromFraction, float ToFraction) const;
 };

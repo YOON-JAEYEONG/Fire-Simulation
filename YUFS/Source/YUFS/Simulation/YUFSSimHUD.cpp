@@ -1,17 +1,51 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Simulation/YUFSSimHUD.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/TextBlock.h"
+#include "GameFramework/PlayerController.h"
 
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Simulation/YUFSGameInstance.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
 
+namespace
+{
+void RestoreSimulationInput(APlayerController* PC)
+{
+ if (!PC) return;
+ FInputModeGameAndUI InputMode;
+ InputMode.SetHideCursorDuringCapture(false);
+ PC->SetInputMode(InputMode);
+ PC->bShowMouseCursor = true;
+ UWidgetBlueprintLibrary::SetFocusToGameViewport();
+}
+}
+
+TMap<FName, FText> UYUFSSimHUD::GetDisplayedTextSnapshot() const
+{
+	TMap<FName, FText> Result;
+	if (WidgetTree)
+	{
+		WidgetTree->ForEachWidget([&Result](UWidget* Widget)
+		{
+			if (const UTextBlock* Text = Cast<UTextBlock>(Widget))
+			{
+				Result.Add(Text->GetFName(), Text->GetText());
+			}
+		});
+	}
+	return Result;
+}
+
 void UYUFSSimHUD::NativeConstruct()
 {
 	Super::NativeConstruct();
 	FindSimController();
 	FindFirePoints();
+	PopulateFireOptions();
 }
 
 void UYUFSSimHUD::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -83,6 +117,7 @@ void UYUFSSimHUD::FindFirePoints()
 
 void UYUFSSimHUD::OnStartButtonClicked()
 {
+	RestoreSimulationInput(GetOwningPlayer());
 	if (!SimController) return;
 
 	const ESimPhase Phase = SimController->GetCurrentPhase();
@@ -114,30 +149,83 @@ void UYUFSSimHUD::OnMainMenuButtonClicked()
 	}
 }
 
-void UYUFSSimHUD::OnFireSceneAButtonClicked()
+void UYUFSSimHUD::PopulateFireOptions()
+{
+	if (!SimController) return;
+
+	const TArray<FString> Names = SimController->GetFireOptionNames();
+
+	if (FireSelectComboBox)
+	{
+		FireSelectComboBox->ClearOptions();
+		for (const FString& Name : Names)
+		{
+			FireSelectComboBox->AddOption(Name);
+		}
+
+		const int32 ActiveIndex = SimController->GetActiveFireOptionIndex();
+		if (Names.IsValidIndex(ActiveIndex))
+		{
+			// ESelectInfo::Direct로 들어오므로 아래 OnFireOptionComboBoxChanged가
+			// 다시 SelectFireOption을 호출하는 피드백 루프는 생기지 않습니다.
+			FireSelectComboBox->SetSelectedOption(Names[ActiveIndex]);
+		}
+
+		FireSelectComboBox->OnSelectionChanged.RemoveDynamic(this, &UYUFSSimHUD::OnFireOptionComboBoxChanged);
+		FireSelectComboBox->OnSelectionChanged.AddDynamic(this, &UYUFSSimHUD::OnFireOptionComboBoxChanged);
+	}
+}
+
+void UYUFSSimHUD::OnFireOptionComboBoxChanged(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	// PopulateFireOptions()의 SetSelectedOption() 호출 자체가 발생시키는 이벤트(Direct)는 무시합니다.
+	if (SelectionType == ESelectInfo::Direct) return;
+	if (!SimController) return;
+
+	const TArray<FString> Names = SimController->GetFireOptionNames();
+	const int32 Index = Names.IndexOfByKey(SelectedItem);
+	if (Index != INDEX_NONE)
+	{
+		SimController->SelectFireOption(Index);
+	}
+}
+
+void UYUFSSimHUD::OnFireOptionSelected(int32 OptionIndex)
 {
 	if (SimController)
 	{
-		SimController->SelectFireScenario(EFireScenario::ScenarioA);
+		SimController->SelectFireOption(OptionIndex);
 	}
+}
+
+TArray<FString> UYUFSSimHUD::GetFireOptionNames() const
+{
+	return SimController ? SimController->GetFireOptionNames() : TArray<FString>();
+}
+
+int32 UYUFSSimHUD::GetActiveFireOptionIndex() const
+{
+	return SimController ? SimController->GetActiveFireOptionIndex() : INDEX_NONE;
+}
+
+void UYUFSSimHUD::OnFireSceneAButtonClicked()
+{
+	OnFireOptionSelected(0);
 }
 
 void UYUFSSimHUD::OnFireSceneBButtonClicked()
 {
-	if (SimController)
-	{
-		SimController->SelectFireScenario(EFireScenario::ScenarioB);
-	}
+	OnFireOptionSelected(1);
 }
 
 bool UYUFSSimHUD::IsFireSceneASelected() const
 {
-	return SimController && SimController->GetActiveFireScenario() == EFireScenario::ScenarioA;
+	return GetActiveFireOptionIndex() == 0;
 }
 
 bool UYUFSSimHUD::IsFireSceneBSelected() const
 {
-	return SimController && SimController->GetActiveFireScenario() == EFireScenario::ScenarioB;
+	return GetActiveFireOptionIndex() == 1;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -164,7 +252,9 @@ FText UYUFSSimHUD::GetElapsedTimeText() const
 {
 	if (!SimController) return FText::FromString(TEXT("0:00"));
 
-	const float Elapsed = SimController->GetElapsedTime();
+	const auto Stats = SimController->GetDisplayStats();
+	if (!Stats.bHasData) return FText::FromString(TEXT("--:--"));
+	const float Elapsed = FMath::Max(0.f, Stats.ElapsedSimTime);
 	const int32 Minutes = FMath::FloorToInt(Elapsed / 60.f);
 	const int32 Seconds = FMath::FloorToInt(FMath::Fmod(Elapsed, 60.f));
 	return FText::FromString(FString::Printf(TEXT("%d:%02d"), Minutes, Seconds));
@@ -182,12 +272,14 @@ FText UYUFSSimHUD::GetFireCountdownText() const
 FText UYUFSSimHUD::GetNPCStatusText() const
 {
 	if (!SimController) return FText::FromString(TEXT("NPC: -/-"));
+	const auto Stats = SimController->GetDisplayStats();
+	if (!Stats.bHasData) return FText::FromString(TEXT("기록 없음"));
 
 	return FText::FromString(FString::Printf(
-		TEXT("대피: %d | 사망: %d | 전체: %d"),
-		SimController->GetEvacuatedCount(),
-		SimController->GetIncapacitatedCount(),
-		SimController->GetTotalNPCCount()));
+		TEXT("대피: %d | 행동 불능: %d | 전체: %d"),
+		Stats.EvacuatedCount,
+		Stats.IncapacitatedCount,
+		Stats.TotalNPCCount));
 }
 
 FText UYUFSSimHUD::GetRunProgressText() const
@@ -202,10 +294,9 @@ float UYUFSSimHUD::GetEvacuationRatePercent() const
 {
 	if (!SimController) return 0.f;
 
-	const int32 Total = SimController->GetTotalNPCCount();
-	if (Total == 0) return 0.f;
-
-	return (float)SimController->GetEvacuatedCount() / (float)Total * 100.f;
+	const auto Stats = SimController->GetDisplayStats();
+	if (!Stats.bHasData || Stats.TotalNPCCount <= 0) return 0.f;
+	return FMath::Clamp(100.f * float(Stats.EvacuatedCount) / float(Stats.TotalNPCCount), 0.f, 100.f);
 }
 
 bool UYUFSSimHUD::IsSimulationActive() const
@@ -348,5 +439,6 @@ void UYUFSSimHUD::OnCameraPlayerViewButtonClicked()
 	}
 
 	PC->SetViewTargetWithBlend(PlayerPawn, 0.5f);
+	RestoreSimulationInput(PC);
 	UE_LOG(LogTemp, Warning, TEXT("Switched back to Player View"));
 }

@@ -1,0 +1,420 @@
+{
+  "mode": "ordinary EditorRequestBeginPlay; no actor placement or behavior overrides",
+  "samples": [
+    {
+      "wall_seconds": 0.0,
+      "sim_seconds": 0.0,
+      "phase": "<SimPhase.FIRE_START_DELAY: 1>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=0 visual=X=125 Y=55 Z=26/0 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 2.04700000000048,
+      "sim_seconds": 1.667083740234375,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=12 visual=X=125 Y=55 Z=26/13 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 7.593999999999141,
+      "sim_seconds": 3.704047918319702,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=26 visual=X=125 Y=55 Z=26/29 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 8.093999999999141,
+      "sim_seconds": 4.104047775268555,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=29 visual=X=125 Y=55 Z=26/32 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 10.79700000000048,
+      "sim_seconds": 4.651174068450928,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=34 visual=X=125 Y=55 Z=26/37 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 12.015999999999622,
+      "sim_seconds": 5.881598949432373,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=45 visual=X=125 Y=55 Z=26/47 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 14.110000000000582,
+      "sim_seconds": 7.962580680847168,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=62 visual=X=125 Y=55 Z=26/63 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 16.01599999999962,
+      "sim_seconds": 9.880281448364258,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=78 visual=X=125 Y=55 Z=26/79 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 18.031999999999243,
+      "sim_seconds": 11.894813537597656,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=94 visual=X=125 Y=55 Z=26/95 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 20.01599999999962,
+      "sim_seconds": 13.874017715454102,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=110 visual=X=125 Y=55 Z=26/110 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 22.0,
+      "sim_seconds": 15.854057312011719,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=126 visual=X=125 Y=55 Z=26/126 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 24.063000000000102,
+      "sim_seconds": 17.920515060424805,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=142 visual=X=125 Y=55 Z=26/143 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 26.031999999999243,
+      "sim_seconds": 19.88804054260254,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=158 visual=X=125 Y=55 Z=26/159 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 28.0,
+      "sim_seconds": 21.856794357299805,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=174 visual=X=125 Y=55 Z=26/174 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 30.04700000000048,
+      "sim_seconds": 23.899812698364258,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=190 visual=X=125 Y=55 Z=26/191 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 32.07899999999972,
+      "sim_seconds": 25.93513298034668,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=206 visual=X=125 Y=55 Z=26/207 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 34.01599999999962,
+      "sim_seconds": 27.88198471069336,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=222 visual=X=125 Y=55 Z=26/223 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 36.04700000000048,
+      "sim_seconds": 29.901092529296875,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=238 visual=X=125 Y=55 Z=26/239 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 38.0630000000001,
+      "sim_seconds": 31.92719841003418,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=254 visual=X=125 Y=55 Z=26/255 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 40.0,
+      "sim_seconds": 33.86519241333008,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=270 visual=X=125 Y=55 Z=26/270 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 42.03199999999924,
+      "sim_seconds": 35.89329528808594,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=286 visual=X=125 Y=55 Z=26/287 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 44.0630000000001,
+      "sim_seconds": 37.92323303222656,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=302 visual=X=125 Y=55 Z=26/303 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 46.0,
+      "sim_seconds": 39.85678482055664,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=318 visual=X=125 Y=55 Z=26/318 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 48.04700000000048,
+      "sim_seconds": 41.90666198730469,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=334 visual=X=125 Y=55 Z=26/335 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 50.0,
+      "sim_seconds": 43.86101531982422,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=350 visual=X=125 Y=55 Z=26/350 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 52.04700000000048,
+      "sim_seconds": 45.91117477416992,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=366 visual=X=125 Y=55 Z=26/367 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 54.01599999999962,
+      "sim_seconds": 47.87971115112305,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=382 visual=X=125 Y=55 Z=26/383 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 56.07899999999972,
+      "sim_seconds": 49.936012268066406,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=398 visual=X=125 Y=55 Z=26/399 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 58.0630000000001,
+      "sim_seconds": 51.91641616821289,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=414 visual=X=125 Y=55 Z=26/415 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 60.04700000000048,
+      "sim_seconds": 53.89984130859375,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=430 visual=X=125 Y=55 Z=26/431 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 62.01599999999962,
+      "sim_seconds": 55.876956939697266,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=446 visual=X=125 Y=55 Z=26/447 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 64.07899999999972,
+      "sim_seconds": 57.93431091308594,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=462 visual=X=125 Y=55 Z=26/463 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 66.03200000000106,
+      "sim_seconds": 59.88978576660156,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=478 visual=X=125 Y=55 Z=26/479 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 68.07899999999972,
+      "sim_seconds": 60.06186294555664,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=479 visual=X=125 Y=55 Z=26/479 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 70.09399999999914,
+      "sim_seconds": 60.06186294555664,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=479 visual=X=125 Y=55 Z=26/479 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 72.09399999999914,
+      "sim_seconds": 60.06186294555664,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=479 visual=X=125 Y=55 Z=26/479 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    },
+    {
+      "wall_seconds": 74.07899999999972,
+      "sim_seconds": 60.06186294555664,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "evacuated": 0,
+      "binary": [
+        "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=479 visual=X=125 Y=55 Z=26/479 voxelXcm=40.00 alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000"
+      ],
+      "npcs": []
+    }
+  ],
+  "counts": {
+    "WorldSettings": 1,
+    "Brush": 1,
+    "InstancedFoliageActor": 1,
+    "CineCameraActor": 3,
+    "ExponentialHeightFog": 1,
+    "DatasmithSceneActor": 1,
+    "NavMeshBoundsVolume": 1,
+    "SkyLight": 1,
+    "DirectionalLight": 1,
+    "SkyAtmosphere": 1,
+    "VolumetricCloud": 1,
+    "RecastNavMesh": 1,
+    "YUFSBinaryManager": 1,
+    "YUFSHeterogeneousVolume": 1,
+    "YUFSSimulationController": 1,
+    "DefaultPhysicsVolume": 1,
+    "GameplayDebuggerPlayerManager": 1,
+    "Actor": 1,
+    "YUFSAuthoredSuppressionScenario": 1,
+    "GameModeBase": 1,
+    "StaticMeshActor": 7,
+    "GameSession": 1,
+    "ParticleEventManager": 1,
+    "GameNetworkManager": 1,
+    "GameStateBase": 1,
+    "AbstractNavData": 1,
+    "PlayerController": 1,
+    "PlayerState": 1,
+    "PlayerCameraManager": 1,
+    "HUD": 1,
+    "DefaultPawn": 1,
+    "GameplayDebuggerCategoryReplicator": 1
+  },
+  "volume_setup": [
+    {
+      "transform": "<Struct 'Transform' (0x00000170CB33E580) {rotation: {x: -1.000000, y: -0.000000, z: -0.000000, w: 0.000000}, translation: {x: -840.000000, y: -120.000000, z: -310.000000}, scale3d: {x: 96.000000, y: 88.000000, z: 83.000000}}>",
+      "bounds": "(<Struct 'Vector' (0x00000171E9C2C970) {x: 2020.800000, y: -1017.600000, z: 287.600000}>, <Struct 'Vector' (0x00000170CB3BF6C0) {x: 2400.000000, y: 968.000000, z: 431.600000}>)",
+      "fps": 8.0,
+      "pivot_centroid": false,
+      "resolution": "<Struct 'IntVector' (0x000001721438E628) {x: 125, y: 55, z: 26}>",
+      "material": "<Object '/Game/Fires/Audit0928/MI_Fire1.MI_Fire1' (0x000001721CE78000) Class 'MaterialInstanceConstant'>"
+    }
+  ],
+  "configured_end_seconds": 60.0
+}

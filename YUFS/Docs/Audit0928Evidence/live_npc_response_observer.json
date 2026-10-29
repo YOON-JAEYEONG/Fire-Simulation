@@ -1,0 +1,3434 @@
+{
+  "samples": [
+    {
+      "wall_seconds": 258,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 259,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 260,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 261,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 262,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 263,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 264,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 265,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 266,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 267,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 268,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 269,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 270,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 271,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 272,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 273,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 274,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 275,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 276,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 277,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 278,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 279,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 280,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 281,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 282,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 283,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 284,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 285,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 286,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 287,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 288,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 289,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 290,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 291,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 292,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 293,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 294,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 295,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 296,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 297,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 298,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 299,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 300,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 301,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 302,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 303,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 304,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 305,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 306,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 307,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 308,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 309,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 310,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 311,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 312,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 313,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 314,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 315,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 316,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 317,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 318,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 319,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 320,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 321,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 322,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 323,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 324,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 325,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 326,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 327,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 328,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 329,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 330,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 331,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 332,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 333,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 334,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 335,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 336,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 337,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 338,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 339,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 340,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 341,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 342,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 343,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 344,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 345,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 346,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 347,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 348,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 349,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 350,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 351,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 352,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 353,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 354,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 355,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 356,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 357,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 358,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 359,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 360,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 361,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 362,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 363,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 364,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 365,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 366,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 367,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 368,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 369,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 370,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 371,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 372,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 373,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 374,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 375,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 376,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 377,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 378,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 379,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 380,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 381,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 382,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 383,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 384,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 385,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 386,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 387,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 388,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 389,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 390,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 391,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 392,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 393,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 394,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 395,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 396,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 397,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 398,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 399,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 400,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 401,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 402,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 403,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 404,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 405,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 406,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 407,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 408,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 409,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 410,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 411,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": []
+    },
+    {
+      "wall_seconds": 412,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 413,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 414,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 415,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 416,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 417,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 418,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 419,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 420,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 421,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 422,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 423,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 424,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 425,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 426,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 427,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 428,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 429,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 430,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 431,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 432,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 433,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 434,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 435,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 436,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 437,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 438,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 439,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 440,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.220 Y=-306.843 Z=440.150 eye=X=1201.220 Y=-306.843 Z=504.150 binFrame=0 cell=X=34.157 Y=10.308 Z=15.523 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 441,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.287 Y=-376.133 Z=440.150 eye=X=1201.287 Y=-376.133 Z=504.150 binFrame=0 cell=X=34.159 Y=12.276 Z=15.523 index=36295 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 442,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.423 Y=-516.135 Z=440.150 eye=X=1201.423 Y=-516.135 Z=504.150 binFrame=0 cell=X=34.162 Y=16.254 Z=15.523 index=36375 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 443,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.560 Y=-656.195 Z=440.150 eye=X=1201.560 Y=-656.195 Z=504.150 binFrame=0 cell=X=34.166 Y=20.233 Z=15.523 index=36455 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 444,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.696 Y=-796.198 Z=440.150 eye=X=1201.696 Y=-796.198 Z=504.150 binFrame=0 cell=X=34.169 Y=24.210 Z=15.523 index=36535 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 445,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.806 Y=-909.367 Z=440.150 eye=X=1201.806 Y=-909.367 Z=504.150 binFrame=0 cell=X=34.172 Y=27.425 Z=15.523 index=36595 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 446,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.806 Y=-909.367 Z=440.150 eye=X=1201.806 Y=-909.367 Z=504.150 binFrame=0 cell=X=34.172 Y=27.425 Z=15.523 index=36595 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 447,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.806 Y=-909.367 Z=440.150 eye=X=1201.806 Y=-909.367 Z=504.150 binFrame=0 cell=X=34.172 Y=27.425 Z=15.523 index=36595 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 448,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1201.806 Y=-909.367 Z=440.150 eye=X=1201.806 Y=-909.367 Z=504.150 binFrame=8 cell=X=34.172 Y=27.425 Z=15.523 index=36595 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=7 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 449,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1139.914 Y=-902.354 Z=440.150 eye=X=1139.914 Y=-902.354 Z=504.150 binFrame=16 cell=X=32.560 Y=27.226 Z=15.523 index=34475 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=15 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 450,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1000.766 Y=-886.587 Z=440.150 eye=X=1000.766 Y=-886.587 Z=504.150 binFrame=24 cell=X=28.937 Y=26.778 Z=15.523 index=30215 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=23 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 451,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=861.561 Y=-870.814 Z=440.150 eye=X=861.561 Y=-870.814 Z=504.150 binFrame=32 cell=X=25.311 Y=26.330 Z=15.523 index=27035 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=31 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 452,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=39 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=39 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 453,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=48 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=47 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 454,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=56 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=55 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 455,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=64 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=63 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 456,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=72 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=71 self=0.0000 front=0.0000 above=0.2875 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 457,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=80 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=79 self=0.0000 front=0.0000 above=0.2459 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 458,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=88 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=87 self=0.0000 front=0.0000 above=0.5300 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 459,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=96 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=95 self=0.0000 front=0.0000 above=0.7656 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 460,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=727.024 Y=-855.569 Z=440.150 eye=X=727.024 Y=-855.569 Z=504.150 binFrame=104 cell=X=21.808 Y=25.897 Z=15.523 index=22775 rawSmokeHeat=1/0 eyeStatus=Ready eyeSmoke=0.0039 perceptionFrame=103 self=0.0039 front=0.0039 above=0.8383 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 461,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1154.799 Y=-906.332 Z=440.150 eye=X=1154.799 Y=-906.332 Z=504.150 binFrame=112 cell=X=32.948 Y=27.339 Z=15.523 index=34475 rawSmokeHeat=159/0 eyeStatus=Ready eyeSmoke=0.6235 perceptionFrame=111 self=0.6196 front=0.9644 above=0.9682 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0004 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 462,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1720.002 Y=-973.404 Z=440.150 eye=X=1720.002 Y=-973.404 Z=504.150 binFrame=120 cell=X=47.667 Y=29.244 Z=15.523 index=50415 rawSmokeHeat=71/0 eyeStatus=Ready eyeSmoke=0.2784 perceptionFrame=119 self=0.2941 front=0.6687 above=0.9415 pathMaxSmoke=0.0471 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0060 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 463,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2206.524 Y=-1214.566 Z=439.510 eye=X=2206.524 Y=-1214.566 Z=503.510 binFrame=128 cell=X=60.337 Y=36.096 Z=15.503 index=64335 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=127 self=0.0000 front=0.0000 above=0.0398 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0063 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 464,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2053.735 Y=-1256.168 Z=246.736 eye=X=2053.735 Y=-1256.168 Z=310.736 binFrame=136 cell=X=56.358 Y=37.278 Z=9.697 index=60109 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=135 self=0.0000 front=0.0000 above=0.8029 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0055 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 465,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2008.673 Y=-708.935 Z=90.150 eye=X=2008.673 Y=-708.935 Z=154.150 binFrame=144 cell=X=55.184 Y=21.731 Z=4.980 index=58724 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=143 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0047 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 466,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2132.751 Y=-153.124 Z=90.150 eye=X=2132.751 Y=-153.124 Z=154.150 binFrame=152 cell=X=58.415 Y=5.941 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=151 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 467,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=160 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 468,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=168 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 469,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=176 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 470,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=184 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 471,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=192 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 472,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=200 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 473,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=208 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 474,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=216 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 475,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=224 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 476,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=232 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 477,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=240 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 478,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=248 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 479,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=256 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 480,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=264 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 481,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=272 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 482,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=280 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 483,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=288 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 484,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=296 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 485,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=304 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 486,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=312 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 487,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=320 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 488,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=328 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 489,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=336 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 490,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=344 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 491,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=352 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 492,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=360 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 493,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=368 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 494,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=376 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 495,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=384 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 496,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=392 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 497,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=400 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 498,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=408 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 499,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=416 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 500,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=424 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 501,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=432 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 502,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=440 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 503,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=448 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 504,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=456 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 505,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=464 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 506,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=472 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=0 activity=1"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 507,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 508,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 509,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 510,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 511,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 512,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 513,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 514,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 515,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 516,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 517,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 518,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 519,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 520,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 521,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 522,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 523,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 524,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 525,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 526,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 527,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 528,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 529,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 530,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 531,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 532,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 533,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 534,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 535,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 536,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 537,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 538,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 539,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 540,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 541,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 542,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 543,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 544,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 545,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 546,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 547,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 548,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 549,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 550,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 551,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 552,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 553,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 554,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 555,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 556,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 557,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 558,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 559,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 560,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 561,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 562,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 563,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 564,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 565,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 566,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 567,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 568,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 569,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 570,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 571,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 572,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 573,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 574,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 575,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 576,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 577,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 578,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 579,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 580,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 581,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 582,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 583,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 584,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 585,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 586,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 587,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 588,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 589,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 590,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 591,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 592,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 593,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 594,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 595,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 596,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 597,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 598,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 599,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 600,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 601,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 602,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 603,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 604,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 605,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 606,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 607,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 608,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 609,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 610,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 611,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 612,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 613,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 614,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 615,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 616,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 617,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 618,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 619,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 620,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 621,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 622,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 623,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 624,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 625,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 626,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 627,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 628,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 629,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 630,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 631,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 632,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 633,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 634,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 635,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 636,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 637,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 638,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 639,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 640,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 641,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 642,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 643,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 644,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 645,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 646,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 647,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 648,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 649,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 650,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 651,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 652,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 653,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 654,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 655,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 656,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 657,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 658,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 659,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 660,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 661,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 662,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 663,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 664,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 665,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 666,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 667,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 668,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 669,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 670,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 671,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 672,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 673,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 674,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 675,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 676,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    },
+    {
+      "wall_seconds": 677,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2136.901 Y=-134.572 Z=90.150 eye=X=2136.901 Y=-134.572 Z=154.150 binFrame=479 cell=X=58.523 Y=5.414 Z=4.980 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0039 alarm=1 tick=1 activity=0"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+Use case: ui-mockup
+Asset type: a polished high fidelity 16:9 YUFS WBP_Results desktop experiment results screen, implementation concept for Unreal UMG.
+Reference image 1 is STYLE reference: YUFS ScenarioSetup. Preserve its light gray workspace #F1F5F8, pale sidebar width280, thin top header height72, fine outlined white rounded cards, dark slate #253448 typography, secondary slate #526174, restrained teal #147F8A and Korean sans serif. Calm scientific software, no game HUD, no editor chrome, no photographed monitor.
+Primary request: redesign existing WBP_Results and WBP_ResultRow while preserving all existing row information and the per-row replay action. Existing row getters supply execution timestamp, evacuated/total people, evacuation rate, dead count, simulation duration, average evacuation time; each row has "다시 실행".
+Frame approx1920x1080, header wordmark "YUFS" and "화재 · 대피 시뮬레이션", right status "실험 결과".
+Sidebar exact entries "새 시뮬레이션", "결과보기", "설정"; select "결과보기" with pale teal band and teal chart icon. Bottom "메인화면으로" with home icon.
+Content title exact "실험 결과", subtitle exact "실행 기록을 확인하고 동일한 조건으로 다시 실행합니다".
+Below title four equally sized white metric cards across content x310 to1896:
+"실험 횟수" value "5회"
+"평균 대피율" value "81.0%"
+"평균 소요시간" value "68.0초"
+"평균 대피 시간" value "49.2초"
+Use small simple line icons, clear hierarchy, generous padding.
+Main white table card below metrics full content width approx1586 with heading "실행 기록", small right-side label "5개 기록". Table header pale gray, aligned columns exact "실행 시각", "대피 인원", "대피율", "사망 인원", "소요시간", "평균 대피 시간", "재실행".
+Five sample table rows, clear generously spaced about70px high. ALL row values must be complete, aligned and readable:
+row1 "2026-10-18 13:10" | "18 / 20명" | "90.0%" | "0명" | "60.0초" | "42.0초" | outlined teal button "다시 실행"
+row2 "2026-10-18 13:20" | "15 / 20명" | "75.0%" | "0명" | "75.0초" | "55.0초" | outlined teal button "다시 실행"
+row3 "2026-10-18 13:30" | "20 / 20명" | "100.0%" | "0명" | "50.0초" | "35.0초" | outlined teal button "다시 실행"
+row4 "2026-10-18 13:40" | "12 / 20명" | "60.0%" | "0명" | "90.0초" | "66.0초" | outlined teal button "다시 실행"
+row5 "2026-10-18 13:50" | "16 / 20명" | "80.0%" | "0명" | "65.0초" | "48.0초" | outlined teal button "다시 실행"
+Evacuation rates may include small unobtrusive teal horizontal progress bars beside/beneath percentages; no semantic red/green pass/fail thresholds. White or extremely pale alternating rows with fine dividers. Show a very subtle vertical scrollbar to communicate a scrollable ListView, not a horizontal scroller. No extra scenario-name column or missing original columns. No sorting/search/filter/export/delete controls, no new detail pane or unsupported charts.
+Below table small quiet info strip exact "다시 실행하면 해당 기록의 시나리오 설정과 랜덤 시드로 실행합니다".
+Bottom right secondary outlined button exact "뒤로", no other bottom actions.
+Bottom status bar small green dot "결과 불러오기 완료" and subtle right text "화면의 수치는 예시입니다". Example data is illustrative, never imply these are actual user experiment results.
+Crisp beautiful professional scientific data table with legible Korean and numbers, restrained use of teal. Main table comfortably fits viewport. Design should look like the same application as reference, just a results page. No watermark, no logo inventions, no dramatic fire picture.

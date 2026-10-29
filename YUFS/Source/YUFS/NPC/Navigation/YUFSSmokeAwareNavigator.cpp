@@ -7,6 +7,7 @@
 #include "Level/YUFSLevelDataManager.h"
 #include "NavigationData.h"
 #include "NPC/Perception/YUFSNPCPerceptionComponent.h"
+#include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Navigation/YUFSSmokeNavigationQueryFilter.h"
 
 UYUFSSmokeAwareNavigator::UYUFSSmokeAwareNavigator()
@@ -36,6 +37,15 @@ void UYUFSSmokeAwareNavigator::TickComponent(float DeltaTime, ELevelTick TickTyp
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	RerouteTimer += DeltaTime;
 	TimeSinceRequest += DeltaTime;
+	if (NavigationStatus == EYUFSNavigationStatus::Failed && LastFailure == EYUFSNavigationFailure::UnsafePath)
+	{
+		UnsafeRecheckTimer += DeltaTime;
+		if (UnsafeRecheckTimer >= FMath::Max(0.5f, UnsafePathRecheckInterval))
+		{
+			UnsafeRecheckTimer = 0.f;
+			RefreshUnsafeRetryGate(GetPerceivedHazardSnapshot(IsValid(LevelDataMgr) ? LevelDataMgr->GetCurrentHazardFrame() : RequestFrame));
+		}
+	}
 	if (NavigationStatus == EYUFSNavigationStatus::WaitingForHazardData && TimeSinceRequest >= 0.5f)
 	{
 		StartPathRequest(RequestedDestination,
@@ -72,7 +82,7 @@ void UYUFSSmokeAwareNavigator::SetNavigationStatus(EYUFSNavigationStatus Status,
 	LastFailure = Failure;
 	bIsPathfinding = Status == EYUFSNavigationStatus::Pathfinding;
 	UE_LOG(LogTemp, Log,
-		TEXT("[YUFS][Nav] agent=%s request=%u status=%s reason=%s failure=%s requested=%s destination=%s frame=%d data=%s smoke=%.3f heat=%.3f"),
+		TEXT("[YUFS][Nav] agent=%s request=%u status=%s reason=%s failure=%s requested=%s destination=%s frame=%d data=%s pathMaxSmoke=%.3f pathMaxHeat=%.3f"),
 		*GetNameSafe(GetOwner()), RequestGeneration,
 		*StaticEnum<EYUFSNavigationStatus>()->GetNameStringByValue(static_cast<int64>(Status)),
 		*StaticEnum<EYUFSRepathReason>()->GetNameStringByValue(static_cast<int64>(LastRepathReason)),
@@ -85,6 +95,14 @@ void UYUFSSmokeAwareNavigator::SetNavigationStatus(EYUFSNavigationStatus Status,
 
 void UYUFSSmokeAwareNavigator::RequestPathAsync(FVector Destination, int32 Frame)
 {
+	if (Destination.Equals(RequestedDestination, 100.f))
+	{
+		if (bIsPathfinding || NavigationStatus == EYUFSNavigationStatus::WaitingForHazardData) return;
+		if (NavigationStatus == EYUFSNavigationStatus::Failed && LastFailure == EYUFSNavigationFailure::UnsafePath && !bUnsafeRetryReady) return;
+	}
+	RejectedUnsafePath.Reset();
+	RejectedHazardWitnesses.Reset();
+	bUnsafeRetryReady = false;
 	FailedPathRetries = 0;
 	StartPathRequest(Destination, Frame, EYUFSRepathReason::DestinationRequested);
 }
@@ -103,12 +121,25 @@ void UYUFSSmokeAwareNavigator::ReplanPath(int32 Frame, EYUFSRepathReason Reason)
 
 bool UYUFSSmokeAwareNavigator::ShouldRetryPath() const
 {
-	const bool bChangedHazard = (LastFailure == EYUFSNavigationFailure::UnsafePath ||
-		LastFailure == EYUFSNavigationFailure::HazardDataUnavailable) &&
-		IsValid(LevelDataMgr) && LevelDataMgr->GetCurrentHazardFrame() != RequestFrame;
+	if (LastFailure == EYUFSNavigationFailure::UnsafePath)
+		return NavigationStatus == EYUFSNavigationStatus::Failed && bUnsafeRetryReady
+			&& TimeSinceRequest >= FMath::Max(0.1f, FailedPathRetryInterval);
+	const bool bDataBecameReady = LastFailure == EYUFSNavigationFailure::HazardDataUnavailable &&
+		IsValid(LevelDataMgr) && LevelDataMgr->GetHazardSnapshot(LevelDataMgr->GetCurrentHazardFrame()).Status == EYUFSHazardDataStatus::Ready;
 	return NavigationStatus == EYUFSNavigationStatus::Failed &&
 		TimeSinceRequest >= FMath::Max(0.1f, FailedPathRetryInterval) &&
-		(FailedPathRetries < FMath::Max(0, MaxFailedPathRetries) || bChangedHazard);
+		(FailedPathRetries < FMath::Max(0, MaxFailedPathRetries) || bDataBecameReady);
+}
+
+void UYUFSSmokeAwareNavigator::RefreshUnsafeRetryGate(const FYUFSHazardSnapshot& Snapshot)
+{
+	bUnsafeRetryReady = false;
+	if (Snapshot.Status != EYUFSHazardDataStatus::Ready || RejectedUnsafePath.Num() < 2) return;
+	// Moving to a different approach can make a new route useful. Ordinary fire frame progression cannot.
+	const bool bNewApproach = FVector::DistSquared(GetOwnerFeetLocation(), UnsafeRejectionFeet) > FMath::Square(100.f);
+	const bool bWitnessesReobserved = !RejectedHazardWitnesses.IsEmpty() &&
+		RejectedHazardWitnesses.ContainsByPredicate([&](const FVector& P) { return !Snapshot.IsObservedAt(P); }) == false;
+	bUnsafeRetryReady = bNewApproach || (bWitnessesReobserved && !Snapshot.ScorePath(RejectedUnsafePath, GetHazardSettings()).bUnsafeAhead);
 }
 
 void UYUFSSmokeAwareNavigator::StartPathRequest(FVector Destination, int32 Frame, EYUFSRepathReason Reason)
@@ -123,6 +154,8 @@ void UYUFSSmokeAwareNavigator::StartPathRequest(FVector Destination, int32 Frame
 	LastRepathReason = Reason;
 	TimeSinceRequest = 0.f;
 	RerouteTimer = 0.f;
+	UnsafeRecheckTimer = 0.f;
+	bUnsafeRetryReady = false;
 	QueryHazardSnapshot = FYUFSHazardSnapshot();
 
 	ACharacter* Character = Cast<ACharacter>(GetOwner());
@@ -229,14 +262,112 @@ void UYUFSSmokeAwareNavigator::OnPathFound(uint32 QueryId, ENavigationQueryResul
 			StartPathRequest(RequestedDestination, LatestFrame, EYUFSRepathReason::Smoke);
 			return;
 		}
-		CurrentPath.Reset();
-		StopOwnerMovement();
-		SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::UnsafePath);
-		return;
+		if (!TrySafeHazardDetour(LatestSnapshot))
+		{
+			RejectedUnsafePath = CurrentPath;
+			RejectedHazardWitnesses.Reset();
+			TSet<int32> WitnessCells;
+			const auto Settings = GetHazardSettings();
+			for (int32 Segment = 1; Segment < CurrentPath.Num() && WitnessCells.Num() < 512; ++Segment)
+			{
+				const FVector A = CurrentPath[Segment - 1], B = CurrentPath[Segment];
+				const int32 Count = FMath::Clamp(FMath::CeilToInt(FVector::Dist(A, B) / FMath::Max(5.f, Settings.SampleStepCm)), 1, 4096);
+				for (int32 I = 0; I <= Count && WitnessCells.Num() < 512; ++I)
+				Settings.ForEachBodyProbe([&](float Height, bool bHeatOnly)
+				{
+					const FVector P = FMath::Lerp(A, B, float(I) / Count) + FVector(0, 0, Height);
+					const auto Sample = LatestSnapshot.Sample(P);
+					const int32 Cell = LatestSnapshot.CellIndex(P);
+					if (((!bHeatOnly && Sample.Smoke >= Settings.BlockSmoke) || Sample.Heat >= Settings.BlockHeat) && !WitnessCells.Contains(Cell))
+					{
+						WitnessCells.Add(Cell); RejectedHazardWitnesses.Add(P);
+					}
+				});
+			}
+			UnsafeRejectionFeet = GetOwnerFeetLocation();
+			CurrentPath.Reset();
+			StopOwnerMovement();
+			SetNavigationStatus(EYUFSNavigationStatus::Failed, EYUFSNavigationFailure::UnsafePath);
+			return;
+		}
 	}
+	RejectedUnsafePath.Reset();
+	RejectedHazardWitnesses.Reset();
+	bUnsafeRetryReady = false;
 	CurrentWaypointIndex = 1;
 	FailedPathRetries = 0;
 	SetNavigationStatus(EYUFSNavigationStatus::Moving);
+}
+
+bool UYUFSSmokeAwareNavigator::TrySafeHazardDetour(const FYUFSHazardSnapshot& Snapshot)
+{
+	ACharacter* Character = Cast<ACharacter>(GetOwner());
+	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
+	const ANavigationData* NavData = Character && NavSys ? NavSys->GetNavDataForProps(Character->GetNavAgentPropertiesRef(), Character->GetActorLocation()) : nullptr;
+	if (!NavData || CurrentPath.Num() < 2) return false;
+	const auto Settings = GetHazardSettings();
+	FVector HazardPoint, Side;
+	bool bFoundHazard = false;
+	int32 Probes = 0;
+	for (int32 Segment = 1; Segment < CurrentPath.Num() && !bFoundHazard && Probes < 512; ++Segment)
+	{
+		const FVector A = CurrentPath[Segment - 1], B = CurrentPath[Segment];
+		const int32 Count = FMath::Clamp(FMath::CeilToInt(FVector::Dist(A, B) / 40.f), 1, 512);
+		for (int32 I = 1; I <= Count && Probes++ < 512; ++I)
+		{
+			const FVector P = FMath::Lerp(A, B, float(I) / Count);
+			for (float Height : {20.f, Settings.SampleHeightCm * 0.5f, Settings.SampleHeightCm})
+			{
+				const auto Sample = Snapshot.Sample(P + FVector(0, 0, Height));
+				if (Sample.Smoke >= Settings.BlockSmoke || Sample.Heat >= Settings.BlockHeat)
+				{
+					HazardPoint = P;
+					Side = FVector::CrossProduct((B - A).GetSafeNormal2D(), FVector::UpVector).GetSafeNormal2D();
+					bFoundHazard = !Side.IsNearlyZero();
+					break;
+				}
+			}
+			if (bFoundHazard) break;
+		}
+	}
+	if (!bFoundHazard) return false;
+	const auto Filter = UYUFSSmokeNavigationQueryFilter::CreateQueryFilter(*NavData, Character, Snapshot, Settings);
+	if (!Filter.IsValid()) return false;
+	TArray<FVector> BestPath;
+	FYUFSHazardPathScore BestScore;
+	float BestCost = FLT_MAX;
+	// Four bounded same-floor candidates. Validate both real NavMesh legs and the final pulled geometry.
+	for (float Offset : {200.f, -200.f, 400.f, -400.f})
+	{
+		FNavLocation Via;
+		if (!NavSys->ProjectPointToNavigation(HazardPoint + Side * Offset, Via, FVector(50, 50, 60), NavData)
+			|| FMath::Abs(Via.Location.Z - HazardPoint.Z) > 80.f) continue;
+		TArray<FVector> Candidate;
+		const FVector Ends[] = {CurrentPath[0], Via.Location, CurrentDestination};
+		bool bComplete = true;
+		for (int32 Leg = 0; Leg < 2; ++Leg)
+		{
+			FPathFindingQuery Query(Character, *NavData, Ends[Leg], Ends[Leg + 1], Filter);
+			Query.SetAllowPartialPaths(false);
+			const auto Found = NavSys->FindPathSync(Character->GetNavAgentPropertiesRef(), Query);
+			if (!Found.IsSuccessful() || !Found.Path.IsValid() || !Found.Path->IsValid() || Found.Path->IsPartial() || Found.Path->GetPathPoints().Num() < 2) { bComplete = false; break; }
+			for (const auto& Point : Found.Path->GetPathPoints())
+				if (Candidate.IsEmpty() || !Candidate.Last().Equals(Point.Location, 1.f)) Candidate.Add(Point.Location);
+		}
+		if (!bComplete || Candidate.Num() < 2) continue;
+		const auto Score = Snapshot.ScorePath(Candidate, Settings);
+		if (!Score.bUnsafeAhead && Score.Length + Score.AddedCost < BestCost)
+		{
+			BestCost = Score.Length + Score.AddedCost;
+			BestPath = MoveTemp(Candidate);
+			BestScore = Score;
+		}
+	}
+	if (BestPath.IsEmpty()) return false;
+	CurrentPath = MoveTemp(BestPath);
+	LastPathScore = BestScore;
+	UE_LOG(LogTemp, Log, TEXT("[YUFS][Nav] agent=%s selected safe local detour points=%d pathMaxSmoke=%.3f pathMaxHeat=%.3f"), *GetNameSafe(GetOwner()), CurrentPath.Num(), LastPathScore.MaxSmoke, LastPathScore.MaxHeat);
+	return true;
 }
 
 TArray<FVector> UYUFSSmokeAwareNavigator::BuildRemainingPath() const
@@ -283,6 +414,10 @@ void UYUFSSmokeAwareNavigator::ClearPath()
 	QueryHazardSnapshot = FYUFSHazardSnapshot();
 	LastPathScore = FYUFSHazardPathScore();
 	FailedPathRetries = 0;
+	RejectedUnsafePath.Reset();
+	RejectedHazardWitnesses.Reset();
+	bUnsafeRetryReady = false;
+	UnsafeRecheckTimer = 0.f;
 	SetNavigationStatus(EYUFSNavigationStatus::Idle);
 }
 
@@ -334,6 +469,11 @@ FYUFSHazardSettings UYUFSSmokeAwareNavigator::GetHazardSettings() const
 	Settings.BlockSmoke = FMath::Clamp(UnsafeSmokeThreshold, 0.01f, 1.f);
 	Settings.BlockHeat = FMath::Clamp(UnsafeHeatThreshold, 0.01f, 1.f);
 	Settings.SampleHeightCm = HazardSampleHeightCm;
+	if (const auto* NPC = Cast<AYUFSEvacuationNPC>(GetOwner()); NPC && NPC->IsCrouched())
+	{
+		Settings.SampleHeightCm = NPC->GetBreathingHeightCm();
+		Settings.BodyHeatHeightCm = NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight() * 2.f;
+	}
 	return Settings;
 }
 

@@ -230,9 +230,9 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  {
   FVector Exit; const auto* RecipientNav=Person->GetNavigator();
   // Guidance only: never heal, teleport, or claim to carry an incapacitated person.
-  // The recipient's own knowledge, not global unobserved FDS cells, constrains
-  // the exit it will resume toward. This does not claim the whole route is known safe.
-  bool Safe=RecipientNav && Person->TryGetNearestKnownExit(Exit);
+  // Share the helper's remembered landmark, then check the recipient's personal
+  // hazard knowledge. This does not certify the whole route as safe.
+  bool Safe=RecipientNav && Npc->TryGetNearestKnownExit(Exit);
   if (Safe)
   {
    auto* Path=UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),Person->GetActorLocation(),Exit,Person.Get());
@@ -241,7 +241,7 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
   }
   if (!Safe) { Finish(false,TEXT("NoKnownExitForGuidance")); return true; }
   Other->bNeedsAssistance=false;
-  Person->ReceivePeerGuidance(); // The recipient's JJW state machine decides; this is not an official command.
+  if (!Person->ReceiveExitGuidance(Npc.Get())) { Finish(false,TEXT("ExitGuidanceNotReceived"));return true; }
   Person->GetHumanBehaviorSelector()->RequestReselection(TEXT("ReceivedNearbyGuidance"));
   Finish(true,TEXT("PersonGuidedToEvacuate"));
  }

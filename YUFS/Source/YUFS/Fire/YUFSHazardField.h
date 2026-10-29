@@ -30,8 +30,23 @@ struct FYUFSHazardSettings
 	float HeatCost = 60.f;
 	float SampleStepCm = 20.f;
 	float SampleHeightCm = 120.f; // Relative to the walking surface.
+	float BodyHeatHeightCm = 0.f; // Optional extra heat probe at the top of a lowered collision body.
 	float BlockSmoke = 0.7f;
 	float BlockHeat = 0.7f;
+
+	// Shared by scoring and rejected-route witnesses; upper body probes contribute heat only.
+	template<typename F> void ForEachBodyProbe(F&& Probe) const
+	{
+		Probe(SampleHeightCm, false);
+		Probe(FMath::Min(20.f, SampleHeightCm), false);
+		Probe(SampleHeightCm * 0.5f, false);
+		if (BodyHeatHeightCm > SampleHeightCm)
+		{
+			for (float Height = SampleHeightCm + FMath::Clamp(SampleStepCm, 5.f, 20.f);
+				Height < BodyHeatHeightCm; Height += FMath::Clamp(SampleStepCm, 5.f, 20.f)) Probe(Height, true);
+			Probe(BodyHeatHeightCm, true);
+		}
+	}
 };
 
 struct FYUFSHazardPathScore
@@ -53,6 +68,9 @@ struct FYUFSHazardSnapshot
 
 	// When present, only personally observed cells contribute; unseen cells are unknown, not certified safe.
 	TSharedPtr<const TMap<int32, FYUFSHazardSample>, ESPMode::ThreadSafe> KnownCells;
+	// Includes recently observed clear cells, so expired/unseen evidence cannot masquerade as clearance.
+	TSharedPtr<const TSet<int32>, ESPMode::ThreadSafe> ObservedCells;
+	bool IsObservedAt(const FVector& WorldLocation) const;
 	int32 CellIndex(const FVector& WorldLocation) const;
 	FYUFSHazardSample Sample(const FVector& WorldLocation) const;
 	float SegmentAddedCost(const FVector& Start, const FVector& End, const FYUFSHazardSettings& Settings) const;

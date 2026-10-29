@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-16",
+  "branch": "codex/merged-navigation-completion",
+  "base": "merge_JJW_Kim_Eung_Gang@83cb710",
+  "build": "Succeeded",
+  "tests": {
+    "passed": 93,
+    "failed": 0,
+    "original_failing_test_cases": [
+      "YUFS.NPC.Navigation.ExitValidation.ConfiguredRadiusSharedWithNPC",
+      "YUFS.NPC.Navigation.ExitValidation.FloorSeparationAndMissingSupport",
+      "YUFS.NPC.Navigation.ExitValidation.WallsDoorsAndCrowdGeometry"
+    ]
+  },
+  "runtime": [
+    {
+      "case": 0,
+      "population": 20,
+      "initial_xyz_match": true,
+      "before_count": 20,
+      "after_count": 20,
+      "first_all_counted_sample_before": 21,
+      "first_all_counted_sample_after": 23
+    },
+    {
+      "case": 1,
+      "population": 20,
+      "initial_xyz_match": true,
+      "before_count": 20,
+      "after_count": 20,
+      "first_all_counted_sample_before": 22,
+      "first_all_counted_sample_after": 24
+    },
+    {
+      "case": "upright_door_final_Main",
+      "before_native_comparison": null,
+      "closed_count": 0,
+      "after_actual_open_count": 1,
+      "rotation": "<Struct 'Rotator' (0x000001E0B238F940) {pitch: 0.000000, yaw: -90.000000, roll: 0.000000}>",
+      "scope": "Final Main verification; earlier misoriented door records excluded. Original-code false success reproduced in the physical unit tests."
+    }
+  ],
+  "excluded_trials": [
+    "First baseline third-case Quat/Rotator type mismatch was a script preparation error; first two crowd cases remain valid.",
+    "Positional Rotator arguments then tilted the diagnostic door onto the floor. Original and first-after door records are not evidence of through-door success. Final door verifies yaw=-90, pitch=0 and vertical extent>100 before testing."
+  ],
+  "limits": [
+    "Exit-region classification with physical access, not full exterior-boundary crossing.",
+    "Exit anchors must be on the exit floor; supported target floor tolerance10cm. Other maps not inventoried.",
+    "Controlled fixed fire0 and early alarm configs isolate geometry; no population survival or autonomous door-use claim.",
+    "Native queries ignore peer NPCs only for exit classification; actual recovery collisions unchanged.",
+    "No gameplay assets/maps/hazard data/exposure timing changed. No commit/push."
+  ],
+  "verified_file_sha256": {
+    "YUFS/Source/YUFS/Level/YUFSLevelDataManager.h": "ef7123ac83c3093c2a2996bb52a98ee2c82899e54e4acfe7e163d69ac1037944",
+    "YUFS/Source/YUFS/Level/YUFSLevelDataManager.cpp": "ca8584b9d0663ac796dc44da12355e9391a44bf187828d7931babaa32cfab714",
+    "YUFS/Source/YUFS/Level/YUFSExitPoint.h": "39f60fca08f44880ae0086f3a408a92f8445444d28b7202369ac6c76143de9eb",
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSLocalMovementComponent.h": "9c85d79a57000ad658a5eed6118a76b5961a1c79053625a5dc47822f6b951827",
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSLocalMovementComponent.cpp": "5e1c3da7f87f93833bc928ce800faefa32f1a0ac42ecbb89694f3e04f4dd23cb",
+    "YUFS/Source/YUFS/NPC/YUFSEvacuationNPC.cpp": "96ca05cd8b400c8ce2da282b56cbf496e8c7c2a77f5932f19c882ff2bdb8c308",
+    "YUFS/Source/YUFS/Simulation/YUFSSimulationController.cpp": "e8459a4b186c54b2b14b89c753756b65f8b4e689f40eb627061093f88c4293f6",
+    "YUFS/Source/YUFS/Tests/ExitValidationTests.cpp": "7e129a30e41ff0c13df62a7a4dd8ea7c209d1bbdaeeff810cbe37d9d4e3481a4",
+    "YUFS/Binaries/Win64/UnrealEditor-YUFS.dll": "58aee13a6e557c69e18ff80498b06f75f48a6a09b1100d220ec6a81df8cd747e"
+  }
+}

@@ -100,6 +100,12 @@ YUFS/Content/Fires/vdb/Scenario_03/vdb/fire.uasset
 # Claude Code 임시 작업 폴더
 YUFS/.claude/worktrees/
 /YUFS/Content/Fires
+# Keep the material/SVT references used by the diagnostic Main map reviewable.
+# Raw BIN/VDB exports remain external simulation data.
+!/YUFS/Content/Fires/
+/YUFS/Content/Fires/*
+!/YUFS/Content/Fires/Audit0928/
+!/YUFS/Content/Fires/Audit0928/*.uasset
 
 # Local asset inspection and Unreal verification outputs are not source assets.
 .tmp/
@@ -111,3 +117,12 @@ YUFS/Content/Props/FireExtinguisher/Polyfork_95dca1/
 
 # CC0 source used by the reproducible Unreal importer.
 !YUFS/SourceAssets/FireExtinguisher/OpenGameArt_JamesWhite_2015/fire_extinguisher_model.obj
+
+# Include the three BIN files referenced by the saved Main map.
+!/YUFS/Content/Fires/FirePrototype/
+/YUFS/Content/Fires/FirePrototype/*
+!/YUFS/Content/Fires/FirePrototype/BinaryData/
+/YUFS/Content/Fires/FirePrototype/BinaryData/*
+!/YUFS/Content/Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin
+!/YUFS/Content/Fires/FirePrototype/BinaryData/smoke_data_it_test_2.bin
+!/YUFS/Content/Fires/FirePrototype/BinaryData/smoke_data_it_test_3_v1.bin

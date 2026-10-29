@@ -4,6 +4,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Simulation/YUFSRunResultsSaveGame.h"
+#include "Simulation/YUFSReplayArchive.h"
 #include "Engine/World.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
@@ -32,11 +33,16 @@ void UYUFSGameInstance::OnStart()
 
 void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 {
-	if (!World || !World->IsGameWorld() || BuildingInteractionSetupWorld == World
-		|| FParse::Param(FCommandLine::Get(), TEXT("YUFSNoBuildingInteractions"))
-		|| (!bEnableBuildingInteractions
-			&& !FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions")))) return;
+	if (!World || !World->IsGameWorld() || BuildingInteractionSetupWorld == World) return;
 	BuildingInteractionSetupWorld = World;
+	BuildingInteractionReadyWorld.Reset();
+	if (FParse::Param(FCommandLine::Get(), TEXT("YUFSNoBuildingInteractions"))
+		|| (!bEnableBuildingInteractions
+			&& !FParse::Param(FCommandLine::Get(), TEXT("YUFSBuildingInteractions"))))
+	{
+		MarkBuildingInteractionSetupReady(World);
+		return;
+	}
 	const auto* Scenario = GetDefault<AYUFSAuthoredSuppressionScenario>();
 	if (Scenario->bEnabled
 		&& !FParse::Param(FCommandLine::Get(), TEXT("YUFSDisableAuthoredSuppression")))
@@ -51,7 +57,7 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 		FTimerHandle Handle;
 		const TWeakObjectPtr<UWorld> SetupWorld(World);
 		const int32 TargetCount = FMath::Clamp(MinimumExtinguisherCount, 0, 64);
-		World->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateWeakLambda(this, [SetupWorld, TargetCount]()
+		World->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateWeakLambda(this, [this, SetupWorld, TargetCount]()
 		{
 			UWorld* W = SetupWorld.Get();
 			if (!W) return;
@@ -59,6 +65,7 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 			if (!Nav)
 			{
 				UE_LOG(LogTemp, Warning, TEXT("[NPCSuppression] Automatic prop placement unavailable: no navigation system. Existing props and ordinary simulation remain available."));
+				MarkBuildingInteractionSetupReady(W);
 				return;
 			}
 			int32 Placed = 0;
@@ -185,7 +192,23 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 				else if (FParse::Param(FCommandLine::Get(), TEXT("YUFSAutoStartSimulation")))
 					It->StartSimulation();
 			}
+			MarkBuildingInteractionSetupReady(W);
 		}), 4.f, false);
+	}
+}
+
+bool UYUFSGameInstance::IsBuildingInteractionSetupReady(const UWorld* World) const
+{
+	return !World || BuildingInteractionReadyWorld.Get() == World;
+}
+
+void UYUFSGameInstance::MarkBuildingInteractionSetupReady(UWorld* World)
+{
+	if (!World || BuildingInteractionSetupWorld.Get() != World) return;
+	BuildingInteractionReadyWorld = World;
+	for (TActorIterator<AYUFSSimulationController> It(World); It; ++It)
+	{
+		It->NotifyBuildingInteractionSetupReady();
 	}
 }
 
@@ -231,28 +254,46 @@ void UYUFSGameInstance::LoadRunResultsFromDisk()
 
 void UYUFSGameInstance::LaunchScenario(const FYUFSScenarioConfig& Config)
 {
+	// Choosing a normal run cancels a replay that has not reached Start yet.
+	ClearPendingReplay();
+	LaunchScenarioInternal(Config);
+}
+
+void UYUFSGameInstance::ClearPendingReplay()
+{
+	bHasPendingReplaySeed = false;
+	PendingReplaySeed = 0;
+	PendingReplayNPCTransforms.Reset();
+	PendingReplayNPCClasses.Reset();
+	PendingReplayNPCStableIds.Reset();
+	PendingReplayFrames.Reset();
+}
+
+bool UYUFSGameInstance::LaunchScenarioInternal(const FYUFSScenarioConfig& Config)
+{
 	FText Error;
 	if (!Config.IsValid(Error))
 	{
 		UE_LOG(LogTemp, Error, TEXT("[YUFS] LaunchScenario 거부: %s"), *Error.ToString());
-		return;
+		return false;
 	}
-
-	ActiveScenario = Config;
-	bHasActiveScenario = true;
 
 	const FString PackageName = Config.SimulationMap.ToSoftObjectPath().GetLongPackageName();
 	if (PackageName.IsEmpty())
 	{
 		UE_LOG(LogTemp, Error, TEXT("[YUFS] LaunchScenario: 맵 경로를 해석할 수 없습니다. (%s)"),
 			*Config.SimulationMap.ToString());
-		return;
+		return false;
 	}
+
+	ActiveScenario = Config;
+	bHasActiveScenario = true;
 
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] 시나리오 시작 → %s (NPC %d)"),
 		*PackageName, Config.NPCCount);
 
 	UGameplayStatics::OpenLevel(this, FName(*PackageName));
+	return true;
 }
 
 bool UYUFSGameInstance::RelaunchLastScenario()
@@ -275,6 +316,8 @@ void UYUFSGameInstance::StoreRunResults(const TArray<FSimRunResult>& Results)
 
 bool UYUFSGameInstance::ReplayRun(const FSimRunResult& RunResult)
 {
+	// A rejected replacement must not leave an earlier replay armed.
+	ClearPendingReplay();
 	// "현재" ActiveScenario가 아니라 그 회차가 실제로 썼던 설정 스냅샷을 그대로 씁니다.
 	// (그 사이 다른 시나리오를 실행했어도 이 회차는 정확히 그때 설정으로 재현됩니다.)
 	FText Error;
@@ -283,19 +326,66 @@ bool UYUFSGameInstance::ReplayRun(const FSimRunResult& RunResult)
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS] ReplayRun 거부: 저장된 시나리오 설정이 유효하지 않습니다. %s"), *Error.ToString());
 		return false;
 	}
+	const int32 NPCCount = RunResult.InitialNPCTransforms.Num();
+	if (RunResult.InitialNPCClasses.Num() != NPCCount || RunResult.InitialNPCStableIds.Num() != NPCCount)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] ReplayRun rejected: saved NPC transforms, classes and IDs have different counts."));
+		return false;
+	}
+	TSet<int32> CatalogIds;
+	for (int32 Index = 0; Index < NPCCount; ++Index)
+	{
+		const UClass* NPCClass = RunResult.InitialNPCClasses[Index].Get();
+		const int32 StableId = RunResult.InitialNPCStableIds[Index];
+		if (!IsValid(NPCClass) || !NPCClass->IsChildOf(AYUFSEvacuationNPC::StaticClass())
+			|| NPCClass->HasAnyClassFlags(CLASS_Abstract) || StableId == INDEX_NONE || CatalogIds.Contains(StableId))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[YUFS] ReplayRun rejected: NPC catalog entry %d has an unavailable/abstract class or invalid/duplicate identity."), Index);
+			return false;
+		}
+		CatalogIds.Add(StableId);
+	}
+	TArray<FYUFSTimelineFrame> Frames;
+	if (!YUFSReplayArchive::Load(RunResult.ReplayRecordingId, Frames))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] 정확한 리플레이 기록이 없습니다. 변경 전 회차는 새 시뮬레이션을 실행해 기록해야 합니다."));
+		return false;
+	}
+	for (const FYUFSTimelineFrame& Frame : Frames)
+	{
+		TSet<int32> FrameIds;
+		for (const FYUFSTimelineNPCSnapshot& Snapshot : Frame.NPCSnapshots)
+		{
+			if (!CatalogIds.Contains(Snapshot.StableNPCId) || FrameIds.Contains(Snapshot.StableNPCId))
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[YUFS] ReplayRun rejected: a recorded NPC has no matching unique saved identity (ID=%d)."), Snapshot.StableNPCId);
+				return false;
+			}
+			FrameIds.Add(Snapshot.StableNPCId);
+		}
+	}
 
 	// 배치 반복(1회로 제한)은 레벨 로드 후 SimulationController::StartSimulation()이 처리합니다.
 	PendingReplaySeed = RunResult.RandomSeed;
 	PendingReplayNPCTransforms = RunResult.InitialNPCTransforms;
 	PendingReplayNPCClasses = RunResult.InitialNPCClasses;
+	PendingReplayNPCStableIds = RunResult.InitialNPCStableIds;
+	PendingReplayFrames = MoveTemp(Frames);
 	bHasPendingReplaySeed = true;
 
-	LaunchScenario(RunResult.ScenarioConfig);
+	// Preserve this deliberate handoff across the level load. Public LaunchScenario
+	// represents a new live run and would cancel the pending replay.
+	if (!LaunchScenarioInternal(RunResult.ScenarioConfig))
+	{
+		ClearPendingReplay();
+		return false;
+	}
 	return true;
 }
 
 void UYUFSGameInstance::ReturnToMainMenu()
 {
+	ClearPendingReplay();
 	// ActiveScenario/LastRunResults는 "이어서 실행"과 결과 화면에서 쓸 수 있게 남겨둡니다.
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] 메인 메뉴로 복귀"));
 	UGameplayStatics::OpenLevel(this, FName(TEXT("/Game/Maps/Lvl_MainMenu")));

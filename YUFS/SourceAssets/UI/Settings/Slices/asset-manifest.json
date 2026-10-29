@@ -1,0 +1,491 @@
+[
+  {
+    "file": "Cards_Reference/card_display.png",
+    "kind": "original_pixel_crop",
+    "x": 270,
+    "y": 188,
+    "width": 898,
+    "height": 271,
+    "role": "reference only: contains fixed resolution and selected mode",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Cards_Reference/card_quality.png",
+    "kind": "original_pixel_crop",
+    "x": 270,
+    "y": 473,
+    "width": 898,
+    "height": 198,
+    "role": "reference only: contains fixed selected quality",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Cards_Reference/card_debug.png",
+    "kind": "original_pixel_crop",
+    "x": 270,
+    "y": 685,
+    "width": 898,
+    "height": 194,
+    "role": "reference only: contains fixed checkbox",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/card_settings_guide.png",
+    "kind": "original_pixel_crop",
+    "x": 1181,
+    "y": 188,
+    "width": 465,
+    "height": 681,
+    "role": "complete static right guidance card; ready for Image",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/heading_display.png",
+    "kind": "assembled_from_original_crops",
+    "x": 294,
+    "y": 207,
+    "width": 260,
+    "height": 70,
+    "role": "display title and illustration",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/heading_quality.png",
+    "kind": "assembled_from_original_crops",
+    "x": 294,
+    "y": 493,
+    "width": 260,
+    "height": 70,
+    "role": "quality title and illustration",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/heading_debug.png",
+    "kind": "assembled_from_original_crops",
+    "x": 294,
+    "y": 706,
+    "width": 220,
+    "height": 70,
+    "role": "debug title and illustration",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/icon_display.png",
+    "kind": "original_pixel_crop",
+    "x": 294,
+    "y": 207,
+    "width": 68,
+    "height": 70,
+    "role": "display illustration",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/icon_quality.png",
+    "kind": "original_pixel_crop",
+    "x": 294,
+    "y": 493,
+    "width": 68,
+    "height": 70,
+    "role": "quality illustration",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/icon_debug.png",
+    "kind": "original_pixel_crop",
+    "x": 294,
+    "y": 706,
+    "width": 68,
+    "height": 70,
+    "role": "debug illustration",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/hint_display.png",
+    "kind": "original_pixel_crop",
+    "x": 389,
+    "y": 421,
+    "width": 756,
+    "height": 28,
+    "role": "display help text",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/hint_quality.png",
+    "kind": "original_pixel_crop",
+    "x": 389,
+    "y": 632,
+    "width": 756,
+    "height": 27,
+    "role": "quality help text",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/hint_debug_immediate.png",
+    "kind": "original_pixel_crop",
+    "x": 389,
+    "y": 824,
+    "width": 756,
+    "height": 43,
+    "role": "immediate debug update info strip",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/guide_display.png",
+    "kind": "original_pixel_crop",
+    "x": 1212,
+    "y": 277,
+    "width": 409,
+    "height": 99,
+    "role": "right guide display item",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/guide_quality.png",
+    "kind": "original_pixel_crop",
+    "x": 1212,
+    "y": 436,
+    "width": 409,
+    "height": 99,
+    "role": "right guide quality item",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/guide_apply.png",
+    "kind": "original_pixel_crop",
+    "x": 1212,
+    "y": 596,
+    "width": 409,
+    "height": 102,
+    "role": "right guide apply item",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "StaticParts/guide_cancel_note.png",
+    "kind": "original_pixel_crop",
+    "x": 1204,
+    "y": 733,
+    "width": 420,
+    "height": 72,
+    "role": "right guide cancel note",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_fullscreen.png",
+    "kind": "original_pixel_crop",
+    "x": 523,
+    "y": 335,
+    "width": 198,
+    "height": 56,
+    "role": "baked-label fullscreen example",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_borderless_selected.png",
+    "kind": "original_pixel_crop",
+    "x": 732,
+    "y": 335,
+    "width": 206,
+    "height": 56,
+    "role": "baked-label selected borderless example",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_windowed.png",
+    "kind": "original_pixel_crop",
+    "x": 950,
+    "y": 335,
+    "width": 195,
+    "height": 56,
+    "role": "baked-label windowed example",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_quality_low.png",
+    "kind": "original_pixel_crop",
+    "x": 389,
+    "y": 549,
+    "width": 180,
+    "height": 53,
+    "role": "baked-label low example",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_quality_medium.png",
+    "kind": "original_pixel_crop",
+    "x": 580,
+    "y": 549,
+    "width": 180,
+    "height": 53,
+    "role": "baked-label medium example",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_quality_high_selected.png",
+    "kind": "original_pixel_crop",
+    "x": 772,
+    "y": 549,
+    "width": 180,
+    "height": 53,
+    "role": "baked-label selected high example",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_quality_epic.png",
+    "kind": "original_pixel_crop",
+    "x": 964,
+    "y": 549,
+    "width": 180,
+    "height": 53,
+    "role": "baked-label epic example",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_back.png",
+    "kind": "original_pixel_crop",
+    "x": 1191,
+    "y": 879,
+    "width": 140,
+    "height": 39,
+    "role": "baked-label back button",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_cancel.png",
+    "kind": "original_pixel_crop",
+    "x": 1342,
+    "y": 879,
+    "width": 135,
+    "height": 39,
+    "role": "baked-label cancel button",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Buttons_Reference/btn_apply.png",
+    "kind": "original_pixel_crop",
+    "x": 1487,
+    "y": 879,
+    "width": 159,
+    "height": 39,
+    "role": "baked-label apply button",
+    "drawAs": "Image",
+    "includesBackground": true
+  },
+  {
+    "file": "Skins/panel_card.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/bg_workspace.png",
+    "kind": "reused_existing_asset",
+    "width": 16,
+    "height": 16,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/bg_header.png",
+    "kind": "reused_existing_asset",
+    "width": 16,
+    "height": 16,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/bg_sidebar.png",
+    "kind": "reused_existing_asset",
+    "width": 16,
+    "height": 16,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/divider.png",
+    "kind": "reused_existing_asset",
+    "width": 64,
+    "height": 64,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/btn_primary_normal.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/btn_primary_hover.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/btn_primary_pressed.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/btn_primary_disabled.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/btn_secondary_normal.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/btn_secondary_hover.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/btn_secondary_pressed.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/btn_secondary_disabled.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/field_normal.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/field_hover.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/field_focus.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/field_disabled.png",
+    "kind": "reused_existing_asset",
+    "width": 128,
+    "height": 128,
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Skins/chevron_down_slate.png",
+    "kind": "reused_existing_asset",
+    "width": 64,
+    "height": 64,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/check_unchecked_normal.png",
+    "kind": "reused_existing_asset",
+    "width": 64,
+    "height": 64,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/check_unchecked_hover.png",
+    "kind": "reused_existing_asset",
+    "width": 64,
+    "height": 64,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/check_unchecked_pressed.png",
+    "kind": "reused_existing_asset",
+    "width": 64,
+    "height": 64,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/check_checked_normal.png",
+    "kind": "reused_existing_asset",
+    "width": 64,
+    "height": 64,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/check_checked_hover.png",
+    "kind": "reused_existing_asset",
+    "width": 64,
+    "height": 64,
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Skins/check_checked_pressed.png",
+    "kind": "reused_existing_asset",
+    "width": 64,
+    "height": 64,
+    "drawAs": "Image",
+    "margin": 0
+  }
+]

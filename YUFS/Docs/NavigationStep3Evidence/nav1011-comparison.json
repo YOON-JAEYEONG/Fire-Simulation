@@ -1,0 +1,60 @@
+{
+  "conditions": "Two rendered Main PIE cases; 20 NPCs, same non-overlapping projected placements and transient alarm-responsive configs; paused BIN/VDB frame0 isolates traffic; no actor movement overrides after spawn.",
+  "cases": [
+    {
+      "case": 0,
+      "placements_match": true,
+      "before": {
+        "finish_seconds_first_sample": 24,
+        "resolved_at_58": 20,
+        "yielding_person_seconds_samples": 76,
+        "traffic_samples": {
+          "<YUFSLocalMovementState.FOLLOWING: 0>": 1094,
+          "<YUFSLocalMovementState.YIELDING: 1>": 76,
+          "<YUFSLocalMovementState.RECOVERING: 2>": 9,
+          "<YUFSLocalMovementState.BLOCKED: 3>": 1
+        },
+        "wrong_frame_samples": 0
+      },
+      "after": {
+        "finish_seconds_first_sample": 26,
+        "resolved_at_58": 20,
+        "yielding_person_seconds_samples": 111,
+        "traffic_samples": {
+          "<YUFSLocalMovementState.FOLLOWING: 0>": 1058,
+          "<YUFSLocalMovementState.YIELDING: 1>": 111,
+          "<YUFSLocalMovementState.RECOVERING: 2>": 10,
+          "<YUFSLocalMovementState.BLOCKED: 3>": 1
+        },
+        "wrong_frame_samples": 0
+      }
+    },
+    {
+      "case": 1,
+      "placements_match": true,
+      "before": {
+        "finish_seconds_first_sample": 30,
+        "resolved_at_58": 20,
+        "yielding_person_seconds_samples": 95,
+        "traffic_samples": {
+          "<YUFSLocalMovementState.FOLLOWING: 0>": 1072,
+          "<YUFSLocalMovementState.YIELDING: 1>": 95,
+          "<YUFSLocalMovementState.BLOCKED: 3>": 6,
+          "<YUFSLocalMovementState.RECOVERING: 2>": 7
+        },
+        "wrong_frame_samples": 0
+      },
+      "after": {
+        "finish_seconds_first_sample": 28,
+        "resolved_at_58": 20,
+        "yielding_person_seconds_samples": 87,
+        "traffic_samples": {
+          "<YUFSLocalMovementState.FOLLOWING: 0>": 1089,
+          "<YUFSLocalMovementState.YIELDING: 1>": 87,
+          "<YUFSLocalMovementState.RECOVERING: 2>": 4
+        },
+        "wrong_frame_samples": 0
+      }
+    }
+  ]
+}

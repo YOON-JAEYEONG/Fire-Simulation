@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-17",
+  "branch": "codex/merged-navigation-completion",
+  "published": false,
+  "build": "Succeeded",
+  "tests": {
+    "passed": 102,
+    "failed": 0,
+    "process_exit": 0,
+    "baseline_expected_failures": 2
+  },
+  "rendered_main": {
+    "complete": true,
+    "process_exit": 0,
+    "mode": "Rendered saved Main PIE.3 actual datasets, stationary identical-position palette NPC pairs compare attenuation0 vs1.2 at fixed480, eight headings each; then4 native movers with progressing fire1. Runtime fixtures only, no saved assets.",
+    "fixed_frame_comparisons": [
+      {
+        "dataset_index": 0,
+        "pair_count": 8,
+        "largest_reduction_heading": "heading_270",
+        "geometric_cm": 1000.0,
+        "attenuated_cm": 158.71571350097656,
+        "self_smoke_both": 0.9961
+      },
+      {
+        "dataset_index": 1,
+        "pair_count": 8,
+        "largest_reduction_heading": "heading_270",
+        "geometric_cm": 1000.0,
+        "attenuated_cm": 158.71571350097656,
+        "self_smoke_both": 0.9961
+      },
+      {
+        "dataset_index": 2,
+        "pair_count": 8,
+        "largest_reduction_heading": "heading_270",
+        "geometric_cm": 1000.0,
+        "attenuated_cm": 257.4346923828125,
+        "self_smoke_both": 0.4706
+      }
+    ],
+    "normal_4_npcs": {
+      "sim_time": 25.001724243164062,
+      "fire_frame": 200,
+      "displacement_cm": [
+        827.3901861529264,
+        884.8699249985983,
+        760.382633758318,
+        520.6450769798435
+      ],
+      "evacuated": 3,
+      "incapacitated": 0
+    }
+  },
+  "scope": "Smoke attenuation in visual hazard rays and direct observed-hazard point API. Personal exit knowledge deferred explicitly; whole-level exit candidates remain.",
+  "calibration": {
+    "attenuation_per_normalized_density_meter": 1.2,
+    "minimum_transmission": 0.15,
+    "physical_extinction_units_verified": false
+  },
+  "limitations": [
+    "Offscreen automated PIE, not human visual/pixel flame recognition.",
+    "Normalized density heuristic, not measured smoke extinction or verified physical units.",
+    "Existing local heat/self exposure independent of optical attenuation; collision occlusion retained.",
+    "General object/social discovery policies remain, not fully unified smoke-aware perception.",
+    "Personal exit memory/search/guidance acquisition next; global exit list still used.",
+    "Snapshot loading/coverage flag is not alignment verification; alignment-confirmed remains false.",
+    "Fixed480 comparison is not normal3-dataset survival statistics.",
+    "Existing engine startup Condition/default-BIN and RiderLink shutdown messages remain."
+  ],
+  "sha256": {
+    "YUFS/Source/YUFS/NPC/Perception/YUFSPerceptionConfig.h": "5f27e4abc269abacdf34fc0c55d11f6a562690fb314ed666f0c2b1e9beac68fb",
+    "YUFS/Source/YUFS/NPC/Perception/YUFSNPCPerceptionComponent.h": "db61fe524470150c1402798adcd7d5bb12045b44362ad48a53b5888e75cbc00d",
+    "YUFS/Source/YUFS/NPC/Perception/YUFSNPCPerceptionComponent.cpp": "a374b71ba89b06d24484c404b00aeaf2705dfcc7f1d2fdadce9d7310a5c5e085",
+    "YUFS/Source/YUFS/NPC/YUFSEvacuationNPC.cpp": "1745a2b474fc306edde5ae7ba40aefefbf3ab45fe0367e1caf44329165dd3edc",
+    "YUFS/Source/YUFS/Tests/SmokeVisibilityTests.cpp": "dc67c58d38fa7c875fa032061f4f2e52c424035e604f9c63ebedda17e4a5e059",
+    "YUFS/Binaries/Win64/UnrealEditor-YUFS.dll": "8e495476c08d4bebfe5673edf6498305fa1dbea7429aa53eb0095624a53cd226"
+  }
+}

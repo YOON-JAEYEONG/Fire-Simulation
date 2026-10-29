@@ -7,6 +7,7 @@
 #include "Core/YUFSTypes.h"
 #include "GameFramework/Character.h"
 #include "NPC/Decision/YUFSOnnxPolicy.h"
+#include "NPC/Cognition/YUFSHumanCognitionTypes.h"
 #include "NPC/Integration/YUFSTeamIntegrationTypes.h"
 #include "Simulation/YUFSTimelineTypes.h"
 #include "YUFSEvacuationNPC.generated.h"
@@ -29,6 +30,7 @@ class UYUFSNPCDebugComponent;
 class UYUFSNpcEnvironmentInteraction;
 class UYUFSNpcSuppressionComponent;
 class UYUFSNPCPerceptionComponent;
+class UYUFSExitKnowledgeComponent;
 class AYUFSSimulationController;
 
 UCLASS()
@@ -43,6 +45,10 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	virtual FVector GetPawnViewLocation() const override;
+	// Actual collision posture is authoritative, including a refused stand-up under a ceiling.
+	UFUNCTION(BlueprintPure, Category="NPC|Diagnostics")
+	float GetBreathingHeightCm() const;
 
 	UFUNCTION()
 	void OnCommReceived(EYUFSCommType CommType, FVector SourceLocation, float EffectiveRadius, FVector GuidanceTarget);
@@ -82,6 +88,7 @@ public:
 	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, Category="AI|Determinism")
 	int32 StableNPCId = INDEX_NONE;
 
+	// Authored per-NPC seed. Run initialization combines it with the project seed.
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AI|Determinism")
 	int32 ScenarioSeed = 20260831;
 
@@ -111,6 +118,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior", meta=(ClampMin="1.0"))
 	float EverydayMaxRoamSeconds = 18.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AI|Everyday Behavior")
+	// 프로젝트 시드, NPC ScenarioSeed, StableNPCId에 더해지는 평상시 행동용 salt다.
 	int32 EverydayBehaviorSeed = 2026;
 
 	// 경험 전이는 정책 주기와 같은 최대 10Hz로 기록한다.
@@ -123,6 +131,14 @@ public:
 	float GetDesiredWalkingSpeed() const;
 	bool AllowsOptionalInteractions() const;
 	void ReceivePeerGuidance();
+	UFUNCTION(BlueprintCallable,Category="NPC|Exit Knowledge")
+	bool ReceiveExitGuidance(AYUFSEvacuationNPC* Sender);
+	UYUFSExitKnowledgeComponent* GetExitKnowledge() const { return ExitKnowledge; }
+	TArray<FVector> GetPersonallyKnownExitLocations() const;
+	// 같은 회차 시드와 StableNPCId에는 같은 대기 시간/산책 목적지 순서를 만든다.
+	void InitializeEverydayBehaviorForRun(int32 RunSeed);
+	// Combine project and authored NPC seeds without overwriting either setting.
+	void InitializeForRun(int32 RunSeed);
 	bool IsInteractionHoldingPosition() const;
 
 	UYUFSLocalMovementComponent* GetLocalMovement() const { return LocalMovement; }
@@ -167,9 +183,13 @@ public:
 
 	const FYUFSNPCObservation& GetLastObservation() const { return LiveObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
-	EYUFSAction GetDisplayedAction() const { return bActionAnimationPreviewActive ? PreviewAction : CurrentAction; }
+	EYUFSAction GetDisplayedAction() const { return bTimelinePlaybackMode && bHasTimelinePlaybackSnapshot
+		? TimelinePlaybackSnapshot.DisplayAction : (bActionAnimationPreviewActive ? PreviewAction : CurrentAction); }
 	bool IsActionAnimationPreviewActive() const { return bActionAnimationPreviewActive; }
 	FString GetCurrentActionAnimationName() const;
+	// Read-only, on-demand audit. Path maxima are deliberately separate from cached perception.
+	UFUNCTION(BlueprintPure, Category="NPC|Diagnostics")
+	FString GetHazardAudit() const;
 
 	UFUNCTION(BlueprintCallable, Category="NPC|Animation")
 	void SetActionAnimationPreview(EYUFSAction Action);
@@ -180,6 +200,7 @@ public:
 	void SetAnimationShowcaseDebugSuppressed(bool bSuppressed);
 
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
+	void SetLiveSimulationPaused(bool bPaused);
 
 	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
 	// 현재 NPC 상태를 최소 정보 스냅샷으로 변환합니다.
@@ -191,8 +212,13 @@ public:
 	// 관찰 모드에서는 AI/이동/정책 Tick을 정지하고 기록된 Transform만 적용합니다.
 	void SetTimelinePlaybackMode(bool bEnabled);
 	bool IsTimelinePlaybackMode() const { return bTimelinePlaybackMode; }
+	const FYUFSTimelineNPCSnapshot& GetTimelinePlaybackSnapshot() const { return TimelinePlaybackSnapshot; }
 
 private:
+	bool UpdatePhysicalPosture();
+	float LowBreathingHeightCm = 55.f;
+	EYUFSBehaviorState TimelineDisplayState = EYUFSBehaviorState::Normal;
+	friend struct FYUFSCrawlPostureTestAccess;
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCPerceptionComponent* PerceptionComp;
 	UPROPERTY(VisibleAnywhere)
@@ -204,6 +230,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCDebugComponent* DebugComp;
 	UPROPERTY(VisibleAnywhere) UYUFSLocalMovementComponent* LocalMovement;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="NPC|Exit Knowledge",meta=(AllowPrivateAccess="true")) TObjectPtr<UYUFSExitKnowledgeComponent> ExitKnowledge;
 	float BaseWalkSpeed = 400.f;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSBeliefComponent> BeliefComp;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSIntentComponent> IntentComp;
@@ -231,12 +258,31 @@ private:
 	bool bReceivedStaffGuidance = false;
 	UPROPERTY()
 	FVector StaffGuidedExitLocation = FVector::ZeroVector;
+	bool bHasStaffGuidedExit=false;
 
 	FVector SpawnLocation = FVector::ZeroVector;
 
 	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
 	bool bTimelinePlaybackMode = false;
+	bool bHasTimelinePlaybackSnapshot = false;
+	UPROPERTY(Transient)
+	FYUFSTimelineNPCSnapshot TimelinePlaybackSnapshot;
 	float SavedWalkSpeedBeforeTimeline = 300.f;
+	bool bLiveSimulationPaused = false;
+	bool bActorTickBeforePause = true;
+	bool bMovementTickBeforePause = true;
+	bool bNavigatorTickBeforePause = true;
+	bool bMeshPausedBeforePause = false;
+	bool bNavigatorTickBeforeTimeline = true;
+	TEnumAsByte<EMovementMode> SavedMovementModeBeforeTimeline = MOVE_Walking;
+	uint8 SavedCustomMovementModeBeforeTimeline = 0;
+	bool bSavedMovementTickEnabled = true;
+	bool bSavedAvoidanceEnabled = true;
+	bool bSavedCollisionEnabled = true;
+	bool bSavedControllerTickEnabled = true;
+	bool bPausedBrainForTimeline = false;
+	bool bSavedPauseAnims = false;
+	bool bSavedAnimationPlaying = true;
 
 	// ── CSV 로깅 ──────────────────────────────────────────────────────
 	FYUFSNPCObservation PrevObservation{};
@@ -258,6 +304,13 @@ private:
 	// ── MLP 정책 (ONNX 추론, RuleBasedPolicy 폴백 내장) ──────────────
 	FYUFSOnnxPolicy MLPolicy;
 	FYUFSDeterministicRngSet DeterministicRng;
+	int32 ActiveProjectSeed = 0;
+	FYUFSHumanTraits InitialHumanTraits;
+	FYUFSHumanTraits LastSeededHumanTraits;
+	TSet<FName> OverriddenHumanTraitFields;
+	bool bSeedDefaultsCaptured = false;
+	bool bInitialTrainingCompleted = false;
+	bool bLastSeededTrainingCompleted = false;
 	bool bHasSafeExit = false;
 	FVector LastSafeExit = FVector::ZeroVector;
 	// A verified retreat is handed back by the interaction, never recomputed from global FDS truth.
@@ -271,6 +324,9 @@ private:
 	void RememberFailedExit() const;
 	void ResetRetreatKnowledge();
 	friend struct FYUFSPersonalRetreatTestAccess;
+	friend struct FYUFSExitValidationTestAccess;
+	friend struct FYUFSPersonalExitTestAccess;
+	friend struct FYUFSTrafficRegressionAccess;
 	friend struct FYUFSJJWDecisionBridgeTestAccess;
 	friend struct FYUFSEverydayIntegrationTestAccess;
 	friend class UYUFSNpcSuppressionComponent;
@@ -279,7 +335,7 @@ private:
 	bool bOptionalInteractionSelected = false;
 	bool bInteractionHoldingPosition = false;
 	float PeerGuidanceSecondsRemaining = 0.f;
-	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f);
+	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f, bool bAllowOrigin=false);
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
 	EYUFSAction CurrentAction            = EYUFSAction::Idle;
@@ -312,6 +368,7 @@ private:
 	void UpdateStuckDetection(float DeltaTime);
 	void TickEverydayBehavior(float DeltaTime);
 	void ChooseNextEverydayActivity();
+	FVector SampleEverydayRoamOffset(float RadiusCm);
 	void BeginEverydayIdle();
 	void StopEverydayBehavior();
 
@@ -328,6 +385,8 @@ private:
 	void UpdateActionAnimation(bool bForce = false);
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ChooseKnownExit() const;
+	bool TryChooseKnownExit(FVector& Out) const;
+	bool TryResolveNavigationTarget(EYUFSAction Action,FVector& Out) const;
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

@@ -38,7 +38,7 @@ public:
 		EYUFSBehaviorState BehaviorState,
 		const FVector& DestinationHint,
 		bool bHasSafeExit,
-		const FYUFSCognitiveState& Cognition);
+		const FYUFSCognitiveState& Cognition,bool bHasExitRouteTarget=true,bool bSearchingForExit=false);
 
 	UFUNCTION(BlueprintCallable, Category="NPC|Team Integration")
 	void SubmitInteractionOpportunities(const FYUFSInteractionOpportunitySnapshot& Snapshot);

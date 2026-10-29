@@ -18,12 +18,32 @@ void AYUFSBinaryManager::BeginPlay()
 	Super::BeginPlay();
 	if (!IsValid(HeterogeneousVolume))
 		HeterogeneousVolume = Cast<AYUFSHeterogeneousVolume>(UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSHeterogeneousVolume::StaticClass()));
+	LoadBinaryFile(BinaryFilePath);
+}
+
+bool AYUFSBinaryManager::LoadBinaryFile(const FString& NewRelativePath)
+{
+	// 이전 파일에 대해 진행 중이던 비동기 청크 로드를 무시하도록 세대를 올립니다.
+	++LoadGeneration;
+	bHeaderValid = false;
+	bIsLoadingChunk = false;
+	CurrentDebugFrame = 0;
+	LastCurrentFrame = -1;
+	if (UWorld* World = GetWorld())
+	{
+		World->GetTimerManager().ClearTimer(DebugTimerHandle);
+	}
+	FramesBuffer.Reset();
+	LoadedFrameIndices.Reset();
+
+	BinaryFilePath = NewRelativePath;
+
 	const FString FullPath = FPaths::ProjectContentDir() / BinaryFilePath;
 	TUniquePtr<IFileHandle> File(FPlatformFileManager::Get().GetPlatformFile().OpenRead(*FullPath));
 	if (!File)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[YUFS][Hazard] Missing binary: %s"), *FullPath);
-		return;
+		return false;
 	}
 	int32 Header[4] = {};
 	if (!File->Read(reinterpret_cast<uint8*>(Header), sizeof(Header)) ||
@@ -31,13 +51,13 @@ void AYUFSBinaryManager::BeginPlay()
 		Header[1] <= 0 || Header[1] > 4096 || Header[2] <= 0 || Header[2] > 4096 || Header[3] <= 0 || Header[3] > 4096)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[YUFS][Hazard] Invalid binary header: %s"), *FullPath);
-		return;
+		return false;
 	}
 	const int64 GridSize = static_cast<int64>(Header[1]) * Header[2] * Header[3];
 	if (GridSize > 4 * 1024 * 1024 || File->Size() != 16 + 2 * GridSize * Header[0])
 	{
 		UE_LOG(LogTemp, Error, TEXT("[YUFS][Hazard] Binary dimensions/length invalid: %s"), *FullPath);
-		return;
+		return false;
 	}
 	TotalFrames = Header[0]; DimX = Header[1]; DimY = Header[2]; DimZ = Header[3];
 	bHeaderValid = true;
@@ -45,8 +65,9 @@ void AYUFSBinaryManager::BeginPlay()
 	LoadedFrameIndices.Init(INDEX_NONE, MaxBufferSize);
 	UE_LOG(LogTemp, Log, TEXT("Parsed Binary Header -> Frames: %d, DimX: %d, DimY: %d, DimZ: %d"), TotalFrames, DimX, DimY, DimZ);
 	UE_LOG(LogTemp, Warning, TEXT("[YUFS][Hazard] %s"), *GetHazardDiagnostics());
-	if (bDrawVoxelDebug)
+	if (bDrawVoxelDebug && GetWorld())
 		GetWorld()->GetTimerManager().SetTimer(DebugTimerHandle, this, &AYUFSBinaryManager::PlayDebugAnimation, 0.1f, true);
+	return true;
 }
 
 void AYUFSBinaryManager::EndPlay(const EEndPlayReason::Type Reason)
@@ -64,13 +85,7 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (!bHeaderValid || !IsValid(HeterogeneousVolume)) return;
-	if (!FMath::IsFinite(BinaryFramesPerVisualFrame) || BinaryFramesPerVisualFrame <= 0)
-	{
-		CurrentDebugFrame = INDEX_NONE;
-		return;
-	}
-	const double MappedFrame = static_cast<double>(HeterogeneousVolume->GetFrame()) * BinaryFramesPerVisualFrame + BinaryFrameOffset;
-	CurrentDebugFrame = MappedFrame >= 0 && MappedFrame < TotalFrames ? FMath::FloorToInt(MappedFrame) : INDEX_NONE;
+	CurrentDebugFrame = GetCurrentFrame();
 	if (FMath::Abs(CurrentDebugFrame - LastCurrentFrame) > 50)
 	{
 		++LoadGeneration;
@@ -96,9 +111,30 @@ void AYUFSBinaryManager::Tick(float DeltaTime)
 	}
 }
 
+int32 AYUFSBinaryManager::GetCurrentFrame() const
+{
+	if (!bHeaderValid || !IsValid(HeterogeneousVolume)
+		|| !FMath::IsFinite(BinaryFramesPerVisualFrame) || BinaryFramesPerVisualFrame <= 0)
+		return INDEX_NONE;
+	const auto* Volume = HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>();
+	if (!Volume || !FMath::IsFinite(Volume->Frame)) return INDEX_NONE;
+	const double MappedFrame = static_cast<double>(Volume->Frame) * BinaryFramesPerVisualFrame + BinaryFrameOffset;
+	return MappedFrame >= 0 && MappedFrame < TotalFrames ? FMath::FloorToInt(MappedFrame) : INDEX_NONE;
+}
+
 void AYUFSBinaryManager::SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolume)
 {
 	HeterogeneousVolume = InVolume;
+}
+
+void AYUFSBinaryManager::ConfigureDatasetMapping(bool bUseTextureCoordinates, const FTransform& GridToTexture,
+	float FramesPerVisualFrame, int32 FrameOffset, bool bAlignmentConfirmed)
+{
+	bUseSparseVolumeTextureCoordinates = bUseTextureCoordinates;
+	BinaryGridToTexture = GridToTexture;
+	BinaryFramesPerVisualFrame = FramesPerVisualFrame;
+	BinaryFrameOffset = FrameOffset;
+	bDatasetAlignmentConfirmed = bAlignmentConfirmed;
 }
 
 void AYUFSBinaryManager::LoadDynamicChunkAsync(int32 Start, int32 End, int32 Generation)
@@ -156,15 +192,44 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 		return Result;
 	}
 	const auto* Volume = HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>();
-	const FTransform VolumeTransform = Volume ? Volume->GetComponentTransform() : HeterogeneousVolume->GetActorTransform();
-	const double ScaleX = FMath::Abs(VolumeTransform.GetScale3D().X);
-	if (!VolumeTransform.IsValid() || ScaleX <= SMALL_NUMBER)
+	FTransform VolumeTransform;
+	if (bGridWorldAnchored && !bUseSparseVolumeTextureCoordinates)
+	{
+		// 건물 고정 모드: 현재 볼륨이 화재별 Transform으로 옮겨져도 격자는 기준 화재 위치에 고정.
+		VolumeTransform = GridAnchorVolumeTransform;
+	}
+	else
+	{
+		VolumeTransform = Volume ? Volume->GetComponentTransform() : HeterogeneousVolume->GetActorTransform();
+	}
+	if (bUseSparseVolumeTextureCoordinates)
+	{
+		USparseVolumeTexture* Texture = nullptr;
+		if (Volume && Volume->GetMaterial(0))
+		{
+			TArray<FMaterialParameterInfo> Parameters;
+			TArray<FGuid> Ids;
+			Volume->GetMaterial(0)->GetAllSparseVolumeTextureParameterInfo(Parameters, Ids);
+			for (const auto& Parameter : Parameters)
+				if (Volume->GetMaterial(0)->GetSparseVolumeTextureParameterValue(Parameter, Texture) && Texture) break;
+		}
+		const int32 VisualFrame = HeterogeneousVolume->GetFrame();
+		const auto* Streamable = Cast<UStreamableSparseVolumeTexture>(Texture);
+		const auto* TextureFrame = Streamable ? Streamable->GetFrame(VisualFrame) : Cast<USparseVolumeTextureFrame>(Texture);
+		if (!TextureFrame || !BinaryGridToTexture.IsValid()
+			|| BinaryGridToTexture.GetScale3D().GetAbsMin() <= SMALL_NUMBER)
+		{
+			// An explicitly configured SVT mapping must never silently revert to the legacy field.
+			Result.Status = EYUFSHazardDataStatus::InvalidMapping;
+			return Result;
+		}
+		Result.GridToWorld = BinaryGridToTexture * TextureFrame->GetFrameTransform() * VolumeTransform;
+	}
+	else if (!ComputeGridToWorld(VolumeTransform, Result.GridToWorld))
 	{
 		Result.Status = EYUFSHazardDataStatus::InvalidMapping;
 		return Result;
 	}
-	// Compatibility with IT: VoxelSize is a world-space X spacing; Y/Z follow their own transform scales.
-	Result.GridToWorld = FTransform(FQuat::Identity, GridOriginLocal, FVector(VoxelSize / ScaleX)) * VolumeTransform;
 	if (!Result.GridToWorld.IsValid() || Result.GridToWorld.GetScale3D().GetAbsMin() <= SMALL_NUMBER)
 	{
 		Result.Status = EYUFSHazardDataStatus::InvalidMapping;
@@ -186,6 +251,40 @@ FYUFSHazardSnapshot AYUFSBinaryManager::GetHazardSnapshot(int32 Frame) const
 	return Result;
 }
 
+bool AYUFSBinaryManager::ComputeGridToWorld(const FTransform& VolumeTransform, FTransform& OutGridToWorld) const
+{
+	const double ScaleX = FMath::Abs(VolumeTransform.GetScale3D().X);
+	if (!VolumeTransform.IsValid() || ScaleX <= SMALL_NUMBER)
+	{
+		return false;
+	}
+	// Compatibility with IT: VoxelSize is a world-space X spacing; Y/Z follow their own transform scales.
+	OutGridToWorld = FTransform(FQuat::Identity, GridOriginLocal, FVector(VoxelSize / ScaleX)) * VolumeTransform;
+	return OutGridToWorld.IsValid() && OutGridToWorld.GetScale3D().GetAbsMin() > SMALL_NUMBER;
+}
+
+void AYUFSBinaryManager::SetWorldAnchoredGrid(const FTransform& ReferenceVolumeTransform)
+{
+	GridAnchorVolumeTransform = ReferenceVolumeTransform;
+	bGridWorldAnchored = true;
+	FTransform GridToWorld;
+	if (ComputeGridToWorld(GridAnchorVolumeTransform, GridToWorld))
+	{
+		UE_LOG(LogTemp, Log, TEXT("[YUFS][Hazard] Grid anchored to world: origin=%s cell=%s"),
+			*GridToWorld.GetLocation().ToString(), *GridToWorld.GetScale3D().ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[YUFS][Hazard] World grid anchor is invalid (reference transform scale is zero?)."));
+	}
+}
+
+void AYUFSBinaryManager::ClearWorldAnchoredGrid()
+{
+	bGridWorldAnchored = false;
+	GridAnchorVolumeTransform = FTransform::Identity;
+}
+
 bool AYUFSBinaryManager::GetSmokeDensityAtLocation(FVector Location, int32 Frame, uint8& Density)
 {
 	const auto Sample = GetHazardSnapshot(Frame).Sample(Location);
@@ -202,6 +301,18 @@ bool AYUFSBinaryManager::GetTemperatureAtLocation(FVector Location, int32 Frame,
 
 FString AYUFSBinaryManager::GetHazardDiagnostics() const
 {
+	const int32 SampleFrame = GetCurrentFrame();
+	const auto Snapshot = GetHazardSnapshot(SampleFrame);
+	FString BoundsText = TEXT("unavailable");
+	if (Snapshot.Status == EYUFSHazardDataStatus::Ready)
+	{
+		FBox Bounds(ForceInit);
+		for (int32 X : {0, DimX})
+		for (int32 Y : {0, DimY})
+		for (int32 Z : {0, DimZ})
+			Bounds += Snapshot.GridToWorld.TransformPosition(FVector(X, Y, Z));
+		BoundsText = FString::Printf(TEXT("min(%s) max(%s)"), *Bounds.Min.ToString(), *Bounds.Max.ToString());
+	}
 	const auto* Volume = IsValid(HeterogeneousVolume) ? HeterogeneousVolume->FindComponentByClass<UHeterogeneousVolumeComponent>() : nullptr;
 	FString VisualAsset = TEXT("None");
 	if (Volume && Volume->GetMaterial(0))
@@ -220,17 +331,20 @@ FString AYUFSBinaryManager::GetHazardDiagnostics() const
 			}
 		}
 	}
-	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d voxelXcm=%.2f alignment=%s status=%s asset=%s"),
-		*BinaryFilePath, DimX, DimY, DimZ, TotalFrames, CurrentDebugFrame,
+	return FString::Printf(TEXT("file=%s binary=%dx%dx%d/%d frame=%d visual=%s/%d cachedFrame=%d visualTimeFrame=%.3f voxelXcm=%.2f mapping=%s gridToTexture=%s frameRatio=%.3f offset=%d grid=%s alignment=%s status=%s asset=%s binWorldBounds=%s"),
+		*BinaryFilePath, DimX, DimY, DimZ, TotalFrames, SampleFrame,
 		Volume ? *Volume->VolumeResolution.ToString() : TEXT("MissingVolume"),
-		HeterogeneousVolume ? HeterogeneousVolume->GetFrame() : INDEX_NONE, VoxelSize,
+		IsValid(HeterogeneousVolume) ? HeterogeneousVolume->GetFrame() : INDEX_NONE,
+		CurrentDebugFrame, Volume ? Volume->Frame : -1.f, VoxelSize,
+		bUseSparseVolumeTextureCoordinates ? TEXT("SVTFrame") : TEXT("LegacyVolume"), *BinaryGridToTexture.ToString(), BinaryFramesPerVisualFrame, BinaryFrameOffset,
+		bUseSparseVolumeTextureCoordinates ? TEXT("DatasetVolume") : bGridWorldAnchored ? TEXT("LegacyWorldAnchored") : TEXT("FollowsVolume"),
 		bDatasetAlignmentConfirmed ? TEXT("UserConfirmed") : TEXT("UNVERIFIED"),
-		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(GetDataStatus())), *VisualAsset);
+		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(Snapshot.Status)), *VisualAsset, *BoundsText);
 }
 
 void AYUFSBinaryManager::PlayDebugAnimation()
 {
-	const auto Snapshot = GetHazardSnapshot(CurrentDebugFrame);
+	const auto Snapshot = GetHazardSnapshot(GetCurrentFrame());
 	if (Snapshot.Status != EYUFSHazardDataStatus::Ready) return;
 	const int32 Step = FMath::Max(4, DebugStep);
 	const FVector Extent = Snapshot.GridToWorld.GetScale3D().GetAbs() * 0.45f;

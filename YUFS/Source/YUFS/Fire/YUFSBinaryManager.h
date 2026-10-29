@@ -31,21 +31,45 @@ public:
 
 	void SetHeterogeneousVolume(AYUFSHeterogeneousVolume* InVolume);
 
+	// 지정한 .bin 파일(Content 폴더 기준 상대 경로)을 다시 읽어 재생 데이터를 통째로 교체합니다.
+	// 헤더 파싱에 실패하면 false를 반환하고 이전 데이터는 무효화됩니다(bHeaderValid=false).
+	// 레벨 리로드 없이 콤보박스로 화재를 전환할 때 SimulationController가 호출합니다.
+	UFUNCTION(BlueprintCallable, Category="Fire")
+	bool LoadBinaryFile(const FString& NewRelativePath);
+	// Replaced together with the selected dataset; coordinates are SVT voxel indices.
+	void ConfigureDatasetMapping(bool bUseTextureCoordinates, const FTransform& GridToTexture,
+		float FramesPerVisualFrame, int32 FrameOffset, bool bAlignmentConfirmed);
+
 	bool GetSmokeDensityAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutDensity);
 	bool GetTemperatureAtLocation(FVector WorldLocation, int32 FrameIndex, uint8& OutTemperature);
 	FYUFSHazardSnapshot GetHazardSnapshot(int32 FrameIndex) const;
 	UFUNCTION(BlueprintPure, Category="Fire|Diagnostics")
-	EYUFSHazardDataStatus GetDataStatus() const { return GetHazardSnapshot(CurrentDebugFrame).Status; }
+	EYUFSHazardDataStatus GetDataStatus() const { return GetHazardSnapshot(GetCurrentFrame()).Status; }
 	UFUNCTION(BlueprintPure, Category="Fire|Diagnostics")
 	FString GetHazardDiagnostics() const;
 	
-	int32 GetCurrentFrame() const { return CurrentDebugFrame; }
+	// Read playback now; NPC/component tick order must not expose the previous streaming cursor.
+	int32 GetCurrentFrame() const;
 	// Provenance gate for optional FDS-targeted interactions; navigation keeps the JJW diagnostics contract.
 	bool IsDatasetAlignmentConfirmed() const { return bDatasetAlignmentConfirmed; }
 	AYUFSHeterogeneousVolume* GetHeterogeneousVolume() const { return HeterogeneousVolume; }
 
+	// ── 건물(월드) 고정 격자 ─────────────────────────────────────────────
+	// Legacy exports can opt into a shared building anchor once their origin/spacing is known.
+	// An explicit per-dataset BIN-to-SVT calibration takes precedence: never combine another
+	// fire's volume transform with the selected fire's SVT transform.
+	void SetWorldAnchoredGrid(const FTransform& ReferenceVolumeTransform);
+	// 예전 방식(격자가 현재 볼륨 Transform을 따라감)으로 되돌립니다.
+	void ClearWorldAnchoredGrid();
+	bool IsGridWorldAnchored() const { return bGridWorldAnchored; }
+
 private:
 	void LoadDynamicChunkAsync(int32 StartFrame, int32 EndFrame, int32 Generation);
+	// VolumeTransform(볼륨 컴포넌트의 월드 Transform) 기준으로 격자→월드 Transform을 계산합니다.
+	bool ComputeGridToWorld(const FTransform& VolumeTransform, FTransform& OutGridToWorld) const;
+
+	bool bGridWorldAnchored = false;
+	FTransform GridAnchorVolumeTransform = FTransform::Identity;
 
 protected:
 	TArray<TSharedPtr<const FYUFSHazardGrid, ESPMode::ThreadSafe>> FramesBuffer;
@@ -77,6 +101,10 @@ private:
 	int32 BinaryFrameOffset = 0;
 	UPROPERTY(EditAnywhere, Category="Fire|Data Alignment")
 	bool bDatasetAlignmentConfirmed = false;
+	UPROPERTY(VisibleAnywhere, Category="Fire|Data Alignment")
+	bool bUseSparseVolumeTextureCoordinates = false;
+	UPROPERTY(VisibleAnywhere, Category="Fire|Data Alignment")
+	FTransform BinaryGridToTexture = FTransform::Identity;
 
 	UPROPERTY(EditAnywhere, Category="Fire")
 	FString BinaryFilePath = TEXT("Fires/FirePrototype/BinaryData/smoke_data.bin");

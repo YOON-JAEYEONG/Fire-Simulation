@@ -1,4 +1,5 @@
 #include "Fire/YUFSFireExtinguisher.h"
+#include "Simulation/YUFSTimelineTypes.h"
 
 #include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -132,7 +133,7 @@ void AYUFSFireExtinguisher::BeginPlay()
 
 bool AYUFSFireExtinguisher::TryReserve(AActor* Requester)
 {
-	if (!IsValid(Requester) || RemainingAgent <= KINDA_SMALL_NUMBER)
+	if (bTimelinePresentation || !IsValid(Requester) || RemainingAgent <= KINDA_SMALL_NUMBER)
 	{
 		return false;
 	}
@@ -168,7 +169,7 @@ bool AYUFSFireExtinguisher::PickUp(AActor* Requester, USceneComponent* AttachPar
 
 bool AYUFSFireExtinguisher::StartSpraying(AActor* Requester)
 {
-	if (ReservationOwner.Get() != Requester || RemainingAgent <= KINDA_SMALL_NUMBER)
+	if (bTimelinePresentation || ReservationOwner.Get() != Requester || RemainingAgent <= KINDA_SMALL_NUMBER)
 	{
 		return false;
 	}
@@ -179,6 +180,7 @@ bool AYUFSFireExtinguisher::StartSpraying(AActor* Requester)
 
 void AYUFSFireExtinguisher::StopSpraying(AActor* Requester)
 {
+	if (bTimelinePresentation) return;
 	if (ReservationOwner.Get() == Requester && State == EYUFSFireExtinguisherState::Spraying)
 	{
 		State = RemainingAgent > KINDA_SMALL_NUMBER
@@ -190,7 +192,7 @@ void AYUFSFireExtinguisher::StopSpraying(AActor* Requester)
 
 float AYUFSFireExtinguisher::ConsumeAgent(AActor* Requester, float RequestedAmount)
 {
-	if (ReservationOwner.Get() != Requester || State != EYUFSFireExtinguisherState::Spraying)
+	if (bTimelinePresentation || ReservationOwner.Get() != Requester || State != EYUFSFireExtinguisherState::Spraying)
 	{
 		return 0.f;
 	}
@@ -208,6 +210,7 @@ float AYUFSFireExtinguisher::ConsumeAgent(AActor* Requester, float RequestedAmou
 
 void AYUFSFireExtinguisher::Release(AActor* Requester)
 {
+	if (bTimelinePresentation) return;
 	if (ReservationOwner.Get() != Requester)
 	{
 		return;
@@ -240,6 +243,32 @@ float AYUFSFireExtinguisher::GetRemainingAgentNormalized() const
 		: 0.f;
 }
 
+FYUFSTimelineExtinguisherSnapshot AYUFSFireExtinguisher::BuildTimelineSnapshot() const
+{
+	FYUFSTimelineExtinguisherSnapshot Snapshot;
+	Snapshot.ToolId=GetFName(); Snapshot.Transform=GetActorTransform(); Snapshot.State=State;
+	Snapshot.RemainingAgent=RemainingAgent; Snapshot.bVisible=!IsHidden();
+	Snapshot.bSprayVisible=SprayStreamMesh && SprayStreamMesh->IsVisible();
+	if (SprayStreamMesh) Snapshot.SprayRelativeTransform=SprayStreamMesh->GetRelativeTransform();
+	return Snapshot;
+}
+
+void AYUFSFireExtinguisher::ApplyTimelineSnapshot(const FYUFSTimelineExtinguisherSnapshot& Snapshot)
+{
+	// Pose-only replay. Display a held tool without resurrecting its gameplay owner or consuming agent.
+	bTimelinePresentation=true;
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform); ReservationOwner.Reset();
+	SetActorTransform(Snapshot.Transform,false,nullptr,ETeleportType::TeleportPhysics);
+	State=Snapshot.State; RemainingAgent=FMath::Clamp(Snapshot.RemainingAgent,0.f,AgentCapacity);
+	SetPrimaryCollisionEnabled(ECollisionEnabled::NoCollision);
+	SetActorHiddenInGame(!Snapshot.bVisible); RefreshVisualState();
+	if (SprayStreamMesh)
+	{
+		SprayStreamMesh->SetRelativeTransform(Snapshot.SprayRelativeTransform);
+		SprayStreamMesh->SetVisibility(Snapshot.bVisible && Snapshot.bSprayVisible);
+	}
+}
+
 FVector AYUFSFireExtinguisher::GetNozzleWorldLocation() const
 {
 	return NozzlePoint ? NozzlePoint->GetComponentLocation() : GetActorLocation();
@@ -247,6 +276,7 @@ FVector AYUFSFireExtinguisher::GetNozzleWorldLocation() const
 
 void AYUFSFireExtinguisher::ShowSprayToward(const FVector& Target)
 {
+	if (bTimelinePresentation) return;
 	if (State != EYUFSFireExtinguisherState::Spraying) return;
 	const FVector Start = GetNozzleWorldLocation();
 	const FVector Direction = Target - Start;
