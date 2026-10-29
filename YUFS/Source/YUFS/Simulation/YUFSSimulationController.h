@@ -125,6 +125,19 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimPhaseChanged, ESimPhase, NewPh
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimRunCompleted, const FSimRunResult&, Result);
 
 
+// UI-only view of live statistics or the exact applied review frame. Never feeds
+// historical values back into live bookkeeping or stored run results.
+USTRUCT(BlueprintType)
+struct FYUFSSimulationDisplayStats
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") float ElapsedSimTime = 0.f;
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") int32 EvacuatedCount = 0;
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") int32 IncapacitatedCount = 0;
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") int32 TotalNPCCount = 0;
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") bool bHasData = false;
+};
+
 UCLASS()
 class YUFS_API AYUFSSimulationController : public AActor
 {
@@ -232,6 +245,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	int32 GetTotalNPCCount() const { return InitialNPCCount > 0 ? InitialNPCCount : RegisteredNPCs.Num(); }
+	// Existing count/clock getters retain live-result semantics, including during review.
+	UFUNCTION(BlueprintPure, Category="Simulation|Presentation")
+	FYUFSSimulationDisplayStats GetDisplayStats() const;
 
 	UFUNCTION(BlueprintPure, Category="Simulation")
 	TArray<FSimRunResult> GetAllRunResults() const { return AllRunResults; }
@@ -341,7 +357,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="Simulation|Fire")
 	bool bAutoApplyFireVolumeTransform = true;
 
-	// NPC가 읽는 연기 데이터(.bin) 격자를 건물 기준으로 고정할 때 기준이 되는 화재 (FireOptions 인덱스).
+	// Legacy 좌표 방식에서만 사용하는 건물 고정 기준 화재 (FireOptions 인덱스).
+	// BIN→SVT 보정이 설정된 옵션은 그 옵션의 볼륨/프레임 변환을 사용하며 이 기준을 적용하지 않습니다.
 	// 이 화재가 선택됐을 때의 볼륨 위치로 격자 위치를 계산하고, 다른 화재로 전환해도 격자는 그
 	// 자리에 고정됩니다(vdb 화면 위치만 화재별 VolumeTransform으로 바뀜). 같은 건물·같은 FDS
 	// 격자의 화재들이라면 NPC 연기 인식이 이미 잘 맞는 화재 하나를 기준으로 지정하세요.
@@ -520,4 +537,6 @@ private:
 	void ApplyHazardGridAnchor();
 
 	friend struct FYUFSJJWControllerTestAccess;
+	friend struct FYUFSIncapacitationTestAccess;
+	friend struct FYUFSReviewHudTestAccess;
 };

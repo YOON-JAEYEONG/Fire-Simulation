@@ -2,6 +2,8 @@
 
 #include "Simulation/YUFSSimHUD.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/WidgetTree.h"
+#include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
 
 #include "EngineUtils.h"
@@ -20,6 +22,22 @@ void RestoreSimulationInput(APlayerController* PC)
  PC->bShowMouseCursor = true;
  UWidgetBlueprintLibrary::SetFocusToGameViewport();
 }
+}
+
+TMap<FName, FText> UYUFSSimHUD::GetDisplayedTextSnapshot() const
+{
+	TMap<FName, FText> Result;
+	if (WidgetTree)
+	{
+		WidgetTree->ForEachWidget([&Result](UWidget* Widget)
+		{
+			if (const UTextBlock* Text = Cast<UTextBlock>(Widget))
+			{
+				Result.Add(Text->GetFName(), Text->GetText());
+			}
+		});
+	}
+	return Result;
 }
 
 void UYUFSSimHUD::NativeConstruct()
@@ -234,7 +252,9 @@ FText UYUFSSimHUD::GetElapsedTimeText() const
 {
 	if (!SimController) return FText::FromString(TEXT("0:00"));
 
-	const float Elapsed = SimController->GetElapsedTime();
+	const auto Stats = SimController->GetDisplayStats();
+	if (!Stats.bHasData) return FText::FromString(TEXT("--:--"));
+	const float Elapsed = FMath::Max(0.f, Stats.ElapsedSimTime);
 	const int32 Minutes = FMath::FloorToInt(Elapsed / 60.f);
 	const int32 Seconds = FMath::FloorToInt(FMath::Fmod(Elapsed, 60.f));
 	return FText::FromString(FString::Printf(TEXT("%d:%02d"), Minutes, Seconds));
@@ -252,12 +272,14 @@ FText UYUFSSimHUD::GetFireCountdownText() const
 FText UYUFSSimHUD::GetNPCStatusText() const
 {
 	if (!SimController) return FText::FromString(TEXT("NPC: -/-"));
+	const auto Stats = SimController->GetDisplayStats();
+	if (!Stats.bHasData) return FText::FromString(TEXT("기록 없음"));
 
 	return FText::FromString(FString::Printf(
-		TEXT("대피: %d | 사망: %d | 전체: %d"),
-		SimController->GetEvacuatedCount(),
-		SimController->GetIncapacitatedCount(),
-		SimController->GetTotalNPCCount()));
+		TEXT("대피: %d | 행동 불능: %d | 전체: %d"),
+		Stats.EvacuatedCount,
+		Stats.IncapacitatedCount,
+		Stats.TotalNPCCount));
 }
 
 FText UYUFSSimHUD::GetRunProgressText() const
@@ -272,10 +294,9 @@ float UYUFSSimHUD::GetEvacuationRatePercent() const
 {
 	if (!SimController) return 0.f;
 
-	const int32 Total = SimController->GetTotalNPCCount();
-	if (Total == 0) return 0.f;
-
-	return (float)SimController->GetEvacuatedCount() / (float)Total * 100.f;
+	const auto Stats = SimController->GetDisplayStats();
+	if (!Stats.bHasData || Stats.TotalNPCCount <= 0) return 0.f;
+	return FMath::Clamp(100.f * float(Stats.EvacuatedCount) / float(Stats.TotalNPCCount), 0.f, 100.f);
 }
 
 bool UYUFSSimHUD::IsSimulationActive() const

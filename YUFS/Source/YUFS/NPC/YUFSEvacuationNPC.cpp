@@ -2,12 +2,14 @@
 
 #include "AIController.h"
 #include "NPC/Navigation/YUFSLocalMovementComponent.h"
+#include "NPC/Navigation/YUFSExitKnowledgeComponent.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NPC/Behavior/YUFSBehaviorConfig.h"
 #include "NPC/Animation/YUFSActionAnimationComponent.h"
 #include "Communication/YUFSCommTypes.h"
 #include "Communication/YUFSEmergencyCommSystem.h"
 #include "Animation/AnimInstance.h"
+#include "Animation/AnimSingleNodeInstance.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Core/YUFSDecisionTraceLogger.h"
@@ -48,6 +50,7 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 	SocialComp     = CreateDefaultSubobject<UYUFSSocialInfluenceComponent>(TEXT("YUFSSocialInfluenceComponent"));
 	DebugComp      = CreateDefaultSubobject<UYUFSNPCDebugComponent>(TEXT("YUFSNPCDebugComponent"));
 	LocalMovement = CreateDefaultSubobject<UYUFSLocalMovementComponent>(TEXT("YUFSLocalMovement"));
+	ExitKnowledge = CreateDefaultSubobject<UYUFSExitKnowledgeComponent>(TEXT("ExitKnowledge"));
 	BeliefComp     = CreateDefaultSubobject<UYUFSBeliefComponent>(TEXT("YUFSBeliefComponent"));
 	IntentComp     = CreateDefaultSubobject<UYUFSIntentComponent>(TEXT("YUFSIntentComponent"));
 	ActionTaskComp = CreateDefaultSubobject<UYUFSActionTaskComponent>(TEXT("YUFSActionTaskComponent"));
@@ -69,6 +72,7 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 		GetCharacterMovement()->bUseRVOAvoidance = true;
 		GetCharacterMovement()->AvoidanceConsiderationRadius = 300.f;
 		GetCharacterMovement()->AvoidanceWeight = 0.75f;
+		GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	}
 
 	if (UCapsuleComponent* Cap = GetCapsuleComponent())
@@ -81,6 +85,7 @@ AYUFSEvacuationNPC::AYUFSEvacuationNPC()
 void AYUFSEvacuationNPC::BeginPlay()
 {
 	Super::BeginPlay();
+	GetCharacterMovement()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	ResetRetreatKnowledge();
 	if (Navigator) Navigator->ResetObservedHazards();
 	if (SuppressionComp) SuppressionComp->ResetForEpisode();
@@ -134,6 +139,7 @@ void AYUFSEvacuationNPC::BeginPlay()
 
 	for (TActorIterator<AYUFSBinaryManager> It(GetWorld()); It; ++It)  { BinaryManager = *It; break; }
 	for (TActorIterator<AYUFSLevelDataManager> It(GetWorld()); It; ++It){ LevelDataMgr  = *It; break; }
+	ExitKnowledge->InitializeMemory();
 
 	for (TActorIterator<AYUFSSimulationController> It(GetWorld()); It; ++It)
 	{
@@ -153,7 +159,6 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	if (bTimelinePlaybackMode)
 	{
 		StopEverydayBehavior();
-		UpdateActionAnimation();
 		if (Navigator) Navigator->ClearPath();
 		if (LocalMovement) LocalMovement->Reset();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
@@ -186,6 +191,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		}
 		return;
 	}
+	if (ExitKnowledge) ExitKnowledge->UpdateKnowledge(DeltaTime);
 	if (SuppressionComp && SuppressionComp->IsVisualPresentationActive()
 		&& (!SimulationController || !SimulationController->IsNPCSimulationEnabled()))
 	{
@@ -281,6 +287,13 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		CurrentObs.RiskPerception = BehaviorSM->GetRiskPerception();
 		CurrentObs.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
 	}
+	if (UpdatePhysicalPosture())
+	{
+		// Do not carry a standing-eye sample into the next exposure step or route query.
+		if (PerceptionComp) PerceptionComp->UpdatePerception(CurrentFrame);
+		PerceptionUpdateAccumulator = 0.f;
+		BuildObservation(CurrentObs);
+	}
 
 	// Live authored gestures still perceive smoke and update emergency behavior.
 	// They must not publish fabricated suppression evidence or learning actions.
@@ -351,10 +364,11 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 				if (Navigator) Navigator->ClearPath();
 				if (LocalMovement) LocalMovement->Reset();
 			}
-			else if (BehaviorSM->IsCrawling())
+			else if (BehaviorSM->IsCrawling() || IsCrouched())
 			{
 				Mv->MaxWalkSpeed = FMath::Min(Mv->MaxWalkSpeed, BehaviorSM->Config->CrawlSpeed);
 			}
+			Mv->MaxWalkSpeedCrouched = Mv->MaxWalkSpeed;
 		}
 	}
 
@@ -604,6 +618,7 @@ void AYUFSEvacuationNPC::OnCommReceived(EYUFSCommType CommType, FVector SourceLo
 	case EYUFSCommType::StaffGuidance:
 		bReceivedStaffGuidance = true;
 		StaffGuidedExitLocation = GuidanceTarget;
+		bHasStaffGuidedExit = ExitKnowledge && ExitKnowledge->RememberGuidedExit(GuidanceTarget,TEXT("Staff"));
 		if (BehaviorSM) BehaviorSM->OnStaffGuidanceReceived();
 		break;
 	}
@@ -651,15 +666,72 @@ void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 
 	const FVector Pos   = GetActorLocation();
 	const int32 Frame   = GetCurrentSimFrame();
-	const FVector NExit = ChooseKnownExit();
-	const FVector FExit = LevelDataMgr->GetFamiliarExit(SpawnLocation);
-	const bool bFoundSafeExit = !NExit.IsZero();
+	FVector NExit=FVector::ZeroVector,FExit=FVector::ZeroVector;
+	const bool bFoundSafeExit = TryChooseKnownExit(NExit);
+	const bool bHasFamiliarExit = ExitKnowledge && ExitKnowledge->TryGetFamiliarExit(FExit);
 
 	Out.DistToNearestExit    = bFoundSafeExit ? FVector::Dist(Pos, NExit) : 100000.f;
-	Out.DistToFamiliarExit   = FVector::Dist(Pos, FExit);
+	Out.DistToFamiliarExit   = bHasFamiliarExit ? FVector::Dist(Pos, FExit) : 100000.f;
 	Out.DirToNearestExit     = bFoundSafeExit ? (NExit - Pos).GetSafeNormal() : FVector::ZeroVector;
 	Out.SimTimeNormalized    = FMath::Clamp(static_cast<float>(Frame) / 8000.f, 0.f, 1.f);
-	Out.bNearestExitSmokeFree= bFoundSafeExit && Navigator->GetPerceivedHazardSnapshot(Frame).Sample(NExit+FVector(0,0,120)).Smoke < 0.35f;
+	const auto KnownField=Navigator->GetPerceivedHazardSnapshot(Frame);
+	const FVector ExitProbe=NExit+FVector(0,0,Navigator->GetHazardSettings().SampleHeightCm);
+	Out.bNearestExitSmokeFree= bFoundSafeExit && KnownField.IsObservedAt(ExitProbe) && KnownField.Sample(ExitProbe).Smoke < .35f;
+}
+
+float AYUFSEvacuationNPC::GetBreathingHeightCm() const
+{
+	const float Half = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	return IsCrouched() ? FMath::Clamp(LowBreathingHeightCm * GetCapsuleComponent()->GetShapeScale(), 1.f, Half * 2.f)
+		: Half + BaseEyeHeight;
+}
+
+FVector AYUFSEvacuationNPC::GetPawnViewLocation() const
+{
+	return IsCrouched() ? GetActorLocation() + FVector(0, 0, GetBreathingHeightCm() - GetCapsuleComponent()->GetScaledCapsuleHalfHeight())
+		: Super::GetPawnViewLocation();
+}
+
+bool AYUFSEvacuationNPC::UpdatePhysicalPosture()
+{
+	if (!BehaviorSM || !BehaviorSM->Config) return false;
+	auto* Movement = GetCharacterMovement();
+	const bool bWasLow = IsCrouched();
+	const auto* Config = BehaviorSM->Config;
+	// Incapacitation retains the last physical posture rather than standing a fallen NPC up.
+	const bool bWantLow = BehaviorSM->IsCrawling() || (BehaviorSM->IsIncapacitated() && bWasLow);
+	if (bWantLow)
+	{
+		if (!bWasLow)
+		{
+			const float StandingHalf = GetClass()->GetDefaultObject<AYUFSEvacuationNPC>()->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+			Movement->SetCrouchedHalfHeight(FMath::Clamp(Config->CrawlCapsuleHalfHeightCm,
+				GetCapsuleComponent()->GetUnscaledCapsuleRadius(), StandingHalf));
+			LowBreathingHeightCm = Config->CrawlBreathingHeightCm;
+		}
+		Crouch();
+		if (!bWasLow && Movement->IsMovingOnGround()) Movement->bCrouchMaintainsBaseLocation = true;
+		// Apply before this tick's route query. The engine owns mesh offsets, base preservation and collision checks.
+		if (!bWasLow) Movement->Crouch(false);
+	}
+	else if (bWasLow)
+	{
+		UnCrouch();
+		Movement->UnCrouch(false); // Refused while standing would overlap a ceiling/another body.
+	}
+	if (IsCrouched())
+	{
+		Movement->MaxWalkSpeedCrouched = FMath::Min(GetDesiredWalkingSpeed(), Config->CrawlSpeed);
+		Movement->MaxWalkSpeed = FMath::Min(Movement->MaxWalkSpeed, Config->CrawlSpeed);
+	}
+	const bool bChanged = bWasLow != IsCrouched();
+	if (bChanged)
+	{
+		// Cancel workers holding the old height filter; the next request uses the new posture.
+		if (Navigator) Navigator->ClearPath();
+		if (LocalMovement) LocalMovement->Reset();
+	}
+	return bChanged;
 }
 
 FString AYUFSEvacuationNPC::GetHazardAudit() const
@@ -674,7 +746,7 @@ FString AYUFSEvacuationNPC::GetHazardAudit() const
 	if (Snapshot.Grid && Snapshot.Grid->Density.IsValidIndex(Index) && Snapshot.Grid->Temperature.IsValidIndex(Index))
 		Raw = FString::Printf(TEXT("%u/%u"), Snapshot.Grid->Density[Index], Snapshot.Grid->Temperature[Index]);
 	const auto* Sense = FindComponentByClass<UYUFSNPCPerceptionComponent>();
-	return FString::Printf(TEXT("npc=%s pos=%s eye=%s binFrame=%d cell=%s index=%d rawSmokeHeat=%s eyeStatus=%s eyeSmoke=%.4f perceptionFrame=%d self=%.4f front=%.4f above=%.4f pathMaxSmoke=%.4f pathMaxHeat=%.4f nav=%s failure=%s state=%s exposure=%.4f alarm=%d tick=%d activity=%d"),
+	return FString::Printf(TEXT("npc=%s pos=%s eye=%s binFrame=%d cell=%s index=%d rawSmokeHeat=%s eyeStatus=%s eyeSmoke=%.4f perceptionFrame=%d self=%.4f front=%.4f above=%.4f pathMaxSmoke=%.4f pathMaxHeat=%.4f nav=%s failure=%s state=%s exposure=%.4f alarm=%d tick=%d activity=%d request=%u waitingSafe=%d exposureScale=%.2f"),
 		*GetName(), *GetActorLocation().ToString(), *Eye.ToString(), Frame, *Cell.ToString(), Index, *Raw,
 		*StaticEnum<EYUFSHazardDataStatus>()->GetNameStringByValue(static_cast<int64>(Sample.Status)), Sample.Smoke,
 		Sense ? Sense->GetLastSampleFrame() : INDEX_NONE, Sense ? Sense->GetSmokeDensity() : -1.f,
@@ -684,7 +756,14 @@ FString AYUFSEvacuationNPC::GetHazardAudit() const
 		Navigator ? *StaticEnum<EYUFSNavigationFailure>()->GetNameStringByValue(static_cast<int64>(Navigator->GetLastFailure())) : TEXT("None"),
 		BehaviorSM ? *StaticEnum<EYUFSBehaviorState>()->GetNameStringByValue(static_cast<int64>(BehaviorSM->GetCurrentState())) : TEXT("None"),
 		BehaviorSM ? BehaviorSM->GetSmokeExposure() : -1.f, bAlarmSounding, IsActorTickEnabled(),
-		!SimulationController || SimulationController->IsNPCActivityEnabled());
+		!SimulationController || SimulationController->IsNPCActivityEnabled(), Navigator ? Navigator->GetRequestGeneration() : 0,
+		Navigator && Navigator->IsWaitingForSaferPath(), BehaviorSM && BehaviorSM->Config ? BehaviorSM->Config->SmokeExposureTimeScale : -1.f)
+		+ FString::Printf(TEXT(" lowPosture=%d capsuleHalf=%.2f breathingHeight=%.2f pathSampleHeight=%.2f"), IsCrouched(),
+			GetCapsuleComponent()->GetScaledCapsuleHalfHeight(), GetBreathingHeightCm(), Navigator ? Navigator->GetHazardSettings().SampleHeightCm : -1.f)
+		+ FString::Printf(TEXT(" sightCm=%.2f sightTransmission=%.4f sightDataComplete=%d"),
+			Sense ? Sense->GetCenterVisibleDistanceCm() : 0.f, Sense ? Sense->GetCenterSightTransmission() : 0.f,
+			Sense && Sense->HasCompleteCenterSightData())
+		+ TEXT(" ") + (ExitKnowledge ? ExitKnowledge->GetKnowledgeDiagnostics() : TEXT("knownExits=0"));
 }
 
 EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
@@ -698,7 +777,8 @@ EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
 		if (State != EYUFSBehaviorState::Evacuating && State != EYUFSBehaviorState::Crawling)
 			return EYUFSTerminalReason::None;
 
-		if (LevelDataMgr->IsAtValidExit(GetActorLocation(), 150.f))
+		const float SuccessRadius=IsValid(SimulationController) ? SimulationController->EvacuationSuccessDistanceCm : 150.f;
+		if (LevelDataMgr->IsAtValidExit(this,SuccessRadius))
 			return EYUFSTerminalReason::ReachedExit;
 	}
 
@@ -721,6 +801,17 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 	Snapshot.bVisible = !IsHidden();
 	Snapshot.bEvacuated = false;
 	Snapshot.bIncapacitated = false;
+	Snapshot.bLowPosture = IsCrouched();
+	Snapshot.CapsuleHalfHeightCm = GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+	Snapshot.LowBreathingHeightCm = LowBreathingHeightCm;
+	if (!bUseExternalMotionDriver && ActionAnimationComp && ActionAnimationComp->IsNativePlaybackActive())
+	{
+		const auto* Single = GetMesh()->GetSingleNodeInstance();
+		Snapshot.AnimationClip = Single->GetAnimationAsset();
+		Snapshot.AnimationPosition = Single->GetCurrentTime();
+		Snapshot.AnimationPlayRate = Single->GetPlayRate();
+		Snapshot.bAnimationLooping = Single->IsLooping();
+	}
 
 	if (BehaviorSM)
 	{
@@ -747,6 +838,21 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 	ResetRetreatKnowledge();
 	if (Navigator) Navigator->ResetObservedHazards();
 	// 관찰 모드에서는 물리 이동이 아니라 기록된 위치로 직접 배치합니다.
+	// Replay restores recorded geometry, never a live stand-up query against other replay actors.
+	if (Snapshot.CapsuleHalfHeightCm > 0.f)
+	{
+		const float StandingHalf = GetClass()->GetDefaultObject<AYUFSEvacuationNPC>()->GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight();
+		const float Half = FMath::Clamp(Snapshot.CapsuleHalfHeightCm, GetCapsuleComponent()->GetUnscaledCapsuleRadius(), StandingHalf);
+		LowBreathingHeightCm = Snapshot.LowBreathingHeightCm;
+		if (IsCrouched() != Snapshot.bLowPosture || !FMath::IsNearlyEqual(Half, GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()))
+		{
+			GetCapsuleComponent()->SetCapsuleHalfHeight(Half);
+			SetIsCrouched(Snapshot.bLowPosture);
+			if (IsCrouched()) OnStartCrouch(StandingHalf - Half, (StandingHalf - Half) * GetCapsuleComponent()->GetShapeScale());
+			else OnEndCrouch(0.f, 0.f);
+		}
+	}
+	TimelineDisplayState = Snapshot.BehaviorState;
 	// Transform/가시성 변경은 렌더 프록시와 Ray Tracing Scene 갱신을 유발하므로,
 	// 스냅샷이 현재 상태와 실제로 다를 때만 적용합니다.
 	constexpr float LocationToleranceCm = 1.0f;
@@ -763,13 +869,22 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 		SetActorHiddenInGame(bShouldBeHidden);
 	}
 
-	if (GetActorEnableCollision() != Snapshot.bVisible)
+	// A terminal body stays visible without becoming a live obstacle when seeking.
+	const bool bShouldCollide = Snapshot.bVisible && !Snapshot.bIncapacitated && !Snapshot.bEvacuated;
+	if (GetActorEnableCollision() != bShouldCollide)
 	{
-		SetActorEnableCollision(Snapshot.bVisible);
+		SetActorEnableCollision(bShouldCollide);
 	}
 
 	CurrentAction = Snapshot.CurrentAction;
-	UpdateActionAnimation();
+	if (!bUseExternalMotionDriver && ActionAnimationComp && Snapshot.AnimationClip)
+		ActionAnimationComp->ApplyRecordedPose(Snapshot.AnimationClip, Snapshot.AnimationPosition,
+			Snapshot.AnimationPlayRate, Snapshot.bAnimationLooping);
+	else if (!bUseExternalMotionDriver && ActionAnimationComp)
+	{
+		UpdateActionAnimation();
+		if (auto* Single = GetMesh()->GetSingleNodeInstance()) Single->SetPlaying(false);
+	}
 
 	if (Navigator)
 	{
@@ -786,6 +901,38 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 	// 상태값은 Snapshot에 저장하되, 실제 AI 상태머신은 관찰 모드에서 갱신하지 않습니다.
 }
 
+void AYUFSEvacuationNPC::SetLiveSimulationPaused(bool bPaused)
+{
+	if (bLiveSimulationPaused == bPaused) return;
+	bLiveSimulationPaused = bPaused;
+	if (bPaused)
+	{
+		bActorTickBeforePause = IsActorTickEnabled();
+		bMovementTickBeforePause = GetCharacterMovement()->IsComponentTickEnabled();
+		bNavigatorTickBeforePause = Navigator && Navigator->IsComponentTickEnabled();
+		bMeshPausedBeforePause = GetMesh()->bPauseAnims;
+		ConsumeMovementInputVector();
+		GetCharacterMovement()->StopMovementImmediately();
+		// Preserve the movement mode (including falling/crouch); no uncrouch tick can run while paused.
+		GetCharacterMovement()->SetComponentTickEnabled(false);
+		if (Navigator)
+		{
+			// Invalidate a worker which could otherwise publish a stale live result during pause.
+			if (Navigator->bIsPathfinding) Navigator->ClearPath();
+			Navigator->SetComponentTickEnabled(false);
+		}
+		GetMesh()->bPauseAnims = true;
+		SetActorTickEnabled(false);
+	}
+	else
+	{
+		GetMesh()->bPauseAnims = bMeshPausedBeforePause;
+		GetCharacterMovement()->SetComponentTickEnabled(bMovementTickBeforePause);
+		if (Navigator) Navigator->SetComponentTickEnabled(bNavigatorTickBeforePause);
+		SetActorTickEnabled(bActorTickBeforePause);
+	}
+}
+
 void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 {
 	if (bTimelinePlaybackMode == bEnabled)
@@ -793,7 +940,26 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 		return;
 	}
 
+	if (bEnabled) SetLiveSimulationPaused(false);
 	bTimelinePlaybackMode = bEnabled;
+	if (bEnabled)
+	{
+		bMeshPausedBeforeTimeline = GetMesh()->bPauseAnims;
+		bMovementTickBeforeTimeline = GetCharacterMovement()->IsComponentTickEnabled();
+		bNavigatorTickBeforeTimeline = Navigator && Navigator->IsComponentTickEnabled();
+		GetCharacterMovement()->SetComponentTickEnabled(false);
+		if (Navigator) Navigator->SetComponentTickEnabled(false);
+		// External graph state is not serialized. Freeze its current pose without replacing its driver.
+		GetMesh()->bPauseAnims = bUseExternalMotionDriver || !ActionAnimationComp || !ActionAnimationComp->IsNativePlaybackActive();
+		if (auto* Single = GetMesh()->GetSingleNodeInstance()) Single->SetPlaying(false);
+	}
+	else
+	{
+		GetMesh()->bPauseAnims = bMeshPausedBeforeTimeline;
+		GetCharacterMovement()->SetComponentTickEnabled(bMovementTickBeforeTimeline);
+		if (Navigator) Navigator->SetComponentTickEnabled(bNavigatorTickBeforeTimeline);
+		UpdateActionAnimation(true);
+	}
 	if (SuppressionComp) SuppressionComp->Cancel(false);
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	ResetRetreatKnowledge();
@@ -821,10 +987,12 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 	}
 
 	SetActorTickEnabled(true);
+	if (bEnabled) if (auto* Single = GetMesh()->GetSingleNodeInstance()) Single->SetPlaying(false);
 }
 
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)
 {
+	if (ExitKnowledge) ExitKnowledge->StopSearching();
 	if (SuppressionComp) SuppressionComp->ResetForEpisode();
 	ResetRetreatKnowledge();
 	if (Navigator) { Navigator->ClearPath(); Navigator->ResetObservedHazards(); }
@@ -838,6 +1006,22 @@ void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReaso
 		GetCharacterMovement()->StopMovementImmediately();
 		GetCharacterMovement()->SetAvoidanceEnabled(false);
 		GetCharacterMovement()->DisableMovement();
+	}
+	if (TerminalReason == EYUFSTerminalReason::Incapacitated)
+	{
+		StopEverydayBehavior();
+		bActionAnimationPreviewActive = false;
+		bInteractionPreviewControlled = false;
+		// The controller may resolve us before the next actor Tick. Select the terminal
+		// pose now, bypassing old interaction/preview guards without taking external ownership.
+		// Keep CurrentAction intact so the final learning transition names the actual last policy action.
+		if (!bUseExternalMotionDriver && ActionAnimationComp)
+			ActionAnimationComp->ApplyAction(CurrentAction, EYUFSBehaviorState::Incapacitated);
+		// Component clocks survive SetActorTickEnabled(false). Stop path retries and root
+		// motion too, leaving the skeletal component to finish its non-looping collapse.
+		if (Navigator) Navigator->SetComponentTickEnabled(false);
+		GetCharacterMovement()->SetComponentTickEnabled(false);
+		SetActorTickEnabled(false);
 	}
 	if (!bHasPendingTransition) return;
 
@@ -956,6 +1140,7 @@ void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
 
 	if (!bUseExternalNavigationDriver && !IsNavigationAction(NewAction))
 	{
+		if (ExitKnowledge) ExitKnowledge->StopSearching();
 		if (Navigator) Navigator->ClearPath();
 		if (LocalMovement) LocalMovement->Reset();
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
@@ -967,8 +1152,8 @@ void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 			if (Mv->MaxWalkSpeed < 1.f) Mv->MaxWalkSpeed = GetDesiredWalkingSpeed();
 
-		const FVector Target = ResolveNavigationTarget(NewAction);
-		if (!Target.IsZero() && Navigator)
+		FVector Target;
+		if (TryResolveNavigationTarget(NewAction,Target) && Navigator)
 		{
 			if (Navigator->GetNavigationStatus() != EYUFSNavigationStatus::Idle
 				&& FVector::DistSquared(Target,CurrentNavTarget)<FMath::Square(100.f)) return;
@@ -999,12 +1184,20 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 	}
 
 	// Reuse the compatible walking binding for presentation without changing the policy action.
-	const EYUFSAction DisplayAction = bEverydayBehaviorActive && !bActionAnimationPreviewActive
+	EYUFSAction DisplayAction = bEverydayBehaviorActive && !bActionAnimationPreviewActive
 		? (GetVelocity().Size2D() > 5.f ? EYUFSAction::HelpOther : EYUFSAction::Idle)
 		: GetDisplayedAction();
+	const bool bTrafficWaiting=LocalMovement && LocalMovement->IsDeliberatelyWaiting() && !LocalMovement->IsRecovering();
+	if (!bActionAnimationPreviewActive && ExitKnowledge && ExitKnowledge->IsSearchingForExit() && IsNavigationAction(DisplayAction))
+		DisplayAction=GetVelocity().Size2D()>5.f ? EYUFSAction::HelpOther : EYUFSAction::WaitForInfo;
+	if (!bActionAnimationPreviewActive && (bTrafficWaiting || Navigator && Navigator->IsWaitingForSaferPath())
+		&& IsNavigationAction(DisplayAction) && GetVelocity().Size2D() < 5.f)
+		DisplayAction = EYUFSAction::WaitForInfo;
+	const EYUFSBehaviorState PhysicalState = bTimelinePlaybackMode ? TimelineDisplayState
+		: BehaviorSM ? BehaviorSM->GetCurrentState() : EYUFSBehaviorState::Normal;
 	const EYUFSBehaviorState DisplayState = bActionAnimationPreviewActive
 		? EYUFSBehaviorState::Normal
-		: (BehaviorSM ? BehaviorSM->GetCurrentState() : EYUFSBehaviorState::Normal);
+		: IsCrouched() && PhysicalState != EYUFSBehaviorState::Incapacitated ? EYUFSBehaviorState::Crawling : PhysicalState;
 	ActionAnimationComp->ApplyAction(DisplayAction, DisplayState, bForce);
 }
 
@@ -1147,13 +1340,29 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 	case EYUFSAction::EvacuateToFamiliarExit:
 	case EYUFSAction::FollowCrowd:
 	case EYUFSAction::HelpOther:
-		UpdateNavigationMovement(ResolveNavigationTarget(CurrentAction), DeltaTime);
+		{
+			FVector Target;
+			if (TryResolveNavigationTarget(CurrentAction,Target))
+				UpdateNavigationMovement(Target,DeltaTime,ExitKnowledge && ExitKnowledge->IsSearchingForExit()?ExitKnowledge->SearchWalkingSpeed:0.f,true);
+			else
+			{
+				UpdateNavigationMovement(FVector::ZeroVector,DeltaTime);
+				if (ExitKnowledge) ExitKnowledge->TickSearchLook(DeltaTime);
+			}
+		}
 		break;
 
 	default:
 		// Idle / WaitForInfo / GatherBelongings — 이동 없음
 		break;
 	}
+}
+
+TArray<FVector> AYUFSEvacuationNPC::GetPersonallyKnownExitLocations() const
+{
+	if (!ExitKnowledge) return {};
+	ExitKnowledge->InitializeMemory();
+	return ExitKnowledge->GetKnownExitLocations();
 }
 
 bool AYUFSEvacuationNPC::TryGetNearestKnownExit(FVector& OutExit) const
@@ -1164,7 +1373,7 @@ bool AYUFSEvacuationNPC::TryGetNearestKnownExit(FVector& OutExit) const
 	if (!LevelDataMgr || !Navigator) return false;
 	const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
 	float Best = FLT_MAX;
-	for (const FVector& Exit : LevelDataMgr->GetKnownExitLocations())
+	for (const FVector& Exit : GetPersonallyKnownExitLocations())
 	{
 		const float* RetryAt = FailedExitUntil.Find(Exit);
 		if (RetryAt && *RetryAt > Now) continue;
@@ -1192,7 +1401,7 @@ void AYUFSEvacuationNPC::RememberFailedExit() const
 		|| LastRecordedNavigationFailure == Navigator->GetRequestGeneration()) return;
 	LastRecordedNavigationFailure = Navigator->GetRequestGeneration();
 	const FVector FailedGoal = Navigator->GetRequestedDestination();
-	for (const FVector& Exit : LevelDataMgr->GetKnownExitLocations())
+	for (const FVector& Exit : GetPersonallyKnownExitLocations())
 	{
 		if (!Exit.Equals(FailedGoal, 100.f)) continue;
 		if (FailedExitUntil.Num() >= 8 && !FailedExitUntil.Contains(Exit))
@@ -1279,59 +1488,44 @@ void AYUFSEvacuationNPC::ResumeEvacuationAfterSuppression(bool bRetreatReachable
 
 FVector AYUFSEvacuationNPC::ResolveNavigationTarget(EYUFSAction Action) const
 {
-	if (!LevelDataMgr) return FVector::ZeroVector;
-	const FVector Pos   = GetActorLocation();
-	const int32   Frame = GetCurrentSimFrame();
-	FVector SafeExit = FVector::ZeroVector;
-	const bool bFoundSafeExit = TryGetNearestKnownExit(SafeExit);
-	const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
-	auto RecentlyFailed = [this, Now](const FVector& Exit)
-	{
-		const float* Until = FailedExitUntil.Find(Exit);
-		return Until && *Until > Now;
-	};
+    FVector Target=FVector::ZeroVector;
+    TryResolveNavigationTarget(Action,Target);
+    return Target;
+}
 
-	switch (Action)
-	{
-	case EYUFSAction::EvacuateToNearestExit:
-		if (bReceivedStaffGuidance && !StaffGuidedExitLocation.IsZero()
-			&& !RecentlyFailed(StaffGuidedExitLocation)
-			&& Navigator && !Navigator->IsKnownLocationDangerous(StaffGuidedExitLocation + FVector(0,0,120)))
-			return StaffGuidedExitLocation;
-		return ChooseKnownExit();
-
-	case EYUFSAction::EvacuateToFamiliarExit:
-		{
-			const FVector Familiar=LevelDataMgr->GetFamiliarExit(SpawnLocation);
-			const auto Risk=Navigator->GetPerceivedHazardSnapshot(Frame).Sample(Familiar+FVector(0,0,120));
-			return Risk.Smoke>=0.35f || Risk.Heat>=0.35f || Navigator->GetLastFailure()==EYUFSNavigationFailure::UnsafePath ? ChooseKnownExit() : Familiar;
-		}
-
-	case EYUFSAction::FollowCrowd:
-	{
-		FVector Preferred;
-		if (TryGetPreferredRetreat(Preferred)) return Preferred;
-		if (SocialComp)
-		{
-			const FVector ObservedDestination = SocialComp->GetObservedEvacuationDestination();
-			if (!ObservedDestination.IsZero() && Navigator
-				&& !RecentlyFailed(ObservedDestination)
-				&& !Navigator->IsKnownLocationDangerous(ObservedDestination + FVector(0,0,120))) return ObservedDestination;
-		}
-		return ChooseKnownExit();
-	}
-
-	case EYUFSAction::HelpOther:
-		if (SocialComp)
-		{
-			const FVector HelpLoc = SocialComp->GetNearestNPCNeedingHelpLocation();
-			if (!HelpLoc.IsZero()) return HelpLoc;
-		}
-		return FVector::ZeroVector;
-
-	default:
-		return FVector::ZeroVector;
-	}
+bool AYUFSEvacuationNPC::TryResolveNavigationTarget(EYUFSAction Action,FVector& Out) const
+{
+    if (!LevelDataMgr || !Navigator) return false;
+    const float Now=GetWorld()?GetWorld()->GetTimeSeconds():0.f;
+    auto Available=[this,Now](const FVector& Exit)
+    {
+        const float* Until=FailedExitUntil.Find(Exit);
+        return (!Until || *Until<=Now) && !Navigator->IsKnownLocationDangerous(Exit+FVector(0,0,Navigator->GetHazardSettings().SampleHeightCm));
+    };
+    bool Found=false;
+    switch (Action)
+    {
+    case EYUFSAction::EvacuateToNearestExit:
+        if (bHasStaffGuidedExit && Available(StaffGuidedExitLocation)) { Out=StaffGuidedExitLocation;Found=true; }
+        else Found=TryChooseKnownExit(Out);
+        break;
+    case EYUFSAction::EvacuateToFamiliarExit:
+        if (ExitKnowledge && ExitKnowledge->TryGetFamiliarExit(Out) && Available(Out)
+            && Navigator->GetLastFailure()!=EYUFSNavigationFailure::UnsafePath) Found=true;
+        else Found=TryChooseKnownExit(Out);
+        break;
+    case EYUFSAction::FollowCrowd:
+        if (TryGetPreferredRetreat(Out)) Found=true;
+        else if (SocialComp && SocialComp->TryGetObservedEvacuationDestination(Out) && Available(Out)) Found=true;
+        else Found=TryChooseKnownExit(Out);
+        break;
+    case EYUFSAction::HelpOther:
+        if (SocialComp) { Out=SocialComp->GetNearestNPCNeedingHelpLocation();return !Out.IsZero(); }
+        return false;
+    default:return false;
+    }
+    if (Found) { if (ExitKnowledge) ExitKnowledge->StopSearching();return true; }
+    return ExitKnowledge && ExitKnowledge->TryGetSearchTarget(Out);
 }
 
 bool AYUFSEvacuationNPC::IsNavigationAction(EYUFSAction Action)
@@ -1344,22 +1538,29 @@ bool AYUFSEvacuationNPC::IsNavigationAction(EYUFSAction Action)
 
 FVector AYUFSEvacuationNPC::ChooseKnownExit() const
 {
-	if (!LevelDataMgr || !Navigator) return FVector::ZeroVector;
-	FVector Preferred;
-	if (TryGetPreferredRetreat(Preferred)) return Preferred;
-	const auto Snapshot=Navigator->GetPerceivedHazardSnapshot(GetCurrentSimFrame());
-	FVector Best=FVector::ZeroVector; float Score=FLT_MAX;
-	for (const FVector& Exit:LevelDataMgr->GetExitLocations())
-	{
-		const auto Risk=Snapshot.Sample(Exit+FVector(0,0,120));
-		float Cost=FVector::Dist(GetActorLocation(),Exit)*(1.f+20.f*Risk.Smoke+40.f*Risk.Heat);
-		if (Navigator->GetLastFailure()==EYUFSNavigationFailure::UnsafePath && FVector::DistSquared(Exit,CurrentNavTarget)<FMath::Square(100.f)) Cost+=100000.f;
-		if (Cost<Score) { Score=Cost; Best=Exit; }
-	}
-	return Best;
+    FVector Result=FVector::ZeroVector;
+    TryChooseKnownExit(Result);
+    return Result;
 }
 
-
+bool AYUFSEvacuationNPC::TryChooseKnownExit(FVector& Out) const
+{
+    if (!LevelDataMgr || !Navigator) return false;
+    RememberFailedExit();
+    if (TryGetPreferredRetreat(Out)) return true;
+    const auto Snapshot=Navigator->GetPerceivedHazardSnapshot(GetCurrentSimFrame());
+    const float Now=GetWorld()?GetWorld()->GetTimeSeconds():0.f;
+    float Score=FLT_MAX;
+    for (const FVector& Exit:GetPersonallyKnownExitLocations())
+    {
+        const float* RetryAt=FailedExitUntil.Find(Exit);
+        if (RetryAt && *RetryAt>Now) continue;
+        const auto Risk=Snapshot.Sample(Exit+FVector(0,0,Navigator->GetHazardSettings().SampleHeightCm));
+        const float Cost=FVector::Dist(GetActorLocation(),Exit)*(1.f+20.f*Risk.Smoke+40.f*Risk.Heat);
+        if (Cost<Score) { Score=Cost;Out=Exit; }
+    }
+    return Score<FLT_MAX;
+}
 
 void AYUFSEvacuationNPC::ProcessTeamFeedback()
 {
@@ -1442,9 +1643,8 @@ void AYUFSEvacuationNPC::PublishTeamDirectives(const FYUFSNPCObservation& Observ
 	const FYUFSCognitiveState& Cognition = HumanCognitionComp
 		? HumanCognitionComp->GetCognitiveState()
 		: DefaultCognition;
-	const FVector DestinationHint = IsNavigationAction(CurrentAction)
-		? ResolveNavigationTarget(CurrentAction)
-		: FVector::ZeroVector;
+	FVector DestinationHint=FVector::ZeroVector;
+	const bool bHasDestination=IsNavigationAction(CurrentAction) && TryResolveNavigationTarget(CurrentAction,DestinationHint);
 	TeamIntegrationComp->PublishDecision(
 		StableNPCId,
 		*Decision,
@@ -1452,7 +1652,7 @@ void AYUFSEvacuationNPC::PublishTeamDirectives(const FYUFSNPCObservation& Observ
 		BehaviorSM ? BehaviorSM->GetCurrentState() : Observation.CurrentState,
 		DestinationHint,
 		bHasSafeExit,
-		Cognition);
+		Cognition,bHasDestination,ExitKnowledge && ExitKnowledge->IsSearchingForExit());
 }
 
 bool AYUFSEvacuationNPC::RollSocialProbability(float Probability)
@@ -1472,6 +1672,7 @@ void AYUFSEvacuationNPC::ApplyDistributedSpawnLocation(const FVector& NewLocatio
 	if (Navigator) Navigator->ResetObservedHazards();
 	SetActorLocation(NewLocation, false, nullptr, ETeleportType::TeleportPhysics);
 	SpawnLocation = NewLocation;
+	if (ExitKnowledge) { ExitKnowledge->ResetMemory();ExitKnowledge->InitializeMemory(); }
 	LastMovementSampleLocation = NewLocation;
 	bHasMovementSample = true;
 	CurrentNavTarget = FVector::ZeroVector;
@@ -1576,7 +1777,7 @@ float AYUFSEvacuationNPC::GetDesiredWalkingSpeed() const
 	if (BehaviorSM && BehaviorSM->IsIncapacitated()) return 0.f;
 	float Speed = BaseWalkSpeed * (BehaviorSM ? BehaviorSM->GetSpeedMultiplier() : 1.f)
 		* (SocialComp ? SocialComp->GetGroupSpeedMultiplier() : 1.f);
-	if (BehaviorSM && BehaviorSM->IsCrawling() && BehaviorSM->Config)
+	if (BehaviorSM && (BehaviorSM->IsCrawling() || IsCrouched()) && BehaviorSM->Config)
 		Speed = FMath::Min(Speed, BehaviorSM->Config->CrawlSpeed);
 	return Speed;
 }
@@ -1584,7 +1785,7 @@ float AYUFSEvacuationNPC::GetDesiredWalkingSpeed() const
 bool AYUFSEvacuationNPC::AllowsOptionalInteractions() const
 {
 	if (!BehaviorSM || !BehaviorSM->Config || !PerceptionComp
-		|| !BehaviorSM->HasCommittedToEvacuation() || BehaviorSM->IsIncapacitated() || BehaviorSM->IsCrawling())
+		|| !BehaviorSM->HasCommittedToEvacuation() || BehaviorSM->IsIncapacitated() || BehaviorSM->IsCrawling() || IsCrouched())
 		return false;
 	const EYUFSBehaviorState State = BehaviorSM->GetCurrentState();
 	if (State != EYUFSBehaviorState::Evacuating && State != EYUFSBehaviorState::Helping) return false;
@@ -1602,6 +1803,21 @@ void AYUFSEvacuationNPC::ReceivePeerGuidance()
 	if (HumanBehaviorSelector) HumanBehaviorSelector->RequestReselection(TEXT("ReceivedNearbyGuidance"));
 }
 
+bool AYUFSEvacuationNPC::ReceiveExitGuidance(AYUFSEvacuationNPC* Sender)
+{
+	if (bTimelinePlaybackMode || !IsValid(Sender) || Sender==this || Sender->IsHidden() || Sender->GetWorld()!=GetWorld()
+		|| (Sender->GetBehaviorStateMachine() && Sender->GetBehaviorStateMachine()->IsIncapacitated())
+		|| !ExitKnowledge || (BehaviorSM && BehaviorSM->IsIncapacitated())) return false;
+	const FVector Origin=GetActorLocation(), Other=Sender->GetActorLocation();
+	if (FVector::DistSquared(Origin,Other)>FMath::Square(SocialComp?SocialComp->SocialInfluenceRadius:500.f)
+		|| FMath::Abs(Origin.Z-Other.Z)>150.f) return false;
+	FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSExitGuidance),false,this);Params.AddIgnoredActor(Sender);
+	if (GetWorld()->LineTraceTestByChannel(Origin,Other,ECC_Visibility,Params)) return false;
+	FVector Exit;
+	if (!Sender->TryChooseKnownExit(Exit) || !ExitKnowledge->RememberGuidedExit(Exit,TEXT("Peer"))) return false;
+	ReceivePeerGuidance();return true;
+}
+
 void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCObservation& Observation)
 {
 	if (!IntentComp || !BehaviorSM) return;
@@ -1616,8 +1832,7 @@ void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCOb
 			HumanBehaviorSelector->RequestReselection(Cognition.LastEvidenceTrigger);
 	}
 	if (BeliefComp) BeliefComp->UpdateBelief(Observation);
-	LastSafeExit = ChooseKnownExit();
-	bHasSafeExit = !LastSafeExit.IsZero(); // Known goal, not proof of hazard-free travel.
+	bHasSafeExit = TryChooseKnownExit(LastSafeExit); // Known goal, not proof of hazard-free travel.
 	Observation.bSuppressionAllowedByBehavior = AllowsOptionalInteractions();
 	if (IntentComp->DidIntentChange())
 	{
@@ -1640,11 +1855,19 @@ bool AYUFSEvacuationNPC::IsInteractionHoldingPosition() const
 	return bInteractionHoldingPosition;
 }
 
-void AYUFSEvacuationNPC::UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap)
+void AYUFSEvacuationNPC::UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap, bool bAllowOrigin)
 {
 	if (bUseExternalNavigationDriver || !Navigator || !LocalMovement) return;
-	if (Target.IsZero() || Target.ContainsNaN())
+	if ((!bAllowOrigin && Target.IsZero()) || Target.ContainsNaN())
 	{
+		if (Target.IsZero() && Navigator->GetLastFailure() == EYUFSNavigationFailure::UnsafePath)
+		{
+			// All exits can be temporarily rejected. Preserve the refusal and its reassessment gate.
+			LocalMovement->Reset();
+			GetCharacterMovement()->StopMovementImmediately();
+			CurrentNavTarget = FVector::ZeroVector;
+			return;
+		}
 		Navigator->ClearPath(); LocalMovement->Reset(); CurrentNavTarget = FVector::ZeroVector;
 		GetCharacterMovement()->StopMovementImmediately();
 		return;

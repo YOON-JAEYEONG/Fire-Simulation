@@ -6,6 +6,10 @@
 #include "YUFSExitPoint.h"
 #include "Fire/YUFSBinaryManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "NPC/Navigation/YUFSLocalMovementComponent.h"
 
 // Sets default values
 AYUFSLevelDataManager::AYUFSLevelDataManager()
@@ -114,12 +118,27 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 	return MinAnyDist < MAX_flt ? NearestAny : From;
 }
 
-bool AYUFSLevelDataManager::IsAtValidExit(FVector Location, float RadiusCm) const
+bool AYUFSLevelDataManager::IsAtValidExit(const ACharacter* Character, float RadiusCm) const
 {
-	if (Location.ContainsNaN() || !FMath::IsFinite(RadiusCm) || RadiusCm <= 0.f) return false;
+	if (!IsValid(Character) || Character->GetWorld() != GetWorld() || !FMath::IsFinite(RadiusCm) || RadiusCm <= 0.f) return false;
+	const FVector Location=Character->GetActorLocation();
+	const auto* Capsule=Character->GetCapsuleComponent();
+	const auto* Movement=Character->GetCharacterMovement();
+	const auto* Clearance=Character->FindComponentByClass<UYUFSLocalMovementComponent>();
+	if (Location.ContainsNaN() || !Capsule || !Movement || !Clearance) return false;
+	const FVector Feet=Location-FVector(0,0,Capsule->GetScaledCapsuleHalfHeight());
 	for (const auto* Exit : CachedExits)
 	{
-		if (IsValid(Exit) && FVector::DistSquared(Location, Exit->GetActorLocation()) < FMath::Square(RadiusCm))
+		if (!IsValid(Exit)) continue;
+		const FVector ExitFloor=Exit->GetActorLocation();
+		// Preserve the configured centre-distance region, but do not bridge a nearby separate slab.
+		if (FVector::DistSquared(Location,ExitFloor)>=FMath::Square(RadiusCm)
+			|| FMath::Abs(Feet.Z-ExitFloor.Z)>FMath::Max(0.f,Movement->MaxStepHeight)+3.f) continue;
+		// Reuse the same capsule/floor/step geometry as local movement. Residents are ignored only
+		// for terminal classification, so a crowd cannot mutually prevent resolution at a valid exit.
+		FVector SupportedFloor;
+		if (Clearance->IsPhysicalCorridorClear(ExitFloor,true,&SupportedFloor)
+			&& FMath::Abs(SupportedFloor.Z-ExitFloor.Z)<=10.f)
 			return true;
 	}
 	return false;

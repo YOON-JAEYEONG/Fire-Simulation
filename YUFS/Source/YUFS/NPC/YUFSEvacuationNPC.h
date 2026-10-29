@@ -29,6 +29,7 @@ class UYUFSNPCDebugComponent;
 class UYUFSNpcEnvironmentInteraction;
 class UYUFSNpcSuppressionComponent;
 class UYUFSNPCPerceptionComponent;
+class UYUFSExitKnowledgeComponent;
 class AYUFSSimulationController;
 
 UCLASS()
@@ -43,6 +44,10 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	virtual FVector GetPawnViewLocation() const override;
+	// Actual collision posture is authoritative, including a refused stand-up under a ceiling.
+	UFUNCTION(BlueprintPure, Category="NPC|Diagnostics")
+	float GetBreathingHeightCm() const;
 
 	UFUNCTION()
 	void OnCommReceived(EYUFSCommType CommType, FVector SourceLocation, float EffectiveRadius, FVector GuidanceTarget);
@@ -123,6 +128,10 @@ public:
 	float GetDesiredWalkingSpeed() const;
 	bool AllowsOptionalInteractions() const;
 	void ReceivePeerGuidance();
+	UFUNCTION(BlueprintCallable,Category="NPC|Exit Knowledge")
+	bool ReceiveExitGuidance(AYUFSEvacuationNPC* Sender);
+	UYUFSExitKnowledgeComponent* GetExitKnowledge() const { return ExitKnowledge; }
+	TArray<FVector> GetPersonallyKnownExitLocations() const;
 	bool IsInteractionHoldingPosition() const;
 
 	UYUFSLocalMovementComponent* GetLocalMovement() const { return LocalMovement; }
@@ -183,6 +192,7 @@ public:
 	void SetAnimationShowcaseDebugSuppressed(bool bSuppressed);
 
 	void NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason);
+	void SetLiveSimulationPaused(bool bPaused);
 
 	// ── 타임라인 기록/관찰 모드 API ───────────────────────────────────
 	// 현재 NPC 상태를 최소 정보 스냅샷으로 변환합니다.
@@ -196,6 +206,10 @@ public:
 	bool IsTimelinePlaybackMode() const { return bTimelinePlaybackMode; }
 
 private:
+	bool UpdatePhysicalPosture();
+	float LowBreathingHeightCm = 55.f;
+	EYUFSBehaviorState TimelineDisplayState = EYUFSBehaviorState::Normal;
+	friend struct FYUFSCrawlPostureTestAccess;
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCPerceptionComponent* PerceptionComp;
 	UPROPERTY(VisibleAnywhere)
@@ -207,6 +221,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UYUFSNPCDebugComponent* DebugComp;
 	UPROPERTY(VisibleAnywhere) UYUFSLocalMovementComponent* LocalMovement;
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly,Category="NPC|Exit Knowledge",meta=(AllowPrivateAccess="true")) TObjectPtr<UYUFSExitKnowledgeComponent> ExitKnowledge;
 	float BaseWalkSpeed = 400.f;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSBeliefComponent> BeliefComp;
 	UPROPERTY(VisibleAnywhere) TObjectPtr<UYUFSIntentComponent> IntentComp;
@@ -234,12 +249,21 @@ private:
 	bool bReceivedStaffGuidance = false;
 	UPROPERTY()
 	FVector StaffGuidedExitLocation = FVector::ZeroVector;
+	bool bHasStaffGuidedExit=false;
 
 	FVector SpawnLocation = FVector::ZeroVector;
 
 	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
 	bool bTimelinePlaybackMode = false;
 	float SavedWalkSpeedBeforeTimeline = 300.f;
+	bool bLiveSimulationPaused = false;
+	bool bActorTickBeforePause = true;
+	bool bMovementTickBeforePause = true;
+	bool bNavigatorTickBeforePause = true;
+	bool bMeshPausedBeforePause = false;
+	bool bMovementTickBeforeTimeline = true;
+	bool bNavigatorTickBeforeTimeline = true;
+	bool bMeshPausedBeforeTimeline = false;
 
 	// ── CSV 로깅 ──────────────────────────────────────────────────────
 	FYUFSNPCObservation PrevObservation{};
@@ -275,6 +299,8 @@ private:
 	void ResetRetreatKnowledge();
 	friend struct FYUFSPersonalRetreatTestAccess;
 	friend struct FYUFSExitValidationTestAccess;
+	friend struct FYUFSPersonalExitTestAccess;
+	friend struct FYUFSTrafficRegressionAccess;
 	friend struct FYUFSJJWDecisionBridgeTestAccess;
 	friend struct FYUFSEverydayIntegrationTestAccess;
 	friend class UYUFSNpcSuppressionComponent;
@@ -283,7 +309,7 @@ private:
 	bool bOptionalInteractionSelected = false;
 	bool bInteractionHoldingPosition = false;
 	float PeerGuidanceSecondsRemaining = 0.f;
-	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f);
+	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f, bool bAllowOrigin=false);
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
 	EYUFSAction CurrentAction            = EYUFSAction::Idle;
@@ -332,6 +358,8 @@ private:
 	void UpdateActionAnimation(bool bForce = false);
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ChooseKnownExit() const;
+	bool TryChooseKnownExit(FVector& Out) const;
+	bool TryResolveNavigationTarget(EYUFSAction Action,FVector& Out) const;
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

@@ -9,6 +9,7 @@
 
 class AYUFSBinaryManager;
 class AYUFSExitPoint;
+class ACharacter;
 
 UCLASS()
 class YUFS_API AYUFSLevelDataManager : public AActor
@@ -41,9 +42,10 @@ private:
 
 public:
 	FVector GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const;
-	// Success requires a real, still-valid exit; a fallback navigation position is not an exit.
-	bool IsAtValidExit(FVector Location, float RadiusCm) const;
+	// Exit anchors sit on the exit floor. Success requires the actual body and a supported clear approach.
+	bool IsAtValidExit(const ACharacter* Character, float RadiusCm) const;
 	TArray<FVector> GetExitLocations() const;
+	const TArray<AYUFSExitPoint*>& GetExitActors() const { return CachedExits; }
 	// Map geometry alias only; interaction callers evaluate personal knowledge separately.
 	TArray<FVector> GetKnownExitLocations() const { return GetExitLocations(); }
 	FVector GetFamiliarExit(FVector NPCSpawnLocation) const;

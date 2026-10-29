@@ -4,6 +4,9 @@
 #include "Fire/YUFSHazardField.h"
 #include "Fire/YUFSBinaryManager.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
+#include "Components/HeterogeneousVolumeComponent.h"
+#include "Materials/MaterialInterface.h"
+#include "SparseVolumeTexture/SparseVolumeTexture.h"
 #include "Engine/World.h"
 #include "NPC/Navigation/YUFSSmokeNavigationQueryFilter.h"
 #include "NavMesh/RecastHelpers.h"
@@ -122,6 +125,68 @@ bool FYUFSHazardStreamingTest::RunTest(const FString&)
 	TestEqual(TEXT("Overwritten slot no longer serves an old frame"), Manager->GetHazardSnapshot(0).Status, EYUFSHazardDataStatus::Loading);
 	TestEqual(TEXT("In-flight query keeps immutable old bytes"), OldSnapshot.Sample(FVector(20)).Smoke, 1.f);
 	TestEqual(TEXT("New frame sees its own bytes"), Manager->GetHazardSnapshot(192).Sample(FVector(20)).Smoke, 0.f);
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSHazardDatasetCoordinatesTest, "YUFS.NPC.Navigation.Hazard.DatasetCoordinatesOverrideLegacyAnchor",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSHazardDatasetCoordinatesTest::RunTest(const FString&)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	auto* Manager = World->SpawnActor<AYUFSBinaryManager>();
+	auto* Volume = World->SpawnActor<AYUFSHeterogeneousVolume>();
+	FYUFSHazardTestAccess::Initialize(Manager, Volume);
+	auto Data = Grid(FIntVector(116, 53, 20));
+	Data->Density[(32 * 53 + 14) * 20 + 14] = 254;
+	FYUFSHazardTestAccess::Publish(Manager, 0, Data);
+	const FTransform FirstVolume(FRotator(0, 0, 180), FVector(-840, -120, -310), FVector(96, 88, 83));
+	const FTransform ThirdVolume(FRotator(0, 0, 180), FVector(-450, 130, -70), FVector(100, 100, 80));
+	Volume->SetActorTransform(ThirdVolume);
+	Manager->SetWorldAnchoredGrid(FirstVolume);
+	auto* Material = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Fires/Audit0928/MI_Fire3.MI_Fire3"));
+	if (!TestNotNull(TEXT("Saved third fire material exists"), Material)) { World->DestroyWorld(false); return false; }
+	Volume->SetFireMaterial(Material);
+	USparseVolumeTexture* Texture = nullptr;
+	Material->GetSparseVolumeTextureParameterValue(FMaterialParameterInfo(TEXT("SparseVolumeTexture")), Texture);
+	if (!TestNotNull(TEXT("Saved third fire SVT exists"), Texture)) { World->DestroyWorld(false); return false; }
+	const FTransform GridToTexture(FQuat::Identity, FVector(2, 3, 1));
+	Manager->ConfigureDatasetMapping(true, GridToTexture, 1, 0, false);
+	const FTransform Expected = GridToTexture * Texture->GetFrameTransform() * ThirdVolume;
+	const auto Field = Manager->GetHazardSnapshot(0);
+	const FVector UpperEye(1200, -300, 504);
+	TestEqual(TEXT("Third fire includes second-floor breathing height"), Field.Sample(UpperEye).Status, EYUFSHazardDataStatus::Ready);
+	const FVector HotPoint = Expected.TransformPosition(FVector(32.5, 14.5, 14.5));
+	TestEqual(TEXT("World sample reads the third dataset's intended cell"), Field.Sample(HotPoint).Smoke, 254 / 255.f);
+	TestTrue(TEXT("SVT calibration uses the matching rendered component transform"), Field.GridToWorld.Equals(Expected));
+	// Legacy exports without a per-dataset SVT calibration keep their explicit building anchor.
+	Manager->ConfigureDatasetMapping(false, FTransform::Identity, 1, 0, false);
+	const FTransform LegacyExpected = FTransform(FQuat::Identity, FVector::ZeroVector, FVector(40. / 96.)) * FirstVolume;
+	TestTrue(TEXT("Legacy world anchor is preserved"), Manager->GetHazardSnapshot(0).GridToWorld.Equals(LegacyExpected));
+	World->DestroyWorld(false);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSHazardPlaybackFrameTest, "YUFS.NPC.Navigation.Hazard.LivePlaybackFrameWithoutManagerTick",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSHazardPlaybackFrameTest::RunTest(const FString&)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	auto* Manager = World->SpawnActor<AYUFSBinaryManager>();
+	auto* Volume = World->SpawnActor<AYUFSHeterogeneousVolume>();
+	FYUFSHazardTestAccess::Initialize(Manager, Volume);
+	Volume->SetFrame(100);
+	TestEqual(TEXT("Seeking cannot serve the manager's stale frame before its next tick"), Manager->GetCurrentFrame(), 100);
+	Volume->SetFrame(480);
+	TestEqual(TEXT("A second seek is reflected immediately"), Manager->GetCurrentFrame(), 480);
+	Manager->ConfigureDatasetMapping(false, FTransform::Identity, 2.f, 3, false);
+	Volume->FindComponentByClass<UHeterogeneousVolumeComponent>()->Frame = 100.75f;
+	TestEqual(TEXT("Fractional playback time is mapped before flooring the BIN frame"), Manager->GetCurrentFrame(), 204);
+	Manager->ConfigureDatasetMapping(false, FTransform::Identity, 1.f, -101, false);
+	TestEqual(TEXT("Negative mapped time is invalid, never clamped to a safe frame"), Manager->GetCurrentFrame(), INDEX_NONE);
+	Volume->SetFrame(999);
+	Manager->ConfigureDatasetMapping(false, FTransform::Identity, 2.f, 0, false);
+	TestEqual(TEXT("Past-end mapped time is invalid"), Manager->GetCurrentFrame(), INDEX_NONE);
 	World->DestroyWorld(false);
 	return true;
 }

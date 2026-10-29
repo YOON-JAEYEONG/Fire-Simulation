@@ -55,6 +55,7 @@ bool UYUFSNpcSuppressionComponent::StartVisualPresentation(AYUFSFireExtinguisher
 {
 	Npc = Cast<AYUFSEvacuationNPC>(GetOwner());
 	if (!Npc.IsValid() || !bEnabled || !IsValid(Extinguisher) || bActive || bVisualPresentation
+		|| Npc->IsTimelinePlaybackMode()
 		|| Target.ContainsNaN() || !FMath::IsFinite(DurationSeconds) || DurationSeconds <= 0.f
 		|| Npc->bUseExternalNavigationDriver || Npc->bUseExternalMotionDriver
 		|| !Npc->GetActionAnimationComponent()->CanUseNativeAnimations(Npc->GetMesh())
@@ -310,7 +311,7 @@ bool UYUFSNpcSuppressionComponent::CheckRetreat(int32 SimFrame)
 	RetreatExit = FVector::ZeroVector;
 	if (!Npc.IsValid() || !Npc->GetLevelDataManager() || !Npc->GetNavigator()) return false;
 	float BestLength = FLT_MAX;
-	for (const FVector& Exit : Npc->GetLevelDataManager()->GetKnownExitLocations())
+	for (const FVector& Exit : Npc->GetPersonallyKnownExitLocations())
 	{
 		auto* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), Npc->GetActorLocation(), Exit, Npc.Get());
 		if (Path && Path->IsValid() && !Path->IsPartial() && !Path->PathPoints.IsEmpty()

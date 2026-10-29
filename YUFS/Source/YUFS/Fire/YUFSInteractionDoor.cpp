@@ -8,6 +8,7 @@
 #include "Engine/World.h"
 #include "EngineUtils.h"
 #include "Simulation/YUFSSimulationController.h"
+#include "Simulation/YUFSTimelineTypes.h"
 AYUFSInteractionDoor::AYUFSInteractionDoor()
 {
  PrimaryActorTick.bCanEverTick = true;
@@ -105,7 +106,7 @@ bool AYUFSInteractionDoor::IsPassageClear() const
 }
 bool AYUFSInteractionDoor::TryReserve(AActor* User)
 {
- if (!IsUserInReach(User) || !CanOperate() || (Operator.IsValid() && Operator.Get()!=User)) return false;
+ if (bTimelinePresentation || !IsUserInReach(User) || !CanOperate() || (Operator.IsValid() && Operator.Get()!=User)) return false;
  // A +Y leaf rotated by positive yaw swings toward -X. Choose the opposite
  // side from the first user, then retain it when resuming a partial opening.
  if (OpenFraction <= 0.f)
@@ -150,6 +151,7 @@ bool AYUFSInteractionDoor::CanSweepLeaf(float FromFraction,float ToFraction) con
 void AYUFSInteractionDoor::Tick(float Dt)
 {
  Super::Tick(Dt);
+ if (bTimelinePresentation) return;
  if (!SimulationController.IsValid())
   for (TActorIterator<AYUFSSimulationController> It(GetWorld());It;++It) { SimulationController=*It; break; }
  if (SimulationController.IsValid() && !SimulationController->IsNPCSimulationEnabled()) return;
@@ -171,4 +173,22 @@ void AYUFSInteractionDoor::Tick(float Dt)
   PassageBlocker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
   Release(Operator.Get());
  }
+}
+
+FYUFSTimelineDoorSnapshot AYUFSInteractionDoor::BuildTimelineSnapshot() const
+{
+ FYUFSTimelineDoorSnapshot Snapshot;
+ Snapshot.DoorId=GetFName(); Snapshot.OpenFraction=OpenFraction; Snapshot.SwingDirection=SwingDirection;
+ Snapshot.bVisible=!IsHidden(); return Snapshot;
+}
+void AYUFSInteractionDoor::ApplyTimelineSnapshot(const FYUFSTimelineDoorSnapshot& Snapshot)
+{
+ // Observation only: never TryUse, sweep the live leaf, or create a new reservation.
+ bTimelinePresentation=true; Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false;
+ OpenFraction=FMath::Clamp(Snapshot.OpenFraction,0.f,1.f); SwingDirection=Snapshot.SwingDirection<0.f?-1.f:1.f;
+ const float Eased=OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
+ LeafPivot->SetRelativeRotation(FRotator(0,FMath::Abs(OpenAngle)*SwingDirection*Eased,0));
+ PassageBlocker->SetCollisionEnabled(IsOpen()?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
+ SetActorHiddenInGame(!Snapshot.bVisible);
+ SetActorEnableCollision(Snapshot.bVisible);
 }

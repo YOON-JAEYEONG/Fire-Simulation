@@ -30,5 +30,8 @@ public:
 	// Normalized heat data, not rendered flame recognition. Near probes cannot cross collision walls/floors.
 	UPROPERTY(EditAnywhere) float NearHeatRange = 180.f;
 	UPROPERTY(EditAnywhere) float MaxProbeStepCm = 40.f;
+	// Presentation/cognition calibration against normalized BIN density; not physical extinction units.
+	UPROPERTY(EditAnywhere, meta=(ClampMin="0", ClampMax="10")) float SmokeSightAttenuationPerMeter = 1.2f;
+	UPROPERTY(EditAnywhere, meta=(ClampMin="0.01", ClampMax="0.95")) float MinimumSightTransmission = 0.15f;
 	UPROPERTY(EditAnywhere) bool bDrawVisionDebug          = false;
 };

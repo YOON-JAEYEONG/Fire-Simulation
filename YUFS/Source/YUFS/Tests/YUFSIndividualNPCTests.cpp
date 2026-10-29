@@ -43,6 +43,37 @@ bool FYUFSIndividualAlarmTest::RunTest(const FString&)
 	TestTrue(TEXT("Sceptics are not forced to depart by a universal timer"),Waiting>5);
 	return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSExposureDemoTimingTest,"YUFS.NPC.Individual.ExposureDemoTimingAndLegacyScale",
+	EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FYUFSExposureDemoTimingTest::RunTest(const FString&)
+{
+	FYUFSNPCObservation O; O.SmokeDensityAtSelf = 1.f;
+	auto* Demo = Mind(1);
+	Advance(Demo, O, 24.9f);
+	TestFalse(TEXT("Crawl is not an elapsed-time shortcut"), Demo->IsCrawling());
+	Advance(Demo, O, .2f);
+	TestTrue(TEXT("Full-density demonstration exposure reaches crawl at about 25s"), Demo->IsCrawling());
+	Advance(Demo, O, 12.6f);
+	TestTrue(TEXT("Continued full-density exposure reaches incapacitation at about 37.5s"), Demo->IsIncapacitated());
+	auto* Half = Mind(1); O.SmokeDensityAtSelf = .5f;
+	Advance(Half, O, 25.1f);
+	TestFalse(TEXT("Half density does not use the same fixed timer"), Half->IsCrawling());
+	Advance(Half, O, 25.1f);
+	TestTrue(TEXT("Half density takes about twice as long"), Half->IsCrawling());
+	auto* Legacy = Mind(1); Legacy->Config->SmokeExposureTimeScale = 1.f; O.SmokeDensityAtSelf = 1.f;
+	Advance(Legacy, O, 37.7f);
+	TestFalse(TEXT("Scale 1 restores the earlier exposure duration"), Legacy->IsCrawling());
+	Advance(Legacy, O, 37.5f);
+	TestTrue(TEXT("Legacy crawl is still about 75s"), Legacy->IsCrawling());
+	Advance(Legacy, O, 37.5f);
+	TestTrue(TEXT("Legacy incapacitation is still about 112.5s"), Legacy->IsIncapacitated());
+	auto* Fresh = Mind(1); O.SmokeDensityAtSelf = 0.f;
+	Advance(Fresh, O, 60.f);
+	TestEqual(TEXT("A smoke-free NPC never accumulates demo exposure"), Fresh->GetSmokeExposure(), 0.f);
+	TestEqual(TEXT("The 60-second clock alone does not change behavior"), Fresh->GetCurrentState(), EYUFSBehaviorState::Normal);
+	return true;
+}
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSIndividualEvidenceTest,"YUFS.NPC.Individual.HeatSmokePeersAndIncapacitation",
 	EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FYUFSIndividualEvidenceTest::RunTest(const FString&)
@@ -171,6 +202,24 @@ struct FYUFSCrowdIntegrationAccess
 		Nav->CurrentWaypointIndex=1; Nav->NavigationStatus=EYUFSNavigationStatus::Moving;
 	}
 };
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSCrowdQueueSpeedTest,"YUFS.NPC.Navigation.Traffic.FollowQueueSlowsBeforeStopping",
+	EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FYUFSCrowdQueueSpeedTest::RunTest(const FString&)
+{
+	UWorld* World=UWorld::CreateWorld(EWorldType::Game,false);
+	auto* Front=World->SpawnActor<AYUFSEvacuationNPC>(); Front->SetActorLocation(FVector(0,150,100));
+	auto* Rear=World->SpawnActor<AYUFSEvacuationNPC>(); Rear->SetActorLocation(FVector(0,0,100));
+	const FVector Goal(0,500,100), Desired(0,1,0);
+	FYUFSCrowdIntegrationAccess::SetRoute(Front,Goal); FYUFSCrowdIntegrationAccess::SetRoute(Rear,Goal);
+	const FVector Ahead=Front->GetLocalMovement()->ResolveDirection(Desired,.1f,0);
+	const FVector Follow=Rear->GetLocalMovement()->ResolveDirection(Desired,.1f,0);
+	TestFalse(TEXT("Leader never waits for its own follower"),Ahead.IsNearlyZero());
+	TestTrue(TEXT("A safe following gap produces slower forward input rather than a full brake"),Follow.Size2D()>0.f && Follow.Size2D()<1.f);
+	Front->SetActorLocation(FVector(0,80,100));
+	const FVector Close=Rear->GetLocalMovement()->ResolveDirection(Desired,.1f,0);
+	TestTrue(TEXT("Close capsules still stop instead of pushing the queue leader"),Close.IsNearlyZero());
+	World->DestroyWorld(false);return true;
+}
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSTwoAgentYieldTest,"YUFS.NPC.Navigation.Traffic.TwoNPCsYieldAndRelease",
 	EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FYUFSTwoAgentYieldTest::RunTest(const FString&)

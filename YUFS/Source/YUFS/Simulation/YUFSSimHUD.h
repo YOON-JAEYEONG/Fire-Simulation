@@ -71,6 +71,10 @@ public:
 	UFUNCTION(BlueprintPure, Category="YUFS|HUD")
 	FText GetNPCStatusText() const;
 
+	// Read the actual text widgets (including Slate bindings) for ordinary-Play audits.
+	UFUNCTION(BlueprintCallable, Category="YUFS|HUD|Diagnostics", meta=(DevelopmentOnly))
+	TMap<FName, FText> GetDisplayedTextSnapshot() const;
+
 	UFUNCTION(BlueprintPure, Category="YUFS|HUD")
 	FText GetRunProgressText() const;
 
@@ -144,6 +148,7 @@ public:
 	bool IsFireSceneBSelected() const;
 
 private:
+	friend struct FYUFSReviewHudTestAccess;
 	UPROPERTY()
 	AYUFSSimulationController* SimController = nullptr;
 

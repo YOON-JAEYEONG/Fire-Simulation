@@ -1,7 +1,11 @@
 #include "Simulation/YUFSTimelineRecorder.h"
+#include "Simulation/YUFSSimulationController.h"
 
 #include "Fire/YUFSHeterogeneousVolume.h"
 #include "NPC/YUFSEvacuationNPC.h"
+#include "Fire/YUFSInteractionDoor.h"
+#include "Fire/YUFSFireExtinguisher.h"
+#include "EngineUtils.h"
 
 UYUFSTimelineRecorder::UYUFSTimelineRecorder()
 {
@@ -82,7 +86,14 @@ void UYUFSTimelineRecorder::CaptureFrame(
 
 		Frame.NPCSnapshots.Add(NPC->BuildTimelineSnapshot());
 	}
+	Frame.TotalNPCCount = OwnerController ? OwnerController->GetTotalNPCCount()
+		: FMath::Max(Frame.NPCSnapshots.Num(), EvacuatedCount + IncapacitatedCount);
+	Frame.SimulationElapsedTime = OwnerController ? OwnerController->GetElapsedTime() : Frame.FireElapsedTime;
 
+	for (TActorIterator<AYUFSInteractionDoor> It(GetWorld()); It; ++It)
+		Frame.DoorSnapshots.Add(It->BuildTimelineSnapshot());
+	for (TActorIterator<AYUFSFireExtinguisher> It(GetWorld()); It; ++It)
+		Frame.ExtinguisherSnapshots.Add(It->BuildTimelineSnapshot());
 	RecordedFrames.Add(MoveTemp(Frame));
 }
 
@@ -105,6 +116,7 @@ void UYUFSTimelineRecorder::EnterReviewMode(const TArray<AYUFSEvacuationNPC*>& N
 	{
 		CurrentReviewFireTime = RecordedFrames.Last().FireElapsedTime;
 		ApplyFrame(RecordedFrames.Last(), NPCs);
+		LastAppliedReviewFrame = &RecordedFrames.Last();
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("[YUFSTimeline] Review mode entered. Frames=%d, MaxTime=%.2fs"),
@@ -121,7 +133,8 @@ void UYUFSTimelineRecorder::PlayReview()
 	bReviewPlaying = true;
 	if (HeterogeneousVolume)
 	{
-		HeterogeneousVolume->ResumeFire();
+		// The review cursor owns fire time, just as it owns NPC/prop poses.
+		HeterogeneousVolume->PauseFire();
 	}
 }
 
@@ -234,5 +247,25 @@ void UYUFSTimelineRecorder::ApplyFrame(const FYUFSTimelineFrame& Frame, const TA
 		{
 			NPC->ApplyTimelineSnapshot(**Found);
 		}
+		else
+		{
+			// A resident placed after this frame must not remain visible in its future pose.
+			NPC->SetActorHiddenInGame(true);
+			NPC->SetActorEnableCollision(false);
+		}
+	}
+	TMap<FName, const FYUFSTimelineDoorSnapshot*> Doors;
+	for (const auto& Snapshot : Frame.DoorSnapshots) Doors.Add(Snapshot.DoorId, &Snapshot);
+	for (TActorIterator<AYUFSInteractionDoor> It(GetWorld()); It; ++It)
+	{
+		if (const auto* Found = Doors.Find(It->GetFName())) It->ApplyTimelineSnapshot(**Found);
+		else { auto Hidden=It->BuildTimelineSnapshot(); Hidden.bVisible=false; It->ApplyTimelineSnapshot(Hidden); }
+	}
+	TMap<FName, const FYUFSTimelineExtinguisherSnapshot*> Tools;
+	for (const auto& Snapshot : Frame.ExtinguisherSnapshots) Tools.Add(Snapshot.ToolId, &Snapshot);
+	for (TActorIterator<AYUFSFireExtinguisher> It(GetWorld()); It; ++It)
+	{
+		if (const auto* Found = Tools.Find(It->GetFName())) It->ApplyTimelineSnapshot(**Found);
+		else { auto Hidden=It->BuildTimelineSnapshot(); Hidden.bVisible=false; It->ApplyTimelineSnapshot(Hidden); }
 	}
 }

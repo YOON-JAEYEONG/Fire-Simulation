@@ -6,6 +6,7 @@ bool SameNavigationDirective(const FYUFSNavigationDirective& A, const FYUFSNavig
 {
 	return A.StableNpcId == B.StableNpcId
 		&& A.Goal == B.Goal
+		&& A.bHasDestination == B.bHasDestination && A.bSearchingForExit == B.bSearchingForExit
 		&& A.DestinationHint.Equals(B.DestinationHint, 10.f)
 		&& A.TargetStableId == B.TargetStableId
 		&& A.bAllowHazardReroute == B.bAllowHazardReroute
@@ -48,7 +49,7 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	EYUFSBehaviorState BehaviorState,
 	const FVector& DestinationHint,
 	bool bHasSafeExit,
-	const FYUFSCognitiveState& Cognition)
+	const FYUFSCognitiveState& Cognition,bool bHasExitRouteTarget,bool bSearchingForExit)
 {
 	FYUFSNavigationDirective NextNavigation;
 	NextNavigation.StableNpcId = StableNpcId;
@@ -91,6 +92,17 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 		NextNavigation.TargetStableId = InteractionOpportunities.AssistPersonStableId;
 		NextNavigation.DestinationHint = InteractionOpportunities.AssistPersonLocation;
 	}
+	const bool bExitGoal=NextNavigation.Goal==EYUFSNavigationGoal::SafeExit || NextNavigation.Goal==EYUFSNavigationGoal::FamiliarExit
+		|| NextNavigation.Goal==EYUFSNavigationGoal::CrowdDestination;
+	if (bExitGoal && !bHasExitRouteTarget)
+	{
+		NextNavigation.Goal=EYUFSNavigationGoal::None;NextNavigation.DestinationHint=FVector::ZeroVector;
+		NextNavigation.Reason=TEXT("NoKnownExitTarget");
+	}
+	else if (bExitGoal && bSearchingForExit)
+	{
+		NextNavigation.Goal=EYUFSNavigationGoal::InvestigateTarget;NextNavigation.Reason=TEXT("SearchingForExit");
+	}
 	const bool bMovementHeldByJJW = Intent == EYUFSIntent::Observe || Intent == EYUFSIntent::Prepare
 		|| Intent == EYUFSIntent::Incapacitated;
 	if (bMovementHeldByJJW)
@@ -99,6 +111,8 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 		NextNavigation.TargetStableId = NAME_None;
 		NextNavigation.DestinationHint = FVector::ZeroVector;
 	}
+	NextNavigation.bHasDestination=NextNavigation.Goal!=EYUFSNavigationGoal::None;
+	NextNavigation.bSearchingForExit=bSearchingForExit && !bMovementHeldByJJW;
 	if (!SameNavigationDirective(NextNavigation, NavigationDirective))
 	{
 		NextNavigation.Revision = ++NavigationRevision;
@@ -115,6 +129,8 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 			: Intent == EYUFSIntent::Incapacitated ? EYUFSMotionSemantic::Cough : EYUFSMotionSemantic::Wait;
 	NextMotion.LegacyAction = Decision.LegacyAction;
 	NextMotion.BehaviorState = BehaviorState;
+	if (bExitGoal && bSearchingForExit && !bMovementHeldByJJW && BehaviorState!=EYUFSBehaviorState::Crawling)
+		NextMotion.Semantic=bHasExitRouteTarget?EYUFSMotionSemantic::Walk:EYUFSMotionSemantic::LookAround;
 	NextMotion.SpeedScale = BehaviorState == EYUFSBehaviorState::Crawling
 		? 0.35f
 		: (Cognition.Urgency >= 0.70f ? 1.25f : 1.f);

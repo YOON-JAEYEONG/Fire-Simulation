@@ -54,7 +54,55 @@ struct FYUFSNavigationTestAccess
 	}
 	TArray<FVector> RemainingPath() const { return Navigator->BuildRemainingPath(); }
 	void AdvanceRetryClock() { Navigator->TimeSinceRequest = Navigator->FailedPathRetryInterval; }
+	void SetQueryHazards(const FYUFSHazardSnapshot& Field) { Navigator->QueryHazardSnapshot = Field; }
+	void Reassess(const FYUFSHazardSnapshot& Field) { Navigator->RefreshUnsafeRetryGate(Field); }
+	FYUFSHazardSnapshot ObserveWitnesses(FYUFSHazardSnapshot Field)
+	{
+		auto Observed = MakeShared<TSet<int32>, ESPMode::ThreadSafe>();
+		for (const auto& P : Navigator->RejectedHazardWitnesses) Observed->Add(Field.CellIndex(P));
+		Field.ObservedCells = Observed;
+		return Field;
+	}
 };
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSUnsafeRetryChangeTest,
+	"YUFS.NPC.Navigation.UnsafeRouteWaitsForObservedChange",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSUnsafeRetryChangeTest::RunTest(const FString&)
+{
+	FYUFSNavigationTestAccess F;
+	F.Character->SetActorLocation(FVector(50, 50, F.Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	auto Hot = MakeShared<FYUFSHazardGrid, ESPMode::ThreadSafe>();
+	Hot->Dimensions = FIntVector(6, 3, 4);
+	Hot->Density.Init(0, 72); Hot->Temperature.Init(0, 72);
+	for (int32 Z = 0; Z < 4; ++Z) Hot->Density[(2 * 3 + 1) * 4 + Z] = 255;
+	FYUFSHazardSnapshot Field;
+	Field.Grid = Hot; Field.Status = EYUFSHazardDataStatus::Ready; Field.Frame = 0;
+	Field.GridToWorld = FTransform(FQuat::Identity, FVector(0, -100, -100), FVector(100));
+	const FVector Goal(550, 50, 0);
+	const uint32 Generation = F.BeginRequest(11, Goal);
+	F.SetQueryHazards(Field);
+	F.Deliver(11, Generation, F.MakePath({FVector(50, 50, 0), Goal}));
+	TestEqual(TEXT("Rejected geometry remains a hazard failure"), F.Navigator->GetLastFailure(), EYUFSNavigationFailure::UnsafePath);
+	F.AdvanceRetryClock();
+	for (int32 Frame = 1; Frame <= 20; ++Frame)
+	{
+		Field.Frame = Frame; F.Reassess(Field);
+		TestFalse(TEXT("New fire frames with the same blockage do not restart NavMesh queries"), F.Navigator->ShouldRetryPath());
+	}
+	F.Navigator->RequestPathAsync(Goal, 20);
+	TestEqual(TEXT("Duplicate destination cannot bypass the hazard wait"), F.Navigator->GetRequestGeneration(), Generation);
+	auto Clear = MakeShared<FYUFSHazardGrid, ESPMode::ThreadSafe>(*Hot); Clear->Density.Init(0, 72);
+	Field.Grid = Clear;
+	Field.KnownCells = MakeShared<const TMap<int32, FYUFSHazardSample>, ESPMode::ThreadSafe>();
+	F.Reassess(Field);
+	TestFalse(TEXT("Forgetting danger is not evidence that it cleared"), F.Navigator->ShouldRetryPath());
+	Field = F.ObserveWitnesses(Field); F.Reassess(Field);
+	TestTrue(TEXT("Observed clearance reopens the request without an infinite frame-change bypass"), F.Navigator->ShouldRetryPath());
+	Field.Status = EYUFSHazardDataStatus::Loading; F.Reassess(Field);
+	TestFalse(TEXT("A loading field cannot authorize a dangerous route"), F.Navigator->ShouldRetryPath());
+	return true;
+}
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSNavigationCancelTest,
 	"YUFS.NPC.Navigation.CancelIgnoresLateResult",

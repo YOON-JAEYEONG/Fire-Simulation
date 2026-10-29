@@ -1,0 +1,886 @@
+{
+  "stage": 11,
+  "date": "2026-10-18",
+  "engine": "UE5.7.4",
+  "project": "C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-1008\\YUFS\\YUFS.uproject",
+  "branch": "codex/merged-navigation-completion",
+  "published": false,
+  "tests": {
+    "baseline_success": 1,
+    "baseline_fail": 2,
+    "final_success": 115,
+    "final_fail": 0
+  },
+  "process_exits": {
+    "final_build": 0,
+    "final_tests": 0,
+    "final_main": 0
+  },
+  "actual_main": {
+    "complete": true,
+    "error": null,
+    "hud_class": "/Game/Blueprint/UI/WBP_SimHUD.WBP_SimHUD_C",
+    "final_run_results": [
+      [
+        1,
+        1,
+        3,
+        48.0034065246582
+      ]
+    ],
+    "selected_samples": [
+      {
+        "label": "seek_0",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 0 | 행동 불능: 0 | 전체: 2",
+        "hud_clock": "0:02",
+        "hud_rate": 0.0,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:02",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 0 | 행동 불능: 0 | 전체: 2",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "0.0 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 0.0,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2200.0,
+              -350.0,
+              90.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2200.000 Y=-350.000 Z=90.000 eye=X=2200.000 Y=-350.000 Z=154.000 binFrame=480 cell=X=60.167 Y=11.534 Z=4.976 index=63824 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 0.017583370208740234,
+          "fire_frame": 480,
+          "evacuated": 0,
+          "incap": 0,
+          "snapshots": 2,
+          "total": 2,
+          "sim_time": 2.0175833702087402
+        },
+        "display": {
+          "ElapsedSimTime": 2.0175833702087402,
+          "EvacuatedCount": 0,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 2,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "seek_5",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 1 | 행동 불능: 0 | 전체: 2",
+        "hud_clock": "0:07",
+        "hud_rate": 50.0,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:07",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 1 | 행동 불능: 0 | 전체: 2",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "5.0 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 5.0,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2137.934365443294,
+              -135.0696770340968,
+              89.99999999711542
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2137.934 Y=-135.070 Z=90.000 eye=X=2137.934 Y=-135.070 Z=154.000 binFrame=480 cell=X=58.550 Y=5.428 Z=4.976 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 5.050615310668945,
+          "fire_frame": 480,
+          "evacuated": 1,
+          "incap": 0,
+          "snapshots": 2,
+          "total": 2,
+          "sim_time": 7.050615310668945
+        },
+        "display": {
+          "ElapsedSimTime": 7.050615310668945,
+          "EvacuatedCount": 1,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 2,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "seek_15",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 1 | 행동 불능: 0 | 전체: 3",
+        "hud_clock": "0:17",
+        "hud_rate": 33.33333206176758,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:17",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 1 | 행동 불능: 0 | 전체: 3",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "15.0 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 14.999999046325684,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2137.934365443294,
+              -135.0696770340968,
+              89.99999999711542
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2137.934 Y=-135.070 Z=90.000 eye=X=2137.934 Y=-135.070 Z=154.000 binFrame=480 cell=X=58.550 Y=5.428 Z=4.976 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 15.058547973632812,
+          "fire_frame": 480,
+          "evacuated": 1,
+          "incap": 0,
+          "snapshots": 3,
+          "total": 3,
+          "sim_time": 17.058547973632812
+        },
+        "display": {
+          "ElapsedSimTime": 17.058547973632812,
+          "EvacuatedCount": 1,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 3,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "seek_30",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 1 | 행동 불능: 0 | 전체: 3",
+        "hud_clock": "0:32",
+        "hud_rate": 33.33333206176758,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:32",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 1 | 행동 불능: 0 | 전체: 3",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "30.0 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 29.999998092651367,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2137.934365443294,
+              -135.0696770340968,
+              89.99999999711542
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2137.934 Y=-135.070 Z=90.000 eye=X=2137.934 Y=-135.070 Z=154.000 binFrame=480 cell=X=58.550 Y=5.428 Z=4.976 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              396.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=396.000 eye=X=1200.000 Y=-300.000 Z=407.000 binFrame=480 cell=X=34.125 Y=10.114 Z=12.596 index=36252 rawSmokeHeat=254/3 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=1 capsuleHalf=44.00 breathingHeight=55.00 pathSampleHeight=55.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 30.076366424560547,
+          "fire_frame": 480,
+          "evacuated": 1,
+          "incap": 0,
+          "snapshots": 3,
+          "total": 3,
+          "sim_time": 32.07636642456055
+        },
+        "display": {
+          "ElapsedSimTime": 32.07636642456055,
+          "EvacuatedCount": 1,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 3,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "seek_40",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 1 | 행동 불능: 1 | 전체: 3",
+        "hud_clock": "0:42",
+        "hud_rate": 33.33333206176758,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:42",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 1 | 행동 불능: 1 | 전체: 3",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "40.0 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 40.0,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2137.934365443294,
+              -135.0696770340968,
+              89.99999999711542
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2137.934 Y=-135.070 Z=90.000 eye=X=2137.934 Y=-135.070 Z=154.000 binFrame=480 cell=X=58.550 Y=5.428 Z=4.976 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              396.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=396.000 eye=X=1200.000 Y=-300.000 Z=407.000 binFrame=480 cell=X=34.125 Y=10.114 Z=12.596 index=36252 rawSmokeHeat=254/3 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=1 capsuleHalf=44.00 breathingHeight=55.00 pathSampleHeight=55.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 40.09210205078125,
+          "fire_frame": 480,
+          "evacuated": 1,
+          "incap": 1,
+          "snapshots": 3,
+          "total": 3,
+          "sim_time": 42.09210205078125
+        },
+        "display": {
+          "ElapsedSimTime": 42.09210205078125,
+          "EvacuatedCount": 1,
+          "IncapacitatedCount": 1,
+          "TotalNPCCount": 3,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "seek_46.0034065246582",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 1 | 행동 불능: 1 | 전체: 3",
+        "hud_clock": "0:48",
+        "hud_rate": 33.33333206176758,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:48",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 1 | 행동 불능: 1 | 전체: 3",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "46.0 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 46.0034065246582,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2137.934365443294,
+              -135.0696770340968,
+              89.99999999711542
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2137.934 Y=-135.070 Z=90.000 eye=X=2137.934 Y=-135.070 Z=154.000 binFrame=480 cell=X=58.550 Y=5.428 Z=4.976 index=61584 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              396.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=396.000 eye=X=1200.000 Y=-300.000 Z=407.000 binFrame=480 cell=X=34.125 Y=10.114 Z=12.596 index=36252 rawSmokeHeat=254/3 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=1 capsuleHalf=44.00 breathingHeight=55.00 pathSampleHeight=55.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 46.0034065246582,
+          "fire_frame": 480,
+          "evacuated": 1,
+          "incap": 1,
+          "snapshots": 3,
+          "total": 3,
+          "sim_time": 48.0034065246582
+        },
+        "display": {
+          "ElapsedSimTime": 48.0034065246582,
+          "EvacuatedCount": 1,
+          "IncapacitatedCount": 1,
+          "TotalNPCCount": 3,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "review_pause_start",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 0 | 행동 불능: 0 | 전체: 2",
+        "hud_clock": "0:02",
+        "hud_rate": 0.0,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:02",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 0 | 행동 불능: 0 | 전체: 2",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "0.0 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 0.0,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2200.0,
+              -350.0,
+              90.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2200.000 Y=-350.000 Z=90.000 eye=X=2200.000 Y=-350.000 Z=154.000 binFrame=480 cell=X=60.167 Y=11.534 Z=4.976 index=63824 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 0.017583370208740234,
+          "fire_frame": 480,
+          "evacuated": 0,
+          "incap": 0,
+          "snapshots": 2,
+          "total": 2,
+          "sim_time": 2.0175833702087402
+        },
+        "display": {
+          "ElapsedSimTime": 2.0175833702087402,
+          "EvacuatedCount": 0,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 2,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "review_pause_after2s",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 0 | 행동 불능: 0 | 전체: 2",
+        "hud_clock": "0:02",
+        "hud_rate": 0.0,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:02",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 0 | 행동 불능: 0 | 전체: 2",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "0.0 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 0.0,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2200.0,
+              -350.0,
+              90.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2200.000 Y=-350.000 Z=90.000 eye=X=2200.000 Y=-350.000 Z=154.000 binFrame=480 cell=X=60.167 Y=11.534 Z=4.976 index=63824 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 0.017583370208740234,
+          "fire_frame": 480,
+          "evacuated": 0,
+          "incap": 0,
+          "snapshots": 2,
+          "total": 2,
+          "sim_time": 2.0175833702087402
+        },
+        "display": {
+          "ElapsedSimTime": 2.0175833702087402,
+          "EvacuatedCount": 0,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 2,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "review_played",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_0",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 48.0034065246582,
+        "live_evacuated": 1,
+        "live_incap": 1,
+        "live_total": 3,
+        "hud_status": "대피: 0 | 행동 불능: 0 | 전체: 2",
+        "hud_clock": "0:03",
+        "hud_rate": 0.0,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:03",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 0 | 행동 불능: 0 | 전체: 2",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "1.2 / 46.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 1.2026846408843994,
+        "volume_frame": 480,
+        "npcs": [
+          {
+            "xyz": [
+              2200.0,
+              -350.0,
+              90.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2200.000 Y=-350.000 Z=90.000 eye=X=2200.000 Y=-350.000 Z=154.000 binFrame=480 cell=X=60.167 Y=11.534 Z=4.976 index=63824 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Seen/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          },
+          {
+            "xyz": [
+              1200.0,
+              -450.0,
+              440.0
+            ],
+            "hidden": true,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 1.295593500137329,
+          "fire_frame": 480,
+          "evacuated": 0,
+          "incap": 0,
+          "snapshots": 2,
+          "total": 2,
+          "sim_time": 3.295593500137329
+        },
+        "display": {
+          "ElapsedSimTime": 3.295593500137329,
+          "EvacuatedCount": 0,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 2,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "reset_waiting",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_1",
+        "phase": "<SimPhase.WAITING_TO_START: 0>",
+        "live_clock": 0.0,
+        "live_evacuated": 0,
+        "live_incap": 0,
+        "live_total": 0,
+        "hud_status": "대피: 0 | 행동 불능: 0 | 전체: 0",
+        "hud_clock": "0:00",
+        "hud_rate": 0.0,
+        "slate_texts": {
+          "txt_Phase": "대기 중",
+          "txt_ElapsedTime": "0:00",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 0 | 행동 불능: 0 | 전체: 0",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "0.0 / 0.0초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 0.0,
+        "volume_frame": 0,
+        "npcs": [],
+        "display": {
+          "ElapsedSimTime": 0.0,
+          "EvacuatedCount": 0,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 0,
+          "bHasData": true
+        }
+      },
+      {
+        "label": "fresh_recording",
+        "hud_in_viewport": true,
+        "hud_path": "/Engine/Transient.UnrealEdEngine_0:YUFSGameInstance_0.WBP_SimHUD_C_1",
+        "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+        "live_clock": 0.5046643018722534,
+        "live_evacuated": 0,
+        "live_incap": 0,
+        "live_total": 1,
+        "hud_status": "대피: 0 | 행동 불능: 0 | 전체: 1",
+        "hud_clock": "0:00",
+        "hud_rate": 0.0,
+        "slate_texts": {
+          "txt_Phase": "타임라인 관찰 모드",
+          "txt_ElapsedTime": "0:00",
+          "txt_Countdown": "",
+          "txt_NPCStatus": "대피: 0 | 행동 불능: 0 | 전체: 1",
+          "TextBlock_292": "시작",
+          "TextBlock_376": "일시정지",
+          "TextBlock_436": "중지",
+          "TimelinePlayText": "재생",
+          "TimelinePauseText": "일시정지",
+          "TimelineTimeText": "0.5 / 0.5초",
+          "TextBlock_91": "CAMERA CONTROL",
+          "TextBlock_442": "PLAYER",
+          "TextBlock_201": "OVERVIEW",
+          "TextBlock_360": "FIRE ZONE",
+          "TextBlock_51": "메인",
+          "TextBlock_54": "Fire A",
+          "TextBlock_104": "Fire B"
+        },
+        "review_time": 0.5046643018722534,
+        "volume_frame": 3,
+        "npcs": [
+          {
+            "xyz": [
+              1200.0,
+              -300.0,
+              440.0
+            ],
+            "hidden": false,
+            "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=3 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=0/0 eyeStatus=Ready eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=0 request=0 waitingSafe=0 exposureScale=1.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]"
+          }
+        ],
+        "recorded": {
+          "fire_time": 0.5046643018722534,
+          "fire_frame": 3,
+          "evacuated": 0,
+          "incap": 0,
+          "snapshots": 1,
+          "total": 1,
+          "sim_time": 0.5046643018722534
+        },
+        "display": {
+          "ElapsedSimTime": 0.5046643018722534,
+          "EvacuatedCount": 0,
+          "IncapacitatedCount": 0,
+          "TotalNPCCount": 1,
+          "bHasData": true
+        }
+      }
+    ]
+  },
+  "changes": [
+    "Record capture-time total participants and simulation elapsed clock.",
+    "Read exact currently applied review frame via small display stats; preserve all live getters and stored final results.",
+    "HUD status, clock and rate use historical values in review and live values elsewhere; explicit no-data presentation.",
+    "HUD uses incapacitated label rather than death label.",
+    "Development-only text snapshot reads actual TextBlock/Slate bindings without protected Python widget-tree access."
+  ],
+  "harness_exclusions": [
+    "Before rendered script stopped before samples because WidgetBlueprint.Bindings then runtime WidgetTree are protected in Python. Baseline bug proof is the 2 failing native regression tests, not a rendered before comparison.",
+    "Two intermediate Main runs reached and passed seeks/hold/play but the reload harness selected a detached previous HUD still retained by Python. The second attempt waited for binding but could not repair that stale selection. Engine GetAllWidgetsOfClass source confirmed TopLevelOnly filters IsInViewport. Terminated only those diagnostic processes; final script selects a currently-in-viewport HUD and waits for its binding. No product startup change needed; partial JSONs are excluded from final completion evidence."
+  ],
+  "limits": [
+    "Actual Main uses real BIN1 fixed480, runtime fire delay2 and record46, scale3 stationary dose NPC versus scale1 mobile and late stationary controls. This is a presentation/lifecycle fixture, not normal survival or population statistics.",
+    "Actual TextBlock/Slate binding values checked; no screenshot or human visual layout audit.",
+    "Review remains nearest recorded pose frame, not continuous interpolation, historical AI restoration or branching.",
+    "No map, saved widget BP, fire data, motion, default cognition/exposure/timeline changes.",
+    "Existing startup Condition/default-BIN and RiderLink/Chromium/USB messages remain; process0 does not certify a clean engine log.",
+    "No commit/push; fresh GitHub clone still lacks completion stages.",
+    "Physical units/provenance/full-sequence alignment remain unverified; bDatasetAlignmentConfirmed=false."
+  ],
+  "step10_sources_unchanged": {
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSLocalMovementComponent.cpp": true,
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSLocalMovementComponent.h": true,
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSSmokeAwareNavigator.h": true,
+    "YUFS/Source/YUFS/NPC/YUFSEvacuationNPC.h": true,
+    "YUFS/Source/YUFS/Tests/OrdinaryPlayRegressionTests.cpp": true
+  },
+  "sha256": {
+    "YUFS/Source/YUFS/Simulation/YUFSSimHUD.cpp": "f62623f2f261a3a02be649d1109c11e41133bc5a9ad91476422c89ff490d4d3b",
+    "YUFS/Source/YUFS/Simulation/YUFSSimHUD.h": "3852df670bf6a4f0db2967ddc0ea1975a255de3e87b44edfb5f9ef77d9b459d5",
+    "YUFS/Source/YUFS/Simulation/YUFSSimulationController.cpp": "5c80084c86a90d1b3fcac8f9d303228758554e5d932370b45d2fa5005d65d2ef",
+    "YUFS/Source/YUFS/Simulation/YUFSSimulationController.h": "1498d6aded1e9614055756052a0f2e668a7513f8dc6c81e48c0f6029df2f4b3c",
+    "YUFS/Source/YUFS/Simulation/YUFSTimelineRecorder.cpp": "b3d3c3c44f12372338f53329a1f99344e5f65b6936267b61d5a46d2a51c42c8b",
+    "YUFS/Source/YUFS/Simulation/YUFSTimelineRecorder.h": "1569374c5947031daf943b45416769deabcf0cc73860b860b2f105a00e3412e0",
+    "YUFS/Source/YUFS/Simulation/YUFSTimelineTypes.h": "276fb899b7e9d57860c3459d4be8ea3345c2455559115144e997e989a891327e",
+    "YUFS/Source/YUFS/Tests/ReviewHudTests.cpp": "00580f5b2b0826d4beb94e77d7df083c93157215c9b9941f3beff54c0038c677",
+    "YUFS/Binaries/Win64/UnrealEditor-YUFS.dll": "90aa553632e3f1183e53e49ceb879db4ffe93f7534369e69a5486f6c3e59d8c7"
+  }
+}

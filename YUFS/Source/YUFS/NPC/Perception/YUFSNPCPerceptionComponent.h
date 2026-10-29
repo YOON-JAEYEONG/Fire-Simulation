@@ -10,6 +10,14 @@
 
 class AYUFSBinaryManager;
 
+struct FYUFSSmokeSightResult
+{
+	float Transmission = 1.f;
+	float VisibleDistanceCm = 0.f;
+	bool bReachedTarget = false;
+	bool bCompleteSmokeData = false;
+};
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class YUFS_API UYUFSNPCPerceptionComponent : public UActorComponent
 {
@@ -29,6 +37,11 @@ public:
 	void ReceiveHazardReport(const UYUFSNPCPerceptionComponent& Other);
 	// Interaction adapters reuse the same JJW cell knowledge; no second hazard memory.
 	bool SampleObservedHazard(const FVector& WorldPos, int32 Frame, float& OutSmoke, float& OutHeat);
+	bool SampleObservedHazardFromSnapshot(const FYUFSHazardSnapshot& Snapshot, const FVector& WorldPos, float Now, float& OutSmoke, float& OutHeat);
+	FYUFSSmokeSightResult EvaluateSightToPoint(const FYUFSHazardSnapshot& Snapshot, const FVector& WorldPos) const;
+	UFUNCTION(BlueprintPure) float GetCenterVisibleDistanceCm() const { return CenterSight.VisibleDistanceCm; }
+	UFUNCTION(BlueprintPure) float GetCenterSightTransmission() const { return CenterSight.Transmission; }
+	UFUNCTION(BlueprintPure) bool HasCompleteCenterSightData() const { return CenterSight.bCompleteSmokeData; }
 	bool HasHazardSample() const { return bSelfHazardSampleAvailable; }
 	void ResetKnowledge();
 	float GetHeatInSightNormalized() const { return GetHeatInSight(); }
@@ -66,9 +79,14 @@ private:
 	TMap<int32, FYUFSHazardSample> KnownCells;
 	TMap<int32, float> LastObservedAt;
 	TSharedPtr<const TMap<int32, FYUFSHazardSample>, ESPMode::ThreadSafe> PublishedKnowledge;
+	TSet<int32> ObservedCells;
+	TSharedPtr<const TSet<int32>, ESPMode::ThreadSafe> PublishedObservedCells;
 	FTransform LastGridTransform = FTransform::Identity;
 	FIntVector LastGridDimensions = FIntVector::ZeroValue;
 	int32 LastFrame = INDEX_NONE;
+	FYUFSSmokeSightResult CenterSight;
+	FYUFSSmokeSightResult TraceSight(const FYUFSHazardSnapshot& Snapshot, const FVector& Origin, const FVector& Target,
+		bool bOptical, TFunctionRef<void(const FVector&, const FYUFSHazardSample&, float)> OnVisibleSample) const;
 
 	float ComputeRiskLevel(float Density, float Temp) const
 	{

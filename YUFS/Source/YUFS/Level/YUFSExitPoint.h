@@ -16,6 +16,7 @@ public:
 
 public:
 	// 에디터에서 각 출구마다 설정
+	// Actor 위치는 출구 바닥 기준점이다. 성공 판정은 이 점까지의 실제 통로도 검사한다.
 	UPROPERTY(EditAnywhere, Category="Exit")
 	FName ExitID;           // "MainEntrance", "EmergencyExit_B2" 등
 

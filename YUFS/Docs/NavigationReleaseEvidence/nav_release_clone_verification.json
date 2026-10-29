@@ -1,0 +1,66 @@
+{
+  "code_commit": "ec002eb7f51c12149a60898fa62209091c6843a3",
+  "clone": "C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-ReleaseCheck-1018-ec002eb",
+  "branch": "JJW_NPC_BEHAVIOR",
+  "initial_preflight_exit": 1,
+  "initial_preflight_error": "C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-ReleaseCheck-1018-ec002eb\\Tools\\Test-YUFSCheckout.ps1 : Checkout valid\r\nation failed: Missing/incomplete LFS data: smoke_data_it_test_1.bin. Run git lfs pull.\r\n    + CategoryInfo          : NotSpecified: (:) [Write-Error], WriteErrorException\r\n    + FullyQualifiedErrorId : Microsoft.PowerShell.Commands.WriteErrorException,Test-YUFSCheckout.ps1\r\n \r\n",
+  "initial_has_DLL": false,
+  "after_remote_lfs_pull_preflight": {
+    "exit": 0,
+    "output": "Project: C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-ReleaseCheck-1018-ec002eb\\YUFS\\YUFS.uproject\r\nBranch: JJW_NPC_BEHAVIOR\r\nCommit: ec002eb7f51c12149a60898fa62209091c6843a3\r\nPASS: required maps, visual assets and three BIN files are present in THIS checkout.\r\n",
+    "error": ""
+  },
+  "LFS_downloaded_from_remote": true,
+  "data_files": [
+    {
+      "file": "smoke_data_it_test_1.bin",
+      "bytes": 245182256,
+      "sha256": "228b8789d38f740921ffc5abdc1d14f4342448d5c54e758f0a6e5d261c321db8"
+    },
+    {
+      "file": "smoke_data_it_test_2.bin",
+      "bytes": 245182256,
+      "sha256": "fd3be704c09409ec7ff22f8c9c48a9ba85bea2d0fc7a70a654a906d013b593d1"
+    },
+    {
+      "file": "smoke_data_it_test_3_v1.bin",
+      "bytes": 245428176,
+      "sha256": "3eaac79e4c26eba6c08648e19673007b6f876a0a7047c5b1012a3bc0a514e761"
+    }
+  ],
+  "new_build_exit": 0,
+  "fresh_DLL_sha256": "c73e101a8c4db7fe728d0f0a1cd5c50eb0e9a8ce7274d383356d44a20ed112f9",
+  "fresh_launcher_preflight": {
+    "Build-And-Launch-YUFS-Safe.cmd": {
+      "exit": 0,
+      "output": "Project: C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-ReleaseCheck-1018-ec002eb\\YUFS\\YUFS.uproject\r\nBranch: JJW_NPC_BEHAVIOR\r\nCommit: ec002eb7f51c12149a60898fa62209091c6843a3\r\nPASS: required maps, visual assets and three BIN files are present in THIS checkout.\r\n",
+      "error": ""
+    },
+    "Launch-YUFS-Safe.cmd": {
+      "exit": 0,
+      "output": "Project: C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-ReleaseCheck-1018-ec002eb\\YUFS\\YUFS.uproject\r\nBranch: JJW_NPC_BEHAVIOR\r\nCommit: ec002eb7f51c12149a60898fa62209091c6843a3\r\nPASS: required maps, visual assets and three BIN files are present in THIS checkout.\r\n",
+      "error": ""
+    }
+  },
+  "source_is_clean_after_build": true,
+  "fresh_tests": {
+    "total": 119,
+    "success": 119,
+    "fail": 0,
+    "process_exit": 0
+  },
+  "fresh_main": {
+    "complete": true,
+    "error": null,
+    "process_exit": 0,
+    "same_initial_positions_as_source_case2": true,
+    "result": {
+      "evacuated": 15,
+      "incap": 2,
+      "unresolved": 3,
+      "frame": 479,
+      "elapsed": 60.00040817260742
+    }
+  },
+  "note": "Remote shallow single-branch clone. LFS downloaded from remote; no source-checkout asset or DLL copying. This tests the same machine/engine, not another PC or Mac."
+}

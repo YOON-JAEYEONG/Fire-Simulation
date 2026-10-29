@@ -242,13 +242,7 @@ void AYUFSSimulationController::PauseSimulation()
 	{
 		if (!IsValid(NPC)) continue;
 
-		if (UCharacterMovementComponent* MoveComp = NPC->GetCharacterMovement())
-		{
-			MoveComp->StopMovementImmediately();
-			MoveComp->DisableMovement();
-		}
-
-		NPC->SetActorTickEnabled(false);
+		NPC->SetLiveSimulationPaused(true);
 	}
 
 	// 이 줄은 제거
@@ -275,14 +269,9 @@ void AYUFSSimulationController::ResumeSimulation()
 
 	for (AYUFSEvacuationNPC* NPC : RegisteredNPCs)
 	{
-		if (!IsValid(NPC) || ResolvedNPCs.Contains(NPC)) continue;
+		if (!IsValid(NPC)) continue;
 
-		NPC->SetActorTickEnabled(true);
-
-		if (UCharacterMovementComponent* MoveComp = NPC->GetCharacterMovement())
-		{
-			MoveComp->SetMovementMode(MOVE_Walking);
-		}
+		NPC->SetLiveSimulationPaused(false);
 	}
 
 	// 이것도 필요 없음
@@ -486,6 +475,15 @@ void AYUFSSimulationController::ApplyHazardGridAnchor()
 	{
 		return;
 	}
+	if (FireOptions.IsValidIndex(CurrentFireOptionIndex)
+		&& FireOptions[CurrentFireOptionIndex].bUseSparseVolumeTextureCoordinates)
+	{
+		// This calibration already connects BIN cells to the selected fire's rendered SVT.
+		// A reference fire's actor transform would break that correspondence (notably upstairs).
+		BinaryManager->ClearWorldAnchoredGrid();
+		UE_LOG(LogTemp, Display, TEXT("[YUFS][Hazard] Fire option %d uses its dataset SVT calibration; legacy reference anchor is not applied."), CurrentFireOptionIndex);
+		return;
+	}
 	if (HazardGridReferenceFireOption < 0)
 	{
 		BinaryManager->ClearWorldAnchoredGrid();
@@ -684,14 +682,14 @@ void AYUFSSimulationController::UpdateLiveCounts()
 		UYUFSBehaviorStateMachine* SM = NPC->GetBehaviorStateMachine();
 		if (!SM) continue;
 
-		// 행동불능 카운트: 삭제하지 않고 숨겨야 타임라인에서 과거 시점 복원이 가능합니다.
+		// Retain the visible body and its skeletal clock; resolution stops gameplay, not presentation.
 		if (SM->GetCurrentState() == EYUFSBehaviorState::Incapacitated)
 		{
 			NPC->NotifyEpisodeFinished(EYUFSTerminalReason::Incapacitated);
 			LiveIncapacitatedCount++;
 			ResolvedNPCs.Add(NPC);
 
-			NPC->SetActorHiddenInGame(true);
+			NPC->SetActorHiddenInGame(false);
 			NPC->SetActorEnableCollision(false);
 			NPC->SetActorTickEnabled(false);
 			continue;
@@ -705,7 +703,7 @@ void AYUFSSimulationController::UpdateLiveCounts()
 		}
 
 		// 출구 도달 여부 확인
-		if (CachedLDM->IsAtValidExit(NPC->GetActorLocation(), EvacuationSuccessDistanceCm))
+		if (CachedLDM->IsAtValidExit(NPC, EvacuationSuccessDistanceCm))
 		{
 			NPC->NotifyEpisodeFinished(EYUFSTerminalReason::ReachedExit);
 			LiveEvacuatedCount++;
@@ -1001,11 +999,35 @@ bool AYUFSSimulationController::IsTimelinePlaying() const
 	return TimelineRecorder && TimelineRecorder->IsReviewPlaying();
 }
 
+FYUFSSimulationDisplayStats AYUFSSimulationController::GetDisplayStats() const
+{
+	FYUFSSimulationDisplayStats Stats;
+	if (CurrentPhase == ESimPhase::TimelineReview)
+	{
+		const auto* Frame = TimelineRecorder ? TimelineRecorder->GetCurrentReviewFrame() : nullptr;
+		if (!Frame) return Stats; // Missing history must not masquerade as the final live result.
+		Stats.ElapsedSimTime = Frame->SimulationElapsedTime;
+		Stats.EvacuatedCount = Frame->EvacuatedCount;
+		Stats.IncapacitatedCount = Frame->IncapacitatedCount;
+		Stats.TotalNPCCount = Frame->TotalNPCCount;
+	}
+	else
+	{
+		Stats.ElapsedSimTime = GetElapsedTime();
+		Stats.EvacuatedCount = GetEvacuatedCount();
+		Stats.IncapacitatedCount = GetIncapacitatedCount();
+		Stats.TotalNPCCount = GetTotalNPCCount();
+	}
+	Stats.bHasData = true;
+	return Stats;
+}
+
 void AYUFSSimulationController::RegisterNPC(AYUFSEvacuationNPC* NPC)
 {
 	if (IsValid(NPC) && !RegisteredNPCs.Contains(NPC))
 	{
 		RegisteredNPCs.Add(NPC);
+		if (bIsPaused) NPC->SetLiveSimulationPaused(true);
 		if (CurrentPhase == ESimPhase::WaitingToStart)
 		{
 			InitialNPCCount = RegisteredNPCs.Num();

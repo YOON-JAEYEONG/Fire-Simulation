@@ -1,0 +1,50 @@
+{
+  "runs": [
+    {
+      "option": 0,
+      "npc_count": 4,
+      "seconds": 25,
+      "max_self_smoke": 0.9961,
+      "max_raw_heat": 3,
+      "states": [
+        "Evacuating",
+        "Milling",
+        "Normal",
+        "Perceiving",
+        "Preparing"
+      ],
+      "last_frame": 202
+    },
+    {
+      "option": 1,
+      "npc_count": 4,
+      "seconds": 25,
+      "max_self_smoke": 0.902,
+      "max_raw_heat": 0,
+      "states": [
+        "Evacuating",
+        "Milling",
+        "Normal",
+        "Perceiving",
+        "Preparing"
+      ],
+      "last_frame": 200
+    },
+    {
+      "option": 2,
+      "npc_count": 4,
+      "seconds": 25,
+      "max_self_smoke": 0.9255,
+      "max_raw_heat": 8,
+      "states": [
+        "Evacuating",
+        "Milling",
+        "Normal",
+        "Perceiving"
+      ],
+      "last_frame": 200
+    }
+  ],
+  "frame_mismatches": [],
+  "missing_or_invalid_live_samples": []
+}
