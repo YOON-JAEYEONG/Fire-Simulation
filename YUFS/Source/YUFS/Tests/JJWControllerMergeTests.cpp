@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "Simulation/YUFSSimulationController.h"
+#include "Communication/YUFSEmergencyCommSystem.h"
 
 // Exercise controller bookkeeping without loading assets or simulating a fire.
 struct FYUFSJJWControllerTestAccess
@@ -14,6 +15,9 @@ struct FYUFSJJWControllerTestAccess
     { Controller->ResolvedNPCs.Add(NPC); ++Controller->LiveIncapacitatedCount; }
     static void Finish(AYUFSSimulationController* Controller) { Controller->FinalizeRun(); }
     static void CheckCompletion(AYUFSSimulationController* Controller) { Controller->CheckCompletionCondition(); }
+    static void BindComm(AYUFSSimulationController* C, AYUFSEmergencyCommSystem* Comm) { C->CommSystem=Comm; }
+    static bool FireAlarmAt(AYUFSSimulationController* C, float Time)
+    { C->ElapsedSimTime=Time; C->TickFireActivePhase(0.f); return C->bAlarmFired; }
 };
 
 namespace
@@ -107,6 +111,31 @@ bool FYUFSJJWMidRunRemovalTest::RunTest(const FString&)
         TestEqual(TEXT("Historical success survives render actor removal"), Results[0].EvacuatedCount, 1);
         TestEqual(TEXT("Remaining participant is counted once"), Results[0].TotalNPCCount, 1);
     }
+    return true;
+}
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSJJWAlarmDisabledTest,
+    "YUFS.NPC.Simulation.JJWMerge.DisabledAlarmDoesNotBecomeImmediateAlarm",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSJJWAlarmDisabledTest::RunTest(const FString&)
+{
+    FControllerFixture F;
+    F.Controller->FireStartDelaySeconds=0.f;
+    auto* Comm=F.World->SpawnActor<AYUFSEmergencyCommSystem>();
+    FYUFSJJWControllerTestAccess::BindComm(F.Controller,Comm);
+    F.Controller->AlarmTriggerOffsetSeconds=-1.f;
+    TestFalse(TEXT("Disabled scheduled alarm stays off even after fire starts"),
+        FYUFSJJWControllerTestAccess::FireAlarmAt(F.Controller,10.f));
+    F.Controller->AlarmTriggerOffsetSeconds=5.f;
+    TestFalse(TEXT("Enabled alarm waits for the configured fire time"),
+        FYUFSJJWControllerTestAccess::FireAlarmAt(F.Controller,4.f));
+    TestTrue(TEXT("Enabled alarm fires at its actual configured time"),
+        FYUFSJJWControllerTestAccess::FireAlarmAt(F.Controller,5.f));
+    FControllerFixture Immediate;
+    Immediate.Controller->FireStartDelaySeconds=0.f;
+    FYUFSJJWControllerTestAccess::BindComm(Immediate.Controller,Immediate.World->SpawnActor<AYUFSEmergencyCommSystem>());
+    Immediate.Controller->AlarmTriggerOffsetSeconds=0.f;
+    TestTrue(TEXT("Explicit zero offset still means immediate alarm"),
+        FYUFSJJWControllerTestAccess::FireAlarmAt(Immediate.Controller,0.f));
     return true;
 }
 #endif

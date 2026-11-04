@@ -1,0 +1,26 @@
+{
+  "textures": [
+    {
+      "dataset": 1,
+      "asset": "/Game/Fires/FinalIT1104/fire_v1.fire_v1",
+      "frames": 995,
+      "transform": "<Struct 'Transform' (0x000001BD2D86DFE0) {rotation: {x: 0.000000, y: 1.000000, z: 0.000000, w: 0.000000}, translation: {x: -21.200000, y: 69.200000, z: -2.000000}, scale3d: {x: -0.400000, y: 0.400000, z: 0.400000}}>",
+      "material": "/Game/Fires/FinalIT1104/MI_Fire1.MI_Fire1"
+    },
+    {
+      "dataset": 2,
+      "asset": "/Game/Fires/FinalIT1104/fire_v2.fire_v2",
+      "frames": 994,
+      "transform": "<Struct 'Transform' (0x000001BD2D86DFE0) {rotation: {x: 0.000000, y: 1.000000, z: 0.000000, w: 0.000000}, translation: {x: -21.200000, y: 69.200000, z: -2.000000}, scale3d: {x: -0.400000, y: 0.400000, z: 0.400000}}>",
+      "material": "/Game/Fires/FinalIT1104/MI_Fire2.MI_Fire2"
+    },
+    {
+      "dataset": 3,
+      "asset": "/Game/Fires/FinalIT1104/fire_v3.fire_v3",
+      "frames": 994,
+      "transform": "<Struct 'Transform' (0x000001BD2D86DFE0) {rotation: {x: 0.000000, y: 1.000000, z: 0.000000, w: 0.000000}, translation: {x: -21.200000, y: 69.200000, z: -2.000000}, scale3d: {x: -0.400000, y: 0.400000, z: 0.400000}}>",
+      "material": "/Game/Fires/FinalIT1104/MI_Fire3.MI_Fire3"
+    }
+  ],
+  "complete": true
+}

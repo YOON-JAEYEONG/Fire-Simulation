@@ -1,3 +1,39 @@
+# Publication on JJW_NPC_BEHAVIOR — 2026-11-04
+
+This commit publishes the final IT map and JJW NPC input integration to `JJW_NPC_BEHAVIOR`. Development base was `merge_final@f03f2906cfc1df3a3c3d771a5ee1152bee77d243`; source work branch was `codex/merge-final-navigation-1102`. Read `YUFS/Docs/FINAL_MAP_FIRE_INPUT_1104.md`. Older uncommitted/unpushed statements below describe earlier checkpoints.
+
+Before publication, current-source build and all 126 YUFS tests passed again. A copy made solely from Git-included files built successfully in a short temporary path, launched the actual menu/final map, and passed 12/12 entrance arrival, live pause/resume and rewind assertions. That final editor process returned 0xC0000005 during shutdown after reporting complete. The additional clean-copy natural-fire repeat was therefore not run. Earlier real-data tests (240 raw sample matches, no-alarm smoke/heat, physical crawl and incapacitation) are recorded in FinalMap1104Evidence. Do not describe all shutdowns as clean or every possible case as verified.
+
+Clone to a short path, obtain Git LFS data, then build `YUFSEditor Win64 Development` using UE 5.7 Windows. Saved final map is `/Game/Maps/it관_찐최종/Main_level`. NPCs are placed manually in the game HUD before Start. Functional calibration is empirical and source FDS physical timing/units remain unconfirmed. No main or team integration branch publication is intended.
+
+---
+
+# Current work — final IT fire input connected, 2026-11-04
+
+Read `YUFS/Docs/FINAL_MAP_FIRE_INPUT_1104.md` first. This supersedes the November 2 missing-data/outside-domain status below. Same active checkout `clone-verify-20260930`, branch `codex/merge-final-navigation-1102`, base `merge_final@f03f2906cfc1df3a3c3d771a5ee1152bee77d243`. All changes remain local/uncommitted/unpushed; do not push main or merge_final.
+
+User supplied Desktop `it관_찐최종_화재데이터3종_vdb&bin`. New 157x71x17 BINs and three SVTs are connected ONLY to `/Game/Maps/it관_찐최종/Main_level` through existing fire options. Spatial sample checks: 240/240 raw bytes and world/cell coordinates match. Full YUFS suite 126/126 passed. Actual no-alarm 60s run: 9 evacuated, 0 incapacitated, 3 unresolved, smoke/peer cues and physical crawl observed. A separate real-hot-cell test confirmed Heat-driven evacuation with no alarm. Read evidence for controlled exposure results.
+
+Coordinate binding is empirical voxel-level field registration, not source FDS provenance. `bDatasetAlignmentConfirmed=false` and optional suppression gates remain. Existing 8fps, ratio1/offset0 are preserved; exact original physical dt/units are unconfirmed. BINs each have one extra tail frame; selected SVT frame count now bounds seeking. Fixed negative alarm offset incorrectly firing immediately. Other teammates' feature implementation remains out of scope; no fire-generation, motion, interaction or menu feature rewrite.
+
+Current data files live under `Content/Fires/FinalIT1104`; BINs have explicit LFS tracking and all six SVT/material assets have ignore exceptions. Original Desktop files and previous maps/data were preserved. No GitHub publication was requested for this new-map task.
+
+---
+
+# Current work — IT관 final map integration, 2026-11-02
+
+Read `YUFS/Docs/FINAL_MAP_INTEGRATION_1102.md` before continuing. Active checkout is `clone-verify-20260930`, branch `codex/merge-final-navigation-1102`, based on `merge_final@f03f2906cfc1df3a3c3d771a5ee1152bee77d243`. Current map is `/Game/Maps/it관_찐최종/Main_level`, not the older `/Game/Maps/Main` discussed in historical entries below. This work is local and uncommitted/unpushed.
+
+Final-map entrance, alarm coverage and cameras are connected. Fixed pre-Start movement holds that depended on everyday roaming and inherited review counters overwriting final live totals. Keep the merged UI, frame interpolation and persistent replay behavior. Tests/evidence and remaining limitations are documented in the integration note.
+
+**Fire integration remains unfinished:** inherited visual volume and BIN domain are outside the new building; actual test NPC samples are OutsideDomain. No source-derived final-map fire coordinates/new dataset have been supplied yet. Do not guess transforms or set alignment confirmation. User has been asked whether final-map BIN/VDB or coordinates exist. The 12-NPC early-alarm movement experiment is not real smoke-response validation.
+
+User explicitly cancelled the temporary pause and authorized continuing work. Do not treat the task as paused. Do not commit/push main or integration branches. No commit/push was requested for this new-map task.
+
+**Latest user scope clarification:** reproduce only our existing NPC navigation/perception/avoidance/exposure behavior on the final map. Do not expand into other teammates' fire rendering, animation, interactions, menu or replay feature changes. Reuse the existing provided fire input and existing integration APIs. Creating new BIN/VDB is not a prerequisite imposed by this scope; coordinate/time agreement still needs verification before claiming live smoke response. See the scope section in the integration note.
+
+---
+
 # Windows NPC / fire audit — 2026-09-28
 
 ## Checkout and boundaries

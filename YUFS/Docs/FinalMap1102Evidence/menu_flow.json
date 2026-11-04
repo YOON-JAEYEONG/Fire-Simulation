@@ -1,0 +1,19 @@
+{
+  "mode": "Rendered ordinary PIE, actual main-menu and setup/HUD handler calls; no physical mouse/keyboard claim, no saved asset edits.",
+  "map_options": [
+    "<Object '/Game/Maps/it관_찐최종/Main_level.Main_level' (0x000002540B901C00) Class 'World'>",
+    "<Object '/Game/Maps/Prototype.Prototype' (0x00000254A3158C00) Class 'World'>"
+  ],
+  "comm": {
+    "xyz": [
+      6000.0,
+      -8790.0,
+      350.0
+    ],
+    "radius": 4200.0
+  },
+  "overview": "CineCameraActor_3",
+  "phase": "<SimPhase.FIRE_START_DELAY: 1>",
+  "player_displacement_cm": 500.90013051378537,
+  "complete": true
+}

@@ -262,6 +262,13 @@ private:
 
 	FVector SpawnLocation = FVector::ZeroVector;
 
+	// Own only the movement hold installed before Start; roaming is optional.
+	void SetPreStartMovementHeld(bool bHeld);
+	bool bPreStartMovementHeld = false;
+	TEnumAsByte<EMovementMode> MovementModeBeforeStart = MOVE_Walking;
+	uint8 CustomMovementModeBeforeStart = 0;
+	float WalkSpeedBeforeStart = 300.f;
+
 	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
 	bool bTimelinePlaybackMode = false;
 	bool bHasTimelinePlaybackSnapshot = false;

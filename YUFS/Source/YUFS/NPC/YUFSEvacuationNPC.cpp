@@ -145,6 +145,8 @@ void AYUFSEvacuationNPC::BeginPlay()
 	// capsules, so a longer wait before Start would change the next run's origin.
 	if (SimulationController && !SimulationController->IsNPCActivityEnabled())
 	{
+		if (SimulationController->GetCurrentPhase() == ESimPhase::WaitingToStart)
+			SetPreStartMovementHeld(true);
 		if (UCharacterMovementComponent* Mv = GetCharacterMovement())
 		{
 			Mv->StopMovementImmediately();
@@ -170,6 +172,8 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	// Start 버튼을 누르기 전과 일시정지/관찰 모드에서는 모든 이동을 멈춘다.
 	if (SimulationController && !SimulationController->IsNPCActivityEnabled())
 	{
+		if (SimulationController->GetCurrentPhase() == ESimPhase::WaitingToStart)
+			SetPreStartMovementHeld(true);
 		StopEverydayBehavior();
 		// A pause preserves an interaction; leaving the live episode releases it.
 		if (SimulationController->GetCurrentPhase() != ESimPhase::FireActive)
@@ -190,6 +194,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		}
 		return;
 	}
+	SetPreStartMovementHeld(false);
 	if (ExitKnowledge) ExitKnowledge->UpdateKnowledge(DeltaTime);
 	if (SuppressionComp && SuppressionComp->IsVisualPresentationActive()
 		&& (!SimulationController || !SimulationController->IsNPCSimulationEnabled()))
@@ -407,6 +412,27 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 
 	UpdateActionAnimation();
 
+}
+
+void AYUFSEvacuationNPC::SetPreStartMovementHeld(bool bHeld)
+{
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	if (!Movement || bHeld == bPreStartMovementHeld) return;
+	if (bHeld)
+	{
+		MovementModeBeforeStart = Movement->MovementMode;
+		CustomMovementModeBeforeStart = Movement->CustomMovementMode;
+		WalkSpeedBeforeStart = Movement->MaxWalkSpeed;
+	}
+	else
+	{
+		// Do not overwrite an explicit mode/speed installed by another driver.
+		// Falling/custom modes and component tick ownership survive this hold.
+		if (Movement->MovementMode == MOVE_None)
+			Movement->SetMovementMode(MovementModeBeforeStart, CustomMovementModeBeforeStart);
+		if (Movement->MaxWalkSpeed == 0.f) Movement->MaxWalkSpeed = WalkSpeedBeforeStart;
+	}
+	bPreStartMovementHeld = bHeld;
 }
 
 void AYUFSEvacuationNPC::DriveMovementToward(FVector Target, float DeltaTime)

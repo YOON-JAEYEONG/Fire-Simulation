@@ -53,6 +53,13 @@ bool FYUFSHistoricalHudTest::RunTest(const FString&)
     F.C->SeekTimelineBySeconds(5.f);
     TestEqual(TEXT("Seeking never mutates live evacuation results"),F.C->GetEvacuatedCount(),3);
     TestEqual(TEXT("Seeking never mutates live incapacitation results"),F.C->GetIncapacitatedCount(),1);
+    F.C->Tick(.1f);
+    TestEqual(TEXT("A review tick after seeking cannot overwrite live evacuation totals"),F.C->GetEvacuatedCount(),3);
+    TestEqual(TEXT("A review tick after seeking cannot overwrite live incapacitation totals"),F.C->GetIncapacitatedCount(),1);
+    F.R->PlayReview();
+    F.C->Tick(.2f);
+    TestEqual(TEXT("Playing historical frames leaves final live results intact"),F.C->GetEvacuatedCount(),3);
+    TestEqual(TEXT("Playing historical frames leaves final incapacitation results intact"),F.C->GetIncapacitatedCount(),1);
     TestEqual(TEXT("Stored final result remains final"),F.C->GetAllRunResults()[0].EvacuatedCount,3);
     return true;
 }

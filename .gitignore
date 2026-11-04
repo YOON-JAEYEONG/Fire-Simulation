@@ -126,3 +126,13 @@ YUFS/Content/Props/FireExtinguisher/Polyfork_95dca1/
 !/YUFS/Content/Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin
 !/YUFS/Content/Fires/FirePrototype/BinaryData/smoke_data_it_test_2.bin
 !/YUFS/Content/Fires/FirePrototype/BinaryData/smoke_data_it_test_3_v1.bin
+
+# Final IT map datasets supplied on 2026-11-04; keep their saved references portable.
+!/YUFS/Content/Fires/FinalIT1104/
+/YUFS/Content/Fires/FinalIT1104/*
+!/YUFS/Content/Fires/FinalIT1104/*.uasset
+!/YUFS/Content/Fires/FinalIT1104/BinaryData/
+/YUFS/Content/Fires/FinalIT1104/BinaryData/*
+!/YUFS/Content/Fires/FinalIT1104/BinaryData/smoke_data_1.bin
+!/YUFS/Content/Fires/FinalIT1104/BinaryData/smoke_data_2.bin
+!/YUFS/Content/Fires/FinalIT1104/BinaryData/smoke_data_3.bin

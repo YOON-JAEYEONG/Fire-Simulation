@@ -109,6 +109,38 @@ bool FEverydayAlarmHandoffTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNoEverydayStartMovementTest,
+    "YUFS.NPC.Integration.Everyday.StartRestoresMovementWithoutRoaming",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FNoEverydayStartMovementTest::RunTest(const FString&)
+{
+    for (const float Delay : {0.f, 2.f})
+    {
+        FEverydayFixture F;
+        F.Controller->RegisterNPC(F.Npc);
+        F.Npc->bEnableEverydayBehavior = false;
+        F.Controller->FireStartDelaySeconds = Delay;
+        auto* Movement = F.Npc->GetCharacterMovement();
+        Movement->SetMovementMode(MOVE_Falling);
+        F.Npc->Tick(.1f);
+        F.Npc->Tick(.1f);
+        TestEqual(TEXT("Repeated pre-start ticks keep physical movement held"), Movement->MovementMode.GetValue(), MOVE_None);
+        F.Controller->StartSimulation();
+        F.Controller->Tick(.1f);
+        F.Npc->Tick(.1f);
+        TestEqual(TEXT("Start restores the original mode without everyday roaming"), Movement->MovementMode.GetValue(), MOVE_Falling);
+        TestFalse(TEXT("Movement restoration does not enable roaming"), FYUFSEverydayIntegrationTestAccess::IsEverydayActive(F.Npc));
+        F.Controller->PauseSimulation();
+        TestFalse(TEXT("Pause still stops the component clock"), Movement->IsComponentTickEnabled());
+        F.Controller->ResumeSimulation();
+        TestEqual(TEXT("Pause/resume retains the restored mode"), Movement->MovementMode.GetValue(), MOVE_Falling);
+        F.Npc->SetTimelinePlaybackMode(true);
+        F.Npc->Tick(.1f);
+        TestEqual(TEXT("Historical review never releases a live movement hold"), Movement->MovementMode.GetValue(), MOVE_None);
+    }
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEverydayExternalDriverTest,
     "YUFS.NPC.Integration.Everyday.RespectsExternalNavigation",
     EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
