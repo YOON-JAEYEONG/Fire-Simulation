@@ -1,0 +1,15 @@
+Use case: ui-mockup
+Asset type: one revised final desktop application UI concept, landscape 16:9.
+Input image 1 is the EDIT TARGET: existing YUFS WBP_ScenarioSetup screen.
+Primary edit: Replace ONLY the right lower "설정 요약" card with a polished "실험 진행 타임라인" card. Keep the existing application header, sidebar, page heading, map dropdown, policy checkbox, Fire Delay, ALL four emergency communication rows, timeline recording controls, map preview card and bottom buttons. Preserve the calm off-white/slate/teal scientific research application design, layout, border radii, crisp Korean typography and delicate line icons. Not a game menu.
+For a consistent demonstration of announcement order, make the left "사전 녹음 안내" and "실시간 방송" checkboxes checked teal, retaining values10.0 and15.0 and enabling these two numeric fields. Keep Alarm checked at5.0, Staff unchecked at20.0 with muted disabled numeric field, Fire Delay30.0, timeline recording checked end60.0. Retain ML policy unchecked. These are sample settings for this static UI concept.
+Replace the right lower card contents entirely. New title exactly "실험 진행 타임라인". Small subtitle exactly "실험 시작 기준". Below show a precise elegant vertical chronological event sequence, a fine vertical pale teal connecting line, small distinct round nodes, and event labels left with right-aligned absolute times. Use normal slate for start, restrained orange dot for fire, teal nodes for enabled alarm and announcements, hollow slate ring for recording end. Six event rows with exact labels and times, top to bottom:
+"실험 시작" — "0초"
+"화재 발생" — "30초"
+"화재 경보" — "35초"
+"사전 녹음 안내" — "40초"
+"실시간 방송" — "45초"
+"타임라인 기록 종료" — "90초"
+All SIX rows must be present, legible, evenly arranged and free of overlap. The time calculation is exact: Fire Delay30 + Alarm5 =35; +PreMsg10 =40; +Live15 =45; +record-end60 =90. Do NOT label90 as experiment termination; it ends RECORDING ONLY. Staff guidance is disabled so do not put a staff event on the connected timeline. A small quiet footer note exact "직원 대피 유도: 사용 안 함" below the sequence.
+Make room within the existing right column by modestly reducing the map preview card height and giving the new timeline card slightly more vertical space if needed. Do not let timeline collide with bottom buttons. Keep building illustration, map not selected placeholder text and disabled Start button unchanged.
+Constraints: one full-screen polished flat app mockup, no editor chrome, no physical monitor, no source code, no instructions in image, no additional summary table, no duplicated event rows, no extra population/settings inputs. Prioritize accurate Korean text and numeric times. Preserve all existing left-hand control labels and scientific program appearance. Render high resolution at landscape16:9.

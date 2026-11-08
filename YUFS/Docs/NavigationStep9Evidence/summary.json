@@ -1,0 +1,90 @@
+{
+  "stage": 9,
+  "date": "2026-10-17",
+  "project": "C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-1008\\YUFS\\YUFS.uproject",
+  "branch": "codex/merged-navigation-completion",
+  "published": false,
+  "engine": "UE5.7.4",
+  "process_exits": {
+    "final_build": 0,
+    "final_tests": 0,
+    "final_main": 0
+  },
+  "tests": {
+    "success": 111,
+    "failed": 0,
+    "baseline_selected_tests": 2,
+    "baseline_failed": 1,
+    "baseline_limit": "Familiar-action fabrication failed. Alarm/nearest getter baseline already passed because missing-data safety guard."
+  },
+  "rendered_main": {
+    "complete": true,
+    "error": null,
+    "default_four": {
+      "time": 25.00524139404297,
+      "evacuated": 4,
+      "displacement_cm": [
+        1021.2918128027452,
+        884.4718936357742,
+        759.3876854751908,
+        521.4103886995049
+      ],
+      "settings": "Default cognition/exposure; runtime fireDelay0, everyday behavior disabled; actual fire progressing."
+    },
+    "unknown_visitor": {
+      "known_before_guidance": 0,
+      "search_queries": 8,
+      "pause_same_time_frame_position_goal_queries": true,
+      "guidance_source": "knownExits=1 searchingExit=0 searchTarget=0 searchQueries=8 [MainEntrance:Peer]",
+      "final_evacuated": 1,
+      "final_time": 32.004676818847656,
+      "fixture": "Explicit co-located non-colliding stationary speaker; tests message transfer, not autonomous help selection.",
+      "settings": "Visitor prior disabled; runtime early alarm response/preparation0; actual BIN1 fixed0, refixed after Resume."
+    },
+    "visual_discovery": {
+      "initial_known": 0,
+      "facing_away_known": 0,
+      "facing_exit_known": 1,
+      "final_evacuated": 1,
+      "final_time": 25.001834869384766,
+      "final_xyz": [
+        2193.8986009942364,
+        -126.067022233052,
+        89.99999996570233
+      ],
+      "observed_obstacle": "YUFSFireExtinguisher_1 / ImportedMain, logged at stuck recovery",
+      "settings": "Visitor prior disabled; runtime early alarm response/preparation0; fireDelay0/alarmOffset0; actual fire progressing."
+    }
+  },
+  "pre_fix_main": {
+    "blocked_at_15s": "Position(2150,-223.270,90), committed Evacuating/NavMoving, no current smoke/heat, no escape. First8s expectation was too short for personality delay;15/20s probes established physical loop.",
+    "blocked_at_20s": "Recovering attempt3, position(2150,-277.75,90), same backwards target(2150,-313.27,4.943); count0.",
+    "diagnostic_errors": "Hit-result Python helper attempts failed (API not reflected/protected); these are harness errors, not final passing evidence. Final native blockedBy log identifies extinguisher.",
+    "comparison_limit": "Fixtures before and after use same approach geometry; do not claim controlled performance speedup.",
+    "initial_other_cases": "Initial four and guided visitor already evacuated before recovery adjustment."
+  },
+  "limitations": [
+    "Bounded local exploration, not full-building completeness guarantee.",
+    "Explicit peer fixture verifies transfer, not autonomous guide selection.",
+    "Remembering marked entry is authored prior, not simulated entry traversal.",
+    "Known exit is not certified safe; collision/exposure/hazard gates remain.",
+    "Timeline does not restore historical personal memory or support branching.",
+    "No physical units or full-sequence alignment proof; bDatasetAlignmentConfirmed=false.",
+    "Preexisting startup Condition/default-BIN and RiderLink shutdown messages remain.",
+    "No saved map/BP/raw data or exposure/personality defaults changed."
+  ],
+  "sha256": {
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSExitKnowledgeComponent.cpp": "74ad2aa8f82638c4bfbaf632b158ff1d7cd9567d619b20a8e03dee9a23af43a7",
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSExitKnowledgeComponent.h": "81f20e51604532f04043736bbd0767a6d7390173762019c58777c5d0c7748b75",
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSLocalMovementComponent.cpp": "208a4ee10086b943dae5a483a1beee4fff3b8579a86f4f7cc0641bcad09a8c1d",
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSLocalMovementComponent.h": "c95a5ab626e8dd9362b28f52549f15b548c41c0829ac993bad6814cc808dbc52",
+    "YUFS/Source/YUFS/NPC/YUFSEvacuationNPC.cpp": "04eb5ec464744d43a20ada52327c733372a0a2609246704f472256a0f20c88a7",
+    "YUFS/Source/YUFS/NPC/YUFSEvacuationNPC.h": "81912a815b4904acb242a67067fc550606836641736ac31afdb76627f12a630b",
+    "YUFS/Source/YUFS/NPC/Social/YUFSSocialInfluenceComponent.cpp": "5640a6005c4d47c887b9018f88a185b3374c49c17a2482bd7f9c1e25bd0a80dc",
+    "YUFS/Source/YUFS/NPC/Integration/YUFSTeamIntegrationComponent.cpp": "e9e29582c54c3834ec08f0c6ef6aea78b2483c53c7e3df42fa11ef5f5f012d39",
+    "YUFS/Source/YUFS/NPC/Integration/YUFSTeamIntegrationTypes.h": "d0867f9ea27320f2a65fa4f398b2aa1a9465337195e91dd0c379a465a6f4548b",
+    "YUFS/Source/YUFS/Tests/PersonalExitKnowledgeTests.cpp": "9c88f5d23f3184fc455ac10e1b6843757ffc9f8654c32df309f3beee93dc2763",
+    "YUFS/Source/YUFS/Tests/OrdinaryPlayRegressionTests.cpp": "0b186a5a820854fb28021148a0bd1909f726ffb1a54dc975cfcce26d2038d4d6",
+    "YUFS/Binaries/Win64/UnrealEditor-YUFS.dll": "aa2d0cb003d5c7af4f3c474f0dcc0430666065e17d88a738af265ca80bf5b402"
+  }
+}

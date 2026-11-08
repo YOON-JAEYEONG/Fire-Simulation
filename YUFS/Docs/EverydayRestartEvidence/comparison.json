@@ -1,0 +1,28 @@
+{
+  "map": "/Game/Maps/Main",
+  "npc_count": 4,
+  "duration_seconds": 20,
+  "headless_PIE": true,
+  "distinct_process_ids": {
+    "seed2026_a": 40064,
+    "seed2026_b": 38304,
+    "seed2026_30fps": 38352,
+    "seed2027": 18560
+  },
+  "same_seed_restart": {
+    "max_position_difference_cm": 0.0,
+    "max_rotation_difference_degrees": 0.0,
+    "max_velocity_difference_cm_s": 0.0
+  },
+  "same_seed_30_vs_60_fps": {
+    "max_position_difference_cm": 0.0,
+    "max_rotation_difference_degrees": 0.0,
+    "max_velocity_difference_cm_s": 0.0
+  },
+  "changed_seed": {
+    "max_position_difference_cm": 1241.8384553661108,
+    "max_rotation_difference_degrees": 172.17813110351557,
+    "max_velocity_difference_cm_s": 279.4042827379087
+  },
+  "passed": true
+}

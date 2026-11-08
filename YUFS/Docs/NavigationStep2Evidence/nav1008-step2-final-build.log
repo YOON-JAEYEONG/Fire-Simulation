@@ -1,0 +1,58 @@
+Log started at 10/08/2026 14:19:59 (2026-10-08T05:19:59Z)
+Resolved project argument C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-1008/YUFS/YUFS.uproject to C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-1008\YUFS\YUFS.uproject
+No config file at C:\ProgramData\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\ACSLAB4\AppData\Local\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\ACSLAB4\Documents\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Configuration will be read from:
+  C:\Users\ACSLAB4\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-1008\YUFS\Intermediate\Build\XmlConfigCache.bin): C:\Users\ACSLAB4\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-1008\YUFS\Intermediate\Build\XmlConfigCache.bin): C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-1008\YUFS\Saved\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from cache (C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-1008\YUFS\Intermediate\Build\XmlConfigCache.bin): C:\Users\ACSLAB4\AppData\Local\UnrealEngine\Intermediate\Build\UnrealBuildTool.Env.BuildConfiguration.xml
+Log file: C:\Users\ACSLAB4\Documents\Codex\2026-09-07\https-github-com-yoon-jaeyeong-fire-2\work\nav1008-step2-final-build.log
+
+Setting temp directory to 'C:\Users\ACSLAB4\AppData\Local\Temp\UnrealBuildTool\9de8e132'
+    Registering build platform: UnrealBuildTool.AndroidPlatformFactory
+    Registering build platform: UnrealBuildTool.IOSPlatformFactory
+    Registering build platform: UnrealBuildTool.LinuxPlatformFactory
+    Registering build platform: UnrealBuildTool.MacPlatformFactory
+    Registering build platform: UnrealBuildTool.TVOSPlatformFactory
+    Registering build platform: UnrealBuildTool.WindowsPlatformFactory
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (1)
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (2)
+Found Windows 10 SDK version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Win64 Installed SDK(s): MinVersion_Sdk=10.0.19041.0, MaxVersion_Sdk=10.9.99999.0, CurrentVersion_Sdk=10.0.26100.0, Version_AutoSdk=10.0.22621.0, CurrentVersion_AutoSdk=
+        Registering build platform: Win64 - buildable: True
+    Registering build platform: UnrealBuildTool.VisionOSPlatformFactory
+Command line: "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" YUFSEditor Win64 Development -Project=C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-1008/YUFS/YUFS.uproject -WaitMutex -NoHotReloadFromIDE -DisableLiveCoding -Log=C:/Users/ACSLAB4/Documents/Codex/2026-09-07/https-github-com-yoon-jaeyeong-fire-2/work/nav1008-step2-final-build.log
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-1008).
+Generated code is up to date.
+Deleting outdated item: C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-1008\YUFS\Binaries\Win64\UnrealEditor-YUFS.pdb
+Deleting outdated item: C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-1008\YUFS\Intermediate\Build\Win64\x64\UnrealEditor\Development\YUFS\UnrealEditor-YUFS.lib
+Building YUFSEditor...
+Using Visual Studio 2026 14.51.36257 toolchain (C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2026 compiler is not a preferred version
+[Adaptive Build] Excluded from YUFS unity file: YUFSBinaryManager.cpp, YUFSHazardField.cpp, YUFSEvacuationNPC.cpp, YUFSBehaviorConfig.cpp, YUFSBehaviorStateMachine.cpp, YUFSSmokeAwareNavigator.cpp, YUFSNPCPerceptionComponent.cpp, YUFSSimulationController.cpp, ExitValidationTests.cpp, YUFSHazardNavigationTests.cpp, YUFSIndividualNPCTests.cpp, YUFSNavigationTests.cpp
+Determining max actions to execute in parallel (8 physical cores, 16 logical cores)
+  Executing up to 8 processes, one per physical core
+  Requested 1.5 GB memory per action, 7.11 GB available: limiting max parallel actions to 4
+Using Unreal Build Accelerator local executor to run 4 action(s)
+  Storage capacity 40Gb
+  RootDir C:\ProgramData\Epic\UnrealBuildAccelerator
+---- Starting trace: 261008_142000 ----
+UbaServer - Listening on 0.0.0.0:1345
+Cache bucket 529591835 used. Action: Compile [x64] YUFSEvacuationNPC.cpp ()
+Cache bucket 416513229 used. Action: Link [x64] UnrealEditor-YUFS.dll ()
+All processes queued
+[1/4] Compile [x64] YUFSEvacuationNPC.cpp
+[2/4] Link [x64] UnrealEditor-YUFS.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-1008/YUFS/Intermediate/Build/Win64/x64/UnrealEditor/Development/YUFS/UnrealEditor-YUFS.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-1008/YUFS/Intermediate/Build/Win64/x64/UnrealEditor/Development/YUFS/UnrealEditor-YUFS.exp 개체를 생성하고 있습니다.
+[3/4] Link [x64] UnrealEditor-YUFS.dll
+[4/4] WriteMetadata YUFSEditor.target [NoUba]
+
+Trace written to file C:/Users/ACSLAB4/Documents/Codex/2026-09-07/https-github-com-yoon-jaeyeong-fire-2/work/nav1008-step2-final-build.uba with size 3.5kb
+Total time in Unreal Build Accelerator local executor: 4.34 seconds
+WriteFileIfChanged() wrote 0 changed files of 1 requested writes.
+
+Result: Succeeded
+Total execution time: 5.58 seconds

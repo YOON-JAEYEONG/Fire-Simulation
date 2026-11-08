@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-18",
+  "engine": "UE5.7.4 Windows",
+  "publish_branch": "JJW_NPC_BEHAVIOR",
+  "working_branch": "codex/merged-navigation-completion",
+  "base": "83cb71030d7196fe8a9c6460504cb83aae4277c2",
+  "tests": {
+    "total": 119,
+    "success": 119,
+    "fail": 0,
+    "npc_subset": 115
+  },
+  "process_exits": {
+    "normal_Main": 0,
+    "mixed_Main": 0,
+    "all_YUFS_tests": 0
+  },
+  "normal": [
+    {
+      "case": 0,
+      "result": {
+        "evacuated": 19,
+        "incap": 0,
+        "unresolved": 1,
+        "frame": 479,
+        "elapsed": 60.003562927246094
+      }
+    },
+    {
+      "case": 1,
+      "result": {
+        "evacuated": 17,
+        "incap": 3,
+        "unresolved": 0,
+        "frame": 479,
+        "elapsed": 60.006988525390625
+      }
+    },
+    {
+      "case": 2,
+      "result": {
+        "evacuated": 11,
+        "incap": 2,
+        "unresolved": 7,
+        "frame": 479,
+        "elapsed": 60.00226974487305
+      }
+    }
+  ],
+  "mixed": [
+    {
+      "case": "locked",
+      "result": {
+        "evacuated": 6,
+        "incap": 0,
+        "total": 6,
+        "door_fraction": 0.0
+      },
+      "native_help_completed": false
+    },
+    {
+      "case": "hot",
+      "result": {
+        "evacuated": 6,
+        "incap": 0,
+        "total": 6,
+        "door_fraction": 0.0
+      },
+      "native_help_completed": false
+    },
+    {
+      "case": "help_and_door",
+      "result": {
+        "evacuated": 7,
+        "incap": 0,
+        "total": 7,
+        "door_fraction": 1.0
+      },
+      "native_help_completed": true
+    },
+    {
+      "case": "authored_spray_and_door",
+      "result": {
+        "evacuated": 7,
+        "incap": 0,
+        "total": 7,
+        "door_fraction": 1.0
+      },
+      "native_help_completed": false
+    }
+  ],
+  "same_initial_positions_all_datasets": true,
+  "publication": {
+    "status": "Code published to origin/JJW_NPC_BEHAVIOR and independently cloned/compiled/tested. This final evidence-only commit follows; source unchanged.",
+    "code_commit": "ec002eb7f51c12149a60898fa62209091c6843a3",
+    "clone_path": "C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-ReleaseCheck-1018-ec002eb",
+    "remote_LFS_download_verified": true,
+    "fresh_build_exit": 0,
+    "fresh_tests_success": 119,
+    "fresh_tests_fail": 0,
+    "fresh_main": {
+      "complete": true,
+      "error": null,
+      "process_exit": 0,
+      "same_initial_positions_as_source_case2": true,
+      "result": {
+        "evacuated": 15,
+        "incap": 2,
+        "unresolved": 3,
+        "frame": 479,
+        "elapsed": 60.00040817260742
+      }
+    },
+    "fresh_probe_note": "First completed fresh Main had a handled NavigationSystem RF_ClassDefaultObject ensure while projecting via Python, process exit1 despite completed assertions/normal shutdown. Retained separately. Final probe reuses the identical previously validated starting coordinates, with real collision-aware spawn/native routes; no game source changes."
+  },
+  "limits": [
+    "Normal:20 fixed stable-ID palette NPCs, default cognition/exposure, runtime fireDelay0/everyday off, default fire60s endpoint479. Single trial per dataset, not population statistics or physical unit verification.",
+    "Normal unresolved cases include UnsafePath rejection; latest review audit clears perception/navigation, so interpret pre-review live samples instead.",
+    "Mixed uses temporary target and door props, early alarm/preparation0, fixed BIN1 frame0. Locked/hot are authored flags, not dynamic thermal-door simulation. Native help uses rule fallback.",
+    "Spray is explicit visual presentation only; real FDS ignition metadata and confirmed alignment remain unavailable. No autonomous suppression success or fire mutation is claimed.",
+    "Startup Condition/default-BIN and RiderLink/Chromium/USB warnings/errors remain; completed probes and tests are separate from clean-log claims.",
+    "General dense deadlock freedom, human physiology, full physical/data alignment and Mac build remain unverified.",
+    "Fresh clone verified on the same Windows machine and UE5.7.4, not a separate teammate computer/Mac. Single-trial movement outcomes may differ due to physics and object/framerate scheduling."
+  ],
+  "release_files_sha256": {
+    "Build-And-Launch-YUFS-Safe.cmd": "32b6bea63467410e4726cb169df96cc63373df19a870286a8e867a46fa045b93",
+    "Launch-YUFS-Safe.cmd": "4e05c515b6a467e5e3c740f21ef652e40084d334c769216eacdfb5f76d490adb",
+    "Tools/Test-YUFSCheckout.ps1": "c83e195c35a09967e5fb9b2593c8ba6a88742457cfeb0527bcf631e56d92fb3b"
+  }
+}
