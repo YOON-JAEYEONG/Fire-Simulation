@@ -486,7 +486,8 @@ private:
 	bool bStartRequestedBeforePreviewReady = false;
 	bool bStartRequestedBeforeBuildingSetupReady = false;
 
-	float ElapsedSimTime = 0.f;    // 현재 회차 경과 시간
+	float ElapsedSimTime = 0.f;
+	double EverydayStepAccumulator = 0.0;    // 현재 회차 경과 시간
 	float FirePhaseTimer = 0.f;    // FireStartDelay 단계 타이머
 	float BetweenRunTimer = 0.f;   // 회차 사이 대기 타이머
 	bool bAlarmFired = false;

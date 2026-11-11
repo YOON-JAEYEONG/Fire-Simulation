@@ -138,6 +138,7 @@ public:
 	TArray<FVector> GetPersonallyKnownExitLocations() const;
 	// 같은 회차 시드와 StableNPCId에는 같은 대기 시간/산책 목적지 순서를 만든다.
 	void InitializeEverydayBehaviorForRun(int32 RunSeed);
+	void AdvanceEverydaySimulation(float StepSeconds);
 	// Combine project and authored NPC seeds without overwriting either setting.
 	void InitializeForRun(int32 RunSeed);
 	bool IsInteractionHoldingPosition() const;
@@ -357,6 +358,13 @@ private:
 	EYUFSAction PreviewAction            = EYUFSAction::Idle;
 
 	FRandomStream EverydayRandomStream;
+	TArray<FVector> EverydayPath;
+	int32 EverydayWaypoint = 0;
+	bool bEverydayOwnsMovement = false;
+	bool bEverydaySavedMovementTick = true;
+	bool bEverydaySavedAvoidance = false;
+	void AcquireEverydayMovement();
+	void ReleaseEverydayMovement();
 	FVector EverydayRoamOrigin = FVector::ZeroVector;
 	FVector EverydayDestination = FVector::ZeroVector;
 	float EverydayActivityTimer = 0.f;

@@ -211,7 +211,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		if (!bInteractionPreviewControlled
 			&& Phase == ESimPhase::FireStartDelay)
 		{
-			TickEverydayBehavior(DeltaTime);
+			// Everyday motion was advanced by the simulation controller.
 			UpdateActionAnimation();
 			return;
 		}
@@ -324,7 +324,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	if (BehaviorSM && BehaviorSM->GetCurrentState() == EYUFSBehaviorState::Normal
 		&& (!EnvironmentInteraction || !EnvironmentInteraction->IsReceivingContactAssistance()))
 	{
-		TickEverydayBehavior(DeltaTime);
+		if (!SimulationController) TickEverydayBehavior(DeltaTime);
 	}
 	else
 	{
@@ -521,6 +521,9 @@ void AYUFSEvacuationNPC::InitializeForRun(int32 RunSeed)
 
 void AYUFSEvacuationNPC::InitializeEverydayBehaviorForRun(int32 RunSeed)
 {
+	ReleaseEverydayMovement();
+	EverydayPath.Reset();
+	EverydayWaypoint = 0;
 	// 전역 난수 소비 순서와 무관하도록 회차/NPC별 독립 스트림을 만든다.
 	uint32 MixedSeed = static_cast<uint32>(RunSeed);
 	MixedSeed ^= static_cast<uint32>(ScenarioSeed) + 0x9e3779b9u + (MixedSeed << 6) + (MixedSeed >> 2);
@@ -547,45 +550,97 @@ void AYUFSEvacuationNPC::InitializeEverydayBehaviorForRun(int32 RunSeed)
 	EverydayActivityTimer = EverydayRandomStream.FRandRange(MinIdle, MaxIdle);
 }
 
+void AYUFSEvacuationNPC::AcquireEverydayMovement()
+{
+	if (bEverydayOwnsMovement) return;
+	if (auto* Mv = GetCharacterMovement())
+	{
+		bEverydaySavedMovementTick = Mv->IsComponentTickEnabled();
+		bEverydaySavedAvoidance = Mv->bUseRVOAvoidance;
+		Mv->StopMovementImmediately();
+		Mv->SetAvoidanceEnabled(false);
+		Mv->SetComponentTickEnabled(false);
+		bEverydayOwnsMovement = true;
+	}
+}
+
+void AYUFSEvacuationNPC::ReleaseEverydayMovement()
+{
+	if (!bEverydayOwnsMovement) return;
+	if (auto* Mv = GetCharacterMovement())
+	{
+		Mv->StopMovementImmediately();
+		Mv->SetAvoidanceEnabled(bEverydaySavedAvoidance);
+		Mv->SetComponentTickEnabled(bEverydaySavedMovementTick);
+	}
+	bEverydayOwnsMovement = false;
+}
+
+void AYUFSEvacuationNPC::AdvanceEverydaySimulation(float StepSeconds)
+{
+	if (bLiveSimulationPaused || GetCurrentTerminalReason() != EYUFSTerminalReason::None
+		|| bTimelinePlaybackMode || bInteractionPreviewControlled || !SimulationController
+		|| !SimulationController->IsNPCActivityEnabled()) return;
+	SetPreStartMovementHeld(false);
+	if (BehaviorSM && BehaviorSM->GetCurrentState() == EYUFSBehaviorState::Normal
+		&& (!EnvironmentInteraction || !EnvironmentInteraction->IsReceivingContactAssistance())
+		&& (!SuppressionComp || !SuppressionComp->IsVisualPresentationActive()))
+		TickEverydayBehavior(StepSeconds);
+	else
+		StopEverydayBehavior();
+}
+
 void AYUFSEvacuationNPC::TickEverydayBehavior(float DeltaTime)
 {
-	AAIController* AI = Cast<AAIController>(GetController());
-	if (!bEnableEverydayBehavior || bUseExternalNavigationDriver || !AI)
+	if (!bEnableEverydayBehavior || bUseExternalNavigationDriver || !GetController())
 	{
 		StopEverydayBehavior();
 		return;
 	}
-
-	if (!bEverydayBehaviorActive)
-	{
-		bEverydayBehaviorActive = true;
-		EverydayLookAnchorYaw = GetActorRotation().Yaw;
-		EverydayLookElapsed = 0.f;
-	}
-	if (UCharacterMovementComponent* Mv = GetCharacterMovement())
-	{
-		if (Mv->MovementMode == MOVE_None) Mv->SetMovementMode(MOVE_Walking);
-		Mv->MaxWalkSpeed = FMath::Max(1.f, EverydayWalkSpeedCmPerSecond);
-	}
-
+	AcquireEverydayMovement();
+	bEverydayBehaviorActive = true;
+	auto* Mv = GetCharacterMovement();
+	if (!Mv) return;
+	if (Mv->MovementMode == MOVE_None) Mv->SetMovementMode(MOVE_Walking);
+	Mv->MaxWalkSpeed = FMath::Max(1.f, EverydayWalkSpeedCmPerSecond);
 	EverydayActivityTimer -= DeltaTime;
 	if (bEverydayRoaming)
 	{
-		const float AcceptanceRadius = FMath::Max(10.f, EverydayDestinationAcceptanceRadiusCm);
-		if (FVector::DistSquared2D(GetActorLocation(), EverydayDestination) <= FMath::Square(AcceptanceRadius)
-			|| EverydayActivityTimer <= 0.f || AI->GetMoveStatus() != EPathFollowingStatus::Moving)
+		// Follow the saved NavMesh corridor without asynchronous path-following or RVO.
+		// CharacterMovement still handles floors, steps and physical capsule collision.
+		const FVector Feet = GetNavAgentLocation();
+		while (EverydayPath.IsValidIndex(EverydayWaypoint)
+			&& FVector::DistSquared2D(Feet, EverydayPath[EverydayWaypoint]) <= FMath::Square(10.f))
+			++EverydayWaypoint;
+		if (!EverydayPath.IsValidIndex(EverydayWaypoint) || EverydayActivityTimer <= 0.f
+			|| FVector::DistSquared2D(Feet, EverydayDestination) <= FMath::Square(FMath::Max(10.f, EverydayDestinationAcceptanceRadiusCm)))
 		{
+			const float Overshoot = FMath::Min(0.f, EverydayActivityTimer);
 			BeginEverydayIdle();
+			EverydayActivityTimer += Overshoot;
 		}
-		return;
+		else
+		{
+			const FVector ToPoint = EverydayPath[EverydayWaypoint] - Feet;
+			Mv->MaxWalkSpeed = FMath::Min(Mv->MaxWalkSpeed, float(ToPoint.Size2D()) / DeltaTime);
+			AddMovementInput(ToPoint.GetSafeNormal2D());
+		}
 	}
-
-	// 쉬는 동안 고개를 천천히 움직인다.
-	EverydayLookElapsed += DeltaTime;
-	FRotator Rotation = GetActorRotation();
-	Rotation.Yaw = EverydayLookAnchorYaw + FMath::Sin(EverydayLookElapsed * 0.9f) * 18.f;
-	SetActorRotation(Rotation);
-	if (EverydayActivityTimer <= 0.f) ChooseNextEverydayActivity();
+	else
+	{
+		EverydayLookElapsed += DeltaTime;
+		FRotator Rotation = GetActorRotation();
+		Rotation.Yaw = EverydayLookAnchorYaw + FMath::Sin(EverydayLookElapsed * 0.9f) * 18.f;
+		SetActorRotation(Rotation);
+		if (EverydayActivityTimer <= 0.f)
+		{
+			const float Overshoot = EverydayActivityTimer;
+			ChooseNextEverydayActivity();
+			EverydayActivityTimer += Overshoot;
+		}
+	}
+	// Automatic component tick is disabled while this controller owns movement.
+	Mv->TickComponent(DeltaTime, LEVELTICK_All, nullptr);
 }
 
 void AYUFSEvacuationNPC::ChooseNextEverydayActivity()
@@ -630,6 +685,8 @@ void AYUFSEvacuationNPC::ChooseNextEverydayActivity()
 			GetWorld(), GetActorLocation(), Candidate.Location, this);
 		if (Path && Path->IsValid() && !Path->IsPartial())
 		{
+			EverydayPath = Path->PathPoints;
+			EverydayWaypoint = 1;
 			bFoundDestination = true;
 			break;
 		}
@@ -641,13 +698,6 @@ void AYUFSEvacuationNPC::ChooseNextEverydayActivity()
 	}
 
 	EverydayDestination = Candidate.Location;
-	const EPathFollowingRequestResult::Type Result = AI->MoveToLocation(
-		EverydayDestination, FMath::Max(10.f, EverydayDestinationAcceptanceRadiusCm));
-	if (Result == EPathFollowingRequestResult::Failed)
-	{
-		BeginEverydayIdle();
-		return;
-	}
 	bEverydayRoaming = true;
 	EverydayActivityTimer = FMath::Max(1.f, EverydayMaxRoamSeconds);
 	CurrentNavTarget = EverydayDestination;
@@ -677,6 +727,8 @@ void AYUFSEvacuationNPC::BeginEverydayIdle()
 
 void AYUFSEvacuationNPC::StopEverydayBehavior()
 {
+	ReleaseEverydayMovement();
+	EverydayPath.Reset();
 	if (!bEverydayBehaviorActive && !bEverydayRoaming) return;
 	if (AAIController* AI = Cast<AAIController>(GetController())) AI->StopMovement();
 	if (UCharacterMovementComponent* Mv = GetCharacterMovement()) Mv->StopMovementImmediately();
@@ -1063,7 +1115,11 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 		return;
 	}
 
-	if (bEnabled) SetLiveSimulationPaused(false);
+	if (bEnabled)
+	{
+		SetLiveSimulationPaused(false);
+		StopEverydayBehavior(); // Restore movement before saving replay state.
+	}
 	bTimelinePlaybackMode = bEnabled;
 	if (Navigator)
 	{

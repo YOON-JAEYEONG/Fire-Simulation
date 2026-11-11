@@ -156,6 +156,22 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 	if (bIsPaused) return;
 	if (CurrentPhase == ESimPhase::Completed) return;
 
+	// Advance the whole crowd one step at a time, never one frame per resident.
+	// Preserve the remainder even on slow frames; dropping steps changes the walk.
+	constexpr double EverydayStep = 1.0 / 60.0;
+	TArray<AYUFSEvacuationNPC*> EverydayNPCs;
+	for (auto* NPC : RegisteredNPCs) if (IsValid(NPC)) EverydayNPCs.Add(NPC);
+	EverydayNPCs.Sort([](const AYUFSEvacuationNPC& A, const AYUFSEvacuationNPC& B)
+	{
+		return A.GetStableNPCId() < B.GetStableNPCId();
+	});
+	EverydayStepAccumulator += DeltaTime;
+	while (EverydayStepAccumulator + 1.e-8 >= EverydayStep)
+	{
+		for (auto* NPC : EverydayNPCs)
+			if (IsValid(NPC)) NPC->AdvanceEverydaySimulation(static_cast<float>(EverydayStep));
+		EverydayStepAccumulator -= EverydayStep;
+	}
 	ElapsedSimTime += DeltaTime;
 
 	if (CurrentPhase == ESimPhase::FireStartDelay)
@@ -880,6 +896,13 @@ bool AYUFSSimulationController::InitializeRunSeed()
 		CurrentRunSeed = FixedRandomSeed;
 	}
 
+	EverydayStepAccumulator = 0.0;
+	RegisteredNPCs.RemoveAll([](const AYUFSEvacuationNPC* NPC) { return !IsValid(NPC); });
+	// Canonicalize missing/duplicate ID assignment before initializing random streams.
+	RegisteredNPCs.Sort([](const AYUFSEvacuationNPC& A, const AYUFSEvacuationNPC& B)
+	{
+		return A.GetPathName() < B.GetPathName();
+	});
 	FMath::RandInit(CurrentRunSeed);
 	TSet<int32> UsedIds;
 	int32 NextId = 0;
@@ -897,6 +920,15 @@ bool AYUFSSimulationController::InitializeRunSeed()
 
 	// 재현으로 위치를 되돌린 경우 그 값을, 아니면 레벨에 배치된 현재 값을 이번 회차의
 	// "시작 시점" 스냅샷으로 캡처합니다. BuildRunResult()가 이걸 그대로 결과에 담습니다.
+	RegisteredNPCs.Sort([](const AYUFSEvacuationNPC& A, const AYUFSEvacuationNPC& B)
+	{
+		return A.GetStableNPCId() < B.GetStableNPCId();
+	});
+	for (auto* NPC : RegisteredNPCs)
+	{
+		NPC->AddTickPrerequisiteActor(this);
+	}
+
 	CaptureInitialNPCTransforms();
 	return true;
 }
