@@ -1,0 +1,74 @@
+{
+  "counts": {
+    "InstancedFoliageActor": 1,
+    "CineCameraActor": 3,
+    "ExponentialHeightFog": 1,
+    "DatasmithSceneActor": 1,
+    "NavMeshBoundsVolume": 1,
+    "SkyLight": 1,
+    "DirectionalLight": 1,
+    "SkyAtmosphere": 1,
+    "VolumetricCloud": 1,
+    "RecastNavMesh": 1,
+    "YUFSBinaryManager": 1,
+    "YUFSHeterogeneousVolume": 1,
+    "YUFSSimulationController": 1,
+    "StaticMeshActor": 7
+  },
+  "actors": [
+    {
+      "name": "YUFSBinaryManager_1",
+      "class": "YUFSBinaryManager",
+      "transform": "<Struct 'Transform' (0x00000190ABB5E340) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: 2800.000000, y: -2930.000000, z: 3850.000000}, scale3d: {x: 1.000000, y: 1.000000, z: 1.000000}}>",
+      "binary_file_path": "Fires/FirePrototype/BinaryData/smoke_data.bin",
+      "voxel_size": "40.0",
+      "grid_origin_local": "<Struct 'Vector' (0x000001912DAC16B8) {x: 0.000000, y: 0.000000, z: 0.000000}>",
+      "binary_frames_per_visual_frame": "1.0",
+      "binary_frame_offset": "0",
+      "dataset_alignment_confirmed": "False"
+    },
+    {
+      "name": "YUFSHeterogeneousVolume_1",
+      "class": "YUFSHeterogeneousVolume",
+      "transform": "<Struct 'Transform' (0x00000190ABB5E340) {rotation: {x: -1.000000, y: -0.000000, z: -0.000000, w: 0.000000}, translation: {x: -840.000000, y: -120.000000, z: -310.000000}, scale3d: {x: 96.000000, y: 88.000000, z: 83.000000}}>",
+      "volume": {
+        "frame": "213.2713623046875",
+        "frame_rate": "8.0",
+        "end_frame": "996.0",
+        "volume_resolution": "<Struct 'IntVector' (0x000001913EEFB528) {x: 125, y: 55, z: 26}>"
+      },
+      "material": "None"
+    },
+    {
+      "name": "YUFSSimulationController_1",
+      "class": "YUFSSimulationController",
+      "transform": "<Struct 'Transform' (0x00000190ABB5E340) {rotation: {x: 0.000000, y: 0.000000, z: 0.000000, w: 1.000000}, translation: {x: 0.000000, y: 0.000000, z: 0.000000}, scale3d: {x: 1.000000, y: 1.000000, z: 1.000000}}>",
+      "fire_options": "[{display_name: \"1번\", binary_file_path: \"Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin\", fire_material: None, ignition_metadata_file: \"\", volume_transform: {rotation: {x: -1.000000, y: -0.000000, z: 0.000000, w: 0.000000}, translation: {x: -840.000000, y: -120.000000, z: -310.000000}, scale3d: {x: 96.000000, y: 88.000000, z: 83.000000}}}, {display_name: \"2번\", binary_file_path: \"Fires/FirePrototype/BinaryData/smoke_data_it_test_2.bin\", fire_material: None, ignition_metadata_file: \"\", volume_transform: {rotation: {x: -1.000000, y: -0.000000, z: 0.000000, w: 0.000000}, translation: {x: -840.000000, y: -120.000000, z: -310.000000}, scale3d: {x: 96.000000, y: 88.000000, z: 83.000000}}}, {display_name: \"3번\", binary_file_path: \"Fires/FirePrototype/BinaryData/smoke_data_it_test_3.bin\", fire_material: None, ignition_metadata_file: \"\", volume_transform: {rotation: {x: -1.000000, y: -0.000000, z: 0.000000, w: 0.000000}, translation: {x: -450.000000, y: 130.000000, z: -70.000000}, scale3d: {x: 100.000000, y: 100.000000, z: 80.000000}}}]",
+      "auto_apply_fire_volume_transform": "True",
+      "enable_timeline_recording": "True",
+      "timeline_record_end_fire_seconds": "60.0",
+      "scenario_config": "UNAVAILABLE: YUFSSimulationController: Failed to find property 'scenario_config' for attribute 'scenario_config' on 'YUFSSimulationController'",
+      "evacuation_success_distance_cm": "150.0",
+      "options": [
+        {
+          "display_name": "1번",
+          "binary_file_path": "Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin",
+          "fire_material": "None",
+          "volume_transform": "<Struct 'Transform' (0x000001914170EAA0) {rotation: {x: -1.000000, y: -0.000000, z: 0.000000, w: 0.000000}, translation: {x: -840.000000, y: -120.000000, z: -310.000000}, scale3d: {x: 96.000000, y: 88.000000, z: 83.000000}}>"
+        },
+        {
+          "display_name": "2번",
+          "binary_file_path": "Fires/FirePrototype/BinaryData/smoke_data_it_test_2.bin",
+          "fire_material": "None",
+          "volume_transform": "<Struct 'Transform' (0x000001914170FAE0) {rotation: {x: -1.000000, y: -0.000000, z: 0.000000, w: 0.000000}, translation: {x: -840.000000, y: -120.000000, z: -310.000000}, scale3d: {x: 96.000000, y: 88.000000, z: 83.000000}}>"
+        },
+        {
+          "display_name": "3번",
+          "binary_file_path": "Fires/FirePrototype/BinaryData/smoke_data_it_test_3.bin",
+          "fire_material": "None",
+          "volume_transform": "<Struct 'Transform' (0x000001914170FB80) {rotation: {x: -1.000000, y: -0.000000, z: 0.000000, w: 0.000000}, translation: {x: -450.000000, y: 130.000000, z: -70.000000}, scale3d: {x: 100.000000, y: 100.000000, z: 80.000000}}>"
+        }
+      ]
+    }
+  ]
+}

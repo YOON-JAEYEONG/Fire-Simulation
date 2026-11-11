@@ -1,0 +1,198 @@
+{
+  "normal_runs": [
+    {
+      "option": 0,
+      "npc_count": 4,
+      "last_waiting": {},
+      "exposure_states": {},
+      "configs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        }
+      ]
+    },
+    {
+      "option": 1,
+      "npc_count": 4,
+      "last_waiting": {},
+      "exposure_states": {},
+      "configs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        }
+      ]
+    },
+    {
+      "option": 2,
+      "npc_count": 4,
+      "last_waiting": {
+        "BP_YUFSRLEvacuationNPC_C_0": {
+          "request": 3,
+          "animation": "Idle",
+          "t": 54
+        },
+        "BP_YUFSRLEvacuationNPC_C_2": {
+          "request": 2,
+          "animation": "Idle",
+          "t": 54
+        }
+      },
+      "exposure_states": {},
+      "configs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "base_rate": 0.00800000037997961,
+          "scale": 3.0
+        }
+      ]
+    }
+  ],
+  "query_comparison_first_25_seconds": {
+    "before": [
+      {
+        "option": 0,
+        "pathfinding": {
+          "BP_YUFSRLEvacuationNPC_C_0": 12,
+          "BP_YUFSRLEvacuationNPC_C_1": 1
+        },
+        "unsafe_failures": {
+          "BP_YUFSRLEvacuationNPC_C_0": 12
+        },
+        "exits": 1
+      },
+      {
+        "option": 1,
+        "pathfinding": {
+          "BP_YUFSRLEvacuationNPC_C_0": 2,
+          "BP_YUFSRLEvacuationNPC_C_3": 1,
+          "BP_YUFSRLEvacuationNPC_C_2": 3
+        },
+        "unsafe_failures": {
+          "BP_YUFSRLEvacuationNPC_C_2": 1
+        },
+        "exits": 2
+      },
+      {
+        "option": 2,
+        "pathfinding": {
+          "BP_YUFSRLEvacuationNPC_C_3": 1,
+          "BP_YUFSRLEvacuationNPC_C_1": 1,
+          "BP_YUFSRLEvacuationNPC_C_2": 7,
+          "BP_YUFSRLEvacuationNPC_C_0": 7
+        },
+        "unsafe_failures": {
+          "BP_YUFSRLEvacuationNPC_C_2": 3,
+          "BP_YUFSRLEvacuationNPC_C_0": 5
+        },
+        "exits": 2
+      }
+    ],
+    "after": [
+      {
+        "option": 0,
+        "pathfinding": {
+          "BP_YUFSRLEvacuationNPC_C_0": 3,
+          "BP_YUFSRLEvacuationNPC_C_1": 1
+        },
+        "unsafe_failures": {},
+        "exits": 2
+      },
+      {
+        "option": 1,
+        "pathfinding": {
+          "BP_YUFSRLEvacuationNPC_C_0": 1,
+          "BP_YUFSRLEvacuationNPC_C_2": 2,
+          "BP_YUFSRLEvacuationNPC_C_3": 1
+        },
+        "unsafe_failures": {},
+        "exits": 3
+      },
+      {
+        "option": 2,
+        "pathfinding": {
+          "BP_YUFSRLEvacuationNPC_C_3": 1,
+          "BP_YUFSRLEvacuationNPC_C_1": 2,
+          "BP_YUFSRLEvacuationNPC_C_0": 3,
+          "BP_YUFSRLEvacuationNPC_C_2": 2
+        },
+        "unsafe_failures": {
+          "BP_YUFSRLEvacuationNPC_C_0": 1,
+          "BP_YUFSRLEvacuationNPC_C_2": 1
+        },
+        "exits": 2
+      }
+    ]
+  },
+  "detours": [
+    {
+      "option": 0,
+      "seconds": 0.983,
+      "log": "[2026.10.08-05.21.47:231][ 47]LogTemp: [YUFS][Nav] agent=BP_YUFSRLEvacuationNPC_C_0 selected safe local detour points=12 pathMaxSmoke=0.067 pathMaxHeat=0.000"
+    },
+    {
+      "option": 0,
+      "seconds": 1.486,
+      "log": "[2026.10.08-05.21.47:734][107]LogTemp: [YUFS][Nav] agent=BP_YUFSRLEvacuationNPC_C_0 selected safe local detour points=13 pathMaxSmoke=0.506 pathMaxHeat=0.000"
+    },
+    {
+      "option": 2,
+      "seconds": 9.876,
+      "log": "[2026.10.08-05.23.46:318][154]LogTemp: [YUFS][Nav] agent=BP_YUFSRLEvacuationNPC_C_1 selected safe local detour points=3 pathMaxSmoke=0.918 pathMaxHeat=0.000"
+    },
+    {
+      "option": 2,
+      "seconds": 16.422,
+      "log": "[2026.10.08-05.23.52:864][936]LogTemp: [YUFS][Nav] agent=BP_YUFSRLEvacuationNPC_C_0 selected safe local detour points=9 pathMaxSmoke=0.016 pathMaxHeat=0.000"
+    }
+  ],
+  "limits": "Same scripted placements, playback and seeds; exposure scale now 3. These are not broad escape statistics."
+}

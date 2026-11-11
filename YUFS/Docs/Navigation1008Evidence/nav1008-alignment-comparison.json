@@ -1,0 +1,1089 @@
+{
+  "samples": [
+    {
+      "option": 0,
+      "frame": 0,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36255,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87595,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 100,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            1
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87595,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 480,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0157,
+          "after_smoke": 0.0157,
+          "index": 87595,
+          "raw": [
+            4,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 750,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            9
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.5765,
+          "after_smoke": 0.5765,
+          "index": 87595,
+          "raw": [
+            147,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 996,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            26
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.8902,
+          "after_smoke": 0.8902,
+          "index": 87595,
+          "raw": [
+            227,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 1,
+      "frame": 0,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36255,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87595,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 1,
+      "frame": 100,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36255,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0157,
+          "after_smoke": 0.0157,
+          "index": 87595,
+          "raw": [
+            4,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 1,
+      "frame": 480,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9922,
+          "after_smoke": 0.9922,
+          "index": 87595,
+          "raw": [
+            253,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 1,
+      "frame": 750,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 87595,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 1,
+      "frame": 996,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0039,
+          "after_smoke": 0.0039,
+          "index": 36244,
+          "raw": [
+            1,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 87595,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 2,
+      "frame": 0,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 34214,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 34203,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 83394,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 83383,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 2,
+      "frame": 100,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 34214,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0039,
+          "index": 34203,
+          "raw": [
+            1,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 83394,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 83383,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 2,
+      "frame": 480,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.4706,
+          "index": 34214,
+          "raw": [
+            120,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.5059,
+          "after_smoke": 0.2941,
+          "index": 34203,
+          "raw": [
+            75,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.9294,
+          "index": 83394,
+          "raw": [
+            237,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0353,
+          "after_smoke": 0.4471,
+          "index": 83383,
+          "raw": [
+            114,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 2,
+      "frame": 750,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.9255,
+          "index": 34214,
+          "raw": [
+            236,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9843,
+          "after_smoke": 0.5176,
+          "index": 34203,
+          "raw": [
+            132,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.9961,
+          "index": 83394,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.7922,
+          "after_smoke": 0.5373,
+          "index": 83383,
+          "raw": [
+            137,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 2,
+      "frame": 996,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.9843,
+          "index": 34214,
+          "raw": [
+            251,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.5529,
+          "index": 34203,
+          "raw": [
+            141,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "OutsideDomain",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.9961,
+          "index": 83394,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9647,
+          "after_smoke": 0.6902,
+          "index": 83383,
+          "raw": [
+            176,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 0,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36255,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87595,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 100,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            1
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87595,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 480,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            0
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0157,
+          "after_smoke": 0.0157,
+          "index": 87595,
+          "raw": [
+            4,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 750,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            9
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.5765,
+          "after_smoke": 0.5765,
+          "index": 87595,
+          "raw": [
+            147,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "option": 0,
+      "frame": 996,
+      "probes": [
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.9961,
+          "after_smoke": 0.9961,
+          "index": 36255,
+          "raw": [
+            254,
+            26
+          ]
+        },
+        {
+          "eye": "X=1200.000 Y=-300.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 36244,
+          "raw": [
+            0,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=504.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.8902,
+          "after_smoke": 0.8902,
+          "index": 87595,
+          "raw": [
+            227,
+            0
+          ]
+        },
+        {
+          "eye": "X=3050.000 Y=-1137.000 Z=154.000",
+          "before_status": "Ready",
+          "after_status": "Ready",
+          "before_smoke": 0.0,
+          "after_smoke": 0.0,
+          "index": 87584,
+          "raw": [
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "raw_byte_checks": 80,
+  "raw_byte_mismatches": [],
+  "frame_mismatches": [],
+  "outside_before": 10,
+  "outside_after": 0
+}

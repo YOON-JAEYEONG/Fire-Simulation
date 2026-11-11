@@ -1,0 +1,42 @@
+{
+  "assets": [],
+  "textures": [
+    {
+      "name": "/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1",
+      "frames": 997,
+      "transform": "<Struct 'Transform' (0x00000173194FE070) {rotation: {x: 0.000000, y: 1.000000, z: 0.000000, w: 0.000000}, translation: {x: 4.800000, y: -0.800000, z: -2.000000}, scale3d: {x: -0.400000, y: 0.400000, z: 0.400000}}>",
+      "switches": [
+        "Density (Attributes A)",
+        "Temperature (Attributes B)",
+        "Clamp SVT Density",
+        "Clamp SVT Temperature",
+        "Use Blackbody Temperature"
+      ]
+    },
+    {
+      "name": "/Game/Fires/Audit0928/fire_it_test_2.fire_it_test_2",
+      "frames": 997,
+      "transform": "<Struct 'Transform' (0x00000173194FE070) {rotation: {x: 0.000000, y: 1.000000, z: 0.000000, w: 0.000000}, translation: {x: 4.800000, y: -0.800000, z: -2.000000}, scale3d: {x: -0.400000, y: 0.400000, z: 0.400000}}>",
+      "switches": [
+        "Density (Attributes A)",
+        "Temperature (Attributes B)",
+        "Clamp SVT Density",
+        "Clamp SVT Temperature",
+        "Use Blackbody Temperature"
+      ]
+    },
+    {
+      "name": "/Game/Fires/Audit0928/fire__it_test_3.fire__it_test_3",
+      "frames": 997,
+      "transform": "<Struct 'Transform' (0x00000173194FE070) {rotation: {x: 0.000000, y: 1.000000, z: 0.000000, w: 0.000000}, translation: {x: 2.800000, y: -2.800000, z: -0.800000}, scale3d: {x: -0.400000, y: 0.400000, z: 0.400000}}>",
+      "switches": [
+        "Density (Attributes A)",
+        "Temperature (Attributes B)",
+        "Clamp SVT Density",
+        "Clamp SVT Temperature",
+        "Use Blackbody Temperature"
+      ]
+    }
+  ],
+  "saved_main": true
+}

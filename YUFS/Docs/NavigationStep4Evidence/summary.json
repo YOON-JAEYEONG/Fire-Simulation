@@ -1,0 +1,90 @@
+{
+  "build": "Succeeded",
+  "tests": {
+    "passed": 83,
+    "failed": 0,
+    "posture_tests": [
+      "YUFS.NPC.Posture.CapsuleFeetMeshAndSafeStand",
+      "YUFS.NPC.Posture.LayeredSmokeBreathingPathAndGroundHeat",
+      "YUFS.NPC.Posture.LowClearanceAndRadiusClamp",
+      "YUFS.NPC.Posture.ReplayRestoresCollisionAndBreathing"
+    ]
+  },
+  "main_pie": {
+    "sample_count": 46,
+    "end_seconds": 45,
+    "fire_frame": 480,
+    "actors": [
+      {
+        "index": 0,
+        "first_low_seconds": 26,
+        "first_incapacitated_seconds": 38,
+        "first_ground_floor_seconds": null,
+        "start_xyz": [
+          1200.0,
+          -300.0,
+          440.0
+        ],
+        "end_xyz": [
+          1200.0,
+          -300.0,
+          396.0
+        ],
+        "max_speed_cm_s": 0.0,
+        "animations": [
+          "Idle",
+          "Fast_Run",
+          "Crawling__1__Anim",
+          "Dying"
+        ]
+      },
+      {
+        "index": 1,
+        "first_low_seconds": null,
+        "first_incapacitated_seconds": null,
+        "first_ground_floor_seconds": null,
+        "start_xyz": [
+          1200.0,
+          -450.0,
+          440.0
+        ],
+        "end_xyz": [
+          1200.0,
+          -450.0,
+          440.0
+        ],
+        "max_speed_cm_s": 0.0,
+        "animations": [
+          "Idle",
+          "Fast_Run"
+        ]
+      },
+      {
+        "index": 2,
+        "first_low_seconds": 2,
+        "first_incapacitated_seconds": null,
+        "first_ground_floor_seconds": 39,
+        "start_xyz": [
+          1600.0,
+          -400.0,
+          440.0
+        ],
+        "end_xyz": [
+          2071.561378350613,
+          -536.9572808440297,
+          46.23702393248237
+        ],
+        "max_speed_cm_s": 80.00000000001984,
+        "animations": [
+          "Idle",
+          "Crawling__1__Anim"
+        ]
+      }
+    ]
+  },
+  "notes": [
+    "Two stationary actors have movement-component tick disabled, walking mode and external navigation for controlled dose comparison.",
+    "Third actor uses temporary crawl/recovery thresholds .04/.02 to exercise real low locomotion; default remains .60/.45.",
+    "Rendered PIE command returned exit code 1; all 46 samples completed without Python error, no fatal/assertion, log contains Editor shut down; RiderLink reported invalid socket at shutdown. Startup has pre-existing condition/missing-default-BIN messages before selected BIN is configured. This is not a claim of a clean engine startup."
+  ]
+}

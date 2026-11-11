@@ -1,0 +1,474 @@
+Log started at 10/18/2026 15:25:52 (2026-10-18T06:25:52Z)
+Resolved project argument C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/YUFS.uproject to C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-ReleaseCheck-1018-ec002eb\YUFS\YUFS.uproject
+No config file at C:\ProgramData\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\ACSLAB4\AppData\Local\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No config file at C:\Users\ACSLAB4\Documents\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Configuration will be read from:
+  C:\Users\ACSLAB4\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+No project scope config file at C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-ReleaseCheck-1018-ec002eb\YUFS\Saved\UnrealBuildTool\BuildConfiguration.xml. Creating default.
+Reading configuration file from: C:\Users\ACSLAB4\AppData\Roaming\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from: C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-ReleaseCheck-1018-ec002eb\YUFS\Saved\UnrealBuildTool\BuildConfiguration.xml
+Reading configuration file from: C:\Users\ACSLAB4\AppData\Local\UnrealEngine\Intermediate\Build\UnrealBuildTool.Env.BuildConfiguration.xml
+Log file: C:\Users\ACSLAB4\Documents\Codex\2026-09-07\https-github-com-yoon-jaeyeong-fire-2\work\nav-release-clone-build.log
+
+Setting temp directory to 'C:\Users\ACSLAB4\AppData\Local\Temp\UnrealBuildTool\9de8e132'
+    Registering build platform: UnrealBuildTool.AndroidPlatformFactory
+    Registering build platform: UnrealBuildTool.IOSPlatformFactory
+    Registering build platform: UnrealBuildTool.LinuxPlatformFactory
+    Registering build platform: UnrealBuildTool.MacPlatformFactory
+    Registering build platform: UnrealBuildTool.TVOSPlatformFactory
+    Registering build platform: UnrealBuildTool.WindowsPlatformFactory
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (1)
+Found Windows 10 SDK root at C:\Program Files (x86)\Windows Kits\10 (2)
+Found Windows 10 SDK version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Found Universal CRT version 10.0.26100.0 at C:\Program Files (x86)\Windows Kits\10
+Win64 Installed SDK(s): MinVersion_Sdk=10.0.19041.0, MaxVersion_Sdk=10.9.99999.0, CurrentVersion_Sdk=10.0.26100.0, Version_AutoSdk=10.0.22621.0, CurrentVersion_AutoSdk=
+        Registering build platform: Win64 - buildable: True
+    Registering build platform: UnrealBuildTool.VisionOSPlatformFactory
+Command line: "C:\Program Files\Epic Games\UE_5.7\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" YUFSEditor Win64 Development -Project=C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/YUFS.uproject -WaitMutex -NoHotReloadFromIDE -DisableLiveCoding -Log=C:/Users/ACSLAB4/Documents/Codex/2026-09-07/https-github-com-yoon-jaeyeong-fire-2/work/nav-release-clone-build.log
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-ReleaseCheck-1018-ec002eb).
+Creating makefile for YUFSEditor (no existing makefile)
+Skipping C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\BuildRules\UE5Rules.dll: File is installed
+Skipping C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\BuildRules\UE5ProgramRules.dll: File is installed
+Compiling C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-ReleaseCheck-1018-ec002eb\YUFS\Intermediate\Build\BuildRules\YUFSModuleRules.dll: Assembly does not exist
+Found VisualStudio2026 installation: C:\Program Files\Microsoft Visual Studio\18\Community (Product=Microsoft.VisualStudio.Product.Community, Version=18.10.12201.205)
+Found Visual Studio toolchain: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231 (Family=14.51.36231, FamilyRank=1, Version=14.51.36257, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64, Error=False, Redist=C:\Program Files\Microsoft Visual Studio\18\Community\VC\Redist\MSVC\14.51.36231)
+Available x64 toolchains (1):
+ * C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231
+    (Family=14.51.36231, FamilyRank=1, Version=14.51.36257, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2026 compiler version 14.51.36257 is not a preferred version. Please use the latest preferred version 14.44.35207
+Building UnrealEditor - YUFSEditor - Win64 - Development
+Compiler: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\cl.exe
+Linker: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe
+Library Manager: C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe
+Resource Compiler: C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\rc.exe
+Using EngineIncludeOrderVersion.Unreal5_7 for target YUFSEditor.Target.cs
+UHT compiled-in object format Default
+Parsing headers for YUFSEditor
+  Running Internal UnrealHeaderTool C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-ReleaseCheck-1018-ec002eb\YUFS\YUFS.uproject C:\Users\ACSLAB4\Documents\Codex\Fire-Navigation-ReleaseCheck-1018-ec002eb\YUFS\Intermediate\Build\Win64\YUFSEditor\Development\YUFSEditor.uhtmanifest -WarningsAsErrors -installed
+Reading engine version from file: C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Launch\Resources\Version.h
+Got engine version 5.7.4
+Step - Exports
+       Exporter Stats skipped
+       Exporter Json skipped
+       Running exporter CodeGen
+UHT processed YUFSEditor in 1.5209061 seconds (128 files written)
+Found 5 shared PCH headers (listed in order of preference):
+	UnrealEd
+	Engine
+	Slate
+	CoreUObject
+	Core
+VerseVMBytecodeGenerator.Generate, generating CPP headers in: 'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMBytecodeOps.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMBytecodesAndCaptures.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMMakeCapturesFuncs.gen.h'
+	Writing out generated header file. Changed:False Path:'C:\Program Files\Epic Games\UE_5.7\Engine\Intermediate\Build\Win64\UnrealEditor\Inc\CoreUObject\VerseVMBytecode\VVMCaptureSwitch.gen.h'
+Building YUFSEditor...
+Using Visual Studio 2026 14.51.36257 toolchain (C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\14.51.36231) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2026 compiler is not a preferred version
+Determining max actions to execute in parallel (8 physical cores, 16 logical cores)
+  Executing up to 8 processes, one per physical core
+  Requested 1.5 GB memory per action, 5.29 GB available: limiting max parallel actions to 3
+Using Unreal Build Accelerator local executor to run 101 action(s)
+  Storage capacity 40Gb
+  RootDir C:\ProgramData\Epic\UnrealBuildAccelerator
+---- Starting trace: 261018_152601 ----
+UbaServer - Listening on 0.0.0.0:1345
+Cache bucket 377606309 used. Action: Compile [x64] SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.cpp ()
+Cache bucket 2611342960 used. Action: Compile [x64] ActiveSocket.cpp ()
+Cache bucket 416513229 used. Action: Link [x64] UnrealEditor-RD.lib ()
+Cache bucket 2317821462 used. Action: Compile [x64] Module.YUFS.1.cpp ()
+All processes queued
+[1/101] Compile [x64] ActiveSocket.cpp
+[2/101] Compile [x64] Buffer.cpp
+[3/101] Compile [x64] ByteBufferAsyncProcessor.cpp
+[4/101] Resource Default.rc2
+[5/101] Compile [x64] DateTime.cpp
+[6/101] Compile [x64] DefaultAbstractDeclaration.cpp
+[7/101] Compile [x64] ExtWire.cpp
+[8/101] Compile [x64] IProtocol.cpp
+[9/101] Compile [x64] IRdWireable.cpp
+[10/101] Compile [x64] ISerializable.cpp
+[11/101] Compile [x64] ISerializersOwner.cpp
+[12/101] Compile [x64] IScheduler.cpp
+[13/101] Compile [x64] IUnknownInstance.cpp
+[14/101] Compile [x64] Identities.cpp
+[15/101] Compile [x64] InternScheduler.cpp
+[16/101] Compile [x64] Lifetime.cpp
+[17/101] Compile [x64] InternRoot.cpp
+[18/101] Compile [x64] LifetimeImpl.cpp
+[19/101] Compile [x64] LifetimeDefinition.cpp
+[20/101] Compile [x64] PassiveSocket.cpp
+[21/101] Compile [x64] PerModuleInline.gen.cpp
+[22/101] Compile [x64] MessageBroker.cpp
+[23/101] Compile [x64] PkgInputStream.cpp
+[24/101] Compile [x64] Polymorphic.cpp
+[25/101] Compile [x64] Protocol.cpp
+[26/101] Compile [x64] RD.cpp
+[27/101] Compile [x64] RName.cpp
+[28/101] Compile [x64] PumpScheduler.cpp
+[29/101] Compile [x64] RdAny.cpp
+[30/101] Compile [x64] RdBindableBase.cpp
+[31/101] Compile [x64] RdExtBase.cpp
+[32/101] Compile [x64] RdId.cpp
+[33/101] Compile [x64] RdTextBuffer.cpp
+[34/101] Compile [x64] SequentialLifetimes.cpp
+[35/101] Compile [x64] RdReactiveBase.cpp
+[36/101] Compile [x64] SerializationCtx.cpp
+[37/101] Compile [x64] SignalCookie.cpp
+[38/101] Compile [x64] SimpleScheduler.cpp
+[39/101] Compile [x64] SharedPCH.UnrealEd.Project.ValApi.ValExpApi.Cpp20.cpp
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4175,31): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	COREUOBJECT_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4201,43): warning C4996: 'UStruct::ActivateTrackingPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool ActivateTrackingPropertyValueFlag(EPropertyValueFlags Flags, void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4202,43): warning C4996: 'UStruct::IsTrackingPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool IsTrackingPropertyValueFlag(EPropertyValueFlags Flags, const void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4203,43): warning C4996: 'UStruct::HasPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool HasPropertyValueFlag(EPropertyValueFlags Flags, const void* Data, const FProperty* Property, int32 ArrayIndex = 0) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4204,43): warning C4996: 'UStruct::SetPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void SetPropertyValueFlag(EPropertyValueFlags Flags, bool bValue, void* Data, const FProperty* Property, int32 ArrayIndex = 0) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4205,43): warning C4996: 'UStruct::ResetPropertyValueFlags': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void ResetPropertyValueFlags(EPropertyValueFlags Flags, void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4206,43): warning C4996: 'UStruct::SerializePropertyValueFlags': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void SerializePropertyValueFlags(EPropertyValueFlags Flags, void* Data, FStructuredArchiveRecord Record, FArchiveFieldName Name) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\LinkerLoad.h(1597,52): warning C4996: 'FArchiveState::GetSerializeContext': GetSerializeContext is not supported. Use FUObjectThreadContext::Get().GetSerializeContext(). - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	COREUOBJECT_API virtual FUObjectSerializeContext* GetSerializeContext() override;
+	                                                  ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectRedirector.h(42,15): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Animation\AnimationAsset.h(1197,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\Blueprint.h(911,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\BlueprintGeneratedClass.h(585,42): warning C4996: 'UObjectBaseUtility::GetVersePath': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	ENGINE_API virtual UE::Core::FVersePath GetVersePath() const override;
+	                                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\BlueprintGeneratedClass.h(592,26): warning C4996: 'UClass::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Public\Animation\AnimCurveMetadata.h(211,15): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(2383,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Public\Subsystems\WorldSubsystem.h(85,26): warning C4996: 'FTickableObjectBase::IsAllowedToTick': Use IsTickable for conditional ticks and SetTickableTickType to change the tick type after initial registration - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual bool IsAllowedToTick() const override final;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\World.h(3041,22): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	UE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                    ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Animation\AnimSequenceBase.h(155,26): warning C4996: 'UAnimationAsset::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Animation\Skeleton.h(588,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Public\Animation\AnimCompressionTypes.h(522,26): warning C4996: 'ICompressedAnimData::SerializeCompressedData': SerializeCompressedData now accepts the DataOwner as an argument - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void SerializeCompressedData(class FArchive& Ar) override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Animation\AnimSequence.h(390,26): warning C4996: 'UAnimSequenceBase::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Curves\CurveBase.h(114,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Curves\CurveFloat.h(48,53): warning C4996: 'UCurveBase::GetCurves': Use version taking a TAdderReserverRef - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual TArray<FRichCurveEditInfoConst> GetCurves() const override;
+	                                                   ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Components\SkeletalMeshComponent.h(2044,15): warning C4996: 'USkinnedMeshComponent::UpdateSlaveComponent': This method has been deprecated. Please use UpdateFollowerComponent instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void UpdateSlaveComponent() override { UpdateFollowerComponent(); };
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Components\SkeletalMeshComponent.h(2052,26): warning C4996: 'USkinnedMeshComponent::SetSkeletalMesh': Use USkeletalMeshComponent::SetSkeletalMesh() or SetSkinnedAssetAndUpdate() instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void SetSkeletalMesh(class USkeletalMesh* NewMesh, bool bReinitPose = true) override;  // SetSkeletalMesh may remain and become a UFUNCTION but lose its virtual after it is removed from the SkinnedMeshComponent API
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\EdGraph\EdGraphSchema.h(629,26): warning C4996: 'FGraphActionListBuilderBase::AddAction': Overriding the schema action category is no longer supported, set the category via CosmeticUpdateRootCategory or CosmeticUpdateCategory - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void AddAction(const TSharedPtr<FEdGraphSchemaAction>& NewAction, FString const& Category) override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\EdGraph\EdGraphSchema.h(631,26): warning C4996: 'FGraphActionListBuilderBase::AddActionList': Collections of Action lists were ambiguous and unused - make a compound FEdGraphSchemaAction and Add it - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void AddActionList(const TArray<TSharedPtr<FEdGraphSchemaAction> >& NewActions, FString const& Category = FString()) override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\ChildConnection.h(75,16): warning C4996: 'UNetConnection::IsNetReady': Replaced with a version that doesn't have a saturate option. Call Saturate() directly if passing true before. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual int32 IsNetReady(bool Saturate) override
+	              ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\CurveTable.h(88,15): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\DataTable.h(158,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\SkeletalMesh.h(2585,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\SkeletalMesh.h(2975,57): warning C4996: 'USkinnedAsset::GetLODInfoArray': Use GetLODInfo and GetLODNum instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual const TArray<FSkeletalMeshLODInfo>& GetLODInfoArray() const override;
+	                                                       ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\SkeletalMesh.h(2969,51): warning C4996: 'USkinnedAsset::GetLODInfoArray': Use GetLODInfo and GetLODNum instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual TArray<FSkeletalMeshLODInfo>& GetLODInfoArray() override;
+	                                                 ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\StaticMesh.h(1986,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\Texture.h(2010,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\Texture2D.h(125,15): warning C4996: 'UTexture::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Public\Materials\MaterialExpressionMaterialFunctionCall.h(125,51): warning C4996: 'UMaterialExpression::GetInputsView': Use FExpressionInputIterator instead or GetInput() directly. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual TArrayView<FExpressionInput*> GetInputsView() override;
+	                                                 ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Sound\SoundWave.h(1174,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Experimental\Chaos\Public\Chaos\Box.h(104,17): warning C4996: 'Chaos::FImplicitObject::GetRadius': Please use GetRadiusf instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+		virtual FReal GetRadius() const override
+		              ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Experimental\Chaos\Public\Chaos\Box.h(104,17): note: 템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Experimental\Chaos\Public\Chaos\GeometryParticles.h(151,8): note: 클래스 템플릿 'Chaos::TGeometryParticlesImp'을(를) 컴파일하는 동안
+	class TGeometryParticlesImp : public TSimpleGeometryParticles<T, d>
+	      ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Experimental\Chaos\Public\Chaos\GeometryParticles.h(585,21): note: 컴파일되는 클래스 템플릿 인스턴스화 'Chaos::TBox<Chaos::FReal,3>'에 대한 참조를 확인하세요.
+				TBox<FReal, 3>::SerializeAsAABBs(Ar, MLocalBounds);
+				                ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Experimental\Chaos\Public\Chaos\ImplicitObjectTransformed.h(169,16): warning C4996: 'Chaos::FImplicitObject::GetMargin': Please use GetMarginf instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual FReal GetMargin() const override
+	              ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Experimental\Chaos\Public\Chaos\ImplicitObjectTransformed.h(169,16): note: 템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Experimental\Chaos\Public\Chaos\ImplicitObjectTransformed.h(452,61): note: 컴파일되는 클래스 템플릿 인스턴스화 'Chaos::TImplicitObjectTransformed<Chaos::FReal,3,true>'에 대한 참조를 확인하세요.
+			TImplicitObjectTransformed<FReal, 3>* InnerTransformed = static_cast<TImplicitObjectTransformed<FReal, 3>*>(NewTransformed.GetReference());
+			                                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Experimental\Chaos\Public\Chaos\ImplicitObjectTransformed.h(175,16): warning C4996: 'Chaos::FImplicitObject::GetRadius': Please use GetRadiusf instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual FReal GetRadius() const override
+	              ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Editor\UnrealEd\Public\Toolkits\AssetEditorToolkit.h(167,28): warning C4996: 'IAssetEditorInstance::CloseWindow': Use CloseWindow that takes in an EAssetEditorCloseReason instead - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	UNREALED_API virtual bool CloseWindow() override;
+	                          ^
+[40/101] Compile [x64] SimpleSocket.cpp
+[41/101] Compile [x64] Serializers.cpp
+[42/101] Compile [x64] SingleThreadScheduler.cpp
+[43/101] Compile [x64] SingleThreadSchedulerBase.cpp
+[44/101] Compile [x64] SynchronousScheduler.cpp
+[45/101] Compile [x64] SocketWire.cpp
+[46/101] Compile [x64] WireBase.cpp
+[47/101] Compile [x64] WireUtil.cpp
+[48/101] Compile [x64] async.cpp
+[49/101] Compile [x64] cfg.cpp
+[50/101] Compile [x64] color_sinks.cpp
+[51/101] Compile [x64] countdownlatch.cpp
+[52/101] Compile [x64] hashing.cpp
+[53/101] Compile [x64] fmt.cpp
+[54/101] Compile [x64] file_sinks.cpp
+[55/101] Compile [x64] thirdparty.cpp
+[56/101] Compile [x64] thread_util.cpp
+[57/101] Resource Default.rc2
+[58/101] Compile [x64] stdout_sinks.cpp
+[59/101] Resource Default.rc2
+[60/101] Compile [x64] spdlog.cpp
+[61/101] Link [x64] UnrealEditor-RD.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RD/UnrealEditor-RD.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RD/UnrealEditor-RD.exp 개체를 생성하고 있습니다.
+[62/101] Link [x64] UnrealEditor-RD.dll
+[63/101] Resource Default.rc2
+[64/101] Compile [x64] Module.YUFS.1.cpp
+[65/101] Compile [x64] Module.RiderLink.cpp
+[66/101] Link [x64] UnrealEditor-RiderLink.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderLink/UnrealEditor-RiderLink.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderLink/UnrealEditor-RiderLink.exp 개체를 생성하고 있습니다.
+[67/101] Link [x64] UnrealEditor-RiderLink.dll
+[68/101] Compile [x64] Module.YUFS.2.cpp
+[69/101] Compile [x64] Module.YUFS.4.cpp
+[70/101] Compile [x64] Module.YUFS.3.cpp
+[71/101] Compile [x64] Module.YUFS.5.cpp
+[72/101] Compile [x64] Module.YUFS.6.cpp
+[73/101] Compile [x64] Module.RiderBlueprint.cpp
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4175,31): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	COREUOBJECT_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4201,43): warning C4996: 'UStruct::ActivateTrackingPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool ActivateTrackingPropertyValueFlag(EPropertyValueFlags Flags, void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4202,43): warning C4996: 'UStruct::IsTrackingPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool IsTrackingPropertyValueFlag(EPropertyValueFlags Flags, const void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4203,43): warning C4996: 'UStruct::HasPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool HasPropertyValueFlag(EPropertyValueFlags Flags, const void* Data, const FProperty* Property, int32 ArrayIndex = 0) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4204,43): warning C4996: 'UStruct::SetPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void SetPropertyValueFlag(EPropertyValueFlags Flags, bool bValue, void* Data, const FProperty* Property, int32 ArrayIndex = 0) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4205,43): warning C4996: 'UStruct::ResetPropertyValueFlags': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void ResetPropertyValueFlags(EPropertyValueFlags Flags, void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4206,43): warning C4996: 'UStruct::SerializePropertyValueFlags': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void SerializePropertyValueFlags(EPropertyValueFlags Flags, void* Data, FStructuredArchiveRecord Record, FArchiveFieldName Name) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\Blueprint.h(911,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\LinkerLoad.h(1597,52): warning C4996: 'FArchiveState::GetSerializeContext': GetSerializeContext is not supported. Use FUObjectThreadContext::Get().GetSerializeContext(). - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	COREUOBJECT_API virtual FUObjectSerializeContext* GetSerializeContext() override;
+	                                                  ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectRedirector.h(42,15): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(2383,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Public\Subsystems\WorldSubsystem.h(85,26): warning C4996: 'FTickableObjectBase::IsAllowedToTick': Use IsTickable for conditional ticks and SetTickableTickType to change the tick type after initial registration - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual bool IsAllowedToTick() const override final;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\World.h(3041,22): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	UE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                    ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\StaticMesh.h(1986,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Editor\UnrealEd\Public\Toolkits\AssetEditorToolkit.h(167,28): warning C4996: 'IAssetEditorInstance::CloseWindow': Use CloseWindow that takes in an EAssetEditorCloseReason instead - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	UNREALED_API virtual bool CloseWindow() override;
+	                          ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\EdGraph\EdGraphSchema.h(629,26): warning C4996: 'FGraphActionListBuilderBase::AddAction': Overriding the schema action category is no longer supported, set the category via CosmeticUpdateRootCategory or CosmeticUpdateCategory - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void AddAction(const TSharedPtr<FEdGraphSchemaAction>& NewAction, FString const& Category) override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\EdGraph\EdGraphSchema.h(631,26): warning C4996: 'FGraphActionListBuilderBase::AddActionList': Collections of Action lists were ambiguous and unused - make a compound FEdGraphSchemaAction and Add it - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void AddActionList(const TArray<TSharedPtr<FEdGraphSchemaAction> >& NewActions, FString const& Category = FString()) override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Editor\Kismet\Public\BlueprintEditor.h(300,51): warning C4996: 'IBlueprintEditor::GetImportedPinTypeSelectorFilter': Please use GetPinTypeSelectorFilters - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual TSharedPtr<class IPinTypeSelectorFilter> GetImportedPinTypeSelectorFilter() const override { return ImportedPinTypeSelectorFilter; }
+	                                                 ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\BlueprintGeneratedClass.h(585,42): warning C4996: 'UObjectBaseUtility::GetVersePath': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	ENGINE_API virtual UE::Core::FVersePath GetVersePath() const override;
+	                                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\BlueprintGeneratedClass.h(592,26): warning C4996: 'UClass::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+[74/101] Link [x64] UnrealEditor-RiderBlueprint.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderBlueprint/UnrealEditor-RiderBlueprint.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderBlueprint/UnrealEditor-RiderBlueprint.exp 개체를 생성하고 있습니다.
+[75/101] Link [x64] UnrealEditor-RiderBlueprint.dll
+[76/101] Compile [x64] Module.YUFS.7.cpp
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\VolumeTexture.h(75,15): warning C4996: 'UTexture::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\SparseVolumeTexture\SparseVolumeTexture.h(548,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+[77/101] Resource Default.rc2
+[78/101] Compile [x64] Module.YUFS.8.cpp
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\VolumeTexture.h(75,15): warning C4996: 'UTexture::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\SparseVolumeTexture\SparseVolumeTexture.h(548,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+[79/101] Resource Default.rc2
+[80/101] Compile [x64] Module.YUFS.9.cpp
+[81/101] Link [x64] UnrealEditor-YUFS.dll
+[82/101] Link [x64] UnrealEditor-YUFS.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Intermediate/Build/Win64/x64/UnrealEditor/Development/YUFS/UnrealEditor-YUFS.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Intermediate/Build/Win64/x64/UnrealEditor/Development/YUFS/UnrealEditor-YUFS.exp 개체를 생성하고 있습니다.
+[83/101] Resource Default.rc2
+[84/101] Compile [x64] Module.RiderDebuggerSupport.cpp
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4175,31): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	COREUOBJECT_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4201,43): warning C4996: 'UStruct::ActivateTrackingPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool ActivateTrackingPropertyValueFlag(EPropertyValueFlags Flags, void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4202,43): warning C4996: 'UStruct::IsTrackingPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool IsTrackingPropertyValueFlag(EPropertyValueFlags Flags, const void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4203,43): warning C4996: 'UStruct::HasPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool HasPropertyValueFlag(EPropertyValueFlags Flags, const void* Data, const FProperty* Property, int32 ArrayIndex = 0) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4204,43): warning C4996: 'UStruct::SetPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void SetPropertyValueFlag(EPropertyValueFlags Flags, bool bValue, void* Data, const FProperty* Property, int32 ArrayIndex = 0) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4205,43): warning C4996: 'UStruct::ResetPropertyValueFlags': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void ResetPropertyValueFlags(EPropertyValueFlags Flags, void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4206,43): warning C4996: 'UStruct::SerializePropertyValueFlags': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void SerializePropertyValueFlags(EPropertyValueFlags Flags, void* Data, FStructuredArchiveRecord Record, FArchiveFieldName Name) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\BlueprintGeneratedClass.h(585,42): warning C4996: 'UObjectBaseUtility::GetVersePath': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	ENGINE_API virtual UE::Core::FVersePath GetVersePath() const override;
+	                                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\BlueprintGeneratedClass.h(592,26): warning C4996: 'UClass::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+[85/101] Link [x64] UnrealEditor-RiderDebuggerSupport.dll
+[86/101] Link [x64] UnrealEditor-RiderDebuggerSupport.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderDebuggerSupport/UnrealEditor-RiderDebuggerSupport.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderDebuggerSupport/UnrealEditor-RiderDebuggerSupport.exp 개체를 생성하고 있습니다.
+[87/101] Resource Default.rc2
+[88/101] Compile [x64] Module.RiderLogging.cpp
+[89/101] Link [x64] UnrealEditor-RiderLogging.dll
+[90/101] Link [x64] UnrealEditor-RiderLogging.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderLogging/UnrealEditor-RiderLogging.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderLogging/UnrealEditor-RiderLogging.exp 개체를 생성하고 있습니다.
+[91/101] Compile [x64] Module.RiderLC.cpp
+[92/101] Resource Default.rc2
+[93/101] Link [x64] UnrealEditor-RiderLC.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderLC/UnrealEditor-RiderLC.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderLC/UnrealEditor-RiderLC.exp 개체를 생성하고 있습니다.
+[94/101] Link [x64] UnrealEditor-RiderLC.dll
+[95/101] Compile [x64] Module.RiderShaderInfo.cpp
+[96/101] Link [x64] UnrealEditor-RiderShaderInfo.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderShaderInfo/UnrealEditor-RiderShaderInfo.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderShaderInfo/UnrealEditor-RiderShaderInfo.exp 개체를 생성하고 있습니다.
+[97/101] Link [x64] UnrealEditor-RiderShaderInfo.dll
+[98/101] Compile [x64] Module.RiderGameControl.cpp
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4175,31): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	COREUOBJECT_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4201,43): warning C4996: 'UStruct::ActivateTrackingPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool ActivateTrackingPropertyValueFlag(EPropertyValueFlags Flags, void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4202,43): warning C4996: 'UStruct::IsTrackingPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool IsTrackingPropertyValueFlag(EPropertyValueFlags Flags, const void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4203,43): warning C4996: 'UStruct::HasPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual bool HasPropertyValueFlag(EPropertyValueFlags Flags, const void* Data, const FProperty* Property, int32 ArrayIndex = 0) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4204,43): warning C4996: 'UStruct::SetPropertyValueFlag': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void SetPropertyValueFlag(EPropertyValueFlags Flags, bool bValue, void* Data, const FProperty* Property, int32 ArrayIndex = 0) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4205,43): warning C4996: 'UStruct::ResetPropertyValueFlags': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void ResetPropertyValueFlags(EPropertyValueFlags Flags, void* Data) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\Class.h(4206,43): warning C4996: 'UStruct::SerializePropertyValueFlags': This API is internal to the engine. As such, there is no guarantee that it won't change or be removed in future releases. Please use at your own risk.
+	UE_INTERNAL COREUOBJECT_API virtual void SerializePropertyValueFlags(EPropertyValueFlags Flags, void* Data, FStructuredArchiveRecord Record, FArchiveFieldName Name) const override;
+	                                         ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\GameFramework\Actor.h(2383,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\CoreUObject\Public\UObject\ObjectRedirector.h(42,15): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	             ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Public\Subsystems\WorldSubsystem.h(85,26): warning C4996: 'FTickableObjectBase::IsAllowedToTick': Use IsTickable for conditional ticks and SetTickableTickType to change the tick type after initial registration - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual bool IsAllowedToTick() const override final;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\World.h(3041,22): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	UE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                    ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Runtime\Engine\Classes\Engine\StaticMesh.h(1986,26): warning C4996: 'UObject::GetAssetRegistryTags': Implement the version that takes FAssetRegistryTagsContext instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	ENGINE_API virtual void GetAssetRegistryTags(TArray<FAssetRegistryTag>& OutTags) const override;
+	                        ^
+C:\Program Files\Epic Games\UE_5.7\Engine\Source\Editor\UnrealEd\Public\Toolkits\AssetEditorToolkit.h(167,28): warning C4996: 'IAssetEditorInstance::CloseWindow': Use CloseWindow that takes in an EAssetEditorCloseReason instead - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	UNREALED_API virtual bool CloseWindow() override;
+	                          ^
+[99/101] Link [x64] UnrealEditor-RiderGameControl.lib
+   C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderGameControl/UnrealEditor-RiderGameControl.lib 라이브러리 및 C:/Users/ACSLAB4/Documents/Codex/Fire-Navigation-ReleaseCheck-1018-ec002eb/YUFS/Plugins/Developer/RiderLink/Intermediate/Build/Win64/x64/UnrealEditor/Development/RiderGameControl/UnrealEditor-RiderGameControl.exp 개체를 생성하고 있습니다.
+[100/101] Link [x64] UnrealEditor-RiderGameControl.dll
+[101/101] WriteMetadata YUFSEditor.target [NoUba]
+
+Trace written to file C:/Users/ACSLAB4/Documents/Codex/2026-09-07/https-github-com-yoon-jaeyeong-fire-2/work/nav-release-clone-build.uba with size 30.7kb
+Total time in Unreal Build Accelerator local executor: 83.47 seconds
+WriteFileIfChanged() wrote 191 changed files of 192 requested writes.
+
+Result: Succeeded
+Total execution time: 92.39 seconds

@@ -1,0 +1,959 @@
+{
+  "samples": [
+    {
+      "t": 0.0,
+      "pawn": "<Struct 'Vector' (0x0000017903732720) {x: 3179.766357, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "<SimPhase.FIRE_START_DELAY: 1>",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000179037334E0) {x: 500.000000, y: -900.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=500.000 Y=-900.000 Z=90.150 eye=X=500.000 Y=-900.000 Z=154.150 binFrame=0 cell=X=33.500 Y=21.273 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x000001790375E540) {x: 2150.000000, y: -800.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2150.000 Y=-800.000 Z=90.150 eye=X=2150.000 Y=-800.000 Z=154.150 binFrame=0 cell=X=74.750 Y=18.545 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x000001790375F8F0) {x: 500.000000, y: -900.000000, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=500.000 Y=-900.000 Z=440.150 eye=X=500.000 Y=-900.000 Z=504.150 binFrame=0 cell=X=33.500 Y=21.273 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 1.937999999994645,
+      "pawn": "<Struct 'Vector' (0x0000017903733300) {x: 3179.766357, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x000001790375E590) {x: 500.000000, y: -900.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=500.000 Y=-900.000 Z=90.150 eye=X=500.000 Y=-900.000 Z=154.150 binFrame=0 cell=X=33.500 Y=21.273 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x000001790375E4F0) {x: 2150.000000, y: -800.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2150.000 Y=-800.000 Z=90.150 eye=X=2150.000 Y=-800.000 Z=154.150 binFrame=0 cell=X=74.750 Y=18.545 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x000001790375D1E0) {x: 500.000000, y: -900.000000, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=500.000 Y=-900.000 Z=440.150 eye=X=500.000 Y=-900.000 Z=504.150 binFrame=0 cell=X=33.500 Y=21.273 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 3.5,
+      "pawn": "<Struct 'Vector' (0x000001790375D1E0) {x: 4911.974943, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x000001790375D2D0) {x: 500.000000, y: -900.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=500.000 Y=-900.000 Z=90.150 eye=X=500.000 Y=-900.000 Z=154.150 binFrame=0 cell=X=33.500 Y=21.273 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD335780) {x: 2150.000000, y: -800.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2150.000 Y=-800.000 Z=90.150 eye=X=2150.000 Y=-800.000 Z=154.150 binFrame=0 cell=X=74.750 Y=18.545 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD335820) {x: 500.000000, y: -900.000000, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=500.000 Y=-900.000 Z=440.150 eye=X=500.000 Y=-900.000 Z=504.150 binFrame=0 cell=X=33.500 Y=21.273 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 5.4689999999973224,
+      "pawn": "<Struct 'Vector' (0x00000178DD3358C0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.CineCameraActor_1' (0x00000179AC646200) Class 'CineCameraActor'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD335960) {x: 500.000000, y: -900.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=500.000 Y=-900.000 Z=90.150 eye=X=500.000 Y=-900.000 Z=154.150 binFrame=0 cell=X=33.500 Y=21.273 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD335A50) {x: 2150.000000, y: -800.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2150.000 Y=-800.000 Z=90.150 eye=X=2150.000 Y=-800.000 Z=154.150 binFrame=0 cell=X=74.750 Y=18.545 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD335AA0) {x: 526.812385, y: -897.318761, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=526.812 Y=-897.319 Z=440.150 eye=X=526.812 Y=-897.319 Z=504.150 binFrame=0 cell=X=34.170 Y=21.200 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 7.781999999991967,
+      "pawn": "<Struct 'Vector' (0x00000178DD335AF0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.CineCameraActor_0' (0x00000179AC644600) Class 'CineCameraActor'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3359B0) {x: 500.000000, y: -900.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=500.000 Y=-900.000 Z=90.150 eye=X=500.000 Y=-900.000 Z=154.150 binFrame=0 cell=X=33.500 Y=21.273 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD335C30) {x: 2150.000000, y: -800.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2150.000 Y=-800.000 Z=90.150 eye=X=2150.000 Y=-800.000 Z=154.150 binFrame=0 cell=X=74.750 Y=18.545 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3357D0) {x: 687.756244, y: -881.224376, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=687.756 Y=-881.224 Z=440.150 eye=X=687.756 Y=-881.224 Z=504.150 binFrame=0 cell=X=38.194 Y=20.761 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 9.5,
+      "pawn": "<Struct 'Vector' (0x00000178DD335D20) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD335BE0) {x: 457.055258, y: -1027.896834, z: 90.150001}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=457.055 Y=-1027.897 Z=90.150 eye=X=457.055 Y=-1027.897 Z=154.150 binFrame=0 cell=X=32.426 Y=24.761 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD335E10) {x: 2150.000000, y: -800.000000, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2150.000 Y=-800.000 Z=90.150 eye=X=2150.000 Y=-800.000 Z=154.150 binFrame=0 cell=X=74.750 Y=18.545 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD335E60) {x: 927.300849, y: -857.269915, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=927.301 Y=-857.270 Z=440.150 eye=X=927.301 Y=-857.270 Z=504.150 binFrame=0 cell=X=44.183 Y=20.107 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 11.5,
+      "pawn": "<Struct 'Vector' (0x00000178DD335EB0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD335DC0) {x: 457.055258, y: -1027.896834, z: 90.150001}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=457.055 Y=-1027.897 Z=90.150 eye=X=457.055 Y=-1027.897 Z=154.150 binFrame=0 cell=X=32.426 Y=24.761 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD335AA0) {x: 2134.088540, y: -817.191693, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2134.089 Y=-817.192 Z=90.150 eye=X=2134.089 Y=-817.192 Z=154.150 binFrame=0 cell=X=74.352 Y=19.014 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD335F50) {x: 1017.061335, y: -848.293866, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1017.061 Y=-848.294 Z=440.150 eye=X=1017.061 Y=-848.294 Z=504.150 binFrame=0 cell=X=46.427 Y=19.863 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 13.468999999997322,
+      "pawn": "<Struct 'Vector' (0x00000178DD336090) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD335FF0) {x: 457.055258, y: -1027.896834, z: 90.150001}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=457.055 Y=-1027.897 Z=90.150 eye=X=457.055 Y=-1027.897 Z=154.150 binFrame=0 cell=X=32.426 Y=24.761 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD3361D0) {x: 1937.395890, y: -973.974104, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1937.396 Y=-973.974 Z=90.150 eye=X=1937.396 Y=-973.974 Z=154.150 binFrame=0 cell=X=69.435 Y=23.290 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD335CD0) {x: 982.516289, y: -849.079004, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=982.516 Y=-849.079 Z=440.150 eye=X=982.516 Y=-849.079 Z=504.150 binFrame=0 cell=X=45.563 Y=19.884 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 15.485000000000582,
+      "pawn": "<Struct 'Vector' (0x00000178DD3362C0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336180) {x: 468.824131, y: -1130.765585, z: 90.150001}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=468.824 Y=-1130.766 Z=90.150 eye=X=468.824 Y=-1130.766 Z=154.150 binFrame=0 cell=X=32.721 Y=27.566 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD3363B0) {x: 1680.565665, y: -874.962145, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1680.566 Y=-874.962 Z=90.150 eye=X=1680.566 Y=-874.962 Z=154.150 binFrame=0 cell=X=63.014 Y=20.590 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336270) {x: 708.080063, y: -850.371612, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=708.080 Y=-850.372 Z=440.150 eye=X=708.080 Y=-850.372 Z=504.150 binFrame=0 cell=X=38.702 Y=19.919 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 17.485000000000582,
+      "pawn": "<Struct 'Vector' (0x00000178DD336360) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3364F0) {x: 456.698178, y: -1031.300657, z: 90.150001}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=456.698 Y=-1031.301 Z=90.150 eye=X=456.698 Y=-1031.301 Z=154.150 binFrame=0 cell=X=32.417 Y=24.854 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336450) {x: 1671.685665, y: -871.538770, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1671.686 Y=-871.539 Z=90.150 eye=X=1671.686 Y=-871.539 Z=154.150 binFrame=0 cell=X=62.792 Y=20.497 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3364A0) {x: 572.549954, y: -613.005719, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=572.550 Y=-613.006 Z=440.150 eye=X=572.550 Y=-613.006 Z=504.150 binFrame=0 cell=X=35.314 Y=13.446 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 19.485000000000582,
+      "pawn": "<Struct 'Vector' (0x00000178DD336540) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336680) {x: 500.795162, y: -773.259857, z: 90.150001}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=500.795 Y=-773.260 Z=90.150 eye=X=500.795 Y=-773.260 Z=154.150 binFrame=0 cell=X=33.520 Y=17.816 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD335FA0) {x: 1671.685665, y: -871.538770, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1671.686 Y=-871.539 Z=90.150 eye=X=1671.686 Y=-871.539 Z=154.150 binFrame=0 cell=X=62.792 Y=20.497 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336770) {x: 465.534509, y: -354.301588, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=465.535 Y=-354.302 Z=440.150 eye=X=465.535 Y=-354.302 Z=504.150 binFrame=0 cell=X=32.638 Y=6.390 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 21.468999999997322,
+      "pawn": "<Struct 'Vector' (0x00000178DD3366D0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD335E60) {x: 526.344882, y: -762.314918, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=526.345 Y=-762.315 Z=90.150 eye=X=526.345 Y=-762.315 Z=154.150 binFrame=0 cell=X=34.159 Y=17.518 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336900) {x: 1731.456049, y: -897.090502, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1731.456 Y=-897.091 Z=90.150 eye=X=1731.456 Y=-897.091 Z=154.150 binFrame=0 cell=X=64.286 Y=21.193 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336810) {x: 421.713312, y: -248.366184, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=421.713 Y=-248.366 Z=440.150 eye=X=421.713 Y=-248.366 Z=504.150 binFrame=0 cell=X=31.543 Y=3.501 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 23.485000000000582,
+      "pawn": "<Struct 'Vector' (0x00000178DD3368B0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3369F0) {x: 526.344882, y: -762.314918, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=526.345 Y=-762.315 Z=90.150 eye=X=526.345 Y=-762.315 Z=154.150 binFrame=0 cell=X=34.159 Y=17.518 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD3369A0) {x: 1991.001482, y: -1008.045709, z: 90.150002}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1991.001 Y=-1008.046 Z=90.150 eye=X=1991.001 Y=-1008.046 Z=154.150 binFrame=0 cell=X=70.775 Y=24.219 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336A40) {x: 421.713312, y: -248.366184, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=421.713 Y=-248.366 Z=440.150 eye=X=421.713 Y=-248.366 Z=504.150 binFrame=0 cell=X=31.543 Y=3.501 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 25.468999999997322,
+      "pawn": "<Struct 'Vector' (0x00000178DD335CD0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336BD0) {x: 526.344882, y: -762.314918, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=526.345 Y=-762.315 Z=90.150 eye=X=526.345 Y=-762.315 Z=154.150 binFrame=0 cell=X=34.159 Y=17.518 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336B80) {x: 2083.138017, y: -1252.018121, z: 245.468766}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2083.138 Y=-1252.018 Z=245.469 eye=X=2083.138 Y=-1252.018 Z=309.469 binFrame=0 cell=X=73.078 Y=30.873 Z=-17.912 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336D10) {x: 414.001995, y: -320.589482, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=414.002 Y=-320.589 Z=440.150 eye=X=414.002 Y=-320.589 Z=504.150 binFrame=0 cell=X=31.350 Y=5.471 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 27.468999999997322,
+      "pawn": "<Struct 'Vector' (0x00000178DD336270) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336C70) {x: 576.716491, y: -806.992354, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=576.716 Y=-806.992 Z=90.150 eye=X=576.716 Y=-806.992 Z=154.150 binFrame=0 cell=X=35.418 Y=18.736 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336310) {x: 2186.104622, y: -1449.371264, z: 295.377410}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2186.105 Y=-1449.371 Z=295.377 eye=X=2186.105 Y=-1449.371 Z=359.377 binFrame=0 cell=X=75.653 Y=36.256 Z=-19.355 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336EA0) {x: 384.348068, y: -598.324715, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=384.348 Y=-598.325 Z=440.150 eye=X=384.348 Y=-598.325 Z=504.150 binFrame=0 cell=X=30.609 Y=13.045 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 29.468999999997322,
+      "pawn": "<Struct 'Vector' (0x00000178DD336590) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336E50) {x: 576.716491, y: -806.992354, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=576.716 Y=-806.992 Z=90.150 eye=X=576.716 Y=-806.992 Z=154.150 binFrame=0 cell=X=35.418 Y=18.736 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336CC0) {x: 2201.468510, y: -1183.853763, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2201.469 Y=-1183.854 Z=440.056 eye=X=2201.469 Y=-1183.854 Z=504.056 binFrame=0 cell=X=76.037 Y=29.014 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337080) {x: 321.004340, y: -855.828174, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=321.004 Y=-855.828 Z=440.150 eye=X=321.004 Y=-855.828 Z=504.150 binFrame=0 cell=X=29.025 Y=20.068 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 31.468999999997322,
+      "pawn": "<Struct 'Vector' (0x00000178DD337120) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336F40) {x: 636.522140, y: -852.014667, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=636.522 Y=-852.015 Z=90.150 eye=X=636.522 Y=-852.015 Z=154.150 binFrame=0 cell=X=36.913 Y=19.964 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336F90) {x: 2187.750817, y: -904.632507, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2187.751 Y=-904.633 Z=440.056 eye=X=2187.751 Y=-904.633 Z=504.056 binFrame=0 cell=X=75.694 Y=21.399 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3372B0) {x: 321.004340, y: -855.828174, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=321.004 Y=-855.828 Z=440.150 eye=X=321.004 Y=-855.828 Z=504.150 binFrame=0 cell=X=29.025 Y=20.068 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 33.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD3373F0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3367C0) {x: 718.545267, y: -968.798278, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=718.545 Y=-968.798 Z=90.150 eye=X=718.545 Y=-968.798 Z=154.150 binFrame=0 cell=X=38.964 Y=23.149 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD3370D0) {x: 2176.157894, y: -668.660586, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2176.158 Y=-668.661 Z=440.056 eye=X=2176.158 Y=-668.661 Z=504.056 binFrame=0 cell=X=75.404 Y=14.963 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337440) {x: 475.343147, y: -855.509419, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=475.343 Y=-855.509 Z=440.150 eye=X=475.343 Y=-855.509 Z=504.150 binFrame=0 cell=X=32.884 Y=20.059 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 35.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337580) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336770) {x: 813.107226, y: -1001.186917, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=813.107 Y=-1001.187 Z=90.150 eye=X=813.107 Y=-1001.187 Z=154.150 binFrame=13 cell=X=41.328 Y=24.032 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=12 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336810) {x: 2176.710007, y: -679.891195, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2176.710 Y=-679.891 Z=440.056 eye=X=2176.710 Y=-679.891 Z=504.056 binFrame=13 cell=X=75.418 Y=15.270 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=13 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336860) {x: 756.356546, y: -853.434023, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=756.357 Y=-853.434 Z=440.150 eye=X=756.357 Y=-853.434 Z=504.150 binFrame=13 cell=X=39.909 Y=20.003 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=13 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 37.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337490) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3374E0) {x: 813.107226, y: -1001.186917, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=813.107 Y=-1001.187 Z=90.150 eye=X=813.107 Y=-1001.187 Z=154.150 binFrame=29 cell=X=41.328 Y=24.032 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=28 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337710) {x: 2190.376575, y: -957.884377, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2190.377 Y=-957.884 Z=440.056 eye=X=2190.377 Y=-957.884 Z=504.056 binFrame=29 cell=X=75.759 Y=22.851 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=29 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337670) {x: 1034.398518, y: -840.798879, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1034.399 Y=-840.799 Z=440.150 eye=X=1034.399 Y=-840.799 Z=504.150 binFrame=29 cell=X=46.860 Y=19.658 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=29 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 39.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD3377B0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD337760) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=45 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=44 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337530) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=45 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=45 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337850) {x: 1160.648093, y: -765.447165, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1160.648 Y=-765.447 Z=440.150 eye=X=1160.648 Y=-765.447 Z=504.150 binFrame=45 cell=X=50.016 Y=17.603 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=45 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 41.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337A30) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3376C0) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=61 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=60 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336C20) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=61 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=61 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3375D0) {x: 1160.648093, y: -765.447165, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1160.648 Y=-765.447 Z=440.150 eye=X=1160.648 Y=-765.447 Z=504.150 binFrame=61 cell=X=50.016 Y=17.603 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=61 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 43.48500000000058,
+      "pawn": "<Struct 'Vector' (0x00000178DD337B20) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336A40) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=77 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=76 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337C10) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=77 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=77 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337A80) {x: 1160.648093, y: -765.447165, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1160.648 Y=-765.447 Z=440.150 eye=X=1160.648 Y=-765.447 Z=504.150 binFrame=77 cell=X=50.016 Y=17.603 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=77 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 45.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337AD0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3378F0) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=93 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=92 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337CB0) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=93 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=93 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337D00) {x: 1160.648093, y: -765.447165, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1160.648 Y=-765.447 Z=440.150 eye=X=1160.648 Y=-765.447 Z=504.150 binFrame=93 cell=X=50.016 Y=17.603 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=93 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 47.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337D50) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD337800) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=109 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=108 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337DA0) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=109 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=109 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337DF0) {x: 1160.648093, y: -765.447165, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1160.648 Y=-765.447 Z=440.150 eye=X=1160.648 Y=-765.447 Z=504.150 binFrame=109 cell=X=50.016 Y=17.603 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=109 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 49.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337FD0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD337C60) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=125 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=124 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD3364A0) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=125 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=125 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337E40) {x: 1160.648093, y: -765.447165, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1160.648 Y=-765.447 Z=440.150 eye=X=1160.648 Y=-765.447 Z=504.150 binFrame=125 cell=X=50.016 Y=17.603 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=125 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 51.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD3373A0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336EA0) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=141 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=140 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD3372B0) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=141 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=141 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3371C0) {x: 1924.584774, y: -1024.217718, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1924.585 Y=-1024.218 Z=440.150 eye=X=1924.585 Y=-1024.218 Z=504.150 binFrame=141 cell=X=69.115 Y=24.660 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=141 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 53.48500000000058,
+      "pawn": "<Struct 'Vector' (0x00000178DD336A90) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD337E90) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=157 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=156 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336D10) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=157 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=157 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337990) {x: 1924.584774, y: -1024.217718, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1924.585 Y=-1024.218 Z=440.150 eye=X=1924.585 Y=-1024.218 Z=504.150 binFrame=157 cell=X=69.115 Y=24.660 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=157 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 55.46899999999732,
+      "pawn": "<Struct 'Vector' (0x000001790375F440) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x000001790375F8F0) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=173 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=172 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x000001790375D230) {x: 2199.229856, y: -1137.969961, z: 440.055726}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2199.230 Y=-1137.970 Z=440.056 eye=X=2199.230 Y=-1137.970 Z=504.056 binFrame=173 cell=X=75.981 Y=27.763 Z=-23.539 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=173 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x000001790375F800) {x: 1866.404821, y: -996.314723, z: 440.150009}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=1866.405 Y=-996.315 Z=440.150 eye=X=1866.405 Y=-996.315 Z=504.150 binFrame=173 cell=X=67.660 Y=23.899 Z=-23.542 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=173 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 57.48500000000058,
+      "pawn": "<Struct 'Vector' (0x00000178DD335F00) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336D60) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=189 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=188 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336950) {x: 1970.636809, y: -899.052521, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1970.637 Y=-899.053 Z=90.150 eye=X=1970.637 Y=-899.053 Z=154.150 binFrame=189 cell=X=70.266 Y=21.247 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=189 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336040) {x: 2058.564941, y: -1219.846574, z: 226.067667}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2058.565 Y=-1219.847 Z=226.068 eye=X=2058.565 Y=-1219.847 Z=290.068 binFrame=189 cell=X=72.464 Y=29.996 Z=-17.351 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=189 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 59.48500000000058,
+      "pawn": "<Struct 'Vector' (0x00000178DD335D70) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD337990) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=205 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=204 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337E40) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=205 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3360E0) {x: 2118.166462, y: -224.229737, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2118.166 Y=-224.230 Z=90.150 eye=X=2118.166 Y=-224.230 Z=154.150 binFrame=205 cell=X=73.954 Y=2.843 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=205 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 61.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD3375D0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD336860) {x: 725.920275, y: -903.945587, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=725.920 Y=-903.946 Z=90.150 eye=X=725.920 Y=-903.946 Z=154.150 binFrame=221 cell=X=39.148 Y=21.380 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=220 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Preparing exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337B70) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=221 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337670) {x: 2136.533715, y: -138.704425, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2136.534 Y=-138.704 Z=90.150 eye=X=2136.534 Y=-138.704 Z=154.150 binFrame=221 cell=X=74.413 Y=0.510 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 63.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337F30) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD337300) {x: 1798.597103, y: -856.945542, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1798.597 Y=-856.946 Z=90.150 eye=X=1798.597 Y=-856.946 Z=154.150 binFrame=237 cell=X=65.965 Y=20.099 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=236 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337210) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=237 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD336E00) {x: 2136.533715, y: -138.704425, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2136.534 Y=-138.704 Z=90.150 eye=X=2136.534 Y=-138.704 Z=154.150 binFrame=237 cell=X=74.413 Y=0.510 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 65.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337BC0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD335820) {x: 2131.077598, y: -132.532193, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2131.078 Y=-132.532 Z=90.150 eye=X=2131.078 Y=-132.532 Z=154.150 binFrame=253 cell=X=74.277 Y=0.342 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD337940) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=253 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337620) {x: 2136.533715, y: -138.704425, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2136.534 Y=-138.704 Z=90.150 eye=X=2136.534 Y=-138.704 Z=154.150 binFrame=253 cell=X=74.413 Y=0.510 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 67.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337A80) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3378A0) {x: 2131.077598, y: -132.532193, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2131.078 Y=-132.532 Z=90.150 eye=X=2131.078 Y=-132.532 Z=154.150 binFrame=269 cell=X=74.277 Y=0.342 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD336630) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=269 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD337260) {x: 2136.533715, y: -138.704425, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2136.534 Y=-138.704 Z=90.150 eye=X=2136.534 Y=-138.704 Z=154.150 binFrame=269 cell=X=74.413 Y=0.510 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 69.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD337080) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD337DF0) {x: 2131.077598, y: -132.532193, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2131.078 Y=-132.532 Z=90.150 eye=X=2131.078 Y=-132.532 Z=154.150 binFrame=285 cell=X=74.277 Y=0.342 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD360060) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=285 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD360100) {x: 2136.533715, y: -138.704425, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2136.534 Y=-138.704 Z=90.150 eye=X=2136.534 Y=-138.704 Z=154.150 binFrame=285 cell=X=74.413 Y=0.510 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 71.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD3602E0) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD3603D0) {x: 2131.077598, y: -132.532193, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2131.078 Y=-132.532 Z=90.150 eye=X=2131.078 Y=-132.532 Z=154.150 binFrame=301 cell=X=74.277 Y=0.342 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD360330) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=301 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3604C0) {x: 2136.533715, y: -138.704425, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2136.534 Y=-138.704 Z=90.150 eye=X=2136.534 Y=-138.704 Z=154.150 binFrame=301 cell=X=74.413 Y=0.510 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 73.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD360470) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD360560) {x: 2131.077598, y: -132.532193, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2131.078 Y=-132.532 Z=90.150 eye=X=2131.078 Y=-132.532 Z=154.150 binFrame=317 cell=X=74.277 Y=0.342 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD360740) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=317 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3601F0) {x: 2136.533715, y: -138.704425, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2136.534 Y=-138.704 Z=90.150 eye=X=2136.534 Y=-138.704 Z=154.150 binFrame=317 cell=X=74.413 Y=0.510 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    },
+    {
+      "t": 75.46899999999732,
+      "pawn": "<Struct 'Vector' (0x00000178DD360420) {x: 5011.346952, y: -7399.729980, z: 6360.844727}>",
+      "view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>",
+      "phase": "",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "pos": "<Struct 'Vector' (0x00000178DD360830) {x: 2131.077598, y: -132.532193, z: 90.150000}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=2131.078 Y=-132.532 Z=90.150 eye=X=2131.078 Y=-132.532 Z=154.150 binFrame=333 cell=X=74.277 Y=0.342 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "pos": "<Struct 'Vector' (0x00000178DD3608D0) {x: 2135.724455, y: -137.802294, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=2135.724 Y=-137.802 Z=90.150 eye=X=2135.724 Y=-137.802 Z=154.150 binFrame=333 cell=X=74.393 Y=0.486 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "pos": "<Struct 'Vector' (0x00000178DD3607E0) {x: 2136.533715, y: -138.704425, z: 90.149997}>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=2136.534 Y=-138.704 Z=90.150 eye=X=2136.534 Y=-138.704 Z=154.150 binFrame=333 cell=X=74.413 Y=0.510 Z=-13.421 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000"
+        }
+      ]
+    }
+  ],
+  "initial_pawn": "<Struct 'Vector' (0x00000178DD322EF0) {x: 3179.766357, y: -7399.729980, z: 6360.844727}>",
+  "widgets": [
+    "WBP_DropZone_C",
+    "WBP_NPCPaletteEntry_C",
+    "WBP_NPCPaletteWidget_C",
+    "WBP_SimHUD_C"
+  ],
+  "managers": {
+    "YUFSLevelDataManager": 1,
+    "YUFSEmergencyCommSystem": 1,
+    "YUFSExitPoint": 1
+  },
+  "palette": "[{npc_class: \"/Script/Engine.BlueprintGeneratedClass'/Game/Blueprint/BP_YUFSRLEvacuationNPC.BP_YUFSRLEvacuationNPC_C'\", display_name: NSLOCTEXT(\"[308ACD9CB425B12C6CBD2DE7A4C978AE]\", \"56A6F0184329CBCB6E8F05B5B5357095\", \"Default\")}]",
+  "npc_class": "/Game/Blueprint/BP_YUFSRLEvacuationNPC.BP_YUFSRLEvacuationNPC_C",
+  "paths": [
+    {
+      "start": "<Struct 'Vector' (0x0000017903732720) {x: 500.000000, y: -900.000000, z: 0.000000}>",
+      "projected": "<Struct 'Vector' (0x000001790375E590) {x: 500.000000, y: -900.000000, z: 4.942781}>",
+      "valid": true,
+      "partial": false,
+      "points": [
+        "<Struct 'Vector' (0x00000179037334E0) {x: 500.000000, y: -900.000000, z: 4.942781}>",
+        "<Struct 'Vector' (0x000001790375E540) {x: 1843.000000, y: -855.000000, z: 4.942781}>",
+        "<Struct 'Vector' (0x00000179037334E0) {x: 2150.000000, y: -76.000000, z: 4.942781}>"
+      ]
+    },
+    {
+      "start": "<Struct 'Vector' (0x00000179037330D0) {x: 2150.000000, y: -800.000000, z: 0.000000}>",
+      "projected": "<Struct 'Vector' (0x000001790375E540) {x: 2150.000000, y: -800.000000, z: 4.942781}>",
+      "valid": true,
+      "partial": false,
+      "points": [
+        "<Struct 'Vector' (0x00000179037334E0) {x: 2150.000000, y: -800.000000, z: 4.942781}>",
+        "<Struct 'Vector' (0x000001790375E590) {x: 2150.000000, y: -76.000000, z: 4.942781}>"
+      ]
+    },
+    {
+      "start": "<Struct 'Vector' (0x0000017903733300) {x: 500.000000, y: -900.000000, z: 350.000000}>",
+      "projected": "<Struct 'Vector' (0x000001790375E590) {x: 500.000000, y: -900.000000, z: 354.942781}>",
+      "valid": true,
+      "partial": false,
+      "points": [
+        "<Struct 'Vector' (0x00000179037334E0) {x: 500.000000, y: -900.000000, z: 354.942781}>",
+        "<Struct 'Vector' (0x000001790375E540) {x: 1843.000000, y: -988.000000, z: 364.942781}>",
+        "<Struct 'Vector' (0x00000179037334E0) {x: 2166.000000, y: -1140.000000, z: 354.942781}>",
+        "<Struct 'Vector' (0x000001790375E540) {x: 2204.000000, y: -1235.000000, z: 334.942781}>",
+        "<Struct 'Vector' (0x00000179037334E0) {x: 2204.000000, y: -1444.000000, z: 214.942781}>",
+        "<Struct 'Vector' (0x000001790375E540) {x: 2128.000000, y: -1463.000000, z: 184.942781}>",
+        "<Struct 'Vector' (0x00000179037334E0) {x: 2033.000000, y: -1026.000000, z: 24.942781}>",
+        "<Struct 'Vector' (0x000001790375E540) {x: 1976.000000, y: -988.000000, z: 4.942781}>",
+        "<Struct 'Vector' (0x00000179037334E0) {x: 2150.000000, y: -76.000000, z: 4.942781}>"
+      ]
+    }
+  ],
+  "moved_pawn": "<Struct 'Vector' (0x00000178DD335820) {x: 4911.974943, y: -7399.729980, z: 6360.844727}>",
+  "overview_view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.CineCameraActor_1' (0x00000179AC646200) Class 'CineCameraActor'>",
+  "fire_view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.CineCameraActor_0' (0x00000179AC644600) Class 'CineCameraActor'>",
+  "player_view": "<Object '/Game/Maps/UEDPIE_0_Main.Main:PersistentLevel.DefaultPawn_0' (0x0000017916121200) Class 'DefaultPawn'>"
+}

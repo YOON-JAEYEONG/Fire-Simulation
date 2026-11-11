@@ -1,0 +1,338 @@
+[
+  {
+    "file": "Controls/check_unchecked_normal.png",
+    "width": 64,
+    "height": 64,
+    "role": "CheckBox unchecked / normal",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/check_unchecked_hover.png",
+    "width": 64,
+    "height": 64,
+    "role": "CheckBox unchecked / hover",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/check_unchecked_pressed.png",
+    "width": 64,
+    "height": 64,
+    "role": "CheckBox unchecked / pressed",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/check_unchecked_disabled.png",
+    "width": 64,
+    "height": 64,
+    "role": "CheckBox unchecked / disabled",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/check_checked_normal.png",
+    "width": 64,
+    "height": 64,
+    "role": "CheckBox checked / normal",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/check_checked_hover.png",
+    "width": 64,
+    "height": 64,
+    "role": "CheckBox checked / hover",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/check_checked_pressed.png",
+    "width": 64,
+    "height": 64,
+    "role": "CheckBox checked / pressed",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/check_checked_disabled.png",
+    "width": 64,
+    "height": 64,
+    "role": "CheckBox checked / disabled",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/field_normal.png",
+    "width": 128,
+    "height": 128,
+    "role": "ComboBox/SpinBox field / normal",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Controls/field_hover.png",
+    "width": 128,
+    "height": 128,
+    "role": "ComboBox/SpinBox field / hover",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Controls/field_focus.png",
+    "width": 128,
+    "height": 128,
+    "role": "ComboBox/SpinBox field / focus",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Controls/field_disabled.png",
+    "width": 128,
+    "height": 128,
+    "role": "ComboBox/SpinBox field / disabled",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Controls/chevron_up_slate.png",
+    "width": 64,
+    "height": 64,
+    "role": "up indicator / slate",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/chevron_up_muted.png",
+    "width": 64,
+    "height": 64,
+    "role": "up indicator / muted",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/chevron_down_slate.png",
+    "width": 64,
+    "height": 64,
+    "role": "down indicator / slate",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/chevron_down_muted.png",
+    "width": 64,
+    "height": 64,
+    "role": "down indicator / muted",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/chevron_left_slate.png",
+    "width": 64,
+    "height": 64,
+    "role": "left indicator / slate",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Controls/chevron_left_muted.png",
+    "width": 64,
+    "height": 64,
+    "role": "left indicator / muted",
+    "drawAs": "Image",
+    "margin": 0.0
+  },
+  {
+    "file": "Shared/bg_workspace.png",
+    "width": 16,
+    "height": 16,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/bg_header.png",
+    "width": 16,
+    "height": 16,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/bg_sidebar.png",
+    "width": 16,
+    "height": 16,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/panel_card.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/panel_subcard.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/panel_legend.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/divider.png",
+    "width": 64,
+    "height": 64,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/btn_primary_normal.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/btn_primary_hover.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/btn_primary_pressed.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/btn_primary_disabled.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/btn_secondary_normal.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/btn_secondary_hover.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/btn_secondary_pressed.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/btn_secondary_disabled.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/btn_nav_selected.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Box",
+    "margin": 0.25
+  },
+  {
+    "file": "Shared/ic_document_teal.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/ic_results_slate.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/ic_settings_slate.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/ic_home_slate.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/ic_fire_teal.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/ic_clock_teal.png",
+    "width": 128,
+    "height": 128,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/status_ready.png",
+    "width": 64,
+    "height": 64,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  },
+  {
+    "file": "Shared/logo_yufs.png",
+    "width": 512,
+    "height": 160,
+    "role": "reused main screen asset",
+    "drawAs": "Image",
+    "margin": 0
+  }
+]

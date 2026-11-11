@@ -1,0 +1,16 @@
+{
+  "no_script_error": true,
+  "managers": true,
+  "complete_paths": true,
+  "pawn_moves": true,
+  "overview": true,
+  "fire": true,
+  "player": true,
+  "all_three_evacuated": true,
+  "npc_displacements_cm": [
+    1802.6,
+    662.4,
+    1838.6
+  ],
+  "all_npcs_move": true
+}

@@ -1,0 +1,97 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "YUFSPerceptionConfig.h"
+#include "Fire/YUFSHazardField.h"
+#include "Components/ActorComponent.h"
+#include "YUFSNPCPerceptionComponent.generated.h"
+
+class AYUFSBinaryManager;
+
+struct FYUFSSmokeSightResult
+{
+	float Transmission = 1.f;
+	float VisibleDistanceCm = 0.f;
+	bool bReachedTarget = false;
+	bool bCompleteSmokeData = false;
+};
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class YUFS_API UYUFSNPCPerceptionComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+public:
+	UYUFSNPCPerceptionComponent();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	void UpdatePerception(int32 CurrentFrame);
+	// Also used by synthetic perception tests; tracing still uses the actual world collision.
+	void UpdateFromSnapshot(const FYUFSHazardSnapshot& Snapshot, float Now);
+	FYUFSHazardSnapshot RestrictToKnowledge(FYUFSHazardSnapshot Snapshot) const;
+	void ReceiveHazardReport(const UYUFSNPCPerceptionComponent& Other);
+	// Interaction adapters reuse the same JJW cell knowledge; no second hazard memory.
+	bool SampleObservedHazard(const FVector& WorldPos, int32 Frame, float& OutSmoke, float& OutHeat);
+	bool SampleObservedHazardFromSnapshot(const FYUFSHazardSnapshot& Snapshot, const FVector& WorldPos, float Now, float& OutSmoke, float& OutHeat);
+	FYUFSSmokeSightResult EvaluateSightToPoint(const FYUFSHazardSnapshot& Snapshot, const FVector& WorldPos) const;
+	UFUNCTION(BlueprintPure) float GetCenterVisibleDistanceCm() const { return CenterSight.VisibleDistanceCm; }
+	UFUNCTION(BlueprintPure) float GetCenterSightTransmission() const { return CenterSight.Transmission; }
+	UFUNCTION(BlueprintPure) bool HasCompleteCenterSightData() const { return CenterSight.bCompleteSmokeData; }
+	bool HasHazardSample() const { return bSelfHazardSampleAvailable; }
+	void ResetKnowledge();
+	float GetHeatInSightNormalized() const { return GetHeatInSight(); }
+	float GetNearbyHeatNormalized() const { return GetNearbyHeat(); }
+	float GetHeatInSight() const { return CachedHeatInSight; }
+	float GetNearbyHeat() const { return CachedNearbyHeat; }
+	int32 GetKnownCellCount() const { return KnownCells.Num(); }
+	EYUFSHazardDataStatus GetDataStatus() const { return DataStatus; }
+	int32 GetLastSampleFrame() const { return LastFrame; }
+	UPROPERTY(EditAnywhere, Category="Config") float HazardMemorySeconds = 30.f;
+	float SampleSmokeAtPoint(FVector WorldPos, int32 Frame) const;
+
+	float GetSmokeDensity() const { return CachedSmokeDensity; }
+	float GetTemperature() const { return CachedTemperature; }
+	float GetSmokeInFrontNormalized() const { return CachedSmokeInFrontNormalized; }
+	float GetSmokeAboveNormalized() const { return CachedSmokeAboveNormalized; }
+	float GetRiskLevel() const { return CachedRiskLevel; }
+	bool IsIncapacitated() const { return Config && CachedSmokeDensity > Config->IncapacitationThreshold; }
+
+	UPROPERTY(EditAnywhere, Category="Config")
+	UYUFSPerceptionConfig* Config;
+
+private:
+	UPROPERTY()
+	AYUFSBinaryManager* BinaryManager;
+	float CachedSmokeDensity = 0.f;
+	float CachedTemperature = 0.f;
+	float CachedSmokeInFrontNormalized = 0.f;
+	float CachedSmokeAboveNormalized = 0.f;
+	float CachedRiskLevel = 0.f;
+	float CachedHeatInSight = 0.f;
+	float CachedNearbyHeat = 0.f;
+	bool bSelfHazardSampleAvailable = false;
+	EYUFSHazardDataStatus DataStatus = EYUFSHazardDataStatus::MissingData;
+	TMap<int32, FYUFSHazardSample> KnownCells;
+	TMap<int32, float> LastObservedAt;
+	TSharedPtr<const TMap<int32, FYUFSHazardSample>, ESPMode::ThreadSafe> PublishedKnowledge;
+	TSet<int32> ObservedCells;
+	TSharedPtr<const TSet<int32>, ESPMode::ThreadSafe> PublishedObservedCells;
+	FTransform LastGridTransform = FTransform::Identity;
+	FIntVector LastGridDimensions = FIntVector::ZeroValue;
+	int32 LastFrame = INDEX_NONE;
+	FYUFSSmokeSightResult CenterSight;
+	FYUFSSmokeSightResult TraceSight(const FYUFSHazardSnapshot& Snapshot, const FVector& Origin, const FVector& Target,
+		bool bOptical, TFunctionRef<void(const FVector&, const FYUFSHazardSample&, float)> OnVisibleSample) const;
+
+	float ComputeRiskLevel(float Density, float Temp) const
+	{
+		const float D = FMath::Pow(Density, 2.0f);
+		const float T = FMath::Clamp(Temp, 0.f, 1.f);
+		return FMath::Clamp(D * 0.7f + T * 0.3f, 0.f, 1.f);
+	}
+};

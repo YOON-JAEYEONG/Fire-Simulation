@@ -1,0 +1,114 @@
+{
+  "stage": 10,
+  "date": "2026-10-18",
+  "project": "C:\\Users\\ACSLAB4\\Documents\\Codex\\Fire-Navigation-1008\\YUFS\\YUFS.uproject",
+  "branch": "codex/merged-navigation-completion",
+  "published": false,
+  "engine": "UE5.7.4",
+  "tests": {
+    "success": 112,
+    "fail": 0,
+    "baseline_selected": 1,
+    "baseline_fail": 1
+  },
+  "process_exits": {
+    "final_build": 0,
+    "final_tests": 0,
+    "before_main": 0,
+    "final_main": 0,
+    "final_default": 0
+  },
+  "actual_main": {
+    "before_complete": true,
+    "final_complete": true,
+    "default_complete": true,
+    "identical_initial_positions_per_case": [
+      true,
+      true,
+      true
+    ],
+    "opposing": {
+      "npcs": 12,
+      "before_45s": 12,
+      "final_45s": 12,
+      "final_intended_endpoints_correct": true
+    },
+    "stationary": {
+      "followers": 6,
+      "before_25s_crossed": 0,
+      "final_25s_crossed": 4,
+      "before_25s_evacuated": 0,
+      "final_25s_evacuated": 4,
+      "held_body_before_xyz": [
+        1500.0,
+        -900.0,
+        90.15000152375364
+      ],
+      "held_body_final_xyz": [
+        1500.0,
+        -900.0,
+        90.15000152375364
+      ],
+      "natural_release_at_seconds": 25,
+      "before_45s_including_operator": 7,
+      "final_45s_including_operator": 7,
+      "release_method": "Restore original navigation ownership and movement component ticking. No teleport, deletion, collision disable or forced terminal outcome."
+    },
+    "door": {
+      "followers": 6,
+      "open_seconds_runtime": 4,
+      "before_45s": 6,
+      "final_45s": 6,
+      "final_state": {
+        "fraction": 1.0,
+        "blocked": false,
+        "passage_clear": true
+      },
+      "execution": "Autonomous native door observation/reservation/reach/open; no direct TryUse or forced action from script."
+    },
+    "sampled_minimum_active_centres_cm": {
+      "before": 76.5131140400383,
+      "final": 73.34753082666974,
+      "sampling": "Approximately1Hz, resolved hidden people excluded; not a continuous clearance proof."
+    },
+    "default_progressing_fire": {
+      "npcs": 4,
+      "end_time": 25.005462646484375,
+      "end_frame": 200,
+      "evacuated": 4,
+      "settings": "Default cognition/exposure. Runtime fireDelay0/everyday disabled. Actual BIN1 progresses; no temporary exit markers in this run."
+    },
+    "cross_section": "See nav_step10_default.json: x1500, y offsets-240..240 step8, native34cm radius/88cm half capsule and nav support. All sampled offsets clear, ignoring NPCs. This is only a cross section, not a complete alternate-path connectivity proof."
+  },
+  "final_changes": [
+    "Stationary-body prediction allows reduced approach(.15.. .6) until sum of capsule radii+45cm; same-direction temporary queue reservations excluded.",
+    "Recovery chooses supported hazard-checked passing bays using peer trajectory separation and physical continuation; candidate checks remain authoritative.",
+    "Ahead-diagonal candidates and passing progress preference avoid immediately falling back into original blockage; bounded21 candidates.",
+    "Original priority/cycle/side identity policy preserved.",
+    "New friend seams only for real route/interaction-held regression fixtures."
+  ],
+  "rejected_intermediates": [
+    "A short180cm-only continuation probe missed a body around300cm away.",
+    "Side preference alone did not fix the Main doorway approach.",
+    "Stable personal-ID ordering produced worse opposing flow; rejected and reverted, related experimental-policy test removed. Original priority test suite retained.",
+    "An in-progress renderer was deliberately stopped when an extended regression failed; it is not final evidence."
+  ],
+  "limits": [
+    "Same initial geometry/settings, but not bit-identical physics/RVO/framerate; not a universal performance claim.",
+    "Four of six passed the stationary body by25s; not all bottlenecks solved.",
+    "Stationary person fixture is external-navigation-owned with movement tick held, not an actual interaction. Door case separately covers native interaction.",
+    "Traffic fixtures use early alarm/preparation0/vision range1 and fixed BIN1 frame0; artificial exits are test targets only and never saved.",
+    "No map/BP/raw fire data/default exposure/personality/ONNX28/timeline changes.",
+    "No full-building traffic fairness/direction reservation model.",
+    "Existing startup Condition/default-BIN and RiderLink shutdown messages remain; exit0 does not mean a clean engine log.",
+    "Unverified physical units/provenance/full sequence alignment remain; bDatasetAlignmentConfirmed=false."
+  ],
+  "sha256": {
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSLocalMovementComponent.cpp": "97e1341046ae18a272d225c5d955bfb18666faa0b2b3eb2b22d6ad777c7783ec",
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSLocalMovementComponent.h": "c95a5ab626e8dd9362b28f52549f15b548c41c0829ac993bad6814cc808dbc52",
+    "YUFS/Source/YUFS/NPC/Navigation/YUFSSmokeAwareNavigator.h": "b589501eff5dc22f7212caeaa726196397634ccff2bbf3d465f038a9d5ab1ae9",
+    "YUFS/Source/YUFS/NPC/YUFSEvacuationNPC.h": "92738b2daf7cfd01ad38488d126536b072ac9a735f84cf9baf002cb139ef5715",
+    "YUFS/Source/YUFS/Tests/OrdinaryPlayRegressionTests.cpp": "f4aa7acfe63baf09c7e5e2a0d1af7d9ac2778a66552060241965ece8417caf0f",
+    "YUFS/Binaries/Win64/UnrealEditor-YUFS.dll": "7d202d0dfc0c955830afd8d12b3468c8f47c4a00d627e18499773715dd71a329"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "date": "2026-10-17",
+  "branch": "codex/merged-navigation-completion",
+  "published": false,
+  "build": "Succeeded",
+  "tests": {
+    "passed": 96,
+    "failed": 0,
+    "process_exit": 0
+  },
+  "actual_main": {
+    "complete": true,
+    "mode": "Rendered saved Main PIE. Two stationary palette-class NPCs, actual BIN1 fixed frame480; exposure scales3/1. No forced behavior state, no saved assets. Validate visible incapacitation, actual animation clock, pause, review and real Stop/reload.",
+    "first_incapacitated_sim_seconds": 38.2009162902832,
+    "first_clip_cursor": 0.008333399891853333,
+    "collapse_length_seconds": 5.766666889190674,
+    "held_cursor": 5.766666889190674,
+    "terminal_xyz_unchanged": true,
+    "incapacitated_count": 1,
+    "evacuated_count": 0,
+    "review_checks": [
+      {
+        "label": "seek_before_collapse",
+        "selected_time": 29.90036392211914,
+        "recorded_count": 0,
+        "incapacitated": false,
+        "visible": true,
+        "cursor": 0.022541049867868423
+      },
+      {
+        "label": "seek_collapse",
+        "selected_time": 38.65951919555664,
+        "recorded_count": 1,
+        "incapacitated": true,
+        "visible": true,
+        "cursor": 0.4668477177619934
+      },
+      {
+        "label": "seek_start",
+        "selected_time": 0.5149471163749695,
+        "recorded_count": 0,
+        "incapacitated": false,
+        "visible": true,
+        "cursor": 0.5149471163749695
+      },
+      {
+        "label": "seek_terminal_end",
+        "selected_time": 52.92333221435547,
+        "recorded_count": 1,
+        "incapacitated": true,
+        "visible": true,
+        "cursor": 5.766666889190674
+      }
+    ],
+    "reset_check": {
+      "label": "fresh_after_reset",
+      "sim_time": 0.0,
+      "phase": "<SimPhase.WAITING_TO_START: 0>",
+      "fire_frame": 0,
+      "count": 0,
+      "evacuated": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "hidden": false,
+          "xyz": [
+            1200.0,
+            -300.0,
+            440.0
+          ],
+          "animation": "Idle",
+          "cursor": 0.0,
+          "mesh_tick": true,
+          "mesh_paused": false,
+          "actor_tick": true,
+          "nav_tick": true,
+          "movement_tick": true,
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "collision": true,
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=0 cell=X=34.125 Y=10.114 Z=15.518 index=-1 rawSmokeHeat=unavailable eyeStatus=Loading eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00"
+        }
+      ]
+    },
+    "process_exit": 0
+  },
+  "excluded_or_intermediate": {
+    "nav1017-incap-before-replay-collision.json": "Completed first runtime validation; replay terminal collision was true. Not final collision evidence.",
+    "initial_probe": "First fixed-frame diagnostic stopped because Resume correctly restarted fire. Harness now re-fixes frame480 after Resume.",
+    "initial_native_test": "Animation end test initially did not complete deferred animation evaluation in an isolated non-rendering world. Final harness evaluates the engine instance normally, including endpoint stop on next update. Baseline fixture also subsequently explicitly enabled its skeletal clock."
+  },
+  "limitations": [
+    "Offscreen rendered PIE, not human visual judgement of animation naturalness.",
+    "Terminal collision remains disabled; no fallen-body obstacle/ragdoll/carrying model.",
+    "External animation driver retained; its authored incapacitation graph not verified here.",
+    "Timeline actor data is historical; some HUD/debug counts still show final live results.",
+    "Fixed BIN1 frame480 and stationary test NPCs, not general evacuation outcomes or verified physiological units.",
+    "Unverified fire source units/full sequence alignment; alignment-confirmed stays false.",
+    "Existing startup Condition/default-BIN and RiderLink shutdown messages remain."
+  ],
+  "sha256": {
+    "YUFS/Source/YUFS/NPC/YUFSEvacuationNPC.cpp": "baa27d2f75ef76a7384738bc6a2dd0326ac545d903207efd1cde0ed8a99361c5",
+    "YUFS/Source/YUFS/Simulation/YUFSSimulationController.cpp": "966a3edf9b428e2ea2173ae95898b16cfff658100518bee40af8c1c7faf2629f",
+    "YUFS/Source/YUFS/Simulation/YUFSSimulationController.h": "3268b691d9196dd61ae3b4be026569d8a5f568b940682565bde7a5b8f8b4f02f",
+    "YUFS/Source/YUFS/Tests/IncapacitationLifecycleTests.cpp": "eff5a34724d40c435d624bbb772a3f024b9e89e8881705c17908f96966eea8d4",
+    "YUFS/Binaries/Win64/UnrealEditor-YUFS.dll": "d8fac72b4274a1e00f38172e2b4dba843d0688fee129207ab79087c6e1011b4d"
+  },
+  "final_learning_action": "Terminal presentation preserves CurrentAction; regression verifies GetLastAction is unchanged."
+}

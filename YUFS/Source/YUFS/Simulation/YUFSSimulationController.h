@@ -1,0 +1,569 @@
+﻿// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "Blueprint/UserWidget.h"
+#include "TimerManager.h"
+#include "YUFSScenarioConfig.h"
+#include "Simulation/YUFSTimelineTypes.h"
+#include "YUFSSimulationController.generated.h"
+
+class AYUFSLevelDataManager;
+class AYUFSEvacuationNPC;
+class AYUFSBinaryManager;
+class AYUFSEmergencyCommSystem;
+class AYUFSHeterogeneousVolume;
+class UYUFSSimHUD;
+class UYUFSTimelineRecorder;
+
+// ── 시뮬레이션 단계 ────────────────────────────────────────────────────────
+UENUM(BlueprintType)
+enum class ESimPhase : uint8
+{
+	WaitingToStart,   // 대기 (카운트다운 중)
+	FireStartDelay,   // 불이 붙기 전 (NPC들 일상 상태)
+	FireActive,       // 화재 진행 중 (NPC들 대피 중)
+	TimelineReview,   // 기록 종료 후 시간대 이동/관찰 모드
+	Completed,        // 시뮬레이션 종료 (성공/실패)
+};
+
+// ── 화재 시나리오 (Fire_A / Fire_B 버튼으로 전환) ─────────────────────────
+// Deprecated: 콤보박스 기반 FireOptions로 대체되었습니다. 기존 블루프린트
+// 호환을 위해서만 남겨둡니다 (ScenarioA=인덱스 0, ScenarioB=인덱스 1).
+UENUM(BlueprintType)
+enum class EFireScenario : uint8
+{
+	ScenarioA,
+	ScenarioB,
+};
+
+// ── 화재 선택 콤보박스용 옵션 하나 ─────────────────────────────────────────
+// 레벨마다(Main/Prototype) BinaryManager/HeterogeneousVolume은 각각 1개씩만 두고,
+// 실제로 재생할 데이터(.bin)와 시각 머티리얼(vdb)만 이 배열로 여러 개 등록해
+// 전환합니다. 콤보박스에는 DisplayName들이 나열됩니다.
+USTRUCT(BlueprintType)
+struct FYUFSFireOption
+{
+	GENERATED_BODY()
+
+	// 콤보박스에 표시할 이름 (예: "1층 로비 화재")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	FString DisplayName;
+
+	// 이 화재의 연기/온도 데이터 (.bin, Content 폴더 기준 상대 경로)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	FString BinaryFilePath;
+
+	// 이 화재의 vdb에 대응하는 Sparse Volume Texture 머티리얼(인스턴스)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	TObjectPtr<class UMaterialInterface> FireMaterial = nullptr;
+
+	// 선택: 이 화재 전용 발화 지점 메타데이터(.json) 경로. 비워두면 프로젝트 기본값(Config) 사용.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	FString IgnitionMetadataFile;
+
+	// 이 화재의 vdb를 건물에 맞게 보이도록 HeterogeneousVolume 액터에 적용할 위치/회전/크기.
+	// 화재마다 FDS 도메인 크기·비율이 달라서 볼륨 액터 하나의 Transform으로는 전부 맞출 수
+	// 없기 때문에, 이 화재가 선택될 때마다 여기 저장된 Transform이 액터에 그대로 적용됩니다.
+	// 사용법: 레벨에서 HeterogeneousVolume 액터를 이 화재에 맞게 눈으로 맞춘 뒤, Details 패널의
+	// Transform을 복사(Copy)해서 이 필드에 붙여넣기(Paste) 하세요.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire")
+	FTransform VolumeTransform = FTransform::Identity;
+
+	// Optional dataset-specific BIN -> SVT voxel mapping. Defaults preserve old maps.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment")
+	bool bUseSparseVolumeTextureCoordinates = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment")
+	FTransform BinaryGridToTexture = FTransform::Identity;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment", meta=(ClampMin="0.001"))
+	float BinaryFramesPerVisualFrame = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment")
+	int32 BinaryFrameOffset = 0;
+	// Empirical spatial calibration alone does not establish FDS provenance/physical units.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Fire|Data Alignment")
+	bool bDatasetAlignmentConfirmed = false;
+};
+
+// ── 한 회차 결과 요약 ──────────────────────────────────────────────────────
+USTRUCT(BlueprintType)
+struct FSimRunResult
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly) int32 RunIndex = 0;
+	UPROPERTY(BlueprintReadOnly) int32 TotalNPCCount = 0;
+	UPROPERTY(BlueprintReadOnly) int32 EvacuatedCount = 0;
+	UPROPERTY(BlueprintReadOnly) int32 IncapacitatedCount = 0;
+	UPROPERTY(BlueprintReadOnly) float EvacuationRate = 0.f;   // [0,1]
+	UPROPERTY(BlueprintReadOnly) float SimDurationSeconds = 0.f;
+	UPROPERTY(BlueprintReadOnly) float AverageEvacuationTime = 0.f;
+
+	// 이 회차 실행 시 사용된 난수 시드. 결과 화면에서 "이 회차 재현"에 사용됩니다.
+	UPROPERTY(BlueprintReadOnly) int32 RandomSeed = 0;
+
+	// 이 회차가 언제 실행됐는지. 결과 화면이 여러 세션에 걸친 기록을 누적해서 보여주므로
+	// 각 행을 구분하는 용도로 씁니다.
+	UPROPERTY(BlueprintReadOnly) FDateTime Timestamp;
+
+	// 이 회차가 실제로 사용한 시나리오 설정 스냅샷. RandomSeed와 함께 있어야
+	// GameInstance의 "현재" ActiveScenario가 그 사이 바뀌어도 정확히 재현할 수 있습니다.
+	UPROPERTY(BlueprintReadOnly) FYUFSScenarioConfig ScenarioConfig;
+
+	// 이 회차 시작 시점의 NPC별 초기 Transform (RegisteredNPCs와 같은 순서).
+	// "이 회차 재현" 시 레벨에 현재 배치된 상태와 무관하게 이 위치/방향으로 되돌립니다.
+	UPROPERTY(BlueprintReadOnly) TArray<FTransform> InitialNPCTransforms;
+
+	// InitialNPCTransforms와 같은 순서의 NPC 클래스. 레벨에 원래부터 배치된 NPC 수보다
+	// 이 배열이 더 길면(배치 도구로 런타임에 추가 배치한 경우), 재현 시 부족한 만큼
+	// 이 클래스로 다시 스폰합니다(그런 NPC는 레벨 자체엔 저장되지 않으므로).
+	UPROPERTY(BlueprintReadOnly) TArray<TSubclassOf<AYUFSEvacuationNPC>> InitialNPCClasses;
+	UPROPERTY(BlueprintReadOnly) TArray<int32> InitialNPCStableIds;
+
+	// Compressed recording lives separately from the lightweight results list.
+	UPROPERTY(BlueprintReadOnly) FString ReplayRecordingId;
+};
+
+// ── 이벤트 델리게이트 ──────────────────────────────────────────────────────
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimPhaseChanged, ESimPhase, NewPhase);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimRunCompleted, const FSimRunResult&, Result);
+
+
+// UI-only view of live statistics or the exact applied review frame. Never feeds
+// historical values back into live bookkeeping or stored run results.
+USTRUCT(BlueprintType)
+struct FYUFSSimulationDisplayStats
+{
+	GENERATED_BODY()
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") float ElapsedSimTime = 0.f;
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") int32 EvacuatedCount = 0;
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") int32 IncapacitatedCount = 0;
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") int32 TotalNPCCount = 0;
+	UPROPERTY(BlueprintReadOnly, Category="Simulation|Presentation") bool bHasData = false;
+};
+
+UCLASS()
+class YUFS_API AYUFSSimulationController : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	AYUFSSimulationController();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+public:
+	virtual void Tick(float DeltaTime) override;
+
+	// ── 외부 제어 API (HUD 버튼 → 이 함수 호출) ───────────────────────
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void StartSimulation();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void PauseSimulation();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void ResumeSimulation();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void StopAndResetSimulation();
+
+	// The visual fixture must be ready before Start leaves the distribution phase.
+	void NotifyInteractionPreviewReady(bool bReady);
+	// Delayed building interaction setup must also finish before a live run starts.
+	void NotifyBuildingInteractionSetupReady();
+	bool IsWaitingForInteractionPreview() const { return bWaitForInteractionPreview && !bInteractionPreviewReady; }
+	bool IsSimulationPaused() const { return bIsPaused; }
+
+	// Deprecated compatibility entry points. JJW manual placement and the user's
+	// camera are authoritative; this controller never starts the old showcase.
+	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview", meta=(DeprecatedFunction, DeprecationMessage="Automatic showcase is disabled; observe normal NPC behavior from the player camera."))
+	void StartNPCActionAnimationShowcase();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|NPC Animation Preview")
+	void StopNPCActionAnimationShowcase();
+
+	// ── 화재 선택 (HUD 콤보박스 → 이 함수 호출) ──────────────────────────
+	// 레벨의 (단일) BinaryManager/HeterogeneousVolume에 FireOptions[OptionIndex]의
+	// 데이터(.bin)와 머티리얼(vdb)을 적용합니다. 시뮬레이션이 이미 진행 중
+	// (WaitingToStart가 아님)이면 전환하지 않습니다 — 먼저 Stop 하세요.
+	UFUNCTION(BlueprintCallable, Category="Simulation|Fire")
+	void SelectFireOption(int32 OptionIndex);
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	int32 GetActiveFireOptionIndex() const { return CurrentFireOptionIndex; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	int32 GetFireOptionCount() const { return FireOptions.Num(); }
+
+	// 콤보박스를 채우는 용도. 인덱스는 FireOptions 배열과 1:1로 대응합니다.
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	TArray<FString> GetFireOptionNames() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
+	FString GetFireOptionName(int32 OptionIndex) const;
+
+	// Deprecated: SelectFireOption(int32)을 쓰세요. 기존 Fire_A/Fire_B 버튼 블루프린트와의
+	// 호환을 위해서만 남겨둡니다 (ScenarioA→인덱스 0, ScenarioB→인덱스 1).
+	UFUNCTION(BlueprintCallable, Category="Simulation|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use SelectFireOption(int32) with the FireOptions combo box instead."))
+	void SelectFireScenario(EFireScenario NewScenario);
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use GetActiveFireOptionIndex() instead."))
+	EFireScenario GetActiveFireScenario() const { return CurrentFireOptionIndex == 0 ? EFireScenario::ScenarioA : EFireScenario::ScenarioB; }
+
+	// ── 상태 조회 (HUD가 읽음) ───────────────────────────────────────────
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	ESimPhase GetCurrentPhase() const { return CurrentPhase; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	float GetElapsedTime() const { return ElapsedSimTime; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	float GetFireStartCountdown() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	int32 GetCurrentRunIndex() const { return CurrentRunIndex; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	int32 GetCurrentRunSeed() const { return CurrentRunSeed; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	bool IsNPCSimulationEnabled() const
+	{
+		// 관찰 모드에서는 NPC AI가 다시 계산되면 안 되므로 FireActive에서만 true입니다.
+		return !bIsPaused && CurrentPhase == ESimPhase::FireActive;
+	}
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	bool IsNPCActivityEnabled() const
+	{
+		// Start 버튼을 누른 뒤에만 NPC 활동을 허용합니다. 카운트다운 중에는
+		// 일상 행동을, FireActive에서는 상태에 맞는 일상/비상 행동을 실행합니다.
+		return !bIsPaused
+			&& (CurrentPhase == ESimPhase::FireStartDelay
+				|| CurrentPhase == ESimPhase::FireActive);
+	}
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	int32 GetEvacuatedCount() const { return LiveEvacuatedCount; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	int32 GetIncapacitatedCount() const { return LiveIncapacitatedCount; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	int32 GetTotalNPCCount() const { return InitialNPCCount > 0 ? InitialNPCCount : RegisteredNPCs.Num(); }
+	// Existing count/clock getters retain live-result semantics, including during review.
+	UFUNCTION(BlueprintPure, Category="Simulation|Presentation")
+	FYUFSSimulationDisplayStats GetDisplayStats() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation")
+	TArray<FSimRunResult> GetAllRunResults() const { return AllRunResults; }
+
+	// ── 시나리오 (메인 메뉴에서 넘어온 설정) ─────────────────────────
+	UFUNCTION(BlueprintPure, Category="Simulation|Scenario")
+	bool HasActiveScenario() const { return bHasActiveScenario; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Scenario")
+	const FYUFSScenarioConfig& GetActiveScenario() const { return ActiveScenario; }
+
+	// ── 타임라인 기록/관찰 API ───────────────────────────────────────
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void StartTimelineRecordingSimulation(float InRecordEndFireSeconds);
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void EnterTimelineReviewMode();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void SeekTimelineBySeconds(float FireElapsedSeconds);
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void SeekTimelineByNormalizedValue(float NormalizedValue);
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void PlayTimeline();
+
+	UFUNCTION(BlueprintCallable, Category="Simulation|Timeline")
+	void PauseTimeline();
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	float GetTimelineCurrentTime() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	float GetTimelineMaxTime() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	float GetTimelineMinTime() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	float GetTimelineProgress01() const;
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	bool IsTimelineReviewMode() const { return CurrentPhase == ESimPhase::TimelineReview; }
+
+	UFUNCTION(BlueprintPure, Category="Simulation|Timeline")
+	bool IsTimelinePlaying() const;
+
+	// ── NPC 등록 (NPC의 BeginPlay 또는 런타임 스폰 후 호출) ──────────
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void RegisterNPC(AYUFSEvacuationNPC* NPC);
+
+	// ── NPC 등록 해제 (배치 취소 시 호출) ────────────────────────────
+	UFUNCTION(BlueprintCallable, Category="Simulation")
+	void UnregisterNPC(AYUFSEvacuationNPC* NPC);
+
+	// ── 이벤트 ────────────────────────────────────────────────────────
+	UPROPERTY(BlueprintAssignable)
+	FOnSimPhaseChanged OnPhaseChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnSimRunCompleted OnRunCompleted;
+
+	// ── 편집 가능 파라미터 ───────────────────────────────────────────
+	// Retained for serialized assets. Runs always use the configured project seed.
+	UPROPERTY()
+	bool bUseFixedRandomSeed = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Seed")
+	int32 FixedRandomSeed = 2026;
+
+	// 화재 시뮬레이션 시작까지 대기 시간 (초)
+	UPROPERTY(EditAnywhere, Category="Simulation|Timing")
+	float FireStartDelaySeconds = 30.f;
+
+	// 최대 시뮬레이션 시간 (초, 이 시간이 지나면 강제 종료)
+	UPROPERTY(EditAnywhere, Category="Simulation|Timing")
+	float MaxSimDurationSeconds = 300.f;
+
+	// 알람은 화재 시작 몇 초 후에 발령?
+	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	float AlarmTriggerOffsetSeconds = 5.f;
+
+	// 사전 녹음 방송 발령 시각 (화재 시작 기준 오프셋, 음수 = 비활성)
+	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	float PreRecordedMsgOffsetSeconds = -1.f;
+
+	// 실시간 안내 방송 발령 시각 (화재 시작 기준 오프셋, 음수 = 비활성)
+	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	float LiveAnnouncementOffsetSeconds = -1.f;
+
+	// 스태프 직접 안내 발령 시각 (화재 시작 기준 오프셋, 음수 = 비활성)
+	// 안내 목적지는 발령 시점의 가장 안전한 출구로 자동 결정
+	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	float StaffGuidanceOffsetSeconds = -1.f;
+
+	// NPC가 이 거리 안에 들어오면 대피 성공으로 판정 (cm)
+	UPROPERTY(EditAnywhere, Category="Simulation|Events")
+	float EvacuationSuccessDistanceCm = 150.f;
+
+	// HUD 위젯 클래스 (에디터에서 BP 위젯 클래스를 연결)
+	UPROPERTY(EditAnywhere, Category="Simulation|UI")
+	TSubclassOf<UUserWidget> HUDWidgetClass;
+
+	// ── 화재 선택 목록 (HUD 콤보박스에 표시) ─────────────────────────────
+	// 레벨에는 AYUFSBinaryManager/AYUFSHeterogeneousVolume을 각 1개씩만 배치하고,
+	// 전환 가능한 화재들은 전부 이 배열에 등록합니다. Main은 3개, Prototype은
+	// 기존 A/B 2개를 그대로 여기로 옮기면 됩니다.
+	UPROPERTY(EditAnywhere, Category="Simulation|Fire")
+	TArray<FYUFSFireOption> FireOptions;
+
+	// 새 vdb를 테스트할 때 뷰포트에서 HeterogeneousVolume을 직접 옮기고 스케일을 눈으로
+	// 맞춰보려면 이 값을 false로 꺼두세요. true(기본값)면 화재를 선택/재생할 때마다
+	// FireOptions[i].VolumeTransform이 액터에 강제로 다시 적용되어, 손으로 옮긴 값이
+	// 계속 되돌아갑니다. 맞는 값을 찾으면 다시 true로 켜고 Transform을 복사해서
+	// 해당 FireOptions 항목의 Volume Transform에 붙여넣으세요.
+	UPROPERTY(EditAnywhere, Category="Simulation|Fire")
+	bool bAutoApplyFireVolumeTransform = true;
+
+	// Legacy 좌표 방식에서만 사용하는 건물 고정 기준 화재 (FireOptions 인덱스).
+	// BIN→SVT 보정이 설정된 옵션은 그 옵션의 볼륨/프레임 변환을 사용하며 이 기준을 적용하지 않습니다.
+	// 이 화재가 선택됐을 때의 볼륨 위치로 격자 위치를 계산하고, 다른 화재로 전환해도 격자는 그
+	// 자리에 고정됩니다(vdb 화면 위치만 화재별 VolumeTransform으로 바뀜). 같은 건물·같은 FDS
+	// 격자의 화재들이라면 NPC 연기 인식이 이미 잘 맞는 화재 하나를 기준으로 지정하세요.
+	// -1이면 예전 방식(격자가 현재 볼륨 Transform을 따라감)으로 동작합니다.
+	UPROPERTY(EditAnywhere, Category="Simulation|Fire", meta=(ClampMin="-1"))
+	int32 HazardGridReferenceFireOption = 0;
+
+	// ── 타임라인 기록 설정 ─────────────────────────────────────────────
+	// true면 StartSimulation()으로도 지정 시간까지 기록 후 관찰 모드로 전환합니다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline")
+	bool bEnableTimelineRecording = true;
+
+	// 화재 시작 후 몇 초까지 기록할지 설정합니다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.0"))
+	float TimelineRecordEndFireSeconds = 60.f;
+
+	// Legacy serialized setting. Exact movement playback now captures every frame.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|Timeline", meta=(ClampMin="0.05"))
+	float TimelineRecordIntervalSeconds = 0.25f;
+
+	// Legacy serialization fields only. Automatic distribution/showcase code is
+	// intentionally retired; old map defaults cannot move JJW palette placements.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bDistributeOverlappingNPCs = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="50.0"))
+	float NPCDistributionClusterRadiusCm = 180.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="80.0"))
+	float NPCDistributionSpacingCm = 300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="64", ClampMax="1024"))
+	int32 NPCDistributionMaxPlacementAttempts = 256;
+
+	// 감지된 실내 바닥 높이 중 몇 개 층에 NPC를 균등 분배할지 지정한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="1", ClampMax="8"))
+	int32 NPCDistributionTargetFloorCount = 2;
+
+	// CAD 슬래브의 수 cm 높이 차이를 같은 층으로 묶는 허용치다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="20.0"))
+	float IndoorFloorGroupingToleranceCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="100.0"))
+	float IndoorFloorSurfaceMinExtentCm = 200.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="10.0"))
+	float IndoorFloorSurfaceMaxHalfThicknessCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="200.0"))
+	float NPCDistributionMaxRadiusCm = 3000.f;
+
+	// 외부 NavMesh를 제외하기 위해 정적 바닥과 천장이 모두 있는 지점만 사용한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bRequireIndoorNPCPlacement = true;
+
+	// CAD 천장에 충돌이 있으면 천장이 확인된 후보를 먼저 사용한다.
+	// 충돌이 없는 건물은 동일 층의 정적 바닥 후보로 자동 폴백한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution")
+	bool bPreferCeilingCollisionForIndoorPlacement = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="200.0"))
+	float IndoorCeilingTraceHeightCm = 1500.f;
+
+	// 천장 충돌이 없는 CAD 건물에서는 동·서·남·북 모두 벽에 막힌 지점만 실내로 인정한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="500.0"))
+	float IndoorEnclosureTraceDistanceCm = 5000.f;
+
+	// 후보가 할당된 층이 아닌 다른 슬래브로 스냅되는 것을 막는 높이 허용치다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="10.0"))
+	float NPCDistributionMaxFloorDeltaCm = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Distribution", meta=(ClampMin="0.0"))
+	float NPCDistributionDelaySeconds = 0.25f;
+
+	// 대기 화면에서 NPC들을 11개 행동에 순서대로 배정해 애니메이션과
+	// 머리 위 Action/Anim 라벨을 검수할 수 있게 한다. 시뮬레이션 시작 시
+	// 자동 해제되므로 AI 결정에는 영향을 주지 않는다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bPreviewAllNPCActionAnimations = false;
+
+	// 분산 배치가 끝나면 대표 NPC 앞으로 카메라를 이동하고 11개 행동을
+	// 자동 순환한다. Start Simulation을 누르면 원래 카메라로 복귀한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bAutoFocusNPCActionAnimationShowcase = false;
+
+	// 근접 검수에서는 대표 NPC 한 명만 보여 행동 차이를 명확히 한다.
+	// 시뮬레이션 시작 시 숨겼던 NPC를 모두 즉시 복원한다.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview")
+	bool bIsolateFocusedNPCInAnimationShowcase = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="1.0", ClampMax="15.0"))
+	float NPCActionPreviewSecondsPerAction = 4.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="80.0", ClampMax="600.0"))
+	float NPCActionPreviewCameraDistanceCm = 240.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Simulation|NPC Animation Preview", meta=(ClampMin="30.0", ClampMax="180.0"))
+	float NPCActionPreviewLookAtHeightCm = 90.f;
+
+private:
+	// ── 내부 상태 ─────────────────────────────────────────────────────
+	ESimPhase CurrentPhase = ESimPhase::WaitingToStart;
+	bool bIsPaused = false;
+	bool bWaitForInteractionPreview = false;
+	bool bInteractionPreviewReady = false;
+	bool bStartRequestedBeforePreviewReady = false;
+	bool bStartRequestedBeforeBuildingSetupReady = false;
+
+	float ElapsedSimTime = 0.f;
+	double EverydayStepAccumulator = 0.0;    // 현재 회차 경과 시간
+	float FirePhaseTimer = 0.f;    // FireStartDelay 단계 타이머
+	float BetweenRunTimer = 0.f;   // 회차 사이 대기 타이머
+	bool bAlarmFired = false;
+	bool bPreRecordedMsgFired = false;
+	bool bLiveAnnouncementFired = false;
+	bool bStaffGuidanceFired = false;
+
+	// 메인 메뉴에서 넘어온 시나리오 설정. bHasActiveScenario가 false면
+	// 이 액터의 EditAnywhere 기본값을 그대로 사용합니다.
+	bool bHasActiveScenario = false;
+
+	UPROPERTY()
+	FYUFSScenarioConfig ActiveScenario;
+
+	int32 CurrentRunIndex = 0;
+	int32 CurrentRunSeed = 0;
+	int32 InitialNPCCount = 0;
+	int32 LiveEvacuatedCount = 0;
+	int32 LiveIncapacitatedCount = 0;
+	float TotalEvacuationTime = 0.f;
+
+	TArray<AYUFSEvacuationNPC*> RegisteredNPCs;
+	TArray<FSimRunResult> AllRunResults;
+
+	// 이번 회차 시작 시점의 NPC별 Transform/클래스 (RegisteredNPCs와 같은 순서). BuildRunResult()가
+	// 그대로 결과에 담아 "이 회차 재현" 시 복원(또는 재스폰)할 수 있게 합니다.
+	TArray<FTransform> InitialNPCTransforms;
+	TArray<TSubclassOf<AYUFSEvacuationNPC>> InitialNPCClasses;
+	UPROPERTY()
+	TArray<int32> InitialNPCStableIds;
+	bool bRunResultStored = false;
+	bool bLoadedRecordedReplay = false;
+
+	// 대피/행동불능 처리를 이미 끝낸 NPC를 기억해서 카운트 중복 증가를 막습니다.
+	TSet<AYUFSEvacuationNPC*> ResolvedNPCs;
+
+	// 캐싱 — 현재 선택된(Active) 시나리오의 쌍을 가리킵니다. 나머지 로직은 전부 이 두 포인터만 사용합니다.
+	AYUFSBinaryManager* BinaryManager = nullptr;
+	AYUFSEmergencyCommSystem* CommSystem = nullptr;
+	AYUFSHeterogeneousVolume* HeterogeneousVolume = nullptr;
+	AYUFSLevelDataManager* CachedLDM = nullptr;
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> HUDWidgetInstance = nullptr;
+
+	// ── 현재 선택된 화재 (FireOptions 배열의 인덱스) ──────────────────────
+	int32 CurrentFireOptionIndex = 0;
+
+	UPROPERTY(VisibleAnywhere, Category="Simulation|Timeline")
+	UYUFSTimelineRecorder* TimelineRecorder = nullptr;
+
+	// ── 내부 함수 ─────────────────────────────────────────────────────
+	void ApplyActiveScenario();
+	void SetPhase(ESimPhase NewPhase);
+	void TickFireActivePhase(float DeltaTime);
+	void CheckCompletionCondition();
+	FSimRunResult BuildRunResult() const;
+	FYUFSScenarioConfig CaptureScenarioSnapshot() const;
+	void StoreRunResult(const FSimRunResult& Result);
+	bool InitializeRunSeed();
+	void CaptureInitialNPCTransforms();
+	bool ApplyReplayNPCTransforms(const TArray<FTransform>& Transforms, const TArray<TSubclassOf<AYUFSEvacuationNPC>>& Classes,
+		const TArray<int32>& StableIds);
+	void RecordCurrentFrame(float DeltaTime);
+	void FinalizeRun();
+	void UpdateLiveCounts();
+	void SpawnHUD();
+
+	// 레벨에서 (단일) BinaryManager/HeterogeneousVolume 액터를 찾아 서로 링크합니다.
+	// 둘 중 하나가 여러 개 있으면(예: 이전 A/B 방식의 잔여물) 첫 번째만 사용하고 경고를 남깁니다.
+	void FindFireSceneActors();
+	// FireOptions[OptionIndex]의 .bin 경로와 머티리얼을 BinaryManager/HeterogeneousVolume에 적용합니다.
+	void ApplyFireOption(int32 OptionIndex);
+	// HazardGridReferenceFireOption 기준으로 BinaryManager의 .bin 격자를 월드에 고정합니다.
+	void ApplyHazardGridAnchor();
+
+	friend struct FYUFSJJWControllerTestAccess;
+	friend struct FYUFSIncapacitationTestAccess;
+	friend struct FYUFSReviewHudTestAccess;
+};

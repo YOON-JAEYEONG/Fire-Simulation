@@ -1,0 +1,971 @@
+{
+  "mode": "Controlled exposure comparison: recorded Main fire 1 paused at frame 480; two stationary NPCs with external navigation/MOVE_NONE, normal sensing/state/native animation; scale3 vs scale1; no saved map changes",
+  "samples": [
+    {
+      "t": 0,
+      "sim_time": 0.5220946073532104,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Idle",
+          "native_compatible": true,
+          "max_speed": 600.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0010 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 1,
+      "sim_time": 1.4844962358474731,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0230 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0086 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 2,
+      "sim_time": 2.4905240535736084,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0471 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0167 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 3,
+      "sim_time": 3.487964630126953,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0709 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0246 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 4,
+      "sim_time": 4.491915702819824,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0949 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0326 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 5,
+      "sim_time": 5.4923272132873535,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1188 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0406 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 6,
+      "sim_time": 6.490115642547607,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1427 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0485 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 7,
+      "sim_time": 7.490503311157227,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1666 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0565 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 8,
+      "sim_time": 8.490565299987793,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1905 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0645 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 9,
+      "sim_time": 9.490816116333008,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2144 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0724 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 10,
+      "sim_time": 10.490890502929688,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2383 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0804 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 11,
+      "sim_time": 11.490986824035645,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2622 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0884 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 12,
+      "sim_time": 12.491148948669434,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2861 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0964 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 13,
+      "sim_time": 13.491878509521484,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3101 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1043 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 14,
+      "sim_time": 14.491863250732422,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3340 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1123 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 15,
+      "sim_time": 15.491998672485352,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3579 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1203 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 16,
+      "sim_time": 16.488548278808594,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3817 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1282 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 17,
+      "sim_time": 17.488773345947266,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.4056 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1362 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 18,
+      "sim_time": 18.488758087158203,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.4295 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1441 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 19,
+      "sim_time": 19.48880958557129,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.4534 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1521 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 20,
+      "sim_time": 20.49013328552246,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.4774 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1601 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 21,
+      "sim_time": 21.490158081054688,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.5013 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1681 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 22,
+      "sim_time": 22.490196228027344,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.5252 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1760 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 23,
+      "sim_time": 23.49018096923828,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.5491 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1840 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 24,
+      "sim_time": 24.49016571044922,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.5730 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1920 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 25,
+      "sim_time": 25.490150451660156,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.5969 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 505.4564514160156
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.1999 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 26,
+      "sim_time": 26.48961639404297,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.6208 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2079 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 27,
+      "sim_time": 27.489686965942383,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.6447 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2159 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 28,
+      "sim_time": 28.48967170715332,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.6686 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2238 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 29,
+      "sim_time": 29.489845275878906,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.6925 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2318 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 30,
+      "sim_time": 30.48983383178711,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.7164 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2398 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 31,
+      "sim_time": 31.48708724975586,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.7402 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2477 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 32,
+      "sim_time": 32.49037170410156,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.7642 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2557 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 33,
+      "sim_time": 33.490638732910156,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.7881 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2637 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 34,
+      "sim_time": 34.49119567871094,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.8120 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2717 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 35,
+      "sim_time": 35.49161911010742,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.8360 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2796 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 36,
+      "sim_time": 36.492008209228516,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.8599 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2876 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 37,
+      "sim_time": 37.49244689941406,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Crawling exposure=0.8838 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Crawling__1__Anim",
+          "native_compatible": true,
+          "max_speed": 80.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.2956 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 510.6396789550781
+        }
+      ]
+    },
+    {
+      "t": 38,
+      "sim_time": 38.492855072021484,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Dying",
+          "native_compatible": true,
+          "max_speed": 0.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3035 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 516.841796875
+        }
+      ]
+    },
+    {
+      "t": 39,
+      "sim_time": 39.49306869506836,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Dying",
+          "native_compatible": true,
+          "max_speed": 0.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3115 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 516.841796875
+        }
+      ]
+    },
+    {
+      "t": 40,
+      "sim_time": 40.4937744140625,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Dying",
+          "native_compatible": true,
+          "max_speed": 0.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3195 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 516.841796875
+        }
+      ]
+    },
+    {
+      "t": 41,
+      "sim_time": 41.493988037109375,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Dying",
+          "native_compatible": true,
+          "max_speed": 0.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3274 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 516.841796875
+        }
+      ]
+    },
+    {
+      "t": 42,
+      "sim_time": 42.49421310424805,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Dying",
+          "native_compatible": true,
+          "max_speed": 0.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3354 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 516.841796875
+        }
+      ]
+    },
+    {
+      "t": 43,
+      "sim_time": 43.48609161376953,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Dying",
+          "native_compatible": true,
+          "max_speed": 0.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3433 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 516.841796875
+        }
+      ]
+    },
+    {
+      "t": 44,
+      "sim_time": 44.48792266845703,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Dying",
+          "native_compatible": true,
+          "max_speed": 0.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3513 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 516.841796875
+        }
+      ]
+    },
+    {
+      "t": 45,
+      "sim_time": 45.48919677734375,
+      "diagnostics": "file=Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin binary=116x53x20/997 frame=480 visual=X=125 Y=55 Z=26/480 cachedFrame=480 visualTimeFrame=480.000 voxelXcm=40.00 mapping=SVTFrame gridToTexture=7.000000,-3.000000,4.000000|0.000000,0.000000,0.000000|1.000000,1.000000,1.000000 frameRatio=1.000 offset=0 grid=DatasetVolume alignment=UNVERIFIED status=Ready asset=/Game/Fires/Audit0928/fire_it_test_1.fire_it_test_1 frames=997 importTransform=4.800000,-0.800000,-2.000000|0.000000,180.000000,-180.000000|-0.400000,0.400000,0.400000 binWorldBounds=min(X=-110.400 Y=-1809.600 Z=-11.200) max(X=4344.000 Y=56.000 Z=652.800)",
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=1200.000 Y=-300.000 Z=440.000 eye=X=1200.000 Y=-300.000 Z=504.000 binFrame=480 cell=X=34.125 Y=10.114 Z=15.518 index=36255 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Incapacitated exposure=0.9001 alarm=1 tick=0 activity=1 request=0 waitingSafe=0 exposureScale=3.00",
+          "animation": "Dying",
+          "native_compatible": true,
+          "max_speed": 0.0
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=1200.000 Y=-450.000 Z=440.000 eye=X=1200.000 Y=-450.000 Z=504.000 binFrame=480 cell=X=34.125 Y=14.375 Z=15.518 index=36335 rawSmokeHeat=254/0 eyeStatus=Ready eyeSmoke=0.9961 perceptionFrame=480 self=0.9961 front=0.9821 above=0.9821 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.3593 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=1.00",
+          "animation": "Fast_Run",
+          "native_compatible": true,
+          "max_speed": 516.841796875
+        }
+      ]
+    }
+  ]
+}
