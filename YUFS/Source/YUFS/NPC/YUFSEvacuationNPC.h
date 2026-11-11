@@ -32,6 +32,7 @@ class UYUFSNpcSuppressionComponent;
 class UYUFSNPCPerceptionComponent;
 class UYUFSExitKnowledgeComponent;
 class AYUFSSimulationController;
+struct FYUFSHazardSnapshot;
 
 UCLASS()
 class YUFS_API AYUFSEvacuationNPC : public ACharacter
@@ -394,6 +395,7 @@ private:
 	FVector ChooseKnownExit() const;
 	bool TryChooseKnownExit(FVector& Out) const;
 	bool TryResolveNavigationTarget(EYUFSAction Action,FVector& Out) const;
+	bool TryPreferNearbyExit(const FYUFSHazardSnapshot& Snapshot, bool bHasTarget, FVector& InOutTarget) const;
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

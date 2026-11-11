@@ -1,3 +1,21 @@
+# Nearby exit priority and smoke wait recovery — 2026-11-11
+
+User reported two behaviors in fire option 3: exposed NPCs staying still, and an NPC near MainEntrance turning back toward RearExit. Previously the familiar/peer/guidance action could commit to a farther destination before comparing a nearby known exit. The resolver now prefers a nearer personally known exit within 600 cm if its same-floor direct approach passes body clearance and perceived hazard scoring. It still sends the goal through the usual NavMesh planner and respects recent exit failures and validated suppression retreat. A failed unsafe route may now start existing local recovery when the NPC is itself exposed and only toward a reachable, observed spot with lower smoke or heat at breathing height. Unseen air and a worse path are not recovery candidates. Safe waiting remains possible when no route or cleaner spot is known.
+
+Windows build succeeded; 127/127 YUFS tests passed, including nearby known exit preference and the unknown/wall/smoke rejection cases. Real option 3 PIE before/after used the same twelve placements, 60-second run and disabled alarm/broadcasts to isolate hazard response. NPC 8 was motionless in `UnsafePath` with self smoke ≥0.4 on samples at seconds 17–34 before the fix. After the fix the log showed a short recovery attempt, replan and movement; the first evacuated sample changed from about 36 to 21 seconds. Both runs ended with 10 evacuated and no incapacitations; two NPCs still waited on unsafe routes at low self exposure. Both processes exited 0. The exact placement of the user's NPC near the central exit was not supplied; its analogous selection case is covered by the regression test. Logs/telemetry: `work/exits1111_smoke_before.json`, `work/exits1111_smoke_after.json`, `work/exits1111-smoke-after.log`, and `work/exits1111-smoke-tests.log` in the parent workspace.
+
+---
+
+# Final-map extra exits — 2026-11-11
+
+Final `Main_level` now has three exits: existing MainEntrance `(6000,-7380,20)`, RearExit `(5800,-9500,20)`, WestExit `(2500,-8650,20)` in cm. Added the rear and west actors only. All 560 static mesh transforms/collision modes were preserved. The west marker is on the supported/navmesh-covered landing; farther west candidate positions had missing floor or navigation support. Both additional goals have complete routes from tested positions on both floors.
+
+All three exits are marked familiar entries. Existing per-NPC memory chooses the closest marked entry to that NPC's spawn, then adds visually observed/guided exits. This map configuration assumes the closest entrance was used on arrival; it does not author an individual actual arrival history. Test scripts/results are in `work/exits1111_*` in the parent workspace. The checkout validator and README also cover the final map and its fire assets. Older single-exit fixtures are historical and must be adapted to the three-exit map before reuse.
+
+Verified rendered PIE after reopening the saved map: 14/14 palette-class NPCs on both floors evacuated within the 60s recording. Exit counts were MainEntrance 4, RearExit 7, WestExit 3. Live pause/resume and rewind final-counter assertions passed, editor exit code 0. This is an alarm-driven navigation fixture with fire frame0 held to isolate exit routing, not a fresh natural-fire casualty test. Initial NullRHI map-edit attempt crashed before saving; rendered retry saved successfully. The separate left survey completed its samples but returned a shutdown access violation. Those failures are preserved in workspace logs; the final save/play runs both exited 0. Existing intermittent shutdown issue remains unresolved.
+
+---
+
 # Publication on JJW_NPC_BEHAVIOR — 2026-11-04
 
 This commit publishes the final IT map and JJW NPC input integration to `JJW_NPC_BEHAVIOR`. Development base was `merge_final@f03f2906cfc1df3a3c3d771a5ee1152bee77d243`; source work branch was `codex/merge-final-navigation-1102`. Read `YUFS/Docs/FINAL_MAP_FIRE_INPUT_1104.md`. Older uncommitted/unpushed statements below describe earlier checkpoints.

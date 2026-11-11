@@ -1710,8 +1710,38 @@ bool AYUFSEvacuationNPC::TryResolveNavigationTarget(EYUFSAction Action,FVector& 
         return false;
     default:return false;
     }
+    if (!bHasPreferredRetreat)
+        Found = TryPreferNearbyExit(Navigator->GetPerceivedHazardSnapshot(GetCurrentSimFrame()), Found, Out) || Found;
     if (Found) { if (ExitKnowledge) ExitKnowledge->StopSearching();return true; }
     return ExitKnowledge && ExitKnowledge->TryGetSearchTarget(Out);
+}
+
+bool AYUFSEvacuationNPC::TryPreferNearbyExit(const FYUFSHazardSnapshot& Snapshot, bool bHasTarget, FVector& InOutTarget) const
+{
+    if (!Navigator || !LocalMovement || Snapshot.Status != EYUFSHazardDataStatus::Ready) return false;
+    const FVector Feet = GetActorLocation() - FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+    const auto Settings = Navigator->GetHazardSettings();
+    const float Now = GetWorld()->GetTimeSeconds();
+    double BestDistanceSq = FMath::Square(600.0);
+    if (bHasTarget) BestDistanceSq = FMath::Min(BestDistanceSq, FVector::DistSquared(Feet, InOutTarget));
+    bool bFound = false;
+    for (const FVector& Exit : GetPersonallyKnownExitLocations())
+    {
+        const double DistanceSq = FVector::DistSquared(Feet, Exit);
+        const float* RetryAt = FailedExitUntil.Find(Exit);
+        if (DistanceSq >= BestDistanceSq || (RetryAt && *RetryAt > Now)
+            || FMath::Abs(Feet.Z - Exit.Z) > GetCharacterMovement()->MaxStepHeight + 3.f) continue;
+        const auto Approach = Snapshot.ScorePath({Feet, Exit}, Settings);
+        const auto AtExit = Snapshot.ScorePath({Exit, Exit}, Settings);
+        if (Approach.bUnsafeAhead || Approach.OutsideSamples > 0
+            || AtExit.MaxSmoke >= Settings.BlockSmoke || AtExit.MaxHeat >= Settings.BlockHeat) continue;
+        // Existing local traffic rules still own who can physically advance through the queue.
+        if (!LocalMovement->IsPhysicalCorridorClear(Exit, true)) continue;
+        BestDistanceSq = DistanceSq;
+        InOutTarget = Exit;
+        bFound = true;
+    }
+    return bFound;
 }
 
 bool AYUFSEvacuationNPC::IsNavigationAction(EYUFSAction Action)
@@ -2044,12 +2074,23 @@ bool AYUFSEvacuationNPC::IsInteractionHoldingPosition() const
 void AYUFSEvacuationNPC::UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap, bool bAllowOrigin)
 {
 	if (bUseExternalNavigationDriver || !Navigator || !LocalMovement) return;
-	if ((!bAllowOrigin && Target.IsZero()) || Target.ContainsNaN())
+	const int32 Frame = GetCurrentSimFrame();
+	if (SpeedCap > 0.f) GetCharacterMovement()->MaxWalkSpeed = FMath::Min(GetDesiredWalkingSpeed(), SpeedCap);
+	if (LocalMovement->TickRecovery(DeltaTime, Frame)) return;
+	const bool bNoTarget = (!bAllowOrigin && Target.IsZero()) || Target.ContainsNaN();
+	const FVector RejectedGoal = Navigator->GetRequestedDestination();
+	if (Navigator->IsWaitingForSaferPath() && (bNoTarget || Target.Equals(RejectedGoal, 100.f))
+		&& PerceptionComp && PerceptionComp->HasHazardSample()
+		&& (PerceptionComp->GetSmokeDensity() >= FMath::Max(0.1f, Navigator->SmokeBlockThreshold)
+			|| PerceptionComp->GetTemperature() >= Navigator->GetHazardSettings().BlockHeat))
+	{
+		if (LocalMovement->TryRecovery((RejectedGoal - GetActorLocation()).GetSafeNormal2D(), Frame, true)) return;
+	}
+	if (bNoTarget)
 	{
 		if (Target.IsZero() && Navigator->GetLastFailure() == EYUFSNavigationFailure::UnsafePath)
 		{
 			// All exits can be temporarily rejected. Preserve the refusal and its reassessment gate.
-			LocalMovement->Reset();
 			GetCharacterMovement()->StopMovementImmediately();
 			CurrentNavTarget = FVector::ZeroVector;
 			return;
@@ -2058,19 +2099,17 @@ void AYUFSEvacuationNPC::UpdateNavigationMovement(const FVector& Target, float D
 		GetCharacterMovement()->StopMovementImmediately();
 		return;
 	}
-	if (SpeedCap > 0.f) GetCharacterMovement()->MaxWalkSpeed = FMath::Min(GetDesiredWalkingSpeed(), SpeedCap);
-	if (LocalMovement->TickRecovery(DeltaTime, GetCurrentSimFrame())) return;
 	if (Navigator->GetLastFailure() == EYUFSNavigationFailure::StartOffNavMesh
-		&& LocalMovement->TryRecovery((Target - GetActorLocation()).GetSafeNormal2D(), GetCurrentSimFrame())) return;
+		&& LocalMovement->TryRecovery((Target - GetActorLocation()).GetSafeNormal2D(), Frame)) return;
 	// JJW requests cancel the previous async generation. Never restart an empty pending/failed path every frame.
 	if (Navigator->GetNavigationStatus() == EYUFSNavigationStatus::Idle
 		|| FVector::DistSquared(Target, CurrentNavTarget) > FMath::Square(100.f))
 	{
 		CurrentNavTarget = Target;
-		Navigator->RequestPathAsync(Target, GetCurrentSimFrame());
+		Navigator->RequestPathAsync(Target, Frame);
 	}
 	else if (Navigator->ShouldRetryPath())
-		Navigator->ReplanPath(GetCurrentSimFrame(), EYUFSRepathReason::Retry);
-	else Navigator->CheckAndReroute(GetCurrentSimFrame());
+		Navigator->ReplanPath(Frame, EYUFSRepathReason::Retry);
+	else Navigator->CheckAndReroute(Frame);
 	if (Navigator->IsFollowingPath()) DriveMovementToward(Target, DeltaTime);
 }

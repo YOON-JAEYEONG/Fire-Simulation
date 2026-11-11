@@ -15,7 +15,7 @@ public:
 	UYUFSLocalMovementComponent();
 	void Reset();
 	FVector ResolveDirection(FVector DesiredDirection, float Dt, int32 Frame);
-	bool TryRecovery(FVector DesiredDirection,int32 Frame);
+	bool TryRecovery(FVector DesiredDirection,int32 Frame,bool bSeekCleanerAir=false);
 	bool TickRecovery(float Dt,int32 Frame);
 	bool IsRecovering() const { return State==EYUFSLocalMovementState::Recovering; }
 	bool IsDeliberatelyWaiting() const { return State==EYUFSLocalMovementState::Yielding || IsRecovering() || (State==EYUFSLocalMovementState::Blocked && YieldingTo.IsValid()); }
