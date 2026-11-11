@@ -1,0 +1,362 @@
+[
+  {
+    "dataset": 1,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.0,
+    "bin_to_vdb_origin": [
+      73,
+      182,
+      1
+    ],
+    "rho": 0.7379190041115117
+  },
+  {
+    "dataset": 1,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9412447909078147
+  },
+  {
+    "dataset": 1,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.5,
+    "bin_to_vdb_origin": [
+      37,
+      169,
+      -6
+    ],
+    "rho": 0.7033000560315239
+  },
+  {
+    "dataset": 1,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.0,
+    "bin_to_vdb_origin": [
+      74,
+      184,
+      -1
+    ],
+    "rho": 0.7631190547061298
+  },
+  {
+    "dataset": 1,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -4
+    ],
+    "rho": 0.9097111760404079
+  },
+  {
+    "dataset": 1,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.5,
+    "bin_to_vdb_origin": [
+      36,
+      166,
+      -6
+    ],
+    "rho": 0.9280883154503967
+  },
+  {
+    "dataset": 1,
+    "frame": 480,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9539275038398821
+  },
+  {
+    "dataset": 1,
+    "frame": 480,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -3
+    ],
+    "rho": 0.8960691018943464
+  },
+  {
+    "dataset": 1,
+    "frame": 900,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9610407515612205
+  },
+  {
+    "dataset": 1,
+    "frame": 900,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -3
+    ],
+    "rho": 0.9415729065104065
+  },
+  {
+    "dataset": 2,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.0,
+    "bin_to_vdb_origin": [
+      87,
+      183,
+      1
+    ],
+    "rho": 0.7238941121737301
+  },
+  {
+    "dataset": 2,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9546485142954233
+  },
+  {
+    "dataset": 2,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.5,
+    "bin_to_vdb_origin": [
+      23,
+      167,
+      -6
+    ],
+    "rho": 0.7501376733050686
+  },
+  {
+    "dataset": 2,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.0,
+    "bin_to_vdb_origin": [
+      89,
+      181,
+      0
+    ],
+    "rho": 0.8517427436995748
+  },
+  {
+    "dataset": 2,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -3
+    ],
+    "rho": 0.9559882465393519
+  },
+  {
+    "dataset": 2,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.5,
+    "bin_to_vdb_origin": [
+      21,
+      169,
+      -5
+    ],
+    "rho": 0.9397351392066642
+  },
+  {
+    "dataset": 2,
+    "frame": 480,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9567435600637841
+  },
+  {
+    "dataset": 2,
+    "frame": 480,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -3
+    ],
+    "rho": 0.9463272839427073
+  },
+  {
+    "dataset": 2,
+    "frame": 900,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.956369871487612
+  },
+  {
+    "dataset": 2,
+    "frame": 900,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -3
+    ],
+    "rho": 0.9449167577652623
+  },
+  {
+    "dataset": 3,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.0,
+    "bin_to_vdb_origin": [
+      65,
+      183,
+      -1
+    ],
+    "rho": 0.6511710118045033
+  },
+  {
+    "dataset": 3,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -3
+    ],
+    "rho": 0.9631732959605978
+  },
+  {
+    "dataset": 3,
+    "frame": 100,
+    "channel": "density",
+    "scale": 1.5,
+    "bin_to_vdb_origin": [
+      44,
+      168,
+      -4
+    ],
+    "rho": 0.6944892172549673
+  },
+  {
+    "dataset": 3,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.0,
+    "bin_to_vdb_origin": [
+      64,
+      186,
+      -1
+    ],
+    "rho": 0.8207747047192994
+  },
+  {
+    "dataset": 3,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9391543730688685
+  },
+  {
+    "dataset": 3,
+    "frame": 100,
+    "channel": "flame",
+    "scale": 1.5,
+    "bin_to_vdb_origin": [
+      46,
+      164,
+      -4
+    ],
+    "rho": 0.9251383135861458
+  },
+  {
+    "dataset": 3,
+    "frame": 480,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9628154955134988
+  },
+  {
+    "dataset": 3,
+    "frame": 480,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9323888119124595
+  },
+  {
+    "dataset": 3,
+    "frame": 900,
+    "channel": "density",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.959325392473156
+  },
+  {
+    "dataset": 3,
+    "frame": 900,
+    "channel": "flame",
+    "scale": 1.25,
+    "bin_to_vdb_origin": [
+      55,
+      175,
+      -2
+    ],
+    "rho": 0.9407804039561879
+  }
+]

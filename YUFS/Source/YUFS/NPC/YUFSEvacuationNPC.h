@@ -32,6 +32,7 @@ class UYUFSNpcSuppressionComponent;
 class UYUFSNPCPerceptionComponent;
 class UYUFSExitKnowledgeComponent;
 class AYUFSSimulationController;
+struct FYUFSHazardSnapshot;
 
 UCLASS()
 class YUFS_API AYUFSEvacuationNPC : public ACharacter
@@ -262,6 +263,13 @@ private:
 
 	FVector SpawnLocation = FVector::ZeroVector;
 
+	// Own only the movement hold installed before Start; roaming is optional.
+	void SetPreStartMovementHeld(bool bHeld);
+	bool bPreStartMovementHeld = false;
+	TEnumAsByte<EMovementMode> MovementModeBeforeStart = MOVE_Walking;
+	uint8 CustomMovementModeBeforeStart = 0;
+	float WalkSpeedBeforeStart = 300.f;
+
 	// ── 타임라인 관찰 모드 ─────────────────────────────────────────────
 	bool bTimelinePlaybackMode = false;
 	bool bHasTimelinePlaybackSnapshot = false;
@@ -387,6 +395,7 @@ private:
 	FVector ChooseKnownExit() const;
 	bool TryChooseKnownExit(FVector& Out) const;
 	bool TryResolveNavigationTarget(EYUFSAction Action,FVector& Out) const;
+	bool TryPreferNearbyExit(const FYUFSHazardSnapshot& Snapshot, bool bHasTarget, FVector& InOutTarget) const;
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
 	static bool IsNavigationAction(EYUFSAction Action);
 };

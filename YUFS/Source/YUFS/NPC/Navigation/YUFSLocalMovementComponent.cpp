@@ -266,7 +266,7 @@ int32 UYUFSLocalMovementComponent::SelectRecoverySpace(const TArray<FVector>& Ca
 	}
 	return Best;
 }
-bool UYUFSLocalMovementComponent::TryRecovery(FVector Desired,int32 Frame)
+bool UYUFSLocalMovementComponent::TryRecovery(FVector Desired,int32 Frame,bool bSeekCleanerAir)
 {
 	auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner()); if (!NPC || IsRecovering() || Cooldown>0.f) return false;
 	const bool Exhausted=Attempts>=FMath::Max(1,MaxRecoveryAttempts);
@@ -284,12 +284,31 @@ bool UYUFSLocalMovementComponent::TryRecovery(FVector Desired,int32 Frame)
 	}
 	const FVector Back=-Desired, Side=FVector(-Desired.Y,Desired.X,0)*(GetTrafficPriorityId(NPC)%2 ? 1.f : -1.f);
 	const FVector Feet=NPC->GetActorLocation()-FVector(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	const FVector BreathingOffset(0,0,NPC->GetBreathingHeightCm());
+	FYUFSHazardSnapshot Snapshot;
+	FYUFSHazardSample CurrentAir;
+	if (bSeekCleanerAir)
+	{
+		if (!NPC->GetNavigator()) return false;
+		Snapshot = NPC->GetNavigator()->GetPerceivedHazardSnapshot(Frame);
+		const FVector BreathingPoint = NPC->GetPawnViewLocation();
+		CurrentAir = Snapshot.Sample(BreathingPoint);
+		if (CurrentAir.Status != EYUFSHazardDataStatus::Ready || !Snapshot.IsObservedAt(BreathingPoint)) return false;
+	}
 	TArray<FVector> Candidates;
 	for (float Distance:{90.f,150.f,210.f}) for (FVector D:{Back,(Back+Side).GetSafeNormal(),(Back-Side).GetSafeNormal(),Side,-Side,
 		(Desired+Side).GetSafeNormal(),(Desired-Side).GetSafeNormal()})
 	{
 		FVector P;
 		if (!IsCandidateReachable(Feet+D*Distance,Frame,P) || FVector::DistSquared2D(P,Feet)<FMath::Square(50.f)) continue;
+		if (bSeekCleanerAir)
+		{
+			const FVector BreathingPoint = P + BreathingOffset;
+			const auto Air = Snapshot.Sample(BreathingPoint);
+			if (Air.Status != EYUFSHazardDataStatus::Ready || !Snapshot.IsObservedAt(BreathingPoint)) continue;
+			if (Air.Smoke > CurrentAir.Smoke + 0.05f || Air.Heat > CurrentAir.Heat + 0.05f
+				|| (Air.Smoke > CurrentAir.Smoke - 0.1f && Air.Heat > CurrentAir.Heat - 0.1f)) continue;
+		}
 		Candidates.Add(P);
 	}
 	const int32 Selected=SelectRecoverySpace(Candidates,Desired);

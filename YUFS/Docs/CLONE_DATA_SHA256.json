@@ -1,17 +1,51 @@
-[
-  {
-    "file": "smoke_data_it_test_1.bin",
-    "bytes": 245182256,
-    "sha256": "228B8789D38F740921FFC5ABDC1D14F4342448D5C54E758F0A6E5D261C321DB8"
-  },
-  {
-    "file": "smoke_data_it_test_2.bin",
-    "bytes": 245182256,
-    "sha256": "FD3BE704C09409EC7FF22F8C9C48A9BA85BEA2D0FC7A70A654A906D013B593D1"
-  },
-  {
-    "file": "smoke_data_it_test_3_v1.bin",
-    "bytes": 245428176,
-    "sha256": "3EAAC79E4C26EBA6C08648E19673007B6F876A0A7047C5B1012A3BC0A514E761"
-  }
-]
+{
+  "binaryData": [
+    {
+      "file": "Fires/FinalIT1104/BinaryData/smoke_data_1.bin",
+      "bytes": 377482024,
+      "sha256": "6ef0e7bd5941ce8589e57ec0e23144728290b739d63663d049fc41a8a4aaa0d2"
+    },
+    {
+      "file": "Fires/FinalIT1104/BinaryData/smoke_data_2.bin",
+      "bytes": 377103026,
+      "sha256": "1935ffb52de816b66c2f2986685aa05bae69e7e86d36e4f946463e5c29427726"
+    },
+    {
+      "file": "Fires/FinalIT1104/BinaryData/smoke_data_3.bin",
+      "bytes": 377103026,
+      "sha256": "3e23fcd8cb4573b03c94875ab24164acca59e3c231b1e57f113d4a898a7562ca"
+    },
+    {
+      "file": "Fires/FirePrototype/BinaryData/smoke_data_it_test_1.bin",
+      "bytes": 245182256,
+      "sha256": "228B8789D38F740921FFC5ABDC1D14F4342448D5C54E758F0A6E5D261C321DB8"
+    },
+    {
+      "file": "Fires/FirePrototype/BinaryData/smoke_data_it_test_2.bin",
+      "bytes": 245182256,
+      "sha256": "FD3BE704C09409EC7FF22F8C9C48A9BA85BEA2D0FC7A70A654A906D013B593D1"
+    },
+    {
+      "file": "Fires/FirePrototype/BinaryData/smoke_data_it_test_3_v1.bin",
+      "bytes": 245428176,
+      "sha256": "3EAAC79E4C26EBA6C08648E19673007B6F876A0A7047C5B1012A3BC0A514E761"
+    }
+  ],
+  "unrealPackages": [
+    "Maps/it관_찐최종/Main_level.umap",
+    "Maps/Lvl_MainMenu.umap",
+    "Fires/FinalIT1104/MI_Fire1.uasset",
+    "Fires/FinalIT1104/MI_Fire2.uasset",
+    "Fires/FinalIT1104/MI_Fire3.uasset",
+    "Fires/FinalIT1104/fire_v1.uasset",
+    "Fires/FinalIT1104/fire_v2.uasset",
+    "Fires/FinalIT1104/fire_v3.uasset",
+    "Maps/Main.umap",
+    "Fires/Audit0928/MI_Fire1.uasset",
+    "Fires/Audit0928/MI_Fire2.uasset",
+    "Fires/Audit0928/MI_Fire3.uasset",
+    "Fires/Audit0928/fire_it_test_1.uasset",
+    "Fires/Audit0928/fire_it_test_2.uasset",
+    "Fires/Audit0928/fire__it_test_3.uasset"
+  ]
+}

@@ -18,6 +18,8 @@
 #include "Misc/CommandLine.h"
 #include "Misc/Parse.h"
 #include "Misc/PackageName.h"
+#include "Materials/MaterialInterface.h"
+#include "SparseVolumeTexture/SparseVolumeTexture.h"
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
@@ -141,8 +143,7 @@ void AYUFSSimulationController::Tick(float DeltaTime)
 		if (TimelineRecorder)
 		{
 			TimelineRecorder->TickReview(DeltaTime, RegisteredNPCs);
-			LiveEvacuatedCount = TimelineRecorder->GetCurrentEvacuatedCount();
-			LiveIncapacitatedCount = TimelineRecorder->GetCurrentIncapacitatedCount();
+			// GetDisplayStats reads the historical frame; live totals stay final.
 		}
 		return;
 	}
@@ -498,6 +499,26 @@ void AYUFSSimulationController::ApplyFireOption(int32 OptionIndex)
 		HeterogeneousVolume->SetFireMaterial(Option.FireMaterial);
 		HeterogeneousVolume->SetIgnitionMetadataFile(Option.IgnitionMetadataFile);
 		HeterogeneousVolume->ResetFire();
+		// Bind the selected dataset's valid frame range as well as its coordinates.
+		// New exports can have different sequence lengths; a stale map-wide count
+		// would let timeline seeks leave the SVT and invalidate NPC sampling.
+		if (Option.bUseSparseVolumeTextureCoordinates && Option.FireMaterial)
+		{
+			TArray<FMaterialParameterInfo> Parameters;
+			TArray<FGuid> Ids;
+			Option.FireMaterial->GetAllSparseVolumeTextureParameterInfo(Parameters, Ids);
+			for (const FMaterialParameterInfo& Parameter : Parameters)
+			{
+				USparseVolumeTexture* Texture = nullptr;
+				if (Option.FireMaterial->GetSparseVolumeTextureParameterValue(Parameter, Texture)
+					&& Texture && Texture->GetNumFrames() > 0)
+				{
+					HeterogeneousVolume->TotalFrameCount = Texture->GetNumFrames();
+					HeterogeneousVolume->SetFrame(0);
+					break;
+				}
+			}
+		}
 	}
 
 	if (BinaryManager && HeterogeneousVolume)
@@ -614,7 +635,7 @@ void AYUFSSimulationController::TickFireActivePhase(float DeltaTime)
 	const float FireElapsed = ElapsedSimTime - FireStartDelaySeconds;
 
 	// 알람 발령
-	if (!bAlarmFired && FireElapsed >= AlarmTriggerOffsetSeconds)
+	if (!bAlarmFired && AlarmTriggerOffsetSeconds >= 0.f && FireElapsed >= AlarmTriggerOffsetSeconds)
 	{
 		if (CommSystem)
 		{
@@ -1070,8 +1091,8 @@ void AYUFSSimulationController::SeekTimelineBySeconds(float FireElapsedSeconds)
 	}
 
 	TimelineRecorder->SeekToFireTime(FireElapsedSeconds, RegisteredNPCs);
-	LiveEvacuatedCount = TimelineRecorder->GetCurrentEvacuatedCount();
-	LiveIncapacitatedCount = TimelineRecorder->GetCurrentIncapacitatedCount();
+	// Historical counters already come from GetDisplayStats(). Seeking must not
+	// overwrite the completed run's authoritative live totals.
 }
 
 void AYUFSSimulationController::SeekTimelineByNormalizedValue(float NormalizedValue)

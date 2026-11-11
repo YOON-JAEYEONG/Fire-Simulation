@@ -1,0 +1,61 @@
+{
+  "root": "C:\\Users\\ACSLAB4\\Desktop\\it관_찐최종_화재데이터3종_vdb&bin",
+  "bins": [
+    {
+      "name": "smoke_data_1.bin",
+      "header": [
+        996,
+        157,
+        71,
+        17
+      ],
+      "size": 377482024,
+      "expected": 377482024,
+      "sha256": "6ef0e7bd5941ce8589e57ec0e23144728290b739d63663d049fc41a8a4aaa0d2"
+    },
+    {
+      "name": "smoke_data_2.bin",
+      "header": [
+        995,
+        157,
+        71,
+        17
+      ],
+      "size": 377103026,
+      "expected": 377103026,
+      "sha256": "1935ffb52de816b66c2f2986685aa05bae69e7e86d36e4f946463e5c29427726"
+    },
+    {
+      "name": "smoke_data_3.bin",
+      "header": [
+        995,
+        157,
+        71,
+        17
+      ],
+      "size": 377103026,
+      "expected": 377103026,
+      "sha256": "3e23fcd8cb4573b03c94875ab24164acca59e3c231b1e57f113d4a898a7562ca"
+    }
+  ],
+  "vdb": {
+    "fire_v1_": {
+      "count": 995,
+      "first": "fire_v1_0001.vdb",
+      "last": "fire_v1_0995.vdb",
+      "bytes": 1173231396
+    },
+    "fire_v2_": {
+      "count": 994,
+      "first": "fire_v2_0001.vdb",
+      "last": "fire_v2_0994.vdb",
+      "bytes": 926247159
+    },
+    "fire_v3_": {
+      "count": 994,
+      "first": "fire_v3_0001.vdb",
+      "last": "fire_v3_0994.vdb",
+      "bytes": 1060112255
+    }
+  }
+}

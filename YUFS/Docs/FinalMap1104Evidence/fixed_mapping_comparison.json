@@ -1,0 +1,632 @@
+[
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.9215557765912179
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9251997008408381
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.9269045013661958
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9278292839368488
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9274747235316109
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.6884931941110567
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.7055779715949234
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.7149482231842312
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.7185293815601136
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.7087286342351202
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.944264056959564
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9448599498424708
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.9452299121552522
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9456696415929683
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9458658465829414
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.76840871627244
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.7691098585586684
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.7691942788768028
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.765447821747726
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.7646784244115647
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.9519280837647632
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9520088144662541
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.9521067191325525
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9522043342773282
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9522904667557016
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.8180717236684556
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.8191267449593461
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.8220986442149325
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.8219240919493218
+  },
+  {
+    "dataset": 1,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.821177916698937
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.9386114958386619
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9397354489803997
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.9402046222635785
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9401081013143773
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9393014112732418
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.8985892299937959
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.9061542930850586
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.910898246528474
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.913353145867748
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.9078827933655927
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.945866293764659
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9460679688640523
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.946178246842788
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9462975828470138
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9463395850190783
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.8823684008108171
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.8864616826116941
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.8904561444996996
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.8938364225974668
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.8937781544093635
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.9470821092386578
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9471883777594066
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.9473222583975629
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9473966442925974
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9474865417952931
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.8794438111146418
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.887841456792045
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.895427579427908
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.8990725828491406
+  },
+  {
+    "dataset": 2,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.8925730967706851
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.9290303861636001
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9319605614762018
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.9334216374363737
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9342893127868084
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9340003499336283
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.8952285173362714
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.897289322811544
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.9084830169443499
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.911338991753788
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 100,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.9074211384288466
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.9452907850771631
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9456850607237743
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.9459342088124763
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9460819011426271
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9461252887564835
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.8582229067073558
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.8861462489958817
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.8944556884288224
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.9012778867335066
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 480,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.8947863505595182
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": -2,
+    "rho": 0.944574424065393
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": -1,
+    "rho": 0.9446961775722801
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 0,
+    "rho": 0.9447959891914508
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 1,
+    "rho": 0.9448741645509317
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "density",
+    "binary_frame_offset": 2,
+    "rho": 0.9449047440315169
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": -2,
+    "rho": 0.8964847772767167
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": -1,
+    "rho": 0.8973578748421615
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 0,
+    "rho": 0.9015243417898732
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 1,
+    "rho": 0.9043574424180837
+  },
+  {
+    "dataset": 3,
+    "visual_frame": 900,
+    "channel": "flame",
+    "binary_frame_offset": 2,
+    "rho": 0.9010251366952723
+  }
+]

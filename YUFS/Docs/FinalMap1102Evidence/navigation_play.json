@@ -1,0 +1,2513 @@
+{
+  "mode": "Final saved map normal PIE. Twelve palette-class NPCs on physical/NavMesh-validated locations across both floors, runtime early alarm/preparation0, ordinary walking to the saved entry. Original fire frame0 fixed solely to isolate navigation; inherited fire coordinates are outside the new building, so this is NOT hazard alignment or real smoke response evidence. No map/asset saved from this test.",
+  "samples": [
+    {
+      "label": "aligned",
+      "time": 0.008333399891853333,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879E59C0) {elapsed_sim_time: 0.008333, evacuated_count: 0, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            3000.0,
+            -8660.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3000.000 Y=-8660.000 Z=110.150 eye=X=3000.000 Y=-8660.000 Z=174.150 binFrame=0 cell=X=81.000 Y=247.614 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            4500.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=4500.000 Y=-8650.000 Z=110.150 eye=X=4500.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=120.062 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-8650.000 Z=110.150 eye=X=6000.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=159.125 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            7800.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=7800.000 Y=-8650.000 Z=110.150 eye=X=7800.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=206.000 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            9000.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=9000.000 Y=-8650.000 Z=110.150 eye=X=9000.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=237.250 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            3100.0,
+            -8150.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=3100.000 Y=-8150.000 Z=110.150 eye=X=3100.000 Y=-8150.000 Z=174.150 binFrame=0 cell=X=83.604 Y=233.125 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            3000.0,
+            -8660.0,
+            480.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=3000.000 Y=-8660.000 Z=480.150 eye=X=3000.000 Y=-8660.000 Z=544.150 binFrame=0 cell=X=81.000 Y=247.614 Z=16.727 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            4500.0,
+            -8650.0,
+            480.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=4500.000 Y=-8650.000 Z=480.150 eye=X=4500.000 Y=-8650.000 Z=544.150 binFrame=0 cell=X=120.062 Y=247.330 Z=16.727 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6000.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6000.000 Y=-8650.000 Z=460.150 eye=X=6000.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=159.125 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            7800.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=7800.000 Y=-8650.000 Z=460.150 eye=X=7800.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=206.000 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            9000.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=9000.000 Y=-8650.000 Z=460.150 eye=X=9000.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=237.250 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            8800.0,
+            -8150.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=8800.000 Y=-8150.000 Z=460.150 eye=X=8800.000 Y=-8150.000 Z=524.150 binFrame=0 cell=X=232.042 Y=233.125 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Normal exposure=0.0000 alarm=0 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "live",
+      "time": 1.0068110227584839,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 0,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879E49C0) {elapsed_sim_time: 1.006811, evacuated_count: 0, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            3000.0,
+            -8660.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3000.000 Y=-8660.000 Z=110.150 eye=X=3000.000 Y=-8660.000 Z=174.150 binFrame=0 cell=X=81.000 Y=247.614 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=300.34 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            4500.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=4500.000 Y=-8650.000 Z=110.150 eye=X=4500.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=120.062 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=340.11 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-8650.000 Z=110.150 eye=X=6000.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=159.125 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=325.78 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            7800.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=7800.000 Y=-8650.000 Z=110.150 eye=X=7800.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=206.000 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            9000.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=9000.000 Y=-8650.000 Z=110.150 eye=X=9000.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=237.250 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=581.40 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            3100.0,
+            -8150.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=3100.000 Y=-8150.000 Z=110.150 eye=X=3100.000 Y=-8150.000 Z=174.150 binFrame=0 cell=X=83.604 Y=233.125 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=408.95 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            3000.0,
+            -8660.0,
+            480.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=3000.000 Y=-8660.000 Z=480.150 eye=X=3000.000 Y=-8660.000 Z=544.150 binFrame=0 cell=X=81.000 Y=247.614 Z=16.727 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=789.77 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            4500.0,
+            -8650.0,
+            480.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=4500.000 Y=-8650.000 Z=480.150 eye=X=4500.000 Y=-8650.000 Z=544.150 binFrame=0 cell=X=120.062 Y=247.330 Z=16.727 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=731.49 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6000.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6000.000 Y=-8650.000 Z=460.150 eye=X=6000.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=159.125 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            7800.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=7800.000 Y=-8650.000 Z=460.150 eye=X=7800.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=206.000 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Milling exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            9000.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=9000.000 Y=-8650.000 Z=460.150 eye=X=9000.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=237.250 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=587.24 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            8800.0,
+            -8150.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=8800.000 Y=-8150.000 Z=460.150 eye=X=8800.000 Y=-8150.000 Z=524.150 binFrame=0 cell=X=232.042 Y=233.125 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Perceiving exposure=0.0000 alarm=1 tick=1 activity=1 request=0 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=409.99 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "live",
+      "time": 10.004509925842285,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 2,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879EC120) {elapsed_sim_time: 10.004510, evacuated_count: 2, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            3354.847736790437,
+            -8706.337936916942,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            552.7595617936995,
+            23.60550310834724,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3354.848 Y=-8706.338 Z=110.150 eye=X=3354.848 Y=-8706.338 Z=174.150 binFrame=0 cell=X=90.241 Y=248.930 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.96 recoveryTime=1.02 timeout=2.25 target=X=3137.383 Y=-8735.212 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            4791.0282031636925,
+            -8700.857893092527,
+            110.14999877762922
+          ],
+          "hidden": false,
+          "velocity": [
+            608.8820834422784,
+            51.34822541717607,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=4791.028 Y=-8700.858 Z=110.150 eye=X=4791.028 Y=-8700.858 Z=174.150 binFrame=0 cell=X=127.641 Y=248.774 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=1.04 recoveryTime=1.02 timeout=2.25 target=X=4637.683 Y=-8715.922 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -7497.470157119728,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-7497.470 Z=110.150 eye=X=6000.000 Y=-7497.470 Z=174.150 binFrame=0 cell=X=159.125 Y=214.587 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            6018.540600173149,
+            -7496.115114455185,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=6018.541 Y=-7496.115 Z=110.150 eye=X=6018.541 Y=-7496.115 Z=174.150 binFrame=0 cell=X=159.608 Y=214.549 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            7581.49456809839,
+            -8627.96396908533,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            -603.8733061181364,
+            9.38097982795413,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=7581.495 Y=-8627.964 Z=110.150 eye=X=7581.495 Y=-8627.964 Z=174.150 binFrame=0 cell=X=200.310 Y=246.704 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            2976.42385717508,
+            -8714.279702680125,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            -71.94342467199023,
+            -2.8537074947023244,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=2976.424 Y=-8714.280 Z=110.150 eye=X=2976.424 Y=-8714.280 Z=174.150 binFrame=0 cell=X=80.386 Y=249.156 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Recovering yieldingTo=BP_YUFSRLEvacuationNPC_C_0 attempts=1 cooldown=1.50 recoveryTime=0.97 timeout=2.25 target=X=2952.970 Y=-8715.210 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            5972.687244244399,
+            -8920.161682330856,
+            460.1500016520679
+          ],
+          "hidden": false,
+          "velocity": [
+            513.3668909215816,
+            -324.8634638744739,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=5972.687 Y=-8920.162 Z=460.150 eye=X=5972.687 Y=-8920.162 Z=524.150 binFrame=0 cell=X=158.414 Y=255.005 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=415.98 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            6007.980321999125,
+            -7787.292970250686,
+            110.15000022155641
+          ],
+          "hidden": false,
+          "velocity": [
+            -9.685606585258226,
+            494.32585241520883,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=6007.980 Y=-7787.293 Z=110.150 eye=X=6007.980 Y=-7787.293 Z=174.150 binFrame=0 cell=X=159.333 Y=222.821 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6045.470935229329,
+            -9231.61055927385,
+            263.04282439453004
+          ],
+          "hidden": false,
+          "velocity": [
+            -98.481407025651,
+            577.1442094313179,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6045.471 Y=-9231.611 Z=263.043 eye=X=6045.471 Y=-9231.611 Z=327.043 binFrame=0 cell=X=160.309 Y=263.853 Z=10.188 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=104.38 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            6020.708195458289,
+            -8343.532283695029,
+            110.15000165206789
+          ],
+          "hidden": false,
+          "velocity": [
+            -12.872898086979331,
+            598.9632465224198,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=6020.708 Y=-8343.532 Z=110.150 eye=X=6020.708 Y=-8343.532 Z=174.150 binFrame=0 cell=X=159.664 Y=238.623 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            6389.662928723398,
+            -8736.055068283862,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            -553.7162141347609,
+            -18.254380685671396,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=6389.663 Y=-8736.055 Z=460.150 eye=X=6389.663 Y=-8736.055 Z=524.150 binFrame=0 cell=X=169.272 Y=249.774 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            6560.346022797158,
+            -8726.674721708046,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            -594.109064049307,
+            -27.26632360211972,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=6560.346 Y=-8726.675 Z=460.150 eye=X=6560.346 Y=-8726.675 Z=524.150 binFrame=0 cell=X=173.717 Y=249.508 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=BP_YUFSRLEvacuationNPC_C_10 attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "pause_start",
+      "time": 15.001805305480957,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 8,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879EFA60) {elapsed_sim_time: 15.001805, evacuated_count: 8, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            4636.119649195242,
+            -8638.792539071115,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=4636.120 Y=-8638.793 Z=110.150 eye=X=4636.120 Y=-8638.793 Z=174.150 binFrame=0 cell=X=123.607 Y=247.011 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Recovering yieldingTo=None attempts=1 cooldown=1.50 recoveryTime=0.18 timeout=2.25 target=X=4637.975 Y=-8719.293 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            6005.141312374776,
+            -7497.344594534176,
+            110.14999877762922
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=6005.141 Y=-7497.345 Z=110.150 eye=X=6005.141 Y=-7497.345 Z=174.150 binFrame=0 cell=X=159.259 Y=214.584 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.683 Y=-8715.922 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -7497.470157119728,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-7497.470 Z=110.150 eye=X=6000.000 Y=-7497.470 Z=174.150 binFrame=0 cell=X=159.125 Y=214.587 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            6018.540600173149,
+            -7496.115114455185,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=6018.541 Y=-7496.115 Z=110.150 eye=X=6018.541 Y=-7496.115 Z=174.150 binFrame=0 cell=X=159.608 Y=214.549 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            6072.602134656837,
+            -7474.709957867134,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=6072.602 Y=-7474.710 Z=110.150 eye=X=6072.602 Y=-7474.710 Z=174.150 binFrame=0 cell=X=161.016 Y=213.941 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            4546.93405041205,
+            -8709.483253517354,
+            110.14999871599741
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=4546.934 Y=-8709.483 Z=110.150 eye=X=4546.934 Y=-8709.483 Z=174.150 binFrame=0 cell=X=121.285 Y=249.019 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Yielding yieldingTo=BP_YUFSRLEvacuationNPC_C_0 attempts=0 cooldown=0.00 recoveryTime=1.02 timeout=2.25 target=X=2952.970 Y=-8715.210 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            6116.443652469903,
+            -7392.399386884701,
+            110.15000117523073
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=6116.444 Y=-7392.399 Z=110.150 eye=X=6116.444 Y=-7392.399 Z=174.150 binFrame=0 cell=X=162.157 Y=211.602 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            5975.029831493763,
+            -7495.545360864754,
+            110.15000022155641
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=5975.030 Y=-7495.545 Z=110.150 eye=X=5975.030 Y=-7495.545 Z=174.150 binFrame=0 cell=X=158.475 Y=214.533 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6002.461308128211,
+            -7499.220014143287,
+            110.14999831420778
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6002.461 Y=-7499.220 Z=110.150 eye=X=6002.461 Y=-7499.220 Z=174.150 binFrame=0 cell=X=159.189 Y=214.637 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            6002.482336416334,
+            -7495.500712512644,
+            110.15000165206789
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=6002.482 Y=-7495.501 Z=110.150 eye=X=6002.482 Y=-7495.501 Z=174.150 binFrame=0 cell=X=159.190 Y=214.531 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            6003.9910681438705,
+            -7565.069081217039,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=6003.991 Y=-7565.069 Z=110.150 eye=X=6003.991 Y=-7565.069 Z=174.150 binFrame=0 cell=X=159.229 Y=216.508 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            6007.097766285747,
+            -7735.618395690712,
+            110.15000594360231
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=6007.098 Y=-7735.618 Z=110.150 eye=X=6007.098 Y=-7735.618 Z=174.150 binFrame=0 cell=X=159.310 Y=221.353 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=BP_YUFSRLEvacuationNPC_C_10 attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "pause_after1s",
+      "time": 15.001805305480957,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 8,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879E0D40) {elapsed_sim_time: 15.001805, evacuated_count: 8, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            4636.119649195242,
+            -8638.792539071115,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=4636.120 Y=-8638.793 Z=110.150 eye=X=4636.120 Y=-8638.793 Z=174.150 binFrame=0 cell=X=123.607 Y=247.011 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Recovering yieldingTo=None attempts=1 cooldown=1.50 recoveryTime=0.18 timeout=2.25 target=X=4637.975 Y=-8719.293 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            6005.141312374776,
+            -7497.344594534176,
+            110.14999877762922
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=6005.141 Y=-7497.345 Z=110.150 eye=X=6005.141 Y=-7497.345 Z=174.150 binFrame=0 cell=X=159.259 Y=214.584 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.683 Y=-8715.922 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -7497.470157119728,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-7497.470 Z=110.150 eye=X=6000.000 Y=-7497.470 Z=174.150 binFrame=0 cell=X=159.125 Y=214.587 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            6018.540600173149,
+            -7496.115114455185,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=6018.541 Y=-7496.115 Z=110.150 eye=X=6018.541 Y=-7496.115 Z=174.150 binFrame=0 cell=X=159.608 Y=214.549 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            6072.602134656837,
+            -7474.709957867134,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=6072.602 Y=-7474.710 Z=110.150 eye=X=6072.602 Y=-7474.710 Z=174.150 binFrame=0 cell=X=161.016 Y=213.941 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            4546.93405041205,
+            -8709.483253517354,
+            110.14999871599741
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=4546.934 Y=-8709.483 Z=110.150 eye=X=4546.934 Y=-8709.483 Z=174.150 binFrame=0 cell=X=121.285 Y=249.019 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Yielding yieldingTo=BP_YUFSRLEvacuationNPC_C_0 attempts=0 cooldown=0.00 recoveryTime=1.02 timeout=2.25 target=X=2952.970 Y=-8715.210 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            6116.443652469903,
+            -7392.399386884701,
+            110.15000117523073
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=6116.444 Y=-7392.399 Z=110.150 eye=X=6116.444 Y=-7392.399 Z=174.150 binFrame=0 cell=X=162.157 Y=211.602 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            5975.029831493763,
+            -7495.545360864754,
+            110.15000022155641
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=5975.030 Y=-7495.545 Z=110.150 eye=X=5975.030 Y=-7495.545 Z=174.150 binFrame=0 cell=X=158.475 Y=214.533 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6002.461308128211,
+            -7499.220014143287,
+            110.14999831420778
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6002.461 Y=-7499.220 Z=110.150 eye=X=6002.461 Y=-7499.220 Z=174.150 binFrame=0 cell=X=159.189 Y=214.637 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            6002.482336416334,
+            -7495.500712512644,
+            110.15000165206789
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=6002.482 Y=-7495.501 Z=110.150 eye=X=6002.482 Y=-7495.501 Z=174.150 binFrame=0 cell=X=159.190 Y=214.531 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            6003.9910681438705,
+            -7565.069081217039,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=6003.991 Y=-7565.069 Z=110.150 eye=X=6003.991 Y=-7565.069 Z=174.150 binFrame=0 cell=X=159.229 Y=216.508 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            6007.097766285747,
+            -7735.618395690712,
+            110.15000594360231
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=6007.098 Y=-7735.618 Z=110.150 eye=X=6007.098 Y=-7735.618 Z=174.150 binFrame=0 cell=X=159.310 Y=221.353 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=0 request=1 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=BP_YUFSRLEvacuationNPC_C_10 attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "live",
+      "time": 20.008079528808594,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 10,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879EF920) {elapsed_sim_time: 20.008080, evacuated_count: 10, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            5972.793865821645,
+            -7499.865453483356,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            122.46068655172542,
+            539.5402980135854,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=5972.794 Y=-7499.865 Z=110.150 eye=X=5972.794 Y=-7499.865 Z=174.150 binFrame=0 cell=X=158.417 Y=214.655 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=1.07 timeout=2.25 target=X=4637.975 Y=-8719.293 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            6005.141312374776,
+            -7497.344594534176,
+            110.14999877762922
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=6005.141 Y=-7497.345 Z=110.150 eye=X=6005.141 Y=-7497.345 Z=174.150 binFrame=0 cell=X=159.259 Y=214.584 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.683 Y=-8715.922 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -7497.470157119728,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-7497.470 Z=110.150 eye=X=6000.000 Y=-7497.470 Z=174.150 binFrame=0 cell=X=159.125 Y=214.587 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            6018.540600173149,
+            -7496.115114455185,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=6018.541 Y=-7496.115 Z=110.150 eye=X=6018.541 Y=-7496.115 Z=174.150 binFrame=0 cell=X=159.608 Y=214.549 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            6072.602134656837,
+            -7474.709957867134,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=6072.602 Y=-7474.710 Z=110.150 eye=X=6072.602 Y=-7474.710 Z=174.150 binFrame=0 cell=X=161.016 Y=213.941 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            5854.808178464603,
+            -8017.394135263039,
+            110.14999866735687
+          ],
+          "hidden": false,
+          "velocity": [
+            125.67751499618127,
+            551.7536694457941,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_WALKING: 1>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=5854.808 Y=-8017.394 Z=110.150 eye=X=5854.808 Y=-8017.394 Z=174.150 binFrame=0 cell=X=155.344 Y=229.358 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=0 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Moving failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=1000.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=1.02 timeout=2.25 target=X=4457.299 Y=-8717.583 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            6116.443652469903,
+            -7392.399386884701,
+            110.15000117523073
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=6116.444 Y=-7392.399 Z=110.150 eye=X=6116.444 Y=-7392.399 Z=174.150 binFrame=0 cell=X=162.157 Y=211.602 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            5975.029831493763,
+            -7495.545360864754,
+            110.15000022155641
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=5975.030 Y=-7495.545 Z=110.150 eye=X=5975.030 Y=-7495.545 Z=174.150 binFrame=0 cell=X=158.475 Y=214.533 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6002.461308128211,
+            -7499.220014143287,
+            110.14999831420778
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6002.461 Y=-7499.220 Z=110.150 eye=X=6002.461 Y=-7499.220 Z=174.150 binFrame=0 cell=X=159.189 Y=214.637 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            6002.482336416334,
+            -7495.500712512644,
+            110.15000165206789
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=6002.482 Y=-7495.501 Z=110.150 eye=X=6002.482 Y=-7495.501 Z=174.150 binFrame=0 cell=X=159.190 Y=214.531 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            6002.564765771489,
+            -7498.930278250904,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=6002.565 Y=-7498.930 Z=110.150 eye=X=6002.565 Y=-7498.930 Z=174.150 binFrame=0 cell=X=159.192 Y=214.629 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            6054.572866771654,
+            -7482.43760109636,
+            110.15000594360231
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=6054.573 Y=-7482.438 Z=110.150 eye=X=6054.573 Y=-7482.438 Z=174.150 binFrame=0 cell=X=160.546 Y=214.160 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "live",
+      "time": 30.006513595581055,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 12,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879E4420) {elapsed_sim_time: 30.006514, evacuated_count: 12, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            5974.549216925988,
+            -7492.131684512515,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=5974.549 Y=-7492.132 Z=110.150 eye=X=5974.549 Y=-7492.132 Z=174.150 binFrame=0 cell=X=158.462 Y=214.436 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=4 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.975 Y=-8719.293 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            6005.141312374776,
+            -7497.344594534176,
+            110.14999877762922
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=6005.141 Y=-7497.345 Z=110.150 eye=X=6005.141 Y=-7497.345 Z=174.150 binFrame=0 cell=X=159.259 Y=214.584 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.683 Y=-8715.922 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -7497.470157119728,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-7497.470 Z=110.150 eye=X=6000.000 Y=-7497.470 Z=174.150 binFrame=0 cell=X=159.125 Y=214.587 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            6018.540600173149,
+            -7496.115114455185,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=6018.541 Y=-7496.115 Z=110.150 eye=X=6018.541 Y=-7496.115 Z=174.150 binFrame=0 cell=X=159.608 Y=214.549 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            6072.602134656837,
+            -7474.709957867134,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=6072.602 Y=-7474.710 Z=110.150 eye=X=6072.602 Y=-7474.710 Z=174.150 binFrame=0 cell=X=161.016 Y=213.941 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            6038.0361781713455,
+            -7490.812295367314,
+            110.14999866735687
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=6038.036 Y=-7490.812 Z=110.150 eye=X=6038.036 Y=-7490.812 Z=174.150 binFrame=0 cell=X=160.116 Y=214.398 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=4 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4457.299 Y=-8717.583 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            6116.443652469903,
+            -7392.399386884701,
+            110.15000117523073
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=6116.444 Y=-7392.399 Z=110.150 eye=X=6116.444 Y=-7392.399 Z=174.150 binFrame=0 cell=X=162.157 Y=211.602 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            5975.029831493763,
+            -7495.545360864754,
+            110.15000022155641
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=5975.030 Y=-7495.545 Z=110.150 eye=X=5975.030 Y=-7495.545 Z=174.150 binFrame=0 cell=X=158.475 Y=214.533 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6002.461308128211,
+            -7499.220014143287,
+            110.14999831420778
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6002.461 Y=-7499.220 Z=110.150 eye=X=6002.461 Y=-7499.220 Z=174.150 binFrame=0 cell=X=159.189 Y=214.637 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            6002.482336416334,
+            -7495.500712512644,
+            110.15000165206789
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=6002.482 Y=-7495.501 Z=110.150 eye=X=6002.482 Y=-7495.501 Z=174.150 binFrame=0 cell=X=159.190 Y=214.531 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            6002.564765771489,
+            -7498.930278250904,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=6002.565 Y=-7498.930 Z=110.150 eye=X=6002.565 Y=-7498.930 Z=174.150 binFrame=0 cell=X=159.192 Y=214.629 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            6054.572866771654,
+            -7482.43760109636,
+            110.15000594360231
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=6054.573 Y=-7482.438 Z=110.150 eye=X=6054.573 Y=-7482.438 Z=174.150 binFrame=0 cell=X=160.546 Y=214.160 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "live",
+      "time": 59.00767135620117,
+      "phase": "<SimPhase.FIRE_ACTIVE: 2>",
+      "evacuated": 12,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879EA740) {elapsed_sim_time: 59.007671, evacuated_count: 12, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            5974.549216925988,
+            -7492.131684512515,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=5974.549 Y=-7492.132 Z=110.150 eye=X=5974.549 Y=-7492.132 Z=174.150 binFrame=0 cell=X=158.462 Y=214.436 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=4 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.975 Y=-8719.293 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            6005.141312374776,
+            -7497.344594534176,
+            110.14999877762922
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=6005.141 Y=-7497.345 Z=110.150 eye=X=6005.141 Y=-7497.345 Z=174.150 binFrame=0 cell=X=159.259 Y=214.584 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.683 Y=-8715.922 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -7497.470157119728,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-7497.470 Z=110.150 eye=X=6000.000 Y=-7497.470 Z=174.150 binFrame=0 cell=X=159.125 Y=214.587 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            6018.540600173149,
+            -7496.115114455185,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=6018.541 Y=-7496.115 Z=110.150 eye=X=6018.541 Y=-7496.115 Z=174.150 binFrame=0 cell=X=159.608 Y=214.549 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            6072.602134656837,
+            -7474.709957867134,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=6072.602 Y=-7474.710 Z=110.150 eye=X=6072.602 Y=-7474.710 Z=174.150 binFrame=0 cell=X=161.016 Y=213.941 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            6038.0361781713455,
+            -7490.812295367314,
+            110.14999866735687
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=6038.036 Y=-7490.812 Z=110.150 eye=X=6038.036 Y=-7490.812 Z=174.150 binFrame=0 cell=X=160.116 Y=214.398 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=4 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4457.299 Y=-8717.583 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            6116.443652469903,
+            -7392.399386884701,
+            110.15000117523073
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=6116.444 Y=-7392.399 Z=110.150 eye=X=6116.444 Y=-7392.399 Z=174.150 binFrame=0 cell=X=162.157 Y=211.602 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            5975.029831493763,
+            -7495.545360864754,
+            110.15000022155641
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=5975.030 Y=-7495.545 Z=110.150 eye=X=5975.030 Y=-7495.545 Z=174.150 binFrame=0 cell=X=158.475 Y=214.533 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6002.461308128211,
+            -7499.220014143287,
+            110.14999831420778
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6002.461 Y=-7499.220 Z=110.150 eye=X=6002.461 Y=-7499.220 Z=174.150 binFrame=0 cell=X=159.189 Y=214.637 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            6002.482336416334,
+            -7495.500712512644,
+            110.15000165206789
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=6002.482 Y=-7495.501 Z=110.150 eye=X=6002.482 Y=-7495.501 Z=174.150 binFrame=0 cell=X=159.190 Y=214.531 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            6002.564765771489,
+            -7498.930278250904,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=6002.565 Y=-7498.930 Z=110.150 eye=X=6002.565 Y=-7498.930 Z=174.150 binFrame=0 cell=X=159.192 Y=214.629 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            6054.572866771654,
+            -7482.43760109636,
+            110.15000594360231
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": true,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=6054.573 Y=-7482.438 Z=110.150 eye=X=6054.573 Y=-7482.438 Z=174.150 binFrame=0 cell=X=160.546 Y=214.160 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=0 activity=1 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "review_end",
+      "time": 60.00452423095703,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "evacuated": 12,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879E9560) {elapsed_sim_time: 60.004524, evacuated_count: 12, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            5974.549216925988,
+            -7492.131684512515,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=5974.549 Y=-7492.132 Z=110.150 eye=X=5974.549 Y=-7492.132 Z=174.150 binFrame=0 cell=X=158.462 Y=214.436 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=4 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.975 Y=-8719.293 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            6005.141312374776,
+            -7497.344594534176,
+            110.14999877762922
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=6005.141 Y=-7497.345 Z=110.150 eye=X=6005.141 Y=-7497.345 Z=174.150 binFrame=0 cell=X=159.259 Y=214.584 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.683 Y=-8715.922 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -7497.470157119728,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-7497.470 Z=110.150 eye=X=6000.000 Y=-7497.470 Z=174.150 binFrame=0 cell=X=159.125 Y=214.587 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            6018.540600173149,
+            -7496.115114455185,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=6018.541 Y=-7496.115 Z=110.150 eye=X=6018.541 Y=-7496.115 Z=174.150 binFrame=0 cell=X=159.608 Y=214.549 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            6072.602134656837,
+            -7474.709957867134,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=6072.602 Y=-7474.710 Z=110.150 eye=X=6072.602 Y=-7474.710 Z=174.150 binFrame=0 cell=X=161.016 Y=213.941 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            6038.0361781713455,
+            -7490.812295367314,
+            110.14999866735687
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=6038.036 Y=-7490.812 Z=110.150 eye=X=6038.036 Y=-7490.812 Z=174.150 binFrame=0 cell=X=160.116 Y=214.398 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=4 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4457.299 Y=-8717.583 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            6116.443652469903,
+            -7392.399386884701,
+            110.15000117523073
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=6116.444 Y=-7392.399 Z=110.150 eye=X=6116.444 Y=-7392.399 Z=174.150 binFrame=0 cell=X=162.157 Y=211.602 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            5975.029831493763,
+            -7495.545360864754,
+            110.15000022155641
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=5975.030 Y=-7495.545 Z=110.150 eye=X=5975.030 Y=-7495.545 Z=174.150 binFrame=0 cell=X=158.475 Y=214.533 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6002.461308128211,
+            -7499.220014143287,
+            110.14999831420778
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6002.461 Y=-7499.220 Z=110.150 eye=X=6002.461 Y=-7499.220 Z=174.150 binFrame=0 cell=X=159.189 Y=214.637 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            6002.482336416334,
+            -7495.500712512644,
+            110.15000165206789
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=6002.482 Y=-7495.501 Z=110.150 eye=X=6002.482 Y=-7495.501 Z=174.150 binFrame=0 cell=X=159.190 Y=214.531 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            6002.564765771489,
+            -7498.930278250904,
+            110.14999879104494
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=6002.565 Y=-7498.930 Z=110.150 eye=X=6002.565 Y=-7498.930 Z=174.150 binFrame=0 cell=X=159.192 Y=214.629 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            6054.572866771654,
+            -7482.43760109636,
+            110.15000594360231
+          ],
+          "hidden": true,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=6054.573 Y=-7482.438 Z=110.150 eye=X=6054.573 Y=-7482.438 Z=174.150 binFrame=0 cell=X=160.546 Y=214.160 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    },
+    {
+      "label": "rewind",
+      "time": 60.00452423095703,
+      "phase": "<SimPhase.TIMELINE_REVIEW: 3>",
+      "evacuated": 12,
+      "incap": 0,
+      "display": "<Struct 'YUFSSimulationDisplayStats' (0x0000020C879EA800) {elapsed_sim_time: 0.000000, evacuated_count: 0, incapacitated_count: 0, total_npc_count: 12, has_data: True}>",
+      "frame": 0,
+      "npcs": [
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_0",
+          "xyz": [
+            3000.0,
+            -8660.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_0' (0x0000020D58167800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_0 pos=X=3000.000 Y=-8660.000 Z=110.150 eye=X=3000.000 Y=-8660.000 Z=174.150 binFrame=0 cell=X=81.000 Y=247.614 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=4 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.975 Y=-8719.293 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_1",
+          "xyz": [
+            4500.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_1' (0x0000020D58163600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_1 pos=X=4500.000 Y=-8650.000 Z=110.150 eye=X=4500.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=120.062 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=3 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4637.683 Y=-8715.922 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_2",
+          "xyz": [
+            6000.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_2' (0x0000020D58161800) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_2 pos=X=6000.000 Y=-8650.000 Z=110.150 eye=X=6000.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=159.125 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_3",
+          "xyz": [
+            7800.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_3' (0x0000020D58162400) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_3 pos=X=7800.000 Y=-8650.000 Z=110.150 eye=X=7800.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=206.000 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_4",
+          "xyz": [
+            9000.0,
+            -8650.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_4' (0x0000020D58161E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_4 pos=X=9000.000 Y=-8650.000 Z=110.150 eye=X=9000.000 Y=-8650.000 Z=174.150 binFrame=0 cell=X=237.250 Y=247.330 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_5",
+          "xyz": [
+            3100.0,
+            -8150.0,
+            110.14999879104494
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_5' (0x0000020D5840C000) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_5 pos=X=3100.000 Y=-8150.000 Z=110.150 eye=X=3100.000 Y=-8150.000 Z=174.150 binFrame=0 cell=X=83.604 Y=233.125 Z=5.583 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=4 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.25 target=X=4457.299 Y=-8717.583 Z=29.094"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_6",
+          "xyz": [
+            3000.0,
+            -8660.0,
+            480.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_6' (0x0000020D58407E00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_6 pos=X=3000.000 Y=-8660.000 Z=480.150 eye=X=3000.000 Y=-8660.000 Z=544.150 binFrame=0 cell=X=81.000 Y=247.614 Z=16.727 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_7",
+          "xyz": [
+            4500.0,
+            -8650.0,
+            480.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_7' (0x0000020D58407200) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_7 pos=X=4500.000 Y=-8650.000 Z=480.150 eye=X=4500.000 Y=-8650.000 Z=544.150 binFrame=0 cell=X=120.062 Y=247.330 Z=16.727 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_8",
+          "xyz": [
+            6000.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_8' (0x0000020D58406600) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_8 pos=X=6000.000 Y=-8650.000 Z=460.150 eye=X=6000.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=159.125 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_9",
+          "xyz": [
+            7800.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_9' (0x0000020D5840BA00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_9 pos=X=7800.000 Y=-8650.000 Z=460.150 eye=X=7800.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=206.000 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_10",
+          "xyz": [
+            9000.0,
+            -8650.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_10' (0x0000020D5840AE00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_10 pos=X=9000.000 Y=-8650.000 Z=460.150 eye=X=9000.000 Y=-8650.000 Z=524.150 binFrame=0 cell=X=237.250 Y=247.330 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        },
+        {
+          "name": "BP_YUFSRLEvacuationNPC_C_11",
+          "xyz": [
+            8800.0,
+            -8150.0,
+            460.15001595718263
+          ],
+          "hidden": false,
+          "velocity": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "movement_mode": "<MovementMode.MOVE_NONE: 0>",
+          "movement_tick": false,
+          "controller": "<Object '/Game/Maps/it관_찐최종/UEDPIE_0_Main_level.Main_level:PersistentLevel.AIController_11' (0x0000020D58409C00) Class 'AIController'>",
+          "audit": "npc=BP_YUFSRLEvacuationNPC_C_11 pos=X=8800.000 Y=-8150.000 Z=460.150 eye=X=8800.000 Y=-8150.000 Z=524.150 binFrame=0 cell=X=232.042 Y=233.125 Z=16.125 index=-1 rawSmokeHeat=unavailable eyeStatus=OutsideDomain eyeSmoke=0.0000 perceptionFrame=-1 self=0.0000 front=0.0000 above=0.0000 pathMaxSmoke=0.0000 pathMaxHeat=0.0000 nav=Idle failure=None state=Evacuating exposure=0.0000 alarm=1 tick=1 activity=0 request=2 waitingSafe=0 exposureScale=3.00 lowPosture=0 capsuleHalf=88.00 breathingHeight=152.00 pathSampleHeight=120.00 sightCm=0.00 sightTransmission=1.0000 sightDataComplete=0 knownExits=1 searchingExit=0 searchTarget=0 searchQueries=0 [MainEntrance:Entry/Entry]",
+          "traffic": "state=Following yieldingTo=None attempts=0 cooldown=0.00 recoveryTime=0.00 timeout=2.00 target=X=0.000 Y=0.000 Z=0.000"
+        }
+      ]
+    }
+  ],
+  "palette_count": 1,
+  "exit_xyz": [
+    6000.0,
+    -7380.0,
+    20.0
+  ],
+  "initial": [
+    [
+      3000.0,
+      -8660.0,
+      110.14999879104494
+    ],
+    [
+      4500.0,
+      -8650.0,
+      110.14999879104494
+    ],
+    [
+      6000.0,
+      -8650.0,
+      110.14999879104494
+    ],
+    [
+      7800.0,
+      -8650.0,
+      110.14999879104494
+    ],
+    [
+      9000.0,
+      -8650.0,
+      110.14999879104494
+    ],
+    [
+      3100.0,
+      -8150.0,
+      110.14999879104494
+    ],
+    [
+      3000.0,
+      -8660.0,
+      480.15001595718263
+    ],
+    [
+      4500.0,
+      -8650.0,
+      480.15001595718263
+    ],
+    [
+      6000.0,
+      -8650.0,
+      460.15001595718263
+    ],
+    [
+      7800.0,
+      -8650.0,
+      460.15001595718263
+    ],
+    [
+      9000.0,
+      -8650.0,
+      460.15001595718263
+    ],
+    [
+      8800.0,
+      -8150.0,
+      460.15001595718263
+    ]
+  ],
+  "cameras": [
+    {
+      "name": "CineCameraActor_0",
+      "xyz": [
+        6000.0,
+        -10200.0,
+        1450.0
+      ],
+      "tags": [
+        "FireZoneCamera"
+      ]
+    },
+    {
+      "name": "CineCameraActor_1",
+      "xyz": [
+        3179.766357,
+        -7399.72998,
+        6360.844727
+      ],
+      "tags": []
+    },
+    {
+      "name": "CineCameraActor_2",
+      "xyz": [
+        -630.348999,
+        -261.005402,
+        5962.157227
+      ],
+      "tags": []
+    },
+    {
+      "name": "CineCameraActor_3",
+      "xyz": [
+        6098.739746,
+        -12135.949219,
+        2561.168945
+      ],
+      "tags": [
+        "OverviewCamera"
+      ]
+    }
+  ],
+  "live_pause_checked": true,
+  "result": {
+    "evacuated": 12,
+    "incap": 0,
+    "total": 12
+  },
+  "complete": true,
+  "first_all_evacuated_seconds": 21.005779266357422
+}

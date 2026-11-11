@@ -1,0 +1,27 @@
+{
+  "meshes_before": 560,
+  "comm": {
+    "xyz": [
+      6000.0,
+      -8790.0,
+      350.0
+    ],
+    "alarm_radius_cm": 4200,
+    "announcement_radius_cm": 5000.0
+  },
+  "exit": {
+    "id": "MainEntrance",
+    "xyz": [
+      6000.0,
+      -7380.0,
+      20.0
+    ],
+    "width_cm": 180,
+    "familiar_entry": true
+  },
+  "overview": "viewport_camera_2",
+  "same_mesh_geometry": true,
+  "fire_options_unchanged": true,
+  "note": "Fire calibration is deliberately NOT guessed. The inherited old volume is outside the final building; awaiting matching source data/landmarks. Only authored main-entrance region, camera tags/poses and player initial look direction are connected.",
+  "complete": true
+}

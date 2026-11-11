@@ -22,6 +22,8 @@ struct FYUFSExitValidationTestAccess
     static void AvoidUntil(AYUFSEvacuationNPC* NPC, FVector Exit, float Until) { NPC->FailedExitUntil.Add(Exit, Until); }
     static void SetController(AYUFSEvacuationNPC* NPC,AYUFSSimulationController* Controller) { NPC->SimulationController=Controller; }
     static void SyncPosture(AYUFSEvacuationNPC* NPC) { NPC->UpdatePhysicalPosture(); }
+    static bool PreferNearby(AYUFSEvacuationNPC* NPC, const FYUFSHazardSnapshot& Field, FVector& Goal)
+    { return NPC->TryPreferNearbyExit(Field, true, Goal); }
 };
 
 namespace
@@ -77,6 +79,37 @@ bool FYUFSExitPhysicalGeometryTest::RunTest(const FString&)
     TestFalse(TEXT("A nearby body still blocks actual recovery movement"),F.NPC->GetLocalMovement()->IsPhysicalCorridorClear(FVector::ZeroVector));
     TestEqual(TEXT("Another resident does not turn a valid exit region into a wall"),FYUFSExitValidationTestAccess::Terminal(F.NPC),EYUFSTerminalReason::ReachedExit);
     TestTrue(TEXT("Success queries never move the NPC"),F.NPC->GetActorLocation().Equals(Initial));
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSNearbyExitPreferenceTest,
+    "YUFS.NPC.Navigation.ExitValidation.NearbyKnownClearExitWins",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSNearbyExitPreferenceTest::RunTest(const FString&)
+{
+    FExitGeometryFixture F;
+    const FVector FarExit(550,0,0);
+    FVector Goal = FarExit;
+    auto Grid = MakeShared<FYUFSHazardGrid, ESPMode::ThreadSafe>();
+    Grid->Dimensions = FIntVector(40,20,16);
+    Grid->Density.Init(0, 40*20*16);
+    Grid->Temperature.Init(0, 40*20*16);
+    FYUFSHazardSnapshot Field;
+    Field.Status = EYUFSHazardDataStatus::Ready;
+    Field.Grid = Grid;
+    Field.GridToWorld = FTransform(FQuat::Identity, FVector(-200,-200,-20), FVector(20));
+    TestFalse(TEXT("Unseen exit does not override the existing goal"), FYUFSExitValidationTestAccess::PreferNearby(F.NPC, Field, Goal));
+    TestTrue(TEXT("NPC learns the nearby exit"), F.NPC->GetExitKnowledge()->RememberGuidedExit(FVector::ZeroVector, TEXT("Seen")));
+    TestTrue(TEXT("Nearby clear exit overrides the farther goal"), FYUFSExitValidationTestAccess::PreferNearby(F.NPC, Field, Goal));
+    TestEqual(TEXT("The selected goal is the supported near exit"), Goal, FVector::ZeroVector);
+
+    Goal = FarExit;
+    auto* Wall = F.Box(FVector(-40,0,150), FVector(5,180,150));
+    TestFalse(TEXT("An intervening wall prevents the shortcut"), FYUFSExitValidationTestAccess::PreferNearby(F.NPC, Field, Goal));
+    Wall->Destroy();
+    for (int32 Z=0; Z<16; ++Z) Grid->Density[(8*20+10)*16+Z] = 255; // x=-40..-20, exit cell still clear.
+    TestFalse(TEXT("Dense smoke on the approach prevents the shortcut"), FYUFSExitValidationTestAccess::PreferNearby(F.NPC, Field, Goal));
+    TestEqual(TEXT("Rejected shortcut preserves the original goal"), Goal, FarExit);
     return true;
 }
 

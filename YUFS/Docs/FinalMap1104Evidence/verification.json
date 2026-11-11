@@ -1,0 +1,103 @@
+{
+  "date": "2026-11-04",
+  "branch": "codex/merge-final-navigation-1102",
+  "base": "f03f2906cfc1df3a3c3d771a5ee1152bee77d243",
+  "uncommitted_unpushed": true,
+  "engine": "UE 5.7 Windows",
+  "build_exit": 0,
+  "checks": {
+    "steps": [
+      {
+        "name": "live",
+        "exit": 0,
+        "complete": true,
+        "error": null,
+        "result": {
+          "evacuated": 9,
+          "incap": 0,
+          "total": 12
+        }
+      },
+      {
+        "name": "tests",
+        "exit": 0,
+        "total": 126,
+        "failed": []
+      }
+    ],
+    "complete": true
+  },
+  "probe": {
+    "process_exit": 0,
+    "raw_checks": 240,
+    "mismatches": 0,
+    "outside_domain": 0,
+    "frame_end_checks": true
+  },
+  "natural_no_alarm": {
+    "process_exit": 0,
+    "result": {
+      "evacuated": 9,
+      "incap": 0,
+      "total": 12
+    },
+    "moved_over_100cm": 12,
+    "cues": [
+      "<YUFSEvacuationCue.NONE: 0>",
+      "<YUFSEvacuationCue.PEER_WARNING: 4>",
+      "<YUFSEvacuationCue.SMOKE: 2>"
+    ],
+    "native_crawl_observed": true,
+    "physical_capsule_half_cm": 44,
+    "breathing_and_path_probe_height_cm": 55,
+    "unresolved_at59": [
+      "UnsafePath/waitingSafe=1",
+      "Crawling and moving",
+      "UnsafePath/waitingSafe=1 and searchingExit=1"
+    ],
+    "all_alarm_flags_zero": true
+  },
+  "heat": {
+    "process_exit": 0,
+    "option": 3,
+    "fixed_frame": 40,
+    "raw_smoke_heat": [
+      254,
+      239
+    ],
+    "cue": "Heat",
+    "native_state": "Evacuating",
+    "alarm": false,
+    "scope": "Controlled held NPC. Actual field; no threshold or behavior-state override."
+  },
+  "exposure": {
+    "process_exit": 0,
+    "option": 3,
+    "fixed_frame": 900,
+    "first_crawl_sim_seconds": 26.017536163330078,
+    "first_incapacitated_sim_seconds": 38.01845932006836,
+    "physical_low_capsule": true,
+    "native_tick_stops_on_incapacitation": true,
+    "alarm": false,
+    "scope": "Controlled exposure hold with dense actual smoke at both standing/low height, normal rate/thresholds. Not a normal evacuation casualty statistic.",
+    "assertions_complete": true,
+    "shutdown_note": "First run completed assertions but returned1 with no extra fatal/traceback. Same-condition repeat completed every assertion and exited0. No production code/threshold changes between runs; original exit1 cause unconfirmed.",
+    "first_process_exit": 1,
+    "repeat_process_exit": 0,
+    "repeat_assertions_complete": true
+  },
+  "scope": "Existing JJW NPC behavior on final map. No fire rendering/animation/interaction/UI feature rewrite. Existing option data binding only.",
+  "mapping_limitations": "Empirical voxel-level spatial registration, rho around .94-.96. No original FDS units/exact physical dt provenance. Offset0/8fps retained; one extra BIN tail excluded by SVT bounds. DatasetAlignmentConfirmed remains false.",
+  "unchanged_static_meshes": 560,
+  "log_sha256": {
+    "final1104-import.log": "fd3a656054b70fd6852460a01b54c2b669d025e8fe129a6b1cc6eefde7e41df7",
+    "final1104-bind-verified.log": "f24e25b6a4997380415fd059ec69e6875e3c3977611106242d79160d18191fdd",
+    "final1104-probe.log": "ddd6b68ffe0d5cb7a1460ab31bd8bcbcbaa15856185774933782cd58984d4d72",
+    "final1104-live-verified.log": "fc118c797964def27362c311dcf3895e2f7a03611a3565d5359b0320785e5b26",
+    "final1104-tests-verified.log": "df1616f91e06f19e1672909058194332ffe7d0b4f9bcde8fe331274c1b9adbe4",
+    "final1104-heat-verified.log": "7bea0d94674bbb043becdb66a0378b54b114a7f0e5799b045749531db085a6a9",
+    "final1104-exposure.log": "a6b9aaeb9177e5c14205bbca3306f880ea19f733201f5847bfee50a162b98dc0",
+    "final1104-alarm-build.log": "e7b663942fae07832f5308e48683c40ac52b21334c6538c043ebce5a98cae6e1",
+    "final1104-exposure-repeat.log": "bd90b21de3e9d04800da7d002dad48dccd5fc0be24c507bed0871f7886c624cd"
+  }
+}

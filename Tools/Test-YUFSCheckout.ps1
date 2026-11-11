@@ -17,11 +17,13 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Cannot read the checkout commit.' }
     if ($ExpectedCommit -and $commitId -ne $ExpectedCommit) { throw "Wrong commit: $commitId" }
     if ($ExpectedBranch -and $branchName -ne $ExpectedBranch) { throw "Wrong branch: $branchName" }
-    $dataManifest = Get-Content -LiteralPath (Join-Path $checkoutRoot 'YUFS/Docs/CLONE_DATA_SHA256.json') -Raw | ConvertFrom-Json
-    foreach ($entry in $dataManifest) {
-        $dataPath = Join-Path $checkoutRoot "YUFS/Content/Fires/FirePrototype/BinaryData/$($entry.file)"
-        $dataFile = Get-Item -LiteralPath $dataPath
-        if ($dataFile.Length -ne $entry.bytes) { throw "Missing/incomplete LFS data: $($entry.file). Run git lfs pull." }
+    $contentRoot = Join-Path $checkoutRoot 'YUFS/Content'
+    $manifest = Get-Content -LiteralPath (Join-Path $checkoutRoot 'YUFS/Docs/CLONE_DATA_SHA256.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    if (!$manifest.binaryData -or !$manifest.unrealPackages) { throw 'Checkout manifest is missing BIN or Unreal package entries.' }
+    foreach ($entry in $manifest.binaryData) {
+        $dataPath = Join-Path $contentRoot $entry.file
+        $dataFile = Get-Item -LiteralPath $dataPath -ErrorAction SilentlyContinue
+        if (!$dataFile -or $dataFile.Length -ne $entry.bytes) { throw "Missing/incomplete LFS data: $($entry.file). Run git lfs pull." }
         if (!$SkipHash) {
             $hashStream = [System.IO.File]::OpenRead($dataPath)
             $hasher = [System.Security.Cryptography.SHA256]::Create()
@@ -32,11 +34,9 @@ try {
             }
         }
     }
-    $assets = @('Maps/Main.umap','Maps/Lvl_MainMenu.umap',
-        'Fires/Audit0928/MI_Fire1.uasset','Fires/Audit0928/MI_Fire2.uasset','Fires/Audit0928/MI_Fire3.uasset',
-        'Fires/Audit0928/fire_it_test_1.uasset','Fires/Audit0928/fire_it_test_2.uasset','Fires/Audit0928/fire__it_test_3.uasset')
-    foreach ($relativeAsset in $assets) {
-        $assetPath = Join-Path $checkoutRoot "YUFS/Content/$relativeAsset"
+    foreach ($relativeAsset in $manifest.unrealPackages) {
+        $assetPath = Join-Path $contentRoot $relativeAsset
+        if (!(Test-Path -LiteralPath $assetPath -PathType Leaf)) { throw "Missing Unreal package: $relativeAsset" }
         $assetStream = [System.IO.File]::OpenRead($assetPath)
         try {
             $packageTag = New-Object byte[] 4
@@ -62,7 +62,7 @@ try {
     Write-Output "Project: $projectFile"
     Write-Output "Branch: $branchName"
     Write-Output "Commit: $commitId"
-    Write-Output 'PASS: required maps, visual assets and three BIN files are present in THIS checkout.'
+    Write-Output 'PASS: required maps, visual assets and BIN files for the final IT and legacy Main maps are present in THIS checkout.'
     exit 0
 } catch {
     Write-Error -ErrorAction Continue "Checkout validation failed: $($_.Exception.Message)"
