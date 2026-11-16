@@ -1,4 +1,4 @@
-# JJW_NPC_BEHAVIOR 실행 안내
+# mergeing 실행 안내
 
 이 브랜치의 최신 실행 대상은 `YUFS/Content/Maps/it관_찐최종/Main_level.umap`이다. 메인 메뉴에서 **새 시뮬레이션 → 첫 번째 맵**을 선택한다.
 
@@ -8,14 +8,14 @@ Unreal Engine **5.7.4**, C++ 빌드 도구(Visual Studio의 C++ 게임 개발/Wi
 
 ```powershell
 git lfs install
-git clone --branch JJW_NPC_BEHAVIOR --single-branch https://github.com/YOON-JAEYEONG/Fire-Simulation.git
+git clone --branch mergeing --single-branch https://github.com/YOON-JAEYEONG/Fire-Simulation.git
 cd Fire-Simulation
 git lfs pull
 git branch --show-current
 git rev-parse HEAD
 ```
 
-브랜치 출력이 `JJW_NPC_BEHAVIOR`인지 확인한다. GitHub ZIP 다운로드 대신 Git LFS를 사용하는 클론을 권장한다. LFS 다운로드 오류가 있으면 실행하지 말고 먼저 해결한다.
+브랜치 출력이 `mergeing`인지 확인한다. Git LFS로 화재 감지용 BIN을 받는다.
 
 프로젝트 에디터를 닫고 저장소 최상위의 **`Build-And-Launch-YUFS-Safe.cmd`**를 실행한다. 해당 폴더의 데이터·맵을 검사하고 **Development Editor / Win64**를 빌드한 후 바로 그 폴더의 `YUFS.uproject`를 연다. 첫 클론 및 C++ 변경을 받은 뒤 이 파일을 사용한다. 빌드 도구가 설치되어 있어야 한다. 엔진 설치 위치가 다르면 환경 변수 `YUFS_ENGINE_ROOT`를 UE_5.7 폴더로 지정한다.
 
@@ -24,7 +24,7 @@ git rev-parse HEAD
 다운로드만 검사하려면 다음을 실행한다. 최종 IT관 맵과 기존 Main 맵의 BIN 크기·SHA-256, 맵·SVT·머티리얼 파일의 Unreal 패키지 헤더, 현재 브랜치·커밋을 확인한다.
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\Test-YUFSCheckout.ps1 -ExpectedBranch JJW_NPC_BEHAVIOR
+powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\Test-YUFSCheckout.ps1 -ExpectedBranch mergeing
 ```
 
 ## 필요한 화재 파일
@@ -51,7 +51,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Tools\Test-YUFSCheckout.ps
 
 ## 검증과 남은 문제
 
-최종 IT관 맵에서 UE 5.7.4 Windows 빌드와 전체 자동 검사 **126개**의 통과를 확인했다. 개인별 경보·연기·열 인지, 연기에 따른 시야 감쇠, 개인 출구 기억/탐색/안내, 위험 경로 재검사, 양보·대기·물리 복구, 실제 낮은 자세, 출구 영역 판정, 보이는 행동 불능 상태, 일시정지·타임라인 재생·과거 HUD·재시작을 포함한다.
+`mergeing`에서 UE 5.7.4 Windows 빌드와 자동 검사 **128개**의 통과를 확인했다. 통합 맵의 출구와 화재 검증 결과는 `CODEX_HANDOFF.md` 맨 위에 기록했다.
 
 화재 BIN→SVT 변환은 경험적 보정이며 물리 단위·출처·전체 시퀀스 정합은 아직 미확인이다. `bDatasetAlignmentConfirmed=false`를 유지한다. 확인된 발화 위치 메타데이터가 없는 화재에는 자율 소화를 허용하지 않는다. 명시적인 소화 동작 프리뷰는 실제 화재 인식·진압 성공과 별개이며 원본 FDS 재생을 바꾸지 않는다.
 
