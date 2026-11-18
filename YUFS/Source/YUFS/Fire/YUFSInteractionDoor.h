@@ -6,7 +6,17 @@ class UStaticMeshComponent;
 class USceneComponent;
 class UBoxComponent;
 class AYUFSSimulationController;
+class ACharacter;
 struct FYUFSTimelineDoorSnapshot;
+
+UENUM(BlueprintType)
+enum class EYUFSDoorSwingSide : uint8
+{
+ AwayFromOperator,
+ LocalNegativeX,
+ LocalPositiveX
+};
+
 /** Place at a real doorway: origin at the floor hinge, closed leaf along local +Y. */
 UCLASS()
 class YUFS_API AYUFSInteractionDoor : public AActor
@@ -28,12 +38,17 @@ public:
  UFUNCTION(BlueprintPure) bool IsUserInReach(AActor* User) const;
  UFUNCTION(BlueprintPure) FVector GetHandleLocation() const;
  UFUNCTION(BlueprintPure) float GetOpenFraction() const { return OpenFraction; }
+ bool IsLocationInReach(FVector Location) const;
+ bool ConflictsWithOpening(const ACharacter& Walker, FVector From, FVector To) const;
+ bool IsInOpeningSwing(const ACharacter& Character, FVector Location) const;
+ bool IsInsidePropClearance(FVector FloorLocation, float ExtraClearanceCm) const;
  FYUFSTimelineDoorSnapshot BuildTimelineSnapshot() const;
  void ApplyTimelineSnapshot(const FYUFSTimelineDoorSnapshot& Snapshot);
  UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UStaticMeshComponent> Panel;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") bool bLocked = false;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") bool bHot = false;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") float OpenAngle = 90.f;
+ UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") EYUFSDoorSwingSide SwingSide = EYUFSDoorSwingSide::AwayFromOperator;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door", meta=(ClampMin="0.1")) float OpenSeconds = 1.2f;
  UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Door") float UseDistance = 180.f;
 private:
@@ -48,5 +63,8 @@ private:
  bool bOpeningRequested = false;
  bool bOpeningBlocked = false;
  bool bTimelinePresentation = false;
- bool CanSweepLeaf(float FromFraction, float ToFraction) const;
+ FTransform GetSwingTransform(float Yaw) const;
+ bool IntersectsRemainingSwing(const ACharacter& Character, FVector From, FVector To) const;
+ double GetMaximumSwingRadius() const;
+ bool CanSweepLeaf(float FromFraction, float ToFraction, bool bReportBlocker) const;
 };

@@ -14,6 +14,7 @@
 #include "NPC/Cognition/YUFSHumanCognitionComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Fire/YUFSFireExtinguisher.h"
+#include "Fire/YUFSInteractionDoor.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
 #include "NPC/Integration/YUFSNpcSuppressionComponent.h"
 #include "NPC/Decision/YUFSHumanBehaviorSelectorComponent.h"
@@ -125,6 +126,13 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 					It->GetSuppressionComponent()->bKnowsScenarioFireLocation = false;
 			}
 			TArray<FVector> Anchors;
+			auto IsClearOfDoorways = [W](const FVector& Location)
+			{
+				// Keep the prop and room for a capsule beyond the leaf's reach.
+				for (TActorIterator<AYUFSInteractionDoor> Door(W); Door; ++Door)
+					if (Door->IsInsidePropClearance(Location, 60.f)) return false;
+				return true;
+			};
 			int32 Existing = 0;
 			for (TActorIterator<AYUFSFireExtinguisher> It(W); It; ++It)
 			{
@@ -139,7 +147,7 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 					FActorSpawnParameters Params;
 					Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 					const FVector Location = NearRoom.Location + FVector(0, 0, 3);
-					if (!Anchors.ContainsByPredicate([Location](const FVector& P)
+					if (IsClearOfDoorways(Location) && !Anchors.ContainsByPredicate([Location](const FVector& P)
 						{ return FVector::DistSquared(P, Location) < FMath::Square(160.f); }))
 						if (auto* Tool = W->SpawnActor<AYUFSFireExtinguisher>(Location, FRotator::ZeroRotator, Params))
 						{ ++Placed; Anchors.Add(Tool->GetActorLocation()); }
@@ -156,6 +164,7 @@ void UYUFSGameInstance::SetupBuildingInteractions(UWorld* World)
 					FNavLocation ToolPoint;
 					if (!Nav->ProjectPointToNavigation(Candidate, ToolPoint, FVector(60, 60, 140))
 						|| FMath::Abs(ToolPoint.Location.Z - Origin.Z) > 150.f
+						|| !IsClearOfDoorways(ToolPoint.Location)
 						|| Anchors.ContainsByPredicate([&ToolPoint](const FVector& P)
 							{ return FVector::DistSquared(P, ToolPoint.Location) < FMath::Square(160.f); })) continue;
 					FCollisionQueryParams Sight(SCENE_QUERY_STAT(ExtinguisherPlacement), false, *It);

@@ -39,10 +39,13 @@ protected:
 private:
  bool Visible(AActor* Target) const;
  bool NeedsHelp() const;
+ bool ClearDoorSwing(int32 Frame, float Dt);
  void Finish(bool Success, FName Reason);
  void UpdateLocalPose(const FVector& FacingTarget, EYUFSAction Action, float Dt);
  TWeakObjectPtr<AYUFSEvacuationNPC> Npc, Person, Helper;
  TWeakObjectPtr<AYUFSInteractionDoor> Door;
+ TOptional<FVector> DoorClearanceTarget;
+ float NextDoorClearanceSearch=0.f;
  float Scan=0.f, Elapsed=0.f, Contact=0.f, RetryAt=0.f;
  int64 RequestRevision=0;
  EYUFSInteractionGoal ActiveGoal=EYUFSInteractionGoal::None;

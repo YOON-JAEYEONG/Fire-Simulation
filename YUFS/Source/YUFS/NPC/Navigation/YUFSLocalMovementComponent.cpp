@@ -2,6 +2,7 @@
 #include "NPC/YUFSEvacuationNPC.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "Fire/YUFSInteractionDoor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "EngineUtils.h"
@@ -84,6 +85,19 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 	AYUFSEvacuationNPC* Blocker=nullptr;
 	const FVector A=NPC->GetActorLocation();
 	const float Radius=NPC->GetCapsuleComponent()->GetScaledCapsuleRadius();
+	const double DoorLookAhead=FMath::Clamp(NPC->GetVelocity().Size2D()*.25+Radius, 60.0, 180.0);
+	const FVector DoorApproach=A+Desired.GetSafeNormal2D()*DoorLookAhead;
+	for (TActorIterator<AYUFSInteractionDoor> It(GetWorld()); It; ++It)
+	{
+		const auto* Door=*It;
+		if (!Door->ConflictsWithOpening(*NPC,A,DoorApproach)) continue;
+		YieldingTo.Reset();
+		NPC->ConsumeMovementInputVector();
+		NPC->GetCharacterMovement()->StopMovementImmediately();
+		if (!TryRecovery(Desired, Frame))
+			SetState(EYUFSLocalMovementState::Yielding);
+		return FVector::ZeroVector;
+	}
 	float Nearest=FLT_MAX;
 	FVector BlockerDirection=FVector::ZeroVector;
 	bool bBlockerMoving=false;
@@ -168,6 +182,16 @@ bool UYUFSLocalMovementComponent::IsCandidateReachable(FVector CandidateFeet,int
 	if (!NavSys->ProjectPointToNavigation(CandidateFeet,Projected,FVector(45,45,FMath::Max(45.f,ReachableRise)),NavData)) return false;
 	ProjectedFeet=Projected.Location;
 	if (FVector::DistSquared2D(CandidateFeet,ProjectedFeet)>FMath::Square(45.f)) return false;
+	const FVector Start=NPC->GetActorLocation();
+	const FVector Destination=ProjectedFeet+FVector(0,0,Half);
+	for (TActorIterator<AYUFSInteractionDoor> Door(GetWorld()); Door; ++Door)
+	{
+		if (!Door->ConflictsWithOpening(*NPC,Start,Destination)) continue;
+		// A person already inside the swing can still step out if the physical
+		// sweep below confirms clearance. A new swing can also stop a step in progress.
+		if (!Door->ConflictsWithOpening(*NPC,Start,Start)
+			|| Door->ConflictsWithOpening(*NPC,Destination,Destination)) return false;
+	}
 	return IsPhysicalCorridorClear(ProjectedFeet) && NPC->GetNavigator() &&
 		NPC->GetNavigator()->IsLocalRecoverySafe(StartFeet,ProjectedFeet,Frame);
 }

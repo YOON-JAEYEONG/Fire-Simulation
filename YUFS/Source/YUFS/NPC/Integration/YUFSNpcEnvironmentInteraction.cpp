@@ -7,6 +7,7 @@
 #include "NPC/Decision/YUFSBeliefComponent.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NPC/Animation/YUFSActionAnimationComponent.h"
+#include "NPC/Navigation/YUFSLocalMovementComponent.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "Fire/YUFSInteractionDoor.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -64,6 +65,59 @@ bool UYUFSNpcEnvironmentInteraction::Visible(AActor* Target) const
  return !GetWorld()->LineTraceSingleByChannel(Hit,Npc->GetActorLocation()+FVector(0,0,45),Point,ECC_Visibility,Params) || Hit.GetActor()==Target;
 }
 FVector UYUFSNpcEnvironmentInteraction::GetTarget() const { return Person.IsValid()?Person->GetActorLocation():GetOwner()->GetActorLocation(); }
+bool UYUFSNpcEnvironmentInteraction::ClearDoorSwing(int32 Frame, float Dt)
+{
+ const FVector Location=Npc->GetActorLocation();
+ if (Door->SwingSide==EYUFSDoorSwingSide::AwayFromOperator || !Door->IsInOpeningSwing(*Npc.Get(),Location))
+ {
+  DoorClearanceTarget.Reset();
+  return true;
+ }
+
+ Contact=0.f;
+ const FVector Handle=Door->GetHandleLocation();
+ const double HalfHeight=Npc->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+ const FVector FootOffset(0,0,HalfHeight);
+ auto* Local=Npc->GetLocalMovement();
+ if (!Npc->bUseExternalNavigationDriver && Local)
+ {
+  const FVector Feet=Location-FootOffset;
+  auto CanStepTo=[&](FVector Candidate, FVector& Projected)
+  {
+   return Door->IsLocationInReach(Candidate+FootOffset) && Local->IsCandidateReachable(Candidate,Frame,Projected)
+       && Door->IsLocationInReach(Projected+FootOffset) && !Door->IsInOpeningSwing(*Npc.Get(),Projected+FootOffset);
+  };
+  FVector Projected;
+  if (DoorClearanceTarget.IsSet() && !CanStepTo(DoorClearanceTarget.GetValue(),Projected))
+   DoorClearanceTarget.Reset();
+  if (!DoorClearanceTarget.IsSet() && Elapsed>=NextDoorClearanceSearch)
+  {
+   NextDoorClearanceSearch=Elapsed+.35f;
+   const FVector TowardLatch=(Handle-Door->GetActorLocation()).GetSafeNormal2D();
+   const FVector Away=(Location-Handle).GetSafeNormal2D();
+   for (const FVector& Direction : {TowardLatch,(TowardLatch+Away).GetSafeNormal2D(),Away,-TowardLatch})
+   {
+    for (float Distance : {80.f,120.f,160.f})
+    {
+     if (!CanStepTo(Feet+Direction*Distance,Projected)) continue;
+     DoorClearanceTarget=Projected;
+     break;
+    }
+    if (DoorClearanceTarget.IsSet()) break;
+   }
+  }
+  if (DoorClearanceTarget.IsSet())
+  {
+   const FVector Target=DoorClearanceTarget.GetValue();
+   Npc->AddMovementInput((Target-Location).GetSafeNormal2D(),.35f);
+   UpdateLocalPose(Target,EYUFSAction::HelpOther,Dt); // Reuse the walking animation for the side step.
+   return false;
+  }
+ }
+ Npc->GetCharacterMovement()->StopMovementImmediately();
+ UpdateLocalPose(Handle,EYUFSAction::Idle,Dt);
+ return false;
+}
 void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
 {
  Npc=Cast<AYUFSEvacuationNPC>(GetOwner());
@@ -141,6 +195,7 @@ void UYUFSNpcEnvironmentInteraction::Finish(bool Success,FName Reason)
  }
  bActive=false; bApproaching=false; ActiveGoal=EYUFSInteractionGoal::None; ActiveTargetId=NAME_None;
  Door.Reset(); Person.Reset();
+ DoorClearanceTarget.Reset(); NextDoorClearanceSearch=0.f;
  Elapsed=Contact=0; RetryAt=GetWorld()->GetTimeSeconds()+2.f; Scan=0;
 }
 bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
@@ -187,16 +242,20 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  if (Elapsed>20.f) { Finish(false,TEXT("InteractionTimeout")); return true; }
  if (Door.IsValid())
  {
-  bApproaching=false; Npc->GetCharacterMovement()->StopMovementImmediately();
-  if (Door->IsPassageClear()) { Finish(true,TEXT("DoorOpened")); return true; }
+  bApproaching=false;
+  if (Door->IsPassageClear())
+  { Npc->GetCharacterMovement()->StopMovementImmediately(); Finish(true,TEXT("DoorOpened")); return true; }
   if (!Door->CanOperate() || !Door->IsUserInReach(Npc.Get()))
-  { Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true; }
+  { Npc->GetCharacterMovement()->StopMovementImmediately(); Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true; }
   if (!Door->TryReserve(Npc.Get()))
   {
    Contact=0.f;
+   Npc->GetCharacterMovement()->StopMovementImmediately();
    UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
    return true; // Do not crowd/push the NPC currently operating this same door.
   }
+  if (!ClearDoorSwing(SimFrame,Dt)) return true;
+  Npc->GetCharacterMovement()->StopMovementImmediately();
   const FVector Handle=Door->GetHandleLocation();
   const FVector Facing=(Handle-Npc->GetActorLocation()).GetSafeNormal2D();
   const bool Aligned=FVector::DotProduct(Npc->GetActorForwardVector().GetSafeNormal2D(),Facing)
