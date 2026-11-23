@@ -5,7 +5,9 @@
 #include "YUFSNPCPaletteWidget.generated.h"
 
 class AYUFSEvacuationNPC;
+class UComboBoxString;
 class UScrollBox;
+class UTextBlock;
 class UYUFSNPCPaletteEntry;
 
 USTRUCT(BlueprintType)
@@ -26,6 +28,9 @@ class YUFS_API UYUFSNPCPaletteWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	int32 GetPlacementCount() const;
+	void SetPlacementStatus(const FText& Status);
+
 	// 에디터에서 NPC 종류와 이름을 설정
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Palette")
 	TArray<FYUFSNPCPaletteItem> AvailableNPCs;
@@ -42,4 +47,7 @@ protected:
 
 private:
 	void PopulateList();
+
+	UPROPERTY(Transient) TObjectPtr<UComboBoxString> PlacementCountPicker;
+	UPROPERTY(Transient) TObjectPtr<UTextBlock> PlacementStatus;
 };

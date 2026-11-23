@@ -6,6 +6,7 @@
 #include "Components/OverlaySlot.h"
 #include "Components/TextBlock.h"
 #include "UI/YUFSNPCDragDropOperation.h"
+#include "UI/YUFSNPCPaletteWidget.h"
 
 void UYUFSNPCPaletteEntry::NativeOnInitialized()
 {
@@ -32,7 +33,7 @@ void UYUFSNPCPaletteEntry::NativeOnInitialized()
 void UYUFSNPCPaletteEntry::NativePreConstruct()
 {
 	Super::NativePreConstruct();
-	SetToolTipText(NSLOCTEXT("YUFS", "PlacementHelp", "시작 전에 NPC를 건물 바닥으로 드래그하고 방향을 확정하세요."));
+	SetToolTipText(NSLOCTEXT("YUFS", "PlacementHelp", "시작 전에 NPC를 건물 바닥으로 드래그하세요. 1명 배치 시 방향을 확정할 수 있습니다."));
 
 	if (NPCNameText)
 	{
@@ -56,6 +57,12 @@ void UYUFSNPCPaletteEntry::NativeOnDragDetected(const FGeometry& InGeometry, con
 	UYUFSNPCDragDropOperation* DragOp = NewObject<UYUFSNPCDragDropOperation>(this);
 	DragOp->NPCClass   = NPCClass;
 	DragOp->DisplayName = DisplayName;
+	if (UYUFSNPCPaletteWidget* Palette = SourcePalette.Get())
+	{
+		DragOp->SourcePalette = Palette;
+		DragOp->PlacementCount = Palette->GetPlacementCount();
+		Palette->SetPlacementStatus(FText::GetEmpty());
+	}
 	DragOp->DefaultDragVisual = nullptr;
 	DragOp->Pivot = EDragPivot::MouseDown;
 

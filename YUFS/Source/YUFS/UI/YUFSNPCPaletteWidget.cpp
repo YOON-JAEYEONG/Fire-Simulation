@@ -1,10 +1,15 @@
 ﻿#include "UI/YUFSNPCPaletteWidget.h"
-#include "NPC/YUFSEvacuationNPC.h"
-
+#include "Blueprint/WidgetTree.h"
+#include "Components/ComboBoxString.h"
 #include "Components/ScrollBox.h"
 #include "Components/TextBlock.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "UI/YUFSNPCPaletteEntry.h"
+
+namespace
+{
+	constexpr int32 PlacementCounts[] = {1, 5, 10};
+}
 
 void UYUFSNPCPaletteWidget::NativeConstruct()
 {
@@ -21,6 +26,16 @@ void UYUFSNPCPaletteWidget::PopulateList()
 
 	NPCListBox->ClearChildren();
 
+	PlacementCountPicker = WidgetTree->ConstructWidget<UComboBoxString>();
+	PlacementCountPicker->SetToolTipText(NSLOCTEXT("YUFS", "NPCCountHelp", "배치 인원을 선택한 뒤 NPC 항목을 바닥으로 드래그하세요."));
+	for (const int32 Count : PlacementCounts)
+	{
+		PlacementCountPicker->AddOption(FText::Format(
+			NSLOCTEXT("YUFS", "NPCCountOption", "NPC {0}명 배치"), Count).ToString());
+	}
+	PlacementCountPicker->SetSelectedIndex(0);
+	NPCListBox->AddChild(PlacementCountPicker);
+
 	for (const FYUFSNPCPaletteItem& Item : AvailableNPCs)
 	{
 		if (!Item.NPCClass)
@@ -36,8 +51,29 @@ void UYUFSNPCPaletteWidget::PopulateList()
 
 		Entry->NPCClass   = Item.NPCClass;
 		Entry->DisplayName = Item.DisplayName.IsEmpty() ? NSLOCTEXT("YUFS", "PlaceNPC", "NPC 배치") : Item.DisplayName;
+		Entry->SourcePalette = this;
 		if (Entry->NPCNameText) Entry->NPCNameText->SetText(Entry->DisplayName);
 
 		NPCListBox->AddChild(Entry);
+	}
+
+	PlacementStatus = WidgetTree->ConstructWidget<UTextBlock>();
+	PlacementStatus->SetAutoWrapText(true);
+	PlacementStatus->SetVisibility(ESlateVisibility::Collapsed);
+	NPCListBox->AddChild(PlacementStatus);
+}
+
+int32 UYUFSNPCPaletteWidget::GetPlacementCount() const
+{
+	const int32 Index = PlacementCountPicker ? PlacementCountPicker->GetSelectedIndex() : INDEX_NONE;
+	return Index >= 0 && Index < UE_ARRAY_COUNT(PlacementCounts) ? PlacementCounts[Index] : 1;
+}
+
+void UYUFSNPCPaletteWidget::SetPlacementStatus(const FText& Status)
+{
+	if (PlacementStatus)
+	{
+		PlacementStatus->SetText(Status);
+		PlacementStatus->SetVisibility(Status.IsEmpty() ? ESlateVisibility::Collapsed : ESlateVisibility::HitTestInvisible);
 	}
 }

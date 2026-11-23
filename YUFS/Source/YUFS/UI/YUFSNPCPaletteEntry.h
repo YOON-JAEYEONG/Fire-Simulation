@@ -7,6 +7,7 @@
 class AYUFSEvacuationNPC;
 class UImage;
 class UTextBlock;
+class UYUFSNPCPaletteWidget;
 
 UCLASS()
 class YUFS_API UYUFSNPCPaletteEntry : public UUserWidget
@@ -14,6 +15,8 @@ class YUFS_API UYUFSNPCPaletteEntry : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	TWeakObjectPtr<UYUFSNPCPaletteWidget> SourcePalette;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="NPC")
 	TSubclassOf<AYUFSEvacuationNPC> NPCClass;
 

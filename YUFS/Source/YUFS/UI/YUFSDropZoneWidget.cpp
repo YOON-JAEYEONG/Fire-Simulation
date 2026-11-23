@@ -5,10 +5,12 @@
 #include "Engine/GameViewportClient.h"
 #include "EngineUtils.h"
 #include "Framework/Application/SlateApplication.h"
+#include "NavigationData.h"
 #include "NavigationSystem.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "Simulation/YUFSSimulationController.h"
 #include "UI/YUFSNPCDragDropOperation.h"
+#include "UI/YUFSNPCPaletteWidget.h"
 #include "UI/YUFSNPCPlacementPreview.h"
 #include "UI/YUFSNPCActionWidget.h"
 #include "UI/YUFSNPCRotationWidget.h"
@@ -271,8 +273,19 @@ bool UYUFSDropZoneWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragD
 	const FVector2D DropPosition = InDragDropEvent.GetScreenSpacePosition();
 	if (!GetCursorWorldLocation(FloorPos, DragOp->NPCClass, &DropPosition))
 	{
+		if (UYUFSNPCPaletteWidget* Palette = DragOp->SourcePalette.Get())
+			Palette->SetPlacementStatus(NSLOCTEXT("YUFS", "NPCInvalidPlacement", "이동 가능한 빈 바닥에 놓아주세요."));
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS|DropZone] Placement rejected: point at a visible, walkable floor with room for the NPC."));
 		return false;
+	}
+
+	if (DragOp->PlacementCount > 1)
+	{
+		const int32 Placed = SpawnNPCGroup(DragOp->NPCClass, FloorPos, DragOp->PlacementCount);
+		if (UYUFSNPCPaletteWidget* Palette = DragOp->SourcePalette.Get())
+			Palette->SetPlacementStatus(FText::Format(
+				NSLOCTEXT("YUFS", "NPCGroupPlaced", "NPC {0}/{1}명 배치됨"), Placed, DragOp->PlacementCount));
+		return Placed > 0;
 	}
 
 	// NPC 스폰 (BeginPlay에서 SimController에 자동 등록됨)
@@ -440,23 +453,91 @@ bool UYUFSDropZoneWidget::GetCursorWorldLocation(FVector& OutWorldPos,
 	if (!World->LineTraceSingleByChannel(Hit, RayOrigin, RayOrigin + RayDirection * 100000.f,
 		ECC_Visibility, Query) || !Movement->IsWalkable(Hit)) return false;
 
+	return TryGetPlacementOnFloor(Hit.ImpactPoint, *Capsule, *Movement, OutWorldPos);
+}
+
+bool UYUFSDropZoneWidget::TryGetPlacementOnFloor(const FVector& FloorPoint, const UCapsuleComponent& Capsule,
+	const UCharacterMovementComponent& Movement, FVector& OutWorldPos) const
+{
+	UWorld* World = GetWorld();
 	UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(World);
 	FNavLocation Nav;
-	const float Radius = Capsule->GetScaledCapsuleRadius();
-	if (!NavSys || !NavSys->ProjectPointToNavigation(Hit.ImpactPoint, Nav,
-		FVector(Radius, Radius, 30.f), &Movement->GetNavAgentPropertiesRef())) return false;
+	const float Radius = Capsule.GetScaledCapsuleRadius();
+	if (!NavSys || !NavSys->ProjectPointToNavigation(FloorPoint, Nav,
+		FVector(Radius, Radius, 30.f), &Movement.GetNavAgentPropertiesRef())) return false;
 	// Reject a projection that moves the drop away from the visible floor.
-	if (FVector::DistSquared2D(Hit.ImpactPoint, Nav.Location) > FMath::Square(10.f)
-		|| FMath::Abs(Hit.ImpactPoint.Z - Nav.Location.Z) > 30.f) return false;
+	if (FVector::DistSquared2D(FloorPoint, Nav.Location) > FMath::Square(10.f)
+		|| FMath::Abs(FloorPoint.Z - Nav.Location.Z) > 30.f) return false;
 
-	const FVector Center = Nav.Location + FVector(0, 0, Capsule->GetScaledCapsuleHalfHeight() + 2.f);
+	const FVector Center = Nav.Location + FVector(0, 0, Capsule.GetScaledCapsuleHalfHeight() + 2.f);
 	FCollisionQueryParams Clearance(SCENE_QUERY_STAT(NPCPlacementClearance), false);
 	if (IsValid(ActivePreview)) Clearance.AddIgnoredActor(ActivePreview);
-	if (World->OverlapBlockingTestByChannel(Center, FQuat::Identity, Capsule->GetCollisionObjectType(),
-		FCollisionShape::MakeCapsule(Radius, Capsule->GetScaledCapsuleHalfHeight()), Clearance,
-		FCollisionResponseParams(Capsule->GetCollisionResponseToChannels()))) return false;
+	if (World->OverlapBlockingTestByChannel(Center, FQuat::Identity, Capsule.GetCollisionObjectType(),
+		FCollisionShape::MakeCapsule(Radius, Capsule.GetScaledCapsuleHalfHeight()), Clearance,
+		FCollisionResponseParams(Capsule.GetCollisionResponseToChannels()))) return false;
 	OutWorldPos = Nav.Location;
 	return true;
+}
+
+int32 UYUFSDropZoneWidget::SpawnNPCGroup(TSubclassOf<AYUFSEvacuationNPC> NPCClass, const FVector& Anchor, int32 Count)
+{
+	UWorld* World = GetWorld();
+	const AYUFSEvacuationNPC* CDO = NPCClass->GetDefaultObject<AYUFSEvacuationNPC>();
+	const UCapsuleComponent* Capsule = CDO->GetCapsuleComponent();
+	const UCharacterMovementComponent* Movement = CDO->GetCharacterMovement();
+	const UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(World);
+	if (!Capsule || !Movement || !NavSys) return 0;
+	const ANavigationData* NavData = NavSys->GetNavDataForProps(Movement->GetNavAgentPropertiesRef(), Anchor);
+	if (!NavData) return 0;
+
+	const float Radius = Capsule->GetScaledCapsuleRadius();
+	const float HalfHeight = Capsule->GetScaledCapsuleHalfHeight();
+	const float Spacing = 2.f * Radius + 24.f;
+	TArray<FVector> Locations{Anchor};
+	// Search nearby rings on the clicked floor and check each route for walls or gaps.
+	FCollisionQueryParams FloorTrace(SCENE_QUERY_STAT(NPCGroupFloor), true);
+	FCollisionQueryParams RouteTrace(SCENE_QUERY_STAT(NPCGroupRoute), false);
+	if (const APlayerController* PC = GetOwningPlayer())
+	{
+		FloorTrace.AddIgnoredActor(PC->GetPawn());
+		RouteTrace.AddIgnoredActor(PC->GetPawn());
+	}
+	FCollisionResponseParams RouteResponses(Capsule->GetCollisionResponseToChannels());
+	RouteResponses.CollisionResponse.SetResponse(ECC_Pawn, ECR_Ignore);
+	const FVector CenterOffset(0, 0, HalfHeight + 6.f);
+	const FCollisionShape Body = FCollisionShape::MakeCapsule(Radius, HalfHeight);
+	for (int32 Ring = 1; Ring <= 3 && Locations.Num() < Count; ++Ring)
+	{
+		for (int32 X = -Ring; X <= Ring && Locations.Num() < Count; ++X)
+		{
+			for (int32 Y = -Ring; Y <= Ring && Locations.Num() < Count; ++Y)
+			{
+				if (FMath::Max(FMath::Abs(X), FMath::Abs(Y)) != Ring) continue;
+				const FVector Nearby = Anchor + FVector(X * Spacing, Y * Spacing, 0);
+				FHitResult Floor;
+				if (!World->LineTraceSingleByChannel(Floor, Nearby + FVector(0, 0, 40), Nearby - FVector(0, 0, 40),
+					ECC_Visibility, FloorTrace) || !Movement->IsWalkable(Floor)) continue;
+
+				FVector Candidate;
+				if (!TryGetPlacementOnFloor(Floor.ImpactPoint, *Capsule, *Movement, Candidate)
+					|| FMath::Abs(Candidate.Z - Anchor.Z) > 30.f) continue;
+				if (Locations.ContainsByPredicate([&](const FVector& Existing)
+					{ return FVector::DistSquared2D(Existing, Candidate) < FMath::Square(2.f * Radius + 4.f); })) continue;
+				FVector NavHit;
+				if (NavData->Raycast(Anchor, Candidate, NavHit, NavData->GetDefaultQueryFilter())
+					|| World->SweepTestByChannel(Anchor + CenterOffset, Candidate + CenterOffset, FQuat::Identity,
+						Capsule->GetCollisionObjectType(), Body, RouteTrace, RouteResponses)) continue;
+				Locations.Add(Candidate);
+			}
+		}
+	}
+
+	int32 Placed = 0;
+	for (const FVector& Location : Locations)
+	{
+		if (IsValid(SpawnNPC(NPCClass, Location))) ++Placed;
+	}
+	return Placed;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

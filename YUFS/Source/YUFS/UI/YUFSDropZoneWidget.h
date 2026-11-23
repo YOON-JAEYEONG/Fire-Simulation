@@ -9,6 +9,8 @@ class AYUFSEvacuationNPC;
 class AYUFSNPCPlacementPreview;
 class UYUFSNPCRotationWidget;
 class UYUFSNPCActionWidget;
+class UCapsuleComponent;
+class UCharacterMovementComponent;
 
 UCLASS()
 class YUFS_API UYUFSDropZoneWidget : public UUserWidget
@@ -40,6 +42,9 @@ protected:
 
 private:
 	bool GetCursorWorldLocation(FVector& OutWorldPos, TSubclassOf<AYUFSEvacuationNPC> NPCClass, const FVector2D* ScreenPosition = nullptr) const;
+	bool TryGetPlacementOnFloor(const FVector& FloorPoint, const UCapsuleComponent& Capsule,
+		const UCharacterMovementComponent& Movement, FVector& OutWorldPos) const;
+	int32 SpawnNPCGroup(TSubclassOf<AYUFSEvacuationNPC> NPCClass, const FVector& Anchor, int32 Count);
 	UPROPERTY() TSubclassOf<AYUFSEvacuationNPC> PreviewNPCClass;
 
 	// ── 드래그 미리보기 ──────────────────────────────────────────────
