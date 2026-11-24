@@ -6,7 +6,20 @@
 #include "Components/StaticMeshComponent.h"
 #include "Fire/YUFSInteractionDoor.h"
 #include "NPC/YUFSEvacuationNPC.h"
+#include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
 #include "Simulation/YUFSSimulationController.h"
+
+struct FYUFSDoorQueueTestAccess
+{
+    static void Queue(AYUFSEvacuationNPC& Npc,AYUFSInteractionDoor& Door)
+    {
+        auto* Executor=Npc.FindComponentByClass<UYUFSNpcEnvironmentInteraction>();
+        Executor->Npc=&Npc; Executor->Door=&Door;
+        Executor->bActive=true; Executor->ActiveGoal=EYUFSInteractionGoal::OpenDoor;
+    }
+    static bool MayLead(AYUFSEvacuationNPC& Npc,AYUFSInteractionDoor& Door)
+    { return Npc.FindComponentByClass<UYUFSNpcEnvironmentInteraction>()->IsFrontOfDoorQueue(Door); }
+};
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSDoorNaturalFlowTest,
     "YUFS.NPC.Interaction.DoorReservationAndCollision",
@@ -156,6 +169,38 @@ bool FYUFSDoorNaturalFlowTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("the same reservation completes as soon as the rail is free"),Slide->IsPassageClear());
     TestFalse(TEXT("an already open door does not continue queue control"),
         Slide->IsInOperatorApproach(*Waiting,FVector(5100,80,90)));
+
+    auto* QueueDoor=World->SpawnActor<AYUFSInteractionDoor>(FVector(6000,0,0),FRotator::ZeroRotator,Spawn);
+    auto* OtherDoor=World->SpawnActor<AYUFSInteractionDoor>(FVector(6000,500,0),FRotator::ZeroRotator,Spawn);
+    auto* Front=SpawnNpc(FVector(6080,68,90));
+    auto* Back=SpawnNpc(FVector(6135,8,90));
+    auto* Unrelated=SpawnNpc(FVector(6038,-98,90));
+    if (!QueueDoor || !OtherDoor || !Front || !Back || !Unrelated)
+    { AddError(TEXT("front queue fixture missing")); World->DestroyWorld(false); return false; }
+    FYUFSDoorQueueTestAccess::Queue(*Back,*QueueDoor);
+    FYUFSDoorQueueTestAccess::Queue(*Front,*QueueDoor);
+    FYUFSDoorQueueTestAccess::Queue(*Unrelated,*OtherDoor);
+    TestFalse(TEXT("the rear resident does not win by checking first"),FYUFSDoorQueueTestAccess::MayLead(*Back,*QueueDoor));
+    TestTrue(TEXT("the front eligible resident has the turn"),FYUFSDoorQueueTestAccess::MayLead(*Front,*QueueDoor));
+    TestTrue(TEXT("the front resident opens"),QueueDoor->TryUse(Front));
+    QueueDoor->Tick(3.f);
+    TestTrue(TEXT("the operator receives first passage after full opening"),QueueDoor->GetFirstPasser()==Front);
+    TestEqual(TEXT("first passage keeps its original exit side during crossing"),QueueDoor->GetFirstPassageDestinationSide(),-1.0);
+    TestTrue(TEXT("a follower crossing the same portal lets the operator go first"),
+        QueueDoor->ShouldYieldFirstPassage(*Back,FVector(6120,50,0),FVector(5970,50,0)));
+    TestFalse(TEXT("parallel corridor traffic is not held"),
+        QueueDoor->ShouldYieldFirstPassage(*Back,FVector(6120,50,0),FVector(6120,140,0)));
+    Front->SetActorLocation(FVector(5945,55,90));
+    QueueDoor->Tick(.1f);
+    TestFalse(TEXT("crossing releases the followers"),QueueDoor->GetFirstPasser()!=nullptr);
+    Front->SetActorEnableCollision(false);
+    TestTrue(TEXT("a non-participating resident does not hold the rear turn"),
+        FYUFSDoorQueueTestAccess::MayLead(*Back,*QueueDoor));
+    double Distance=0.0;
+    TestTrue(TEXT("the actual walkway through the portal is detected"),
+        QueueDoor->FindPortalOnPath(FVector(6120,50,0),{FVector(6050,55,0),FVector(5960,55,0)},0,300,Distance));
+    TestFalse(TEXT("a route beside the doorway is not a candidate"),
+        QueueDoor->FindPortalOnPath(FVector(6120,50,0),{FVector(6120,180,0)},0,300,Distance));
 
     auto* PausedDoor=World->SpawnActor<AYUFSInteractionDoor>(FVector(2000,0,0),FRotator::ZeroRotator,Spawn);
     auto* PausedUser=SpawnNpc(FVector(2140,50,90));

@@ -17,7 +17,7 @@ public:
 	void Reset();
 	FVector ResolveDirection(FVector DesiredDirection, float Dt, int32 Frame);
 	bool TryRecovery(FVector DesiredDirection,int32 Frame,bool bSeekCleanerAir=false);
-	bool TryDoorwayPassage(const AYUFSInteractionDoor& Door,int32 Frame);
+	bool TryDoorwayPassage(const AYUFSInteractionDoor& Door,int32 Frame,double DestinationSide=0.0);
 	bool TickRecovery(float Dt,int32 Frame);
 	bool IsRecovering() const { return State==EYUFSLocalMovementState::Recovering; }
 	bool IsDeliberatelyWaiting() const { return State==EYUFSLocalMovementState::Yielding || IsRecovering() || (State==EYUFSLocalMovementState::Blocked && YieldingTo.IsValid()); }

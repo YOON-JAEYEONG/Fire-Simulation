@@ -196,6 +196,49 @@ bool AYUFSInteractionDoor::IntersectPortal(const FVector& From, const FVector& T
  Crossing=Transform.TransformPosition(Local);
  return true;
 }
+bool AYUFSInteractionDoor::FindPortalOnPath(FVector Feet, const TArray<FVector>& Path, int32 Next,
+    double MaxDistance, double& OutDistance) const
+{
+ double Travelled=0.0;
+ for (int32 I=Next; Path.IsValidIndex(I) && Travelled<MaxDistance; ++I)
+ {
+  const double Length=FVector::Dist(Feet,Path[I]);
+  if (Length<1.0) continue;
+  const FVector To=FMath::Lerp(Feet,Path[I],FMath::Min(1.0,(MaxDistance-Travelled)/Length));
+  FVector Crossing;
+  if (IntersectPortal(Feet,To,Crossing))
+  {
+   OutDistance=Travelled+FVector::Dist(Feet,Crossing);
+   return true;
+  }
+  Travelled+=Length;
+  Feet=Path[I];
+ }
+ return false;
+}
+double AYUFSInteractionDoor::GetApproachDistance(const ACharacter& Walker) const
+{
+ const FVector Feet=Walker.GetActorLocation()-FVector(0,0,Walker.GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+ if (FMath::Abs(Feet.Z-GetActorLocation().Z)>80.f) return TNumericLimits<double>::Max();
+ FVector Start=GetPortalFloorPoint(0,0), End=GetPortalFloorPoint(0,1);
+ Start.Z=End.Z=Feet.Z;
+ return FVector::Dist(Feet,FMath::ClosestPointOnSegment(Feet,Start,End));
+}
+const AActor* AYUFSInteractionDoor::GetFirstPasser() const
+{
+ const auto* User=FirstPasser.Get();
+ if (!User || bTimelinePresentation || !IsPassageClear() || !User->GetActorEnableCollision()
+     || GetWorld()->GetTimeSeconds()>=FirstPassageUntil) return nullptr;
+ const FVector Offset=User->GetActorLocation()-GetPortalFloorPoint(0);
+ return FVector::DotProduct(Offset,GetActorForwardVector())*FirstPassageSide>=-32.0
+     && Offset.SizeSquared2D()<FMath::Square(290.0) ? User : nullptr;
+}
+bool AYUFSInteractionDoor::ShouldYieldFirstPassage(const ACharacter& Walker,FVector FromFeet,FVector ToFeet) const
+{
+ const auto* Passer=GetFirstPasser();
+ FVector Crossing;
+ return Passer && Passer!=&Walker && IntersectPortal(FromFeet,ToFeet,Crossing);
+}
 FVector AYUFSInteractionDoor::GetPortalLandingOpposite(const FVector& From) const
 {
  const auto& Transform=GetActorTransform();
@@ -391,6 +434,7 @@ void AYUFSInteractionDoor::Tick(float Dt)
 {
  Super::Tick(Dt);
  if (bTimelinePresentation) return;
+ if (FirstPasser.IsValid() && !GetFirstPasser()) FirstPasser.Reset();
  if (!SimulationController.IsValid())
   for (TActorIterator<AYUFSSimulationController> It(GetWorld());It;++It) { SimulationController=*It; break; }
  if (SimulationController.IsValid() && !SimulationController->IsNPCSimulationEnabled()) return;
@@ -408,6 +452,10 @@ void AYUFSInteractionDoor::Tick(float Dt)
   // Only the passage guard disappears. An open solid leaf is still a physical
   // obstacle and never vanishes or lets people walk through its side.
   PassageBlocker->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+  FirstPasser=Operator;
+  FirstPassageUntil=GetWorld()->GetTimeSeconds()+3.5f;
+  const FVector Offset=Operator->GetActorLocation()-GetPortalFloorPoint(0);
+  FirstPassageSide=FVector::DotProduct(Offset,GetActorForwardVector())<0.0 ? -1.0 : 1.0;
   Release(Operator.Get());
  }
 }
@@ -422,6 +470,7 @@ void AYUFSInteractionDoor::ApplyTimelineSnapshot(const FYUFSTimelineDoorSnapshot
 {
  // Observation only: never TryUse, sweep the live leaf, or create a new reservation.
  bTimelinePresentation=true; Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false; RequestedRoomUntil=-1.f;
+ FirstPasser.Reset(); FirstPassageUntil=-1.f;
  OpenFraction=FMath::Clamp(Snapshot.OpenFraction,0.f,1.f); SwingDirection=Snapshot.SwingDirection<0.f?-1.f:1.f;
  ApplyLeafPose();
  PassageBlocker->SetCollisionEnabled(IsOpen()?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);

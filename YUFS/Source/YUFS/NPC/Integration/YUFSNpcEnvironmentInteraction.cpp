@@ -65,6 +65,76 @@ bool UYUFSNpcEnvironmentInteraction::Visible(AActor* Target) const
  FCollisionQueryParams Params(SCENE_QUERY_STAT(EnvironmentInteractionSight),false,Npc.Get());
  return !GetWorld()->LineTraceSingleByChannel(Hit,Npc->GetActorLocation()+FVector(0,0,45),Point,ECC_Visibility,Params) || Hit.GetActor()==Target;
 }
+bool UYUFSNpcEnvironmentInteraction::WantsThisDoor(const AYUFSInteractionDoor& AtDoor) const
+{
+ if (!Npc.IsValid() || bUseExternalExecutor || Npc->bUseExternalNavigationDriver
+     || Npc->IsHidden() || !Npc->GetActorEnableCollision() || Npc->GetBehaviorStateMachine()->IsIncapacitated()
+     || (!bActive && GetWorld()->GetTimeSeconds()<RetryAt)) return false;
+ const bool AlreadyQueued=IsOperatingDoor() && Door.Get()==&AtDoor;
+ if ((bActive && !AlreadyQueued) || IsPassingDoor()
+     || (!AlreadyQueued && Npc->GetTeamIntegrationComponent()->GetNavigationDirective().Goal==EYUFSNavigationGoal::None))
+  return false;
+ if (const auto* Knowledge=Npc->GetExitKnowledge(); Knowledge && Knowledge->GetPlannedSearchDoor()==&AtDoor) return true;
+ const auto* Nav=Npc->GetNavigator();
+ const FVector Feet=Npc->GetActorLocation()-FVector(0,0,Npc->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+ double Distance=0.0;
+ if (Nav && Nav->GetCurrentPathPoints().IsValidIndex(Nav->GetCurrentWaypointIndex()))
+  return AtDoor.FindPortalOnPath(Feet,Nav->GetCurrentPathPoints(),Nav->GetCurrentWaypointIndex(),300.0,Distance);
+ return AlreadyQueued || Door.Get()==&AtDoor;
+}
+bool UYUFSNpcEnvironmentInteraction::IsFrontOfDoorQueue(AYUFSInteractionDoor& AtDoor) const
+{
+ const double MyDistance=AtDoor.GetApproachDistance(*Npc.Get());
+ for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld());It;++It)
+ {
+  const auto* Peer=*It;
+  if (Peer==Npc.Get() || !AtDoor.IsUserInReach(*It)) continue;
+  const double PeerDistance=AtDoor.GetApproachDistance(*Peer);
+  const bool OnTie=FMath::Abs(PeerDistance-MyDistance)<=1.0;
+  const bool HigherPriority=OnTie
+      ? (Peer->GetStableNPCId()==Npc->GetStableNPCId() ? Peer->GetFName().LexicalLess(Npc->GetFName())
+          : Peer->GetStableNPCId()<Npc->GetStableNPCId())
+      : PeerDistance<MyDistance;
+  if (!HigherPriority) continue;
+  const auto* Candidate=Peer->FindComponentByClass<UYUFSNpcEnvironmentInteraction>();
+  if (!Candidate || Candidate->bUseExternalExecutor || Peer->bUseExternalNavigationDriver
+      || Peer->IsHidden() || !Peer->GetActorEnableCollision() || !Candidate->Visible(&AtDoor)) continue;
+  if (Candidate->WantsThisDoor(AtDoor)) return false;
+
+  // A committed resident at the threshold may still be finishing their
+  // preparation animation. Give them a moment to take the lead, but never
+  // reserve a door for someone with no route or hold up a fleeing queue indefinitely.
+  const auto* State=Peer->GetBehaviorStateMachine();
+  const auto* Nav=Peer->GetNavigator();
+  const FVector Plane=AtDoor.GetPortalFloorPoint(0), Normal=AtDoor.GetActorForwardVector();
+  const bool SameSide=FVector::DotProduct(Npc->GetActorLocation()-Plane,Normal)
+      *FVector::DotProduct(Peer->GetActorLocation()-Plane,Normal)>0.0;
+  if (Elapsed<2.25f && SameSide && PeerDistance<=90.f && MyDistance-PeerDistance>=18.f
+      && !Candidate->bActive && !Peer->IsPickingUpBelongings() && !Peer->IsReturningForBelongings()
+      && State->HasCommittedToEvacuation() && State->GetCurrentState()==EYUFSBehaviorState::Preparing
+      && Nav && Nav->GetCurrentPathPoints().IsEmpty()) return false;
+ }
+ return true;
+}
+bool UYUFSNpcEnvironmentInteraction::ContinueFirstPassage(float Dt,int32 Frame)
+{
+ const auto* Opened=PassageDoor.Get();
+ auto* Local=Npc->GetLocalMovement();
+ if (!Opened || Opened->GetFirstPasser()!=Npc.Get() || Npc->bUseExternalNavigationDriver || !Local)
+ {
+  PassageDoor.Reset(); return false;
+ }
+ const double ExitSide=Opened->GetFirstPassageDestinationSide();
+ if (!Local->IsRecovering() && !Local->TryDoorwayPassage(*Opened,Frame,ExitSide)) return true;
+ // Once walking, keep facing the actual movement. Recomputing the opposite
+ // side from the current position would turn the animation back at the threshold.
+ const FVector Heading=Npc->GetVelocity().GetSafeNormal2D();
+ const FVector Landing=Heading.IsNearlyZero() ? Opened->GetPortalFloorPoint(ExitSide*115.0)
+     : Npc->GetActorLocation()+Heading*100.f;
+ UpdateLocalPose(Landing,EYUFSAction::HelpOther,Dt);
+ Local->TickRecovery(Dt,Frame);
+ return true;
+}
 FVector UYUFSNpcEnvironmentInteraction::GetTarget() const { return Person.IsValid()?Person->GetActorLocation():GetOwner()->GetActorLocation(); }
 bool UYUFSNpcEnvironmentInteraction::ClearDoorSwing(int32 Frame, float Dt)
 {
@@ -225,6 +295,21 @@ void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
     else if (auto* Portal=Knowledge->FindKnownDoorAlongPath(Nav->GetCurrentPathPoints(), Nav->GetCurrentWaypointIndex());
       IsValid(Portal) && Visible(Portal)) Door=Portal;
    }
+  if (!Door.IsValid())
+  {
+   // Recognize the exact door on the near route even if a neighbor blocked the
+   // first look at the leaf. Never substitute a more visible neighboring door.
+   const FVector Feet=Npc->GetActorLocation()-FVector(0,0,Npc->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+   double BestDistance=301.0;
+   for (TActorIterator<AYUFSInteractionDoor> It(GetWorld());It;++It)
+   {
+    double Distance=0.0;
+    if (It->IsPassageClear() || !It->IsUserInReach(Npc.Get())
+        || !It->FindPortalOnPath(Feet,Nav->GetCurrentPathPoints(),Nav->GetCurrentWaypointIndex(),300.0,Distance)
+        || Distance>=BestDistance || !Visible(*It)) continue;
+    Door=*It; BestDistance=Distance;
+   }
+  }
  }
   if ((!Door.IsValid() || Door->IsPassageClear()) && Npc->GetExitKnowledge())
   {
@@ -296,6 +381,7 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
 {
  if (!Npc.IsValid() || bUseExternalExecutor) { Cancel(); return false; }
  if (Npc->GetBehaviorStateMachine()->IsIncapacitated()) { Cancel(); return false; }
+ if (PassageDoor.IsValid() && ContinueFirstPassage(Dt,SimFrame)) return true;
  auto* Team=Npc->GetTeamIntegrationComponent(); const auto& Directive=Team->GetInteractionDirective();
  // A usable door on the evacuation route remains necessary during emergency
  // escape. Risk interrupts optional helping/suppression, not the escape door.
@@ -338,10 +424,32 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  {
   bApproaching=false;
   if (Door->IsPassageClear())
-  { Npc->GetCharacterMovement()->StopMovementImmediately(); Finish(true,TEXT("DoorOpened")); return true; }
+  {
+   auto* Opened=Door.Get();
+   const auto* First=Opened->GetFirstPasser();
+   Npc->GetCharacterMovement()->StopMovementImmediately();
+   if (First && First!=Npc.Get()) return true;
+   const bool MyEvacuationPassage=First==Npc.Get()
+       && (Npc->GetCurrentIntent()==EYUFSIntent::CommitEvac || Npc->bInteractionPreviewControlled);
+   Finish(true,TEXT("DoorOpened"));
+   if (MyEvacuationPassage)
+   {
+    PassageDoor=Opened;
+    ContinueFirstPassage(Dt,SimFrame);
+   }
+   return true;
+  }
   if (!Door->CanOperate() || !Door->IsUserInReach(Npc.Get()))
   { Npc->GetCharacterMovement()->StopMovementImmediately(); Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true; }
   const bool bAlreadyOperator=Door->IsReservedBy(Npc.Get());
+  if (!bAlreadyOperator && !Door->HasOpeningOperator() && !IsFrontOfDoorQueue(*Door.Get()))
+  {
+   // Hold behind the lead resident instead of backing them out of the doorway.
+   Contact=0.f;
+   Npc->GetCharacterMovement()->StopMovementImmediately();
+   UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
+   return true;
+  }
   if (!Door->TryReserve(Npc.Get()))
   {
    Contact=0.f;
@@ -358,7 +466,12 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
       || FVector::DistSquared2D(Position,LastDoorProgressPosition)>FMath::Square(15.f))
   {
    DoorNoProgress=0.f; LastDoorFraction=Fraction; LastDoorProgressPosition=Position;
-   if (!bAlreadyOperator) { DoorClearanceTarget.Reset(); NextDoorClearanceSearch=0.f; }
+   if (!bAlreadyOperator)
+   {
+    DoorClearanceTarget.Reset(); NextDoorClearanceSearch=0.f;
+    UE_LOG(LogTemp,Log,TEXT("[YUFS][DoorQueue] door=%s lead=%s distance=%.1f"),
+        *Door->GetName(),*Npc->GetName(),Door->GetApproachDistance(*Npc.Get()));
+   }
   }
   else DoorNoProgress+=Dt;
   if (DoorNoProgress>4.f)
@@ -417,5 +530,9 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
  }
  return true;
 }
-void UYUFSNpcEnvironmentInteraction::Cancel() { if (bActive) Finish(false,TEXT("InteractionCancelled")); }
+void UYUFSNpcEnvironmentInteraction::Cancel()
+{
+ if (bActive) Finish(false,TEXT("InteractionCancelled"));
+ PassageDoor.Reset();
+}
 void UYUFSNpcEnvironmentInteraction::EndPlay(const EEndPlayReason::Type Reason) { Cancel(); Super::EndPlay(Reason); }

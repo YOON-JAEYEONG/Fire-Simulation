@@ -92,6 +92,15 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 	for (TActorIterator<AYUFSInteractionDoor> It(GetWorld()); It; ++It)
 	{
 		const auto* Door=*It;
+		const FVector FootOffset(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		if (Door->ShouldYieldFirstPassage(*NPC,A-FootOffset,DoorApproach-FootOffset))
+		{
+			NPC->ConsumeMovementInputVector();
+			NPC->GetCharacterMovement()->StopMovementImmediately();
+			YieldingTo.Reset();
+			SetState(EYUFSLocalMovementState::Yielding);
+			return FVector::ZeroVector;
+		}
 		if (!Door->ConflictsWithOpening(*NPC,A,DoorApproach)) continue;
 		YieldingTo.Reset();
 		NPC->ConsumeMovementInputVector();
@@ -317,14 +326,15 @@ void UYUFSLocalMovementComponent::BeginRecovery(AYUFSEvacuationNPC& NPC,const FV
 	SetState(EYUFSLocalMovementState::Recovering);
 }
 
-bool UYUFSLocalMovementComponent::TryDoorwayPassage(const AYUFSInteractionDoor& Door,int32 Frame)
+bool UYUFSLocalMovementComponent::TryDoorwayPassage(const AYUFSInteractionDoor& Door,int32 Frame,double DestinationSide)
 {
 	auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner());
 	if (!NPC || !NPC->GetNavigator() || IsRecovering() || !Door.IsPassageClear()) return false;
 	const FVector Feet=NPC->GetActorLocation()-FVector(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 	const FVector DoorCenter=Door.GetPortalFloorPoint(0);
 	if (FVector::DistSquared2D(Feet,DoorCenter)>FMath::Square(290.0) || FMath::Abs(Feet.Z-DoorCenter.Z)>80.0) return false;
-	const double Side=FVector::DotProduct(Feet-DoorCenter,Door.GetActorForwardVector()) < 0.0 ? -1.0 : 1.0;
+	const double CurrentSide=FVector::DotProduct(Feet-DoorCenter,Door.GetActorForwardVector()) < 0.0 ? -1.0 : 1.0;
+	const double Side=DestinationSide==0.0 ? CurrentSide : -DestinationSide;
 	auto Clear=[&](const FVector& From,const FVector& To,FVector& Supported)
 	{
 		return IsPhysicalCorridorClearFrom(From,To,false,&Supported)
@@ -340,6 +350,7 @@ bool UYUFSLocalMovementComponent::TryDoorwayPassage(const AYUFSInteractionDoor& 
 			BeginRecovery(*NPC,Supported);
 			return true;
 		}
+		if (DestinationSide!=0.0 && CurrentSide==DestinationSide) continue;
 		const FVector Alignment=Door.GetPortalFloorPoint(Side*110.0,Width);
 		FVector SupportedAlignment;
 		if (FVector::DistSquared2D(Alignment,Feet)<FMath::Square(35.0)

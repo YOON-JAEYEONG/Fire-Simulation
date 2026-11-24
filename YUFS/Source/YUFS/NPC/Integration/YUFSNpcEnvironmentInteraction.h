@@ -10,6 +10,7 @@ UCLASS(ClassGroup=(YUFS), meta=(BlueprintSpawnableComponent))
 class YUFS_API UYUFSNpcEnvironmentInteraction : public UActorComponent
 {
  GENERATED_BODY()
+ friend struct FYUFSDoorQueueTestAccess;
 public:
  UYUFSNpcEnvironmentInteraction();
  void Observe(float Dt);
@@ -19,6 +20,7 @@ public:
  void Cancel();
  bool IsActive() const { return bActive; }
  bool IsOperatingDoor() const { return bActive && ActiveGoal==EYUFSInteractionGoal::OpenDoor; }
+ bool IsPassingDoor() const { return PassageDoor.IsValid(); }
  bool IsYieldingDoorSpace() const { return bYieldingDoorSpace; }
  bool NeedsMovement() const { return bActive && bApproaching; }
  FVector GetTarget() const;
@@ -41,6 +43,9 @@ protected:
  virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 private:
  bool Visible(AActor* Target) const;
+ bool WantsThisDoor(const AYUFSInteractionDoor& AtDoor) const;
+ bool IsFrontOfDoorQueue(AYUFSInteractionDoor& AtDoor) const;
+ bool ContinueFirstPassage(float Dt, int32 Frame);
  bool NeedsHelp() const;
  bool ClearDoorSwing(int32 Frame, float Dt);
  enum class EDoorStep : uint8 { Operator, ClearLeaf, MakeRoom };
@@ -50,6 +55,7 @@ private:
  void UpdateLocalPose(const FVector& FacingTarget, EYUFSAction Action, float Dt);
  TWeakObjectPtr<AYUFSEvacuationNPC> Npc, Person, Helper;
  TWeakObjectPtr<AYUFSInteractionDoor> Door;
+ TWeakObjectPtr<AYUFSInteractionDoor> PassageDoor;
  TOptional<FVector> DoorClearanceTarget;
  TOptional<FVector> YieldClearanceTarget;
  TWeakObjectPtr<AYUFSInteractionDoor> YieldDoor;

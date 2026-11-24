@@ -1532,7 +1532,7 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 	const bool bLiveInteraction = !bTimelinePlaybackMode
 		&& (!SimulationController || SimulationController->IsNPCSimulationEnabled());
 	if (bLiveInteraction && EnvironmentInteraction
-		&& (EnvironmentInteraction->IsActive() || EnvironmentInteraction->IsReceivingContactAssistance()
+		&& (EnvironmentInteraction->IsActive() || EnvironmentInteraction->IsPassingDoor() || EnvironmentInteraction->IsReceivingContactAssistance()
 			|| EnvironmentInteraction->IsYieldingDoorSpace())) return;
 	if (SuppressionComp && (SuppressionComp->IsActive() || SuppressionComp->IsVisualPresentationActive())) return;
 	if (bUseExternalMotionDriver || !ActionAnimationComp)
@@ -1640,8 +1640,8 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 	}
 	if (EnvironmentInteraction && EnvironmentInteraction->Execute(DeltaTime, GetCurrentSimFrame()))
 	{
-		bInteractionHoldingPosition = true;
-		if (LocalMovement) LocalMovement->Reset();
+		bInteractionHoldingPosition = !EnvironmentInteraction->IsPassingDoor();
+		if (LocalMovement && bInteractionHoldingPosition) LocalMovement->Reset();
 		return;
 	}
 	if (EnvironmentInteraction && EnvironmentInteraction->NeedsMovement())

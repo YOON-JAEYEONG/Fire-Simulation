@@ -43,6 +43,13 @@ public:
  bool IsLocationInReach(FVector Location) const;
  /** Stable doorway geometry, independent of whether its leaf is open. Inputs are floor points. */
  bool IntersectPortal(const FVector& From, const FVector& To, FVector& Crossing) const;
+ bool FindPortalOnPath(FVector Feet, const TArray<FVector>& Path, int32 Next, double MaxDistance,
+     double& OutDistance) const;
+ double GetApproachDistance(const ACharacter& Walker) const;
+ /** Brief right of way for the operator who actually finished opening. */
+ const AActor* GetFirstPasser() const;
+ double GetFirstPassageDestinationSide() const { return -FirstPassageSide; }
+ bool ShouldYieldFirstPassage(const ACharacter& Walker, FVector FromFeet, FVector ToFeet) const;
  FVector GetPortalLandingOpposite(const FVector& From) const;
  FVector GetPortalFloorPoint(double SideOffsetCm, double WidthFraction=0.5) const;
  bool ConflictsWithOpening(const ACharacter& Walker, FVector From, FVector To) const;
@@ -72,11 +79,14 @@ private:
  UPROPERTY() TArray<TObjectPtr<UStaticMeshComponent>> HardwareMeshes;
  UPROPERTY() TObjectPtr<UStaticMeshComponent> SlidingRail;
  TWeakObjectPtr<AActor> Operator;
+ TWeakObjectPtr<AActor> FirstPasser;
  TWeakObjectPtr<AYUFSSimulationController> SimulationController;
  float OpenFraction = 0.f;
  float SwingDirection = 1.f;
  float ResolvedSlideMount = 0.f;
  float RequestedRoomUntil = -1.f;
+ float FirstPassageUntil = -1.f;
+ double FirstPassageSide = 1.0;
  bool bSlideTrackResolved = false;
  bool bOpeningRequested = false;
  bool bOpeningBlocked = false;
