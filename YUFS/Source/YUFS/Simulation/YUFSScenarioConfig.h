@@ -75,9 +75,10 @@ struct YUFS_API FYUFSScenarioConfig
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scenario|NPC")
 	EYUFSScenarioPolicy PolicyType = EYUFSScenarioPolicy::RuleBased;
 
-	// PolicyType == ML 일 때 사용할 ONNX 모델 경로 (프로젝트 상대 또는 절대)
+	// PolicyType == ML 일 때 사용할 ONNX 모델 경로 (프로젝트/Saved/Content 상대 또는 절대)
+	// 기본값은 패키징 시 NonUFS로 함께 스테이징되는 Content/ML 모델입니다.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scenario|NPC")
-	FString OnnxModelPath;
+	FString OnnxModelPath = TEXT("ML/rf_model.onnx");
 
 	// Retained for old saved scenarios; fresh randomness is never selected implicitly.
 	UPROPERTY()

@@ -37,6 +37,7 @@
 #include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
 #include "NPC/Tasks/YUFSActionTaskComponent.h"
 #include "Perception/YUFSNPCPerceptionComponent.h"
+#include "Simulation/YUFSGameInstance.h"
 #include "Simulation/YUFSSimulationController.h"
 #include "Social/YUFSSocialInfluenceComponent.h"
 #include "Misc/Crc.h"
@@ -113,6 +114,17 @@ void AYUFSEvacuationNPC::BeginPlay()
 		}
 	}
 	MLPolicy.SetFallbackRandomSource(&DeterministicRng);
+	// 메뉴에서 시나리오를 실행한 경우 선택한 정책을 따른다. 메뉴 없이 들어온 PIE는
+	// 기존처럼 Saved 아래 최신 ONNX 모델을 자동 탐색한다.
+	if (const UYUFSGameInstance* GI = GetGameInstance<UYUFSGameInstance>(); GI && GI->bHasActiveScenario)
+	{
+		const bool bUseOnnx = GI->ActiveScenario.PolicyType == EYUFSScenarioPolicy::ML;
+		MLPolicy.SetForceRuleBased(!bUseOnnx);
+		if (bUseOnnx)
+		{
+			MLPolicy.LoadModel(GI->ActiveScenario.OnnxModelPath);
+		}
+	}
 	if (ActionAnimationComp && !bUseExternalMotionDriver)
 	{
 		ActionAnimationComp->Initialize(GetMesh(), StableNPCId);

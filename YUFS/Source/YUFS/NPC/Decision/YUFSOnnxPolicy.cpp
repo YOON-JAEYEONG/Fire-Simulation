@@ -54,7 +54,7 @@ FYUFSOnnxPolicy::FYUFSOnnxPolicy(const FString& InModelPath, const FString& InRu
 
 EYUFSAction FYUFSOnnxPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 {
-	if (bDataCollectionMode || !EnsureModelLoaded())
+	if (bDataCollectionMode || bForceRuleBased || !EnsureModelLoaded())
 	{
 		return FallbackPolicy.SelectAction(Obs);
 	}

@@ -24,6 +24,8 @@ public:
 
 	// 데이터 수집 모드: ONNX 모델 대신 룰베이스 폴백을 강제해 학습 데이터를 수집
 	void SetDataCollectionMode(bool bEnable) { bDataCollectionMode = bEnable; }
+	// 시나리오에서 룰베이스 정책을 선택한 경우 ONNX 모델을 로드하지 않고 폴백만 사용
+	void SetForceRuleBased(bool bEnable) { bForceRuleBased = bEnable; }
 	void SetFallbackRandomSource(FYUFSDeterministicRngSet* InRandomSource)
 	{
 		FallbackPolicy.SetRandomSource(InRandomSource);
@@ -61,5 +63,6 @@ private:
 	bool bLoadAttempted    = false;
 	bool bModelReady       = false;
 	bool bDataCollectionMode = false;
+	bool bForceRuleBased     = false;
 	TSharedPtr<FYUFSSharedOnnxModelState> SharedModelState;
 };

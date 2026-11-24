@@ -197,6 +197,11 @@ void UYUFSScenarioSetupWidget::SetNPCCount(int32 Count)
 void UYUFSScenarioSetupWidget::SetPolicyType(EYUFSScenarioPolicy Policy)
 {
 	WorkingConfig.PolicyType = Policy;
+	// 경로가 비어 있는 예전 설정에서도 ML 선택 시 검증에 막히지 않도록 기본 모델로 채웁니다.
+	if (Policy == EYUFSScenarioPolicy::ML && WorkingConfig.OnnxModelPath.IsEmpty())
+	{
+		WorkingConfig.OnnxModelPath = FYUFSScenarioConfig().OnnxModelPath;
+	}
 }
 
 void UYUFSScenarioSetupWidget::SetPlacementPreset(EYUFSPlacementPreset Preset)
