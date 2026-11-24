@@ -2,6 +2,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Components/ComboBoxString.h"
 #include "Components/ScrollBox.h"
+#include "Components/ScrollBoxSlot.h"
 #include "Components/TextBlock.h"
 #include "NPC/YUFSEvacuationNPC.h"
 #include "UI/YUFSNPCPaletteEntry.h"
@@ -34,7 +35,11 @@ void UYUFSNPCPaletteWidget::PopulateList()
 			NSLOCTEXT("YUFS", "NPCCountOption", "NPC {0}명 배치"), Count).ToString());
 	}
 	PlacementCountPicker->SetSelectedIndex(0);
-	NPCListBox->AddChild(PlacementCountPicker);
+	// 콤보박스와 아래 NPC 항목이 붙어 겹쳐 보이지 않도록 아래쪽 여백을 둡니다.
+	if (UScrollBoxSlot* PickerSlot = Cast<UScrollBoxSlot>(NPCListBox->AddChild(PlacementCountPicker)))
+	{
+		PickerSlot->SetPadding(FMargin(0.f, 0.f, 0.f, 8.f));
+	}
 
 	for (const FYUFSNPCPaletteItem& Item : AvailableNPCs)
 	{
