@@ -5,6 +5,7 @@
 #include "YUFSExitKnowledgeComponent.generated.h"
 
 class AYUFSExitPoint;
+class AYUFSInteractionDoor;
 class AYUFSEvacuationNPC;
 class AYUFSLevelDataManager;
 
@@ -40,6 +41,10 @@ public:
 	bool KnowsExitLocation(FVector Location) const;
 	bool TryGetFamiliarExit(FVector& Out) const;
 	bool TryGetSearchTarget(FVector& Out);
+	void RememberLocalDoor(AYUFSInteractionDoor* Door);
+	void ObserveLocalDoors(const FYUFSHazardSnapshot& Snapshot, bool bSmokeActive);
+	AYUFSInteractionDoor* FindKnownDoorAlongPath(const TArray<FVector>& Points, int32 NextWaypoint) const;
+	AYUFSInteractionDoor* GetPlannedSearchDoor() const;
 	void StopSearching();
 	void TickSearchLook(float DeltaTime);
 	UFUNCTION(BlueprintPure) int32 GetKnownExitCount() const;
@@ -47,6 +52,7 @@ public:
 	UFUNCTION(BlueprintPure) bool HasSearchTarget() const { return bHasSearchTarget; }
 	UFUNCTION(BlueprintPure) int32 GetSearchQueryCount() const { return SearchQueryCount; }
 	UFUNCTION(BlueprintPure) FString GetKnowledgeDiagnostics() const;
+	UFUNCTION(BlueprintPure) int32 GetKnownDoorCount() const;
 private:
 	AYUFSEvacuationNPC* OwnerNPC() const;
 	AYUFSLevelDataManager* Manager() const;
@@ -54,7 +60,14 @@ private:
 	void Visit(FVector Point);
 	TArray<FYUFSRememberedExit> Exits;
 	TArray<FVector> Visited;
-	FRandomStream SearchRandom;
+	TArray<TWeakObjectPtr<AYUFSInteractionDoor>> KnownDoors;
+	struct FRejectedPoint { FVector Point; float RetryAt; };
+	TArray<FRejectedPoint> RecentlyRejected;
+	TOptional<FVector> LastFeet;
+	TWeakObjectPtr<AYUFSInteractionDoor> SearchDoor;
+	TWeakObjectPtr<AYUFSInteractionDoor> LastExploredDoor;
+	float LastDoorRetryAt=0.f;
+	double SearchDoorSide=0;
 	bool bInitialized=false,bSearching=false,bHasSearchTarget=false;
 	float Clock=0.f,ObservationTimer=0.f,NextSearchAt=0.f,SearchDeadline=0.f;
 	FVector SearchTarget=FVector::ZeroVector;

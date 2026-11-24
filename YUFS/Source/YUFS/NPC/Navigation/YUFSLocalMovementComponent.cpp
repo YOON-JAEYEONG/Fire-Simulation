@@ -5,6 +5,7 @@
 #include "Fire/YUFSInteractionDoor.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "EngineUtils.h"
 #include "Engine/World.h"
 #include "NavigationSystem.h"
@@ -33,6 +34,7 @@ void UYUFSLocalMovementComponent::Reset()
 {
 	if (auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner())) NPC->GetCharacterMovement()->bUseRVOAvoidance=true;
 	YieldingTo.Reset(); YieldTime=RecoveryTime=Cooldown=0.f; Attempts=0;
+	DoorwayFollowThrough.Reset(); DoorwayRecoveryDoor.Reset(); bDoorwayRecovery=false;
 	SetState(EYUFSLocalMovementState::Following);
 }
 bool UYUFSLocalMovementComponent::TrajectoriesConflict(FVector A,FVector DA,float RA,FVector B,FVector DB,float RB,float LookAhead)
@@ -290,6 +292,81 @@ int32 UYUFSLocalMovementComponent::SelectRecoverySpace(const TArray<FVector>& Ca
 	}
 	return Best;
 }
+void UYUFSLocalMovementComponent::BeginRecovery(AYUFSEvacuationNPC& NPC,const FVector& Target)
+{
+	RecoveryTarget=Target; RecoveryTime=0.f;
+	const float Speed=FMath::Max(20.f,FMath::Min(NPC.GetCharacterMovement()->MaxWalkSpeed,bDoorwayRecovery?175.f:160.f)
+		*(bDoorwayRecovery?.65f:.45f));
+	RecoveryTimeout=FMath::Clamp(FVector::Dist2D(Target,NPC.GetActorLocation())/Speed+1.f,2.f,8.f);
+	NPC.ConsumeMovementInputVector(); NPC.GetCharacterMovement()->StopMovementImmediately();
+	NPC.GetCharacterMovement()->bUseRVOAvoidance=false;
+	SetState(EYUFSLocalMovementState::Recovering);
+}
+
+bool UYUFSLocalMovementComponent::TryDoorwayPassage(const AYUFSInteractionDoor& Door,int32 Frame)
+{
+	auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner());
+	if (!NPC || !NPC->GetNavigator() || IsRecovering() || !Door.IsPassageClear()) return false;
+	const FVector Feet=NPC->GetActorLocation()-FVector(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	const FVector DoorCenter=Door.GetPortalFloorPoint(0);
+	if (FVector::DistSquared2D(Feet,DoorCenter)>FMath::Square(290.0) || FMath::Abs(Feet.Z-DoorCenter.Z)>80.0) return false;
+	const double Side=FVector::DotProduct(Feet-DoorCenter,Door.GetActorForwardVector()) < 0.0 ? -1.0 : 1.0;
+	auto Clear=[&](const FVector& From,const FVector& To,FVector& Supported)
+	{
+		return IsPhysicalCorridorClearFrom(From,To,false,&Supported)
+			&& NPC->GetNavigator()->IsLocalRecoverySafe(From,Supported,Frame);
+	};
+	for (const double Width : {.55,.68,.42,.76,.32})
+	{
+		const FVector Landing=Door.GetPortalFloorPoint(-Side*115.0,Width);
+		FVector Supported;
+		if (Clear(Feet,Landing,Supported))
+		{
+			bDoorwayRecovery=true; DoorwayRecoveryDoor=&Door; DoorwayFollowThrough.Reset();
+			BeginRecovery(*NPC,Supported);
+			return true;
+		}
+		const FVector Alignment=Door.GetPortalFloorPoint(Side*110.0,Width);
+		FVector SupportedAlignment;
+		if (FVector::DistSquared2D(Alignment,Feet)<FMath::Square(35.0)
+			|| !Clear(Feet,Alignment,SupportedAlignment) || !Clear(SupportedAlignment,Landing,Supported)) continue;
+		bDoorwayRecovery=true; DoorwayRecoveryDoor=&Door; DoorwayFollowThrough=Supported;
+		BeginRecovery(*NPC,SupportedAlignment);
+		return true;
+	}
+	return false;
+}
+
+bool UYUFSLocalMovementComponent::TryAroundOpenLeaf(const AYUFSInteractionDoor& Door,const FVector& Desired,int32 Frame)
+{
+	auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner());
+	if (!NPC || !NPC->GetNavigator() || !Door.Panel || !Door.IsPassageClear() || IsRecovering()) return false;
+	const auto* Cap=NPC->GetCapsuleComponent();
+	const FVector Feet=NPC->GetActorLocation()-FVector(0,0,Cap->GetScaledCapsuleHalfHeight());
+	const FTransform Leaf=Door.Panel->GetComponentTransform();
+	FVector Tip=Leaf.TransformPosition(FVector(0,50,0)); Tip.Z=Feet.Z;
+	const FVector Axis=Leaf.GetUnitAxis(EAxis::Y).GetSafeNormal2D();
+	if (FVector::DistSquared2D(Feet,Tip)>FMath::Square(320.0) || Axis.IsNearlyZero()) return false;
+	const FVector Across(-Axis.Y,Axis.X,0);
+	const double Side=FVector::DotProduct(Feet-Tip,Across)<0.0 ? -1.0 : 1.0;
+	const double Margin=Cap->GetScaledCapsuleRadius()+18.0;
+	for (const double Extra : {0.0,25.0,55.0})
+	{
+		const FVector Corner=Tip+Axis*(Margin+Extra)+Across*Side*Margin;
+		const FVector Through=Tip+Axis*(Margin+Extra)-Across*Side*(Margin+40.0);
+		if (FVector::DotProduct(Through-Feet,Desired)<25.0) continue;
+		FVector SafeCorner,SafeThrough;
+		if (!IsPhysicalCorridorClearFrom(Feet,Corner,false,&SafeCorner)
+			|| !IsPhysicalCorridorClearFrom(SafeCorner,Through,false,&SafeThrough)
+			|| !NPC->GetNavigator()->IsLocalRecoverySafe(Feet,SafeCorner,Frame)
+			|| !NPC->GetNavigator()->IsLocalRecoverySafe(SafeCorner,SafeThrough,Frame)) continue;
+		bDoorwayRecovery=true; DoorwayRecoveryDoor=&Door; DoorwayFollowThrough=SafeThrough;
+		BeginRecovery(*NPC,SafeCorner);
+		return true;
+	}
+	return false;
+}
+
 bool UYUFSLocalMovementComponent::TryRecovery(FVector Desired,int32 Frame,bool bSeekCleanerAir)
 {
 	auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner()); if (!NPC || IsRecovering() || Cooldown>0.f) return false;
@@ -304,7 +381,21 @@ bool UYUFSLocalMovementComponent::TryRecovery(FVector Desired,int32 Frame,bool b
 		FCollisionQueryParams Params(SCENE_QUERY_STAT(YUFSStuckObstacle),false,NPC);
 		if (GetWorld()->SweepSingleByProfile(Hit,Start,Start+Desired*180.f,FQuat::Identity,Capsule->GetCollisionProfileName(),
 			FCollisionShape::MakeCapsule(Capsule->GetScaledCapsuleRadius(),FMath::Max(5.f,Capsule->GetScaledCapsuleHalfHeight()-2.f)),Params))
+		{
 			UE_LOG(LogTemp,Log,TEXT("[YUFS][Traffic] agent=%s blockedBy=%s component=%s"),*NPC->GetName(),*GetNameSafe(Hit.GetActor()),*GetNameSafe(Hit.GetComponent()));
+			if (!bSeekCleanerAir)
+				if (const auto* Door=Cast<AYUFSInteractionDoor>(Hit.GetActor()); Door && NPC->GetNavigator())
+				{
+					const FVector Feet=NPC->GetActorLocation()-FVector(0,0,Capsule->GetScaledCapsuleHalfHeight());
+					FVector Crossing;
+					const bool Crosses=Door->IntersectPortal(Feet,NPC->GetNavigator()->GetNextWaypoint(),Crossing);
+					if ((Crosses && TryDoorwayPassage(*Door,Frame)) || TryAroundOpenLeaf(*Door,Desired,Frame))
+					{
+						UE_LOG(LogTemp,Log,TEXT("[YUFS][Portal] %s detours around the open leaf of %s"),*NPC->GetName(),*Door->GetName());
+						return true;
+					}
+				}
+		}
 	}
 	const FVector Back=-Desired, Side=FVector(-Desired.Y,Desired.X,0)*(GetTrafficPriorityId(NPC)%2 ? 1.f : -1.f);
 	const FVector Feet=NPC->GetActorLocation()-FVector(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
@@ -341,12 +432,8 @@ bool UYUFSLocalMovementComponent::TryRecovery(FVector Desired,int32 Frame,bool b
 		const FVector P=Candidates[Selected];
 		// An exhausted batch only resumes after a candidate passes the current space/hazard checks.
 		if (Exhausted) Attempts=1;
-		RecoveryTarget=P; RecoveryTime=0.f;
-		const float RecoverySpeed=FMath::Max(20.f,FMath::Min(NPC->GetCharacterMovement()->MaxWalkSpeed,160.f)*0.45f);
-		RecoveryTimeout=FMath::Clamp(FVector::Dist2D(P,Feet)/RecoverySpeed+1.f,2.f,8.f);
-		NPC->ConsumeMovementInputVector(); NPC->GetCharacterMovement()->StopMovementImmediately();
-		NPC->GetCharacterMovement()->bUseRVOAvoidance=false;
-		SetState(EYUFSLocalMovementState::Recovering); return true;
+		BeginRecovery(*NPC,P);
+		return true;
 	}
 	SetState(EYUFSLocalMovementState::Blocked); return false;
 }
@@ -357,8 +444,23 @@ bool UYUFSLocalMovementComponent::TickRecovery(float Dt,int32 Frame)
 	RecoveryTime+=Dt;
 	FVector Checked;
 	const bool Arrived=FVector::DistSquared2D(NPC->GetActorLocation(),RecoveryTarget)<FMath::Square(20.f);
-	if (Arrived || RecoveryTime>RecoveryTimeout || !IsCandidateReachable(RecoveryTarget,Frame,Checked))
+	const auto* Door=DoorwayRecoveryDoor.Get();
+	const FVector Feet=NPC->GetActorLocation()-FVector(0,0,NPC->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+	if (Arrived && bDoorwayRecovery && DoorwayFollowThrough.IsSet() && Door && Door->IsPassageClear()
+		&& NPC->GetNavigator() && IsPhysicalCorridorClear(DoorwayFollowThrough.GetValue(),false,&Checked)
+		&& NPC->GetNavigator()->IsLocalRecoverySafe(Feet,Checked,Frame))
 	{
+		DoorwayFollowThrough.Reset();
+		BeginRecovery(*NPC,Checked);
+		return true;
+	}
+	const bool Clear=Arrived || (bDoorwayRecovery
+		? Door && Door->IsPassageClear() && NPC->GetNavigator() && IsPhysicalCorridorClear(RecoveryTarget,false,&Checked)
+			&& NPC->GetNavigator()->IsLocalRecoverySafe(Feet,Checked,Frame)
+		: IsCandidateReachable(RecoveryTarget,Frame,Checked));
+	if (Arrived || RecoveryTime>RecoveryTimeout || !Clear)
+	{
+		bDoorwayRecovery=false; DoorwayFollowThrough.Reset(); DoorwayRecoveryDoor.Reset();
 		NPC->ConsumeMovementInputVector(); NPC->GetCharacterMovement()->StopMovementImmediately();
 		NPC->GetCharacterMovement()->bUseRVOAvoidance=true;
 		YieldingTo.Reset(); YieldTime=0.f; Cooldown=RecoveryCooldownSeconds;
@@ -366,6 +468,6 @@ bool UYUFSLocalMovementComponent::TickRecovery(float Dt,int32 Frame)
 		if (NPC->GetNavigator()) NPC->GetNavigator()->ReplanPath(Frame,EYUFSRepathReason::Stuck);
 		return true;
 	}
-	NPC->AddMovementInput((RecoveryTarget-NPC->GetActorLocation()).GetSafeNormal2D(),0.45f);
+	NPC->AddMovementInput((RecoveryTarget-NPC->GetActorLocation()).GetSafeNormal2D(),bDoorwayRecovery?.75f:.45f);
 	return true;
 }

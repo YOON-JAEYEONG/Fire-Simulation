@@ -44,6 +44,9 @@ public:
 	UPROPERTY(EditAnywhere, Category="Fire") float PlaybackFrameRate = 8.f;
 	UPROPERTY(EditAnywhere, Category="Fire") float TotalFrameCount = 8000.f;
 	UPROPERTY(EditAnywhere, Category="Fire") bool bAutoPlayOnBeginPlay = false;
+	// Optical density only. The recorded FDS/BIN hazard field keeps its original values.
+	UPROPERTY(EditAnywhere, Category="Fire|Rendering", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float RenderSmokeDensityMultiplier = 0.8f;
 	UPROPERTY(EditAnywhere, Category="Fire|FDS") FString IgnitionMetadataFile;
 protected:
 	virtual void BeginPlay() override;

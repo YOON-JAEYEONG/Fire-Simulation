@@ -2,14 +2,24 @@
 
 #include "Simulation/YUFSSimHUD.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "Rendering/DrawElements.h"
+#include "Styling/CoreStyle.h"
 
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Simulation/YUFSGameInstance.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
+#include "NPC/YUFSEvacuationNPC.h"
+#include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "NPC/Navigation/YUFSLocalMovementComponent.h"
+#include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
+#include "NPC/Navigation/YUFSExitKnowledgeComponent.h"
 
 namespace
 {
@@ -22,6 +32,133 @@ void RestoreSimulationInput(APlayerController* PC)
  PC->bShowMouseCursor = true;
  UWidgetBlueprintLibrary::SetFocusToGameViewport();
 }
+}
+
+int32 UYUFSSimHUD::PaintBelongingsMarkers(const FGeometry& Geometry, FSlateWindowElementList& Elements, int32 Layer) const
+{
+	static const bool bEnabled = FParse::Param(FCommandLine::Get(), TEXT("YUFSFireAwarenessAudit"));
+	if (!bEnabled || !IsValid(SimController) || !GetWorld() || SimController->GetCurrentPhase() != ESimPhase::FireActive) return Layer;
+	APlayerController* PC = GetOwningPlayer() ? GetOwningPlayer() : GetWorld()->GetFirstPlayerController();
+	if (!PC) return Layer;
+	const FVector2D Size = Geometry.GetLocalSize();
+	const FSlateBrush* White = FCoreStyle::Get().GetBrush("WhiteBrush");
+	const FSlateFontInfo Font = FCoreStyle::GetDefaultFontStyle("Regular", 12);
+	TArray<FVector2D, TInlineAllocator<8>> Placed;
+	for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
+	{
+		const AYUFSEvacuationNPC& NPC = **It;
+		if (NPC.IsHidden() || !NPC.IsReturningForBelongings()) continue;
+		FVector2D Pos;
+		if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, NPC.GetActorLocation()+FVector(0,0,115), Pos, true)
+			|| Pos.X<125 || Pos.Y<18 || Pos.X>Size.X-145 || Pos.Y>Size.Y-24) continue;
+		if (Placed.ContainsByPredicate([&](const FVector2D& Other) { return FMath::Abs(Other.X-Pos.X)<142 && FMath::Abs(Other.Y-Pos.Y)<20; })) continue;
+		Placed.Add(Pos);
+		const FString Name = NPC.GetName();
+		int32 Separator = INDEX_NONE;
+		Name.FindLastChar(TCHAR('_'), Separator);
+		const FString Id = Separator == INDEX_NONE ? FString::FromInt(NPC.GetStableNPCId()) : Name.Mid(Separator+1);
+		const FString Label = FString::Printf(TEXT("#%s %s"), *Id,
+			NPC.IsPickingUpBelongings() ? TEXT("가방 챙김") : TEXT("가방 찾으러 돌아감"));
+		FSlateDrawElement::MakeBox(Elements, Layer+1, Geometry.ToPaintGeometry(FVector2f(141,20), FSlateLayoutTransform(FVector2f(Pos-FVector2D(4,2)))),
+			White, ESlateDrawEffect::None, FLinearColor(.018f,.035f,.06f,.93f));
+		FSlateDrawElement::MakeText(Elements, Layer+2, Geometry.ToPaintGeometry(FVector2f(1,1), FSlateLayoutTransform(FVector2f(Pos))),
+			Label, Font, ESlateDrawEffect::None, FLinearColor(.96f,.70f,1.f));
+	}
+	return Placed.IsEmpty() ? Layer : Layer+2;
+}
+
+int32 UYUFSSimHUD::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& Culling,
+	FSlateWindowElementList& Elements, int32 Layer, const FWidgetStyle& Style, bool bParentEnabled) const
+{
+	Layer = Super::NativePaint(Args, Geometry, Culling, Elements, Layer, Style, bParentEnabled);
+	static const bool bEnabled = FParse::Param(FCommandLine::Get(), TEXT("YUFSFireAwarenessAudit"));
+	if (!bEnabled || !IsValid(SimController) || !GetWorld()) return Layer;
+	const ESimPhase Phase = SimController->GetCurrentPhase();
+	// Live diagnosis must never be shown as if it belonged to a historical replay frame.
+	if (Phase == ESimPhase::TimelineReview || Phase == ESimPhase::Completed) return Layer;
+	APlayerController* PC = GetOwningPlayer() ? GetOwningPlayer() : GetWorld()->GetFirstPlayerController();
+	if (!PC) return Layer;
+
+	const TCHAR* Labels[] = {TEXT("미인지"), TEXT("상황 확인"), TEXT("대피 준비"), TEXT("대피 중"),
+		TEXT("정체 / 우회"), TEXT("상호작용"), TEXT("행동 불능"), TEXT("이동 대기"), TEXT("가방 회수")};
+	const FLinearColor Colors[] = {
+		FLinearColor(.78f,.86f,.93f), FLinearColor(1.f,.8f,.23f), FLinearColor(1.f,.62f,.32f),
+		FLinearColor(.45f,1.f,.72f), FLinearColor(1.f,.42f,.42f), FLinearColor(.56f,.83f,1.f), FLinearColor(1.f,.55f,.76f),
+		FLinearColor(.72f,.82f,1.f), FLinearColor(.96f,.70f,1.f)};
+	int32 Counts[UE_ARRAY_COUNT(Labels)] = {};
+	int32 WithKnownDoors=0, Exploring=0;
+	const FVector2D Size = Geometry.GetLocalSize();
+	const FVector2D Panel(FMath::Max(140., Size.X - 291.), 14.);
+	const FSlateBrush* White = FCoreStyle::Get().GetBrush("WhiteBrush");
+	const FSlateFontInfo Font = FCoreStyle::GetDefaultFontStyle("Regular", 12);
+	auto Box = [&](FVector2D Pos, FVector2D Dimensions, FLinearColor Color)
+	{
+		FSlateDrawElement::MakeBox(Elements, Layer + 1, Geometry.ToPaintGeometry(FVector2f(Dimensions), FSlateLayoutTransform(FVector2f(Pos))),
+			White, ESlateDrawEffect::None, Color);
+	};
+	auto Text = [&](FVector2D Pos, const FString& Say, FLinearColor Color)
+	{
+		FSlateDrawElement::MakeText(Elements, Layer + 2, Geometry.ToPaintGeometry(FVector2f(1, 1), FSlateLayoutTransform(FVector2f(Pos))),
+			Say, Font, ESlateDrawEffect::None, Color);
+	};
+
+	TArray<FVector2D, TInlineAllocator<32>> Markers;
+	for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
+	{
+		const AYUFSEvacuationNPC& NPC = **It;
+		const auto* Mind = NPC.GetBehaviorStateMachine();
+		if (NPC.IsHidden() || !Mind) continue;
+		const auto& Audit = NPC.GetFireAwarenessAudit();
+		const auto State = Mind->GetCurrentState();
+		const auto* Nav = NPC.GetNavigator();
+		const auto* Traffic = NPC.GetLocalMovement();
+		int32 Status = Audit.FirstCueAt < 0.f ? 0 : 1;
+		if (State == EYUFSBehaviorState::Incapacitated) Status = 6;
+		else if (NPC.IsReturningForBelongings()) Status = 8;
+		else if (State == EYUFSBehaviorState::Preparing) Status = 2;
+		else if (Mind->HasCommittedToEvacuation())
+		{
+			const bool bBlocked = (Nav && Nav->GetNavigationStatus() == EYUFSNavigationStatus::Failed)
+				|| (Traffic && Traffic->GetState() != EYUFSLocalMovementState::Following);
+			const bool bMoving = NPC.GetVelocity().SizeSquared2D() > FMath::Square(10.0);
+			Status = NPC.IsInteractionHoldingPosition() || State == EYUFSBehaviorState::Helping ? 5 : bBlocked ? 4 : bMoving ? 3 : 7;
+		}
+		++Counts[Status];
+		if (Status == 8) continue; // The dedicated marker is painted above the diagnostic labels.
+		if (const auto* Knowledge=NPC.GetExitKnowledge())
+		{
+			WithKnownDoors+=Knowledge->GetKnownDoorCount()>0;
+			Exploring+=Knowledge->IsSearchingForExit();
+		}
+		FVector2D Pos;
+		const FVector Head = NPC.GetActorLocation() + FVector(0, 0, 115);
+		if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, Head, Pos, true)
+			|| Pos.X < 125 || Pos.Y < 18 || Pos.X > Size.X - 144 || Pos.Y > Size.Y - 24
+			|| (Pos.X > Panel.X - 140 && Pos.Y < Panel.Y + 151))
+			continue;
+		const auto Overlaps = [&Pos](const FVector2D& P) { return FMath::Abs(P.X - Pos.X) < 140 && FMath::Abs(P.Y - Pos.Y) < 20; };
+		if (Markers.ContainsByPredicate(Overlaps)) continue;
+		Markers.Add(Pos);
+		const FString NpcName = NPC.GetName();
+		int32 Separator = INDEX_NONE;
+		NpcName.FindLastChar(TCHAR('_'), Separator);
+		const FString Suffix = Separator == INDEX_NONE ? FString::FromInt(NPC.GetStableNPCId()) : NpcName.Mid(Separator + 1);
+		const FString Cue = Audit.FirstCue == TEXT("Alarm") ? TEXT("경보") :
+			(Audit.FirstCue == TEXT("Smoke") ? TEXT("연기") : (Audit.FirstCue == TEXT("Heat") ? TEXT("열") : TEXT("")));
+		const FString Title = FString::Printf(TEXT("#%s %s%s%s"), *Suffix, Labels[Status], Cue.IsEmpty() ? TEXT("") : TEXT(" · "), *Cue);
+		Box(Pos - FVector2D(4, 2), FVector2D(141, 20), FLinearColor(.018f,.035f,.06f,.93f));
+		Text(Pos, Title, Colors[Status]);
+	}
+	Box(Panel, FVector2D(277, 141), FLinearColor(.018f,.035f,.06f,.94f));
+	Text(Panel + FVector2D(10, 6), TEXT("NPC 화재 인지 · 실시간 검증"), FLinearColor::White);
+	for (int32 Index = 0; Index < UE_ARRAY_COUNT(Labels); ++Index)
+	{
+		Text(Panel + FVector2D(10 + (Index % 2) * 133, 26 + (Index / 2) * 18),
+			FString::Printf(TEXT("%s %d"), Labels[Index], Counts[Index]), Colors[Index]);
+	}
+	Text(Panel + FVector2D(10, 119), FString::Printf(TEXT("문 기억 %d명  ·  통로 탐색 %d명"), WithKnownDoors, Exploring),
+		FLinearColor(.56f,.83f,1.f));
+	return PaintBelongingsMarkers(Geometry, Elements, Layer + 2);
 }
 
 TMap<FName, FText> UYUFSSimHUD::GetDisplayedTextSnapshot() const

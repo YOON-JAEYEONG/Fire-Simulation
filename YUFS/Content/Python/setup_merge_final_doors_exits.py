@@ -6,6 +6,7 @@ NPC decision code is replaced. Re-running replaces only MF_ prefixed actors.
 import json,math
 from pathlib import Path
 import unreal
+from final_it_door_clearance import final_it_door_clearance
 
 MAP='/Game/Maps/it관_찐최종/Main_level'
 PREFIX='MF_'
@@ -43,11 +44,14 @@ for i,item in enumerate(plan):
     # Native actor's jambs extend 6% beyond each end of its +Y leaf.
     width=item['width']/1.12
     hinge=item['x0']+width*.06
-    door=actors.spawn_actor_from_class(door_class,unreal.Vector(hinge,item['y'],item['floor']),unreal.Rotator(0,0,-90))
+    hinge_z,width,swing_side=final_it_door_clearance(i+1,item['floor'],width)
+    door=actors.spawn_actor_from_class(door_class,unreal.Vector(hinge,item['y'],hinge_z),unreal.Rotator(0,0,-90))
     door.set_actor_label('%sDoor_%s_%s_%02d'%(PREFIX,'1F' if item['floor']<100 else '2F',item['side'],i+1))
     door.set_folder_path('MergeFinal/InteractiveDoors')
     door.set_actor_scale3d(unreal.Vector(1,width/100,1))
     door.set_editor_property('OpenSeconds',1.2)
+    if swing_side is not None:
+        door.set_editor_property('SwingSide',swing_side)
     door.tags=['MergeFinalDoor','WallSectionDerived']
 
 exit_class=unreal.load_class(None,'/Script/YUFS.YUFSExitPoint')

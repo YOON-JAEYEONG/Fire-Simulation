@@ -22,6 +22,15 @@ public:
 	UPROPERTY(EditAnywhere, Category="Individual") float EmergencyHeatThreshold = 0.65f;
 	UPROPERTY(EditAnywhere, Category="Individual") float EvidenceMemorySeconds = 20.f;
 	UPROPERTY(EditAnywhere, Category="Individual") int32 PersonalitySeed = 173;
+	// Time to evaluate a perceived cue, not the time spent preparing or accumulating exposure.
+	UPROPERTY(EditAnywhere, Category="Evacuation Tempo", meta=(ClampMin="0.25", ClampMax="2.0"))
+	float EvacuationDecisionTimeScale = 0.65f;
+	// Open travel and safe search only; physical interactions keep their own speed limits.
+	UPROPERTY(EditAnywhere, Category="Evacuation Tempo", meta=(ClampMin="0.5", ClampMax="1.6"))
+	float EvacuationTravelSpeedScale = 1.25f;
+	// Probability of considering a one-off return, not an observed population statistic.
+	UPROPERTY(EditAnywhere, Category="Belongings", meta=(ClampMin="0.0", ClampMax="1.0"))
+	float BelongingsReturnCandidateFraction = 0.20f;
 	UPROPERTY(EditAnywhere)
 	float MaxMillingDuration = 30.f;
 

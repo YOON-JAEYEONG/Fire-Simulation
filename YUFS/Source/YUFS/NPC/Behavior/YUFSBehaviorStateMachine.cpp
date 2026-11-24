@@ -63,7 +63,8 @@ void UYUFSBehaviorStateMachine::AccumulateRiskPerception(const FYUFSNPCObservati
 	if (Corroborated)
 	{
 		EvidenceTime+=Dt;
-		RiskPerception=FMath::Clamp(RiskPerception+Dt*Sensitivity*(0.08f+0.25f*FMath::Max(Smoke,Heat)),0.f,1.f);
+		const float AppraisalTimeScale=bCommitted ? 1.f : FMath::Clamp(Config->EvacuationDecisionTimeScale,.25f,2.f);
+		RiskPerception=FMath::Clamp(RiskPerception+Dt/AppraisalTimeScale*Sensitivity*(0.08f+0.25f*FMath::Max(Smoke,Heat)),0.f,1.f);
 	}
 	else
 	{
@@ -93,11 +94,12 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& O)
 		return;
 	}
 	if (CurrentState==EYUFSBehaviorState::Crawling) { CurrentState=EYUFSBehaviorState::Evacuating; return; }
+	const float DecisionTimeScale=FMath::Clamp(Config->EvacuationDecisionTimeScale,.25f,2.f);
 	const bool StrongSight=FMath::Max3(O.HeatInSight,O.SmokeInFrontNormalized,O.SmokeAboveNormalized)>0.55f;
-	const bool EvidenceReady=EvidenceTime >= (StrongSight ? 0.6f : ResponseDelay) &&
+	const bool EvidenceReady=EvidenceTime >= DecisionTimeScale*(StrongSight ? 0.6f : ResponseDelay) &&
 		(RiskPerception>=Config->RiskPerceptionThreshold/Sensitivity || StrongSight || O.bReceivedStaffGuidance);
 	const float AlarmFraction=FMath::Clamp(Config->EarlyAlarmResponseFraction+Config->VerifyAlarmResponseFraction,0.f,1.f);
-	const bool AlarmReady=O.bAlarmSounding && AlarmTrust>1.f-AlarmFraction && AlarmElapsed>=AlarmDecisionTime;
+	const bool AlarmReady=O.bAlarmSounding && AlarmTrust>1.f-AlarmFraction && AlarmElapsed>=AlarmDecisionTime*DecisionTimeScale;
 	if (!bCommitted && (EvidenceReady || AlarmReady))
 	{
 		bCommitted=true;
@@ -111,7 +113,7 @@ void UYUFSBehaviorStateMachine::TryTransition(const FYUFSNPCObservation& O)
 		if (DecisionCue!=EYUFSEvacuationCue::None) CurrentState=EYUFSBehaviorState::Perceiving;
 		break;
 	case EYUFSBehaviorState::Perceiving:
-		if (StateTimer>=ResponseDelay) CurrentState=EYUFSBehaviorState::Milling;
+		if (StateTimer>=ResponseDelay*DecisionTimeScale) CurrentState=EYUFSBehaviorState::Milling;
 		break;
 	case EYUFSBehaviorState::Milling:
 		// No universal timeout that silently forces sceptical agents to evacuate.

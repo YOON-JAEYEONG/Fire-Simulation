@@ -87,6 +87,7 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 			}
 		}
 	}
+	if (Decision.Reason == TEXT("PickingUpForgottenBag")) NextNavigation.Goal = EYUFSNavigationGoal::None;
 	if (NextNavigation.Goal == EYUFSNavigationGoal::AssistTarget && InteractionOpportunities.bAssistPersonKnown)
 	{
 		NextNavigation.TargetStableId = InteractionOpportunities.AssistPersonStableId;
@@ -124,6 +125,7 @@ void UYUFSTeamIntegrationComponent::PublishDecision(
 	FYUFSMotionDirective NextMotion;
 	NextMotion.StableNpcId = StableNpcId;
 	NextMotion.Semantic = MapMotionSemantic(Decision.Behavior, BehaviorState);
+	if (Decision.Reason == TEXT("ReturningForForgottenBag")) NextMotion.Semantic = EYUFSMotionSemantic::Walk;
 	if (bMovementHeldByJJW && Decision.Behavior == EYUFSHighLevelBehavior::AttemptSuppression)
 		NextMotion.Semantic = Intent == EYUFSIntent::Prepare ? EYUFSMotionSemantic::GatherBelongings
 			: Intent == EYUFSIntent::Incapacitated ? EYUFSMotionSemantic::Cough : EYUFSMotionSemantic::Wait;
@@ -279,7 +281,7 @@ FYUFSInteractionDirective UYUFSTeamIntegrationComponent::BuildInteractionDirecti
 		Result.Goal = EYUFSInteractionGoal::RetrieveBelongings;
 		Result.TargetStableId = InteractionOpportunities.BelongingsStableId;
 		Result.TargetLocationHint = InteractionOpportunities.BelongingsLocation;
-		Result.bRequiresReservation = true;
+		Result.bRequiresReservation = InteractionOpportunities.BelongingsStableId != TEXT("PersonalBagReturn");
 		break;
 	case EYUFSHighLevelBehavior::AttemptSuppression:
 		Result.Goal = InteractionOpportunities.bHoldingExtinguisher

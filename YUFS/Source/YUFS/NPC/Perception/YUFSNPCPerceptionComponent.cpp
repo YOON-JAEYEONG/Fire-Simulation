@@ -161,6 +161,21 @@ void UYUFSNPCPerceptionComponent::UpdateFromSnapshot(const FYUFSHazardSnapshot& 
 			if (I==Rays/2) CenterSight=HorizontalSight;
 			Scan(Eye,FRotator(-25,Yaw+Offset,0).Vector(),Config->VisionRange,CachedSmokeInFrontNormalized,CachedHeatInSight);
 		}
+		// A short fan fills the gaps between the sparse long rays. Keep the
+		// same wall/floor occlusion and optical cutoff; don't expand awareness
+		// behind the actor or promote a sighting into inhaled smoke.
+		const float CloseRange = FMath::Min(210.f, Config->VisionRange);
+		const float HalfFrontFov = FMath::Clamp(Config->FieldOfViewDegrees * .5f, 0.f, 65.f);
+		float CloseHeatUnused = 0.f;
+		if (CloseRange > 0.f)
+		{
+			for (int32 I = -3; I <= 3; ++I)
+			{
+				const float Heading = Yaw + HalfFrontFov * float(I) / 3.f;
+				for (const float Pitch : {-42.f, -18.f, 0.f, 17.f})
+					Scan(Eye, FRotator(Pitch, Heading, 0).Vector(), CloseRange, CachedSmokeInFrontNormalized, CloseHeatUnused);
+			}
+		}
 		for (float Pitch : {Config->UpperVisionPitchLowDegrees,Config->UpperVisionPitchHighDegrees})
 		{
 			const int32 Count = FMath::Clamp(Config->UpperVisionYawRayCount,1,9);

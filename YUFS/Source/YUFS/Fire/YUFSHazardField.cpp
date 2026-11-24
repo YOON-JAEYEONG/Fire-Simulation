@@ -107,7 +107,7 @@ FYUFSHazardPathScore FYUFSHazardSnapshot::ScorePath(const TArray<FVector>& Floor
 			Score.OutsideSamples += Value.Status == EYUFSHazardDataStatus::OutsideDomain ? 1 : 0;
 			Score.MaxSmoke = FMath::Max(Score.MaxSmoke, Value.Smoke);
 			Score.MaxHeat = FMath::Max(Score.MaxHeat, Value.Heat);
-			const bool bDanger = Value.Smoke >= Settings.BlockSmoke || Value.Heat >= Settings.BlockHeat;
+			const bool bDanger = Settings.IsBlocking(Value.Smoke,Value.Heat);
 			if (bFirst)
 			{
 				bEscaping = bDanger;
@@ -117,7 +117,7 @@ FYUFSHazardPathScore FYUFSHazardSnapshot::ScorePath(const TArray<FVector>& Floor
 			}
 			if (bEscaping && !bDanger) bEscaping = false;
 			// Allow leaving an already dangerous location, but not entering a worse pocket or re-entering danger.
-			if (bDanger && (!bEscaping || Value.Smoke > InitialSmoke + 0.05f || Value.Heat > InitialHeat + 0.05f))
+			if (bDanger && (!bEscaping || (Settings.bBlockOnSmoke && Value.Smoke > InitialSmoke + 0.05f) || Value.Heat > InitialHeat + 0.05f))
 				Score.bUnsafeAhead = true;
 		}
 	}

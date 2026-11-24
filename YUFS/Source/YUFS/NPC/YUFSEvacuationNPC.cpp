@@ -18,6 +18,7 @@
 #include "Core/YUFSExperienceLogger.h"
 #include "Core/YUFSObservation.h"
 #include "Debug/YUFSNPCDebugComponent.h"
+#include "Fire/YUFSInteractionDoor.h"
 #include "EngineUtils.h"
 #include "Fire/YUFSBinaryManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -127,6 +128,7 @@ void AYUFSEvacuationNPC::BeginPlay()
 	if (AYUFSEmergencyCommSystem* CommSystem = Cast<AYUFSEmergencyCommSystem>(
 		UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSEmergencyCommSystem::StaticClass())))
 	{
+		EmergencyCommSource = CommSystem;
 		CommSystem->OnEmergencyComm.AddDynamic(this, &AYUFSEvacuationNPC::OnCommReceived);
 	}
 
@@ -278,6 +280,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	}
 
 	// ── Observation은 Tick당 한 번만 생성해 상태머신/정책/기록이 공유한다. ──
+	RefreshAlarmAudibility();
 	FYUFSNPCObservation CurrentObs{};
 	BuildObservation(CurrentObs);
 	ProcessTeamFeedback();
@@ -291,6 +294,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		CurrentObs.RiskPerception = BehaviorSM->GetRiskPerception();
 		CurrentObs.SmokeExposureAccumulated = BehaviorSM->GetSmokeExposure();
 	}
+	UpdateFireAwarenessAudit();
 	if (UpdatePhysicalPosture())
 	{
 		// Do not carry a standing-eye sample into the next exposure step or route query.
@@ -316,6 +320,7 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 		}
 	}
 	UpdateEvidenceDecisionModel(DeltaTime, CurrentObs);
+	EvaluateBelongingsReturn(CurrentObs, DeltaTime);
 	if (SuppressionComp) SuppressionComp->Observe(DeltaTime, CurrentFrame, CurrentObs);
 	if (EnvironmentInteraction) EnvironmentInteraction->Observe(DeltaTime);
 	LiveObservation = CurrentObs;
@@ -384,7 +389,14 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	TransitionLogAccumulator += DeltaTime;
 	const float LogInterval = FMath::Max(TransitionLogIntervalSeconds, 0.1f);
 
-	if (!bHasPendingTransition)
+	if (IsReturningForBelongings())
+	{
+		// This one-off action isn't in the trained policy's action space. Do not
+		// record a backward movement as though it was the policy's forward escape.
+		bHasPendingTransition = false;
+		TransitionLogAccumulator = 0.f;
+	}
+	else if (!bHasPendingTransition)
 	{
 		// 첫 관찰값은 기준 상태로만 보관한다.
 		PrevObservation = CurrentObs;
@@ -471,6 +483,9 @@ void AYUFSEvacuationNPC::SetMovementSpeed(float Speed)
 
 void AYUFSEvacuationNPC::InitializeForRun(int32 RunSeed)
 {
+	bAlarmSounding = false;
+	bObservedPersistentAlarm = false;
+	FireAwarenessAudit = {};
 	if (StableNPCId == INDEX_NONE)
 	{
 		FString IdentityPath = GetPathName();
@@ -480,6 +495,12 @@ void AYUFSEvacuationNPC::InitializeForRun(int32 RunSeed)
 	}
 	ActiveProjectSeed = RunSeed;
 	DeterministicRng.Initialize(RunSeed, StableNPCId, ScenarioSeed);
+	// Independent draw: opting into forgotten belongings never shifts another behavior's RNG.
+	FRandomStream BelongingsRandom(static_cast<int32>(HashCombineFast(static_cast<uint32>(RunSeed), static_cast<uint32>(StableNPCId)) ^ 0x42cbe23du));
+	const float ReturnChance = BehaviorSM && BehaviorSM->Config ? BehaviorSM->Config->BelongingsReturnCandidateFraction : 0.f;
+	BelongingsReturn = BelongingsRandom.FRand() < FMath::Clamp(ReturnChance, 0.f, 1.f) ? EBelongingsReturn::Candidate : EBelongingsReturn::Done;
+	BelongingsReturnTarget = FVector::ZeroVector;
+	BelongingsReturnRemaining = BelongingsPathSafetyCountdown = BelongingsPickupElapsed = 0.f;
 	if (SocialComp) SocialComp->ResetForRun();
 	MLPolicy.SetFallbackRandomSource(&DeterministicRng);
 	if (!bSeedDefaultsCaptured)
@@ -776,11 +797,14 @@ void AYUFSEvacuationNPC::UpdateStuckDetection(float DeltaTime)
 
 void AYUFSEvacuationNPC::OnCommReceived(EYUFSCommType CommType, FVector SourceLocation, float EffectiveRadius, FVector GuidanceTarget)
 {
-	if (FVector::DistSquared(GetActorLocation(), SourceLocation) > EffectiveRadius * EffectiveRadius) return;
+	if (EffectiveRadius <= 0.f || FVector::DistSquared(GetActorLocation(), SourceLocation) > FMath::Square(EffectiveRadius)) return;
 
 	switch (CommType)
 	{
 	case EYUFSCommType::AlarmOnly:
+		if (const auto* Source = EmergencyCommSource.Get(); Source && Source->IsAlarmActive())
+			bObservedPersistentAlarm = true;
+		if (bAlarmSounding) break;
 		bAlarmSounding = true;
 		if (BehaviorSM) BehaviorSM->OnAlarmReceived();
 		break;
@@ -801,6 +825,58 @@ void AYUFSEvacuationNPC::OnCommReceived(EYUFSCommType CommType, FVector SourceLo
 	}
 }
 
+void AYUFSEvacuationNPC::RefreshAlarmAudibility()
+{
+	const AYUFSEmergencyCommSystem* Source = EmergencyCommSource.Get();
+	const bool bActive = Source && Source->IsAlarmActive();
+	// Preserve explicit one-shot Blueprint/test notifications when no sustained alarm was active.
+	if (bActive || bObservedPersistentAlarm)
+	{
+		const bool bAudible = bActive && Source->IsAlarmAudibleAt(GetActorLocation());
+		if (bAudible && !bAlarmSounding && BehaviorSM) BehaviorSM->OnAlarmReceived();
+		bAlarmSounding = bAudible;
+	}
+	bObservedPersistentAlarm = bActive;
+}
+
+void AYUFSEvacuationNPC::UpdateFireAwarenessAudit()
+{
+	if (!BehaviorSM || !IsValid(SimulationController)) return;
+	const float Now = SimulationController->GetElapsedTime();
+	const EYUFSEvacuationCue Cue = BehaviorSM->GetDecisionCue();
+	const bool bHasCue = Cue != EYUFSEvacuationCue::None || bAlarmSounding;
+	static const bool bLog = FParse::Param(FCommandLine::Get(), TEXT("YUFSFireAwarenessAudit"));
+	auto Mark = [this, Now, Cue](float& At, const TCHAR* Event)
+	{
+		if (At >= 0.f) return;
+		At = Now;
+		if (bLog)
+			UE_LOG(LogTemp, Display, TEXT("[FireAwareness] npc=%s id=%d t=%.3f event=%s firstCue=%s cue=%s alarm=%d frame=%d position=%s risk=%.3f selfSample=%d smoke=%.3f/%.3f/%.3f"),
+				*GetName(), StableNPCId, Now, Event, *FireAwarenessAudit.FirstCue.ToString(),
+				*StaticEnum<EYUFSEvacuationCue>()->GetNameStringByValue(int64(Cue)), bAlarmSounding, GetCurrentSimFrame(),
+				*GetActorLocation().ToCompactString(), BehaviorSM->GetRiskPerception(),
+				PerceptionComp && PerceptionComp->HasHazardSample(),
+				PerceptionComp ? PerceptionComp->GetSmokeDensity() : 0.f,
+				PerceptionComp ? PerceptionComp->GetSmokeInFrontNormalized() : 0.f,
+				PerceptionComp ? PerceptionComp->GetSmokeAboveNormalized() : 0.f);
+	};
+	if (bHasCue && FireAwarenessAudit.FirstCueAt < 0.f)
+	{
+		const auto EffectiveCue = Cue == EYUFSEvacuationCue::None ? EYUFSEvacuationCue::Alarm : Cue;
+		FireAwarenessAudit.FirstCue = FName(*StaticEnum<EYUFSEvacuationCue>()->GetNameStringByValue(int64(EffectiveCue)));
+		Mark(FireAwarenessAudit.FirstCueAt, TEXT("FirstCue"));
+	}
+	if (Cue != EYUFSEvacuationCue::None && Cue != EYUFSEvacuationCue::Alarm)
+		Mark(FireAwarenessAudit.FirstCorroborationAt, TEXT("AdditionalEvidence"));
+	if (BehaviorSM->HasCommittedToEvacuation())
+		Mark(FireAwarenessAudit.CommittedAt, TEXT("Committed"));
+	const EYUFSBehaviorState State = BehaviorSM->GetCurrentState();
+	if ((State == EYUFSBehaviorState::Evacuating || State == EYUFSBehaviorState::Crawling)
+		&& Navigator && Navigator->IsFollowingPath() && !IsInteractionHoldingPosition()
+		&& !(SuppressionComp && SuppressionComp->IsActive()) && GetVelocity().SizeSquared2D() > FMath::Square(10.0))
+		Mark(FireAwarenessAudit.FirstEvacMovementAt, TEXT("EvacMovement"));
+}
+
 int32 AYUFSEvacuationNPC::GetCurrentSimFrame() const
 {
 	return BinaryManager ? BinaryManager->GetCurrentFrame() : 0;
@@ -809,7 +885,7 @@ int32 AYUFSEvacuationNPC::GetCurrentSimFrame() const
 void AYUFSEvacuationNPC::BuildObservation(FYUFSNPCObservation& Out) const
 {
 	Out = FYUFSNPCObservation{};
-	if (!PerceptionComp || !BehaviorSM || !SocialComp || !Navigator || !LevelDataMgr) return;
+	if (!PerceptionComp || !BehaviorSM || !SocialComp || !Navigator) return;
 
 	Out.SmokeDensityAtSelf      = PerceptionComp->GetSmokeDensity();
 	Out.TemperatureAtSelf       = PerceptionComp->GetTemperature();
@@ -940,7 +1016,9 @@ FString AYUFSEvacuationNPC::GetHazardAudit() const
 		+ FString::Printf(TEXT(" sightCm=%.2f sightTransmission=%.4f sightDataComplete=%d"),
 			Sense ? Sense->GetCenterVisibleDistanceCm() : 0.f, Sense ? Sense->GetCenterSightTransmission() : 0.f,
 			Sense && Sense->HasCompleteCenterSightData())
-		+ TEXT(" ") + (ExitKnowledge ? ExitKnowledge->GetKnowledgeDiagnostics() : TEXT("knownExits=0"));
+		+ FString::Printf(TEXT(" bag=%s "), IsPickingUpBelongings() ? TEXT("Pickup")
+			: IsReturningForBelongings() ? TEXT("Returning") : TEXT("None"))
+		+ (ExitKnowledge ? ExitKnowledge->GetKnowledgeDiagnostics() : TEXT("knownExits=0"));
 }
 
 EYUFSTerminalReason AYUFSEvacuationNPC::GetCurrentTerminalReason() const
@@ -1221,6 +1299,7 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)
 {
+	FinishBelongingsReturn(TEXT("EpisodeFinished"));
 	if (ExitKnowledge) ExitKnowledge->StopSearching();
 	if (SuppressionComp) SuppressionComp->ResetForEpisode();
 	ResetRetreatKnowledge();
@@ -1286,6 +1365,12 @@ void AYUFSEvacuationNPC::FlushLearningTransition(const FYUFSNPCObservation& Next
 void AYUFSEvacuationNPC::TickPolicy(float DeltaTime, const FYUFSNPCObservation& Observation)
 {
 	if (!BehaviorSM) return;
+	if (IsReturningForBelongings())
+	{
+		PublishTeamDirectives(Observation);
+		ExecuteCurrentAction(DeltaTime);
+		return;
+	}
 	MLPolicy.SetDataCollectionMode(bDataCollectionMode);
 	ActionHoldTimer += DeltaTime;
 	PolicyTickAccumulator += DeltaTime;
@@ -1359,6 +1444,8 @@ EYUFSAction AYUFSEvacuationNPC::ConstrainActionForIntent(EYUFSAction ProposedAct
 
 void AYUFSEvacuationNPC::OnActionChanged(EYUFSAction NewAction)
 {
+	if (Navigator && !bUseExternalNavigationDriver)
+		Navigator->SetSmokeCostOnlyForEvacuation(IsNavigationAction(NewAction) && NewAction!=EYUFSAction::HelpOther);
 	if (NewAction != EYUFSAction::EvacuateToNearestExit && NewAction != EYUFSAction::EvacuateToFamiliarExit
 		&& NewAction != EYUFSAction::FollowCrowd)
 	{
@@ -1429,6 +1516,8 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 	EYUFSAction DisplayAction = bEverydayBehaviorActive && !bActionAnimationPreviewActive
 		? (GetVelocity().Size2D() > 5.f ? EYUFSAction::HelpOther : EYUFSAction::Idle)
 		: GetDisplayedAction();
+	if (IsReturningForBelongings() && !IsPickingUpBelongings() && !bActionAnimationPreviewActive)
+		DisplayAction = GetVelocity().Size2D() > 5.f ? EYUFSAction::HelpOther : EYUFSAction::Idle;
 	const bool bTrafficWaiting=LocalMovement && LocalMovement->IsDeliberatelyWaiting() && !LocalMovement->IsRecovering();
 	if (!bActionAnimationPreviewActive && ExitKnowledge && ExitKnowledge->IsSearchingForExit() && IsNavigationAction(DisplayAction))
 		DisplayAction=GetVelocity().Size2D()>5.f ? EYUFSAction::HelpOther : EYUFSAction::WaitForInfo;
@@ -1533,6 +1622,7 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 		return;
 	}
 	if (bInteractionPreviewControlled) return;
+	if (DriveBelongingsReturn(DeltaTime)) return;
 	if (SuppressionComp && SuppressionComp->Execute(DeltaTime, GetCurrentSimFrame()))
 	{
 		bInteractionHoldingPosition = true;
@@ -1583,12 +1673,31 @@ void AYUFSEvacuationNPC::ExecuteCurrentAction(float DeltaTime)
 	case EYUFSAction::FollowCrowd:
 	case EYUFSAction::HelpOther:
 		{
+			const bool bEvacuationRoute=CurrentAction!=EYUFSAction::HelpOther;
+			if (Navigator && !bUseExternalNavigationDriver) Navigator->SetSmokeCostOnlyForEvacuation(bEvacuationRoute);
+			if (!bUseExternalNavigationDriver && LocalMovement && ExitKnowledge &&
+				(CurrentAction!=EYUFSAction::HelpOther && BehaviorSM->HasCommittedToEvacuation()))
+			{
+				if (LocalMovement->IsRecovering())
+				{
+					UpdateNavigationMovement(FVector::ZeroVector,DeltaTime,0.f,false,bEvacuationRoute);
+					break;
+				}
+				if (const auto* Portal=ExitKnowledge->GetPlannedSearchDoor();
+					Portal && Portal->IsPassageClear() && Portal->IsUserInReach(this)
+					&& LocalMovement->TryDoorwayPassage(*Portal,GetCurrentSimFrame()))
+				{
+					UE_LOG(LogTemp,Log,TEXT("[YUFS][Portal] %s crosses explored %s toward the corridor"),*GetName(),*Portal->GetName());
+					break;
+				}
+			}
 			FVector Target;
 			if (TryResolveNavigationTarget(CurrentAction,Target))
-				UpdateNavigationMovement(Target,DeltaTime,ExitKnowledge && ExitKnowledge->IsSearchingForExit()?ExitKnowledge->SearchWalkingSpeed:0.f,true);
+				UpdateNavigationMovement(Target,DeltaTime,ExitKnowledge && ExitKnowledge->IsSearchingForExit()
+					? ExitKnowledge->SearchWalkingSpeed*GetEvacuationTravelSpeedScale() : 0.f,true,bEvacuationRoute);
 			else
 			{
-				UpdateNavigationMovement(FVector::ZeroVector,DeltaTime);
+				UpdateNavigationMovement(FVector::ZeroVector,DeltaTime,0.f,false,bEvacuationRoute);
 				if (ExitKnowledge) ExitKnowledge->TickSearchLook(DeltaTime);
 			}
 		}
@@ -1617,8 +1726,7 @@ bool AYUFSEvacuationNPC::TryGetNearestKnownExit(FVector& OutExit) const
 	float Best = FLT_MAX;
 	for (const FVector& Exit : GetPersonallyKnownExitLocations())
 	{
-		const float* RetryAt = FailedExitUntil.Find(Exit);
-		if (RetryAt && *RetryAt > Now) continue;
+		if (IsExitRetryDeferred(Exit,Now)) continue;
 		if (Navigator->IsKnownLocationDangerous(Exit + FVector(0,0,120))) continue;
 		const float Distance = FVector::DistSquared(Exit, GetActorLocation());
 		if (Distance < Best) { Best = Distance; OutExit = Exit; }
@@ -1630,7 +1738,7 @@ void AYUFSEvacuationNPC::ResetRetreatKnowledge()
 {
 	bHasPreferredRetreat = false;
 	PreferredRetreatPath.Reset(); PreferredRetreatExit = FVector::ZeroVector;
-	PreferredRetreatExpiresAt = 0.f; FailedExitUntil.Reset();
+	PreferredRetreatExpiresAt = 0.f; FailedExitUntil.Reset(); DisconnectedExitOrigins.Reset();
 	LastRecordedNavigationFailure = MAX_uint32;
 }
 
@@ -1638,7 +1746,14 @@ void AYUFSEvacuationNPC::RememberFailedExit() const
 {
 	if (!Navigator || !LevelDataMgr) return;
 	const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
-	for (auto It = FailedExitUntil.CreateIterator(); It; ++It) if (It.Value() <= Now) It.RemoveCurrent();
+	for (auto It = FailedExitUntil.CreateIterator(); It; ++It)
+	{
+		if (!IsExitRetryDeferred(It.Key(),Now))
+		{
+			DisconnectedExitOrigins.Remove(It.Key());
+			It.RemoveCurrent();
+		}
+	}
 	if (Navigator->GetNavigationStatus() != EYUFSNavigationStatus::Failed
 		|| LastRecordedNavigationFailure == Navigator->GetRequestGeneration()) return;
 	LastRecordedNavigationFailure = Navigator->GetRequestGeneration();
@@ -1651,10 +1766,25 @@ void AYUFSEvacuationNPC::RememberFailedExit() const
 			FVector Oldest = FVector::ZeroVector; float Earliest = FLT_MAX;
 			for (const auto& Pair : FailedExitUntil) if (Pair.Value < Earliest) { Earliest = Pair.Value; Oldest = Pair.Key; }
 			FailedExitUntil.Remove(Oldest);
+			DisconnectedExitOrigins.Remove(Oldest);
 		}
-		FailedExitUntil.Add(Exit, Now + 10.f);
+		const auto Failure=Navigator->GetLastFailure();
+		const bool bDisconnected=Failure==EYUFSNavigationFailure::PartialPath || Failure==EYUFSNavigationFailure::NoPath;
+		FailedExitUntil.Add(Exit, Now + (bDisconnected ? 24.f : 10.f));
+		if (bDisconnected) DisconnectedExitOrigins.Add(Exit,GetActorLocation());
+		else DisconnectedExitOrigins.Remove(Exit);
 		break;
 	}
+}
+
+bool AYUFSEvacuationNPC::IsExitRetryDeferred(FVector Exit,float Now) const
+{
+	const float* Until=FailedExitUntil.Find(Exit);
+	if (!Until || *Until<=Now) return false;
+	const FVector* Origin=DisconnectedExitOrigins.Find(Exit);
+	if (!Origin || *Until-Now>22.f) return true;
+	const FVector Current=GetActorLocation();
+	return FMath::Abs(Current.Z-Origin->Z)<145.f && FVector::DistSquared2D(Current,*Origin)<FMath::Square(420.f);
 }
 
 bool AYUFSEvacuationNPC::TryGetPreferredRetreat(FVector& OutExit) const
@@ -1704,6 +1834,7 @@ void AYUFSEvacuationNPC::ResumeEvacuationAfterSuppression(bool bRetreatReachable
 		PreferredRetreatExpiresAt = (GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f) + 60.f;
 		bHasPreferredRetreat = true;
 		FailedExitUntil.Remove(RetreatExit);
+		DisconnectedExitOrigins.Remove(RetreatExit);
 		Navigator->ClearPath(); // Any previous approach must not invalidate the handed-off exit preference.
 	}
 	if (TeamIntegrationComp)
@@ -1741,8 +1872,7 @@ bool AYUFSEvacuationNPC::TryResolveNavigationTarget(EYUFSAction Action,FVector& 
     const float Now=GetWorld()?GetWorld()->GetTimeSeconds():0.f;
     auto Available=[this,Now](const FVector& Exit)
     {
-        const float* Until=FailedExitUntil.Find(Exit);
-        return (!Until || *Until<=Now) && !Navigator->IsKnownLocationDangerous(Exit+FVector(0,0,Navigator->GetHazardSettings().SampleHeightCm));
+        return !IsExitRetryDeferred(Exit,Now) && !Navigator->IsKnownEvacuationLocationBlocked(Exit+FVector(0,0,Navigator->GetEvacuationHazardSettings().SampleHeightCm));
     };
     bool Found=false;
     switch (Action)
@@ -1776,7 +1906,7 @@ bool AYUFSEvacuationNPC::TryPreferNearbyExit(const FYUFSHazardSnapshot& Snapshot
 {
     if (!Navigator || !LocalMovement || Snapshot.Status != EYUFSHazardDataStatus::Ready) return false;
     const FVector Feet = GetActorLocation() - FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-    const auto Settings = Navigator->GetHazardSettings();
+    const auto Settings = Navigator->GetEvacuationHazardSettings();
     const float Now = GetWorld()->GetTimeSeconds();
     double BestDistanceSq = FMath::Square(600.0);
     if (bHasTarget) BestDistanceSq = FMath::Min(BestDistanceSq, FVector::DistSquared(Feet, InOutTarget));
@@ -1784,13 +1914,13 @@ bool AYUFSEvacuationNPC::TryPreferNearbyExit(const FYUFSHazardSnapshot& Snapshot
     for (const FVector& Exit : GetPersonallyKnownExitLocations())
     {
         const double DistanceSq = FVector::DistSquared(Feet, Exit);
-        const float* RetryAt = FailedExitUntil.Find(Exit);
-        if (DistanceSq >= BestDistanceSq || (RetryAt && *RetryAt > Now)
+        if (DistanceSq >= BestDistanceSq || IsExitRetryDeferred(Exit,Now)
             || FMath::Abs(Feet.Z - Exit.Z) > GetCharacterMovement()->MaxStepHeight + 3.f) continue;
         const auto Approach = Snapshot.ScorePath({Feet, Exit}, Settings);
         const auto AtExit = Snapshot.ScorePath({Exit, Exit}, Settings);
-        if (Approach.bUnsafeAhead || Approach.OutsideSamples > 0
-            || AtExit.MaxSmoke >= Settings.BlockSmoke || AtExit.MaxHeat >= Settings.BlockHeat) continue;
+        if (Approach.bUnsafeAhead || Approach.OutsideSamples > 0 || AtExit.MaxHeat >= Settings.BlockHeat) continue;
+        // A proximity shortcut must not override a planned route in favour of dense smoke.
+        if (bHasTarget && FMath::Max(Approach.MaxSmoke,AtExit.MaxSmoke)>=Settings.BlockSmoke) continue;
         // Existing local traffic rules still own who can physically advance through the queue.
         if (!LocalMovement->IsPhysicalCorridorClear(Exit, true)) continue;
         BestDistanceSq = DistanceSq;
@@ -1825,8 +1955,7 @@ bool AYUFSEvacuationNPC::TryChooseKnownExit(FVector& Out) const
     float Score=FLT_MAX;
     for (const FVector& Exit:GetPersonallyKnownExitLocations())
     {
-        const float* RetryAt=FailedExitUntil.Find(Exit);
-        if (RetryAt && *RetryAt>Now) continue;
+        if (IsExitRetryDeferred(Exit,Now)) continue;
         const auto Risk=Snapshot.Sample(Exit+FVector(0,0,Navigator->GetHazardSettings().SampleHeightCm));
         const float Cost=FVector::Dist(GetActorLocation(),Exit)*(1.f+20.f*Risk.Smoke+40.f*Risk.Heat);
         if (Cost<Score) { Score=Cost;Out=Exit; }
@@ -1889,6 +2018,25 @@ void AYUFSEvacuationNPC::PublishTeamDirectives(const FYUFSNPCObservation& Observ
 	{
 		return;
 	}
+	if (IsReturningForBelongings())
+	{
+		auto Opportunities = TeamIntegrationComp->GetInteractionOpportunities();
+		if (Opportunities.BelongingsStableId != TEXT("PersonalBagReturn"))
+		{
+			Opportunities.BelongingsStableId = TEXT("PersonalBagReturn");
+			Opportunities.bBelongingsKnown = true;
+			Opportunities.BelongingsLocation = BelongingsReturnTarget;
+			++Opportunities.KnowledgeRevision;
+			TeamIntegrationComp->SubmitInteractionOpportunities(Opportunities);
+		}
+		FYUFSBehaviorDecision Bag;
+		Bag.Behavior = EYUFSHighLevelBehavior::RetrieveBelongings;
+		Bag.LegacyAction = IsPickingUpBelongings() ? EYUFSAction::GatherBelongings : EYUFSAction::HelpOther;
+		Bag.Reason = IsPickingUpBelongings() ? TEXT("PickingUpForgottenBag") : TEXT("ReturningForForgottenBag");
+		TeamIntegrationComp->PublishDecision(StableNPCId, Bag, GetCurrentIntent(), Observation.CurrentState,
+			BelongingsReturnTarget, bHasSafeExit, HumanCognitionComp ? HumanCognitionComp->GetCognitiveState() : FYUFSCognitiveState{});
+		return;
+	}
 
 	FYUFSBehaviorDecision FallbackDecision;
 	const FYUFSBehaviorDecision* Decision = bOptionalInteractionSelected
@@ -1925,6 +2073,149 @@ void AYUFSEvacuationNPC::PublishTeamDirectives(const FYUFSNPCObservation& Observ
 		DestinationHint,
 		bHasSafeExit,
 		Cognition,bHasDestination,ExitKnowledge && ExitKnowledge->IsSearchingForExit());
+}
+
+bool AYUFSEvacuationNPC::IsReturningForBelongings() const
+{
+	return BelongingsReturn == EBelongingsReturn::Returning || IsPickingUpBelongings();
+}
+
+bool AYUFSEvacuationNPC::IsPickingUpBelongings() const
+{
+	return BelongingsReturn == EBelongingsReturn::PickingUp;
+}
+
+bool AYUFSEvacuationNPC::IsBelongingsRouteAcceptable(const TArray<FVector>& Path) const
+{
+	if (!Navigator || Path.Num() < 2) return false;
+	const auto Field = Navigator->GetPerceivedHazardSnapshot(GetCurrentSimFrame());
+	if (Field.Status != EYUFSHazardDataStatus::Ready || !Field.Grid.IsValid()) return false;
+	const auto Score = Field.ScorePath(Path, Navigator->GetHazardSettings());
+	return Score.OutsideSamples == 0 && Score.MaxSmoke < .48f && Score.MaxHeat < .42f;
+}
+
+void AYUFSEvacuationNPC::EvaluateBelongingsReturn(const FYUFSNPCObservation& Observation, float DeltaTime)
+{
+	if (BelongingsReturn == EBelongingsReturn::Done || !BehaviorSM) return;
+	const auto State = BehaviorSM->GetCurrentState();
+	if (State == EYUFSBehaviorState::Preparing) { FinishBelongingsReturn(TEXT("AlreadyPrepared")); return; }
+	const bool bEligible = !bUseExternalNavigationDriver && !bInteractionPreviewControlled && !bTimelinePlaybackMode
+		&& State == EYUFSBehaviorState::Evacuating && !IsCrouched() && !IsHidden()
+		&& !Observation.bReceivedStaffGuidance && !Observation.bReceivedLiveAnnouncement
+		&& FMath::Max(Observation.NearbyHeat, Observation.TemperatureAtSelf) < .40f && Observation.SmokeDensityAtSelf < .30f;
+	if (IsReturningForBelongings())
+	{
+		if (!bEligible) { FinishBelongingsReturn(TEXT("HazardOrPriorityChanged")); return; }
+		BelongingsReturnRemaining -= DeltaTime;
+		if (BelongingsReturnRemaining <= 0.f) { FinishBelongingsReturn(TEXT("TimedOut")); return; }
+		if (Navigator->GetNavigationStatus() == EYUFSNavigationStatus::Failed)
+		{ FinishBelongingsReturn(TEXT("PathBlocked")); return; }
+		BelongingsPathSafetyCountdown -= DeltaTime;
+		if (BelongingsPathSafetyCountdown <= 0.f)
+		{
+			BelongingsPathSafetyCountdown = .30f;
+			const FVector Feet = GetActorLocation() - FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+			TArray<FVector> Remaining{Feet};
+			if (!IsPickingUpBelongings())
+			{
+				const auto& Path = Navigator->GetCurrentPathPoints();
+				for (int32 Index=Navigator->GetCurrentWaypointIndex(); Path.IsValidIndex(Index); ++Index) Remaining.Add(Path[Index]);
+			}
+			if (Remaining.Num() == 1) Remaining.Add(Feet); // A pending query must not imply a direct line through walls.
+			if (!IsBelongingsRouteAcceptable(Remaining)) FinishBelongingsReturn(TEXT("ReturnRouteBecameRisky"));
+		}
+		return;
+	}
+	if (State != EYUFSBehaviorState::Evacuating || !Navigator || !Navigator->IsFollowingPath()
+		|| !IsNavigationAction(CurrentAction) || CurrentAction == EYUFSAction::HelpOther
+		|| (ExitKnowledge && ExitKnowledge->IsSearchingForExit())) return;
+	const double Distance = FVector::Dist2D(GetActorLocation(),SpawnLocation);
+	if (Distance < 270.0) return;
+	// The thought occurs once, after actually leaving the remembered room. It is not retried until a safe-looking moment.
+	BelongingsReturn = EBelongingsReturn::Done;
+	if (!bEligible || Distance > 800.0 || FMath::Abs(GetActorLocation().Z-SpawnLocation.Z) > 95.0
+		|| (EnvironmentInteraction && (EnvironmentInteraction->IsActive() || EnvironmentInteraction->IsReceivingContactAssistance()))
+		|| (SuppressionComp && SuppressionComp->IsActive()) || GetCurrentTerminalReason() != EYUFSTerminalReason::None) return;
+	const float Half = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	const FVector Feet = GetActorLocation() - FVector(0,0,Half);
+	const FVector HomeFeet = SpawnLocation - FVector(0,0,Half);
+	auto* System = UNavigationSystemV1::GetCurrent(GetWorld());
+	FNavLocation Home;
+	if (!System || !System->ProjectPointToNavigation(HomeFeet,Home,FVector(55,55,75),&GetNavAgentPropertiesRef())
+		|| FMath::Abs(Home.Location.Z-HomeFeet.Z)>60.f) return;
+	const auto* Path = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(),Feet,Home.Location,this);
+	if (!Path || !Path->IsValid() || Path->IsPartial() || Path->GetPathLength()>1000.f
+		|| Path->PathPoints.ContainsByPredicate([&](const FVector& Point) { return FMath::Abs(Point.Z-Home.Location.Z)>95.f; })
+		|| !IsBelongingsRouteAcceptable(Path->PathPoints)) return;
+	BelongingsReturnTarget = Home.Location;
+	BelongingsReturn = EBelongingsReturn::Returning;
+	BelongingsReturnRemaining = 10.f;
+	BelongingsPathSafetyCountdown = .3f;
+	BelongingsPickupElapsed = 0.f;
+	bHasPendingTransition = false;
+	bOptionalInteractionSelected = false;
+	ActiveInteractionDecision = FYUFSBehaviorDecision{};
+	Navigator->ClearPath();
+	CurrentNavTarget = FVector::ZeroVector;
+	if (LocalMovement) LocalMovement->Reset();
+	UE_LOG(LogTemp, Display, TEXT("[YUFS][Belongings] %s returning from=%s target=%s"),
+		*GetName(), *Feet.ToCompactString(), *BelongingsReturnTarget.ToCompactString());
+}
+
+bool AYUFSEvacuationNPC::DriveBelongingsReturn(float DeltaTime)
+{
+	if (!IsReturningForBelongings()) return false;
+	if (BelongingsReturn == EBelongingsReturn::Returning)
+	{
+		const FVector Feet = GetActorLocation() - FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		if (FVector::DistSquared2D(Feet,BelongingsReturnTarget) > FMath::Square(90.f)
+			|| FMath::Abs(Feet.Z-BelongingsReturnTarget.Z)>55.f
+			|| !LocalMovement || !LocalMovement->IsPhysicalCorridorClear(BelongingsReturnTarget,true))
+		{
+			UpdateNavigationMovement(BelongingsReturnTarget,DeltaTime,225.f,true); // Strict: this is optional, not escape.
+			return true;
+		}
+		BelongingsReturn = EBelongingsReturn::PickingUp;
+		Navigator->ClearPath();
+		UE_LOG(LogTemp, Display, TEXT("[YUFS][Belongings] %s picking up at %s"), *GetName(), *Feet.ToCompactString());
+	}
+	bInteractionHoldingPosition = true;
+	GetCharacterMovement()->StopMovementImmediately();
+	const FVector Facing = (BelongingsReturnTarget-GetActorLocation()).GetSafeNormal2D();
+	if (!bUseExternalMotionDriver && !Facing.IsNearlyZero())
+		SetActorRotation(FMath::RInterpConstantTo(GetActorRotation(),Facing.Rotation(),DeltaTime,240.f));
+	BelongingsPickupElapsed += DeltaTime;
+	if (BelongingsPickupElapsed >= .85f)
+	{
+		FinishBelongingsReturn(TEXT("BelongingsCollected"));
+		return false;
+	}
+	return true;
+}
+
+void AYUFSEvacuationNPC::FinishBelongingsReturn(FName Reason)
+{
+	const bool bWasReturning = IsReturningForBelongings();
+	BelongingsReturn = EBelongingsReturn::Done;
+	if (!bWasReturning) return;
+	bInteractionHoldingPosition = false;
+	if (Navigator) Navigator->ClearPath();
+	if (LocalMovement) LocalMovement->Reset();
+	if (ExitKnowledge) ExitKnowledge->StopSearching();
+	CurrentNavTarget = FVector::ZeroVector;
+	if (TeamIntegrationComp)
+	{
+		auto Opportunities = TeamIntegrationComp->GetInteractionOpportunities();
+		if (Opportunities.BelongingsStableId == TEXT("PersonalBagReturn"))
+		{
+			Opportunities.bBelongingsKnown = false;
+			Opportunities.BelongingsStableId = NAME_None;
+			Opportunities.BelongingsLocation = FVector::ZeroVector;
+			++Opportunities.KnowledgeRevision;
+			TeamIntegrationComp->SubmitInteractionOpportunities(Opportunities);
+		}
+	}
+	UE_LOG(LogTemp, Display, TEXT("[YUFS][Belongings] %s finished reason=%s"), *GetName(), *Reason.ToString());
 }
 
 bool AYUFSEvacuationNPC::RollSocialProbability(float Probability)
@@ -2044,11 +2335,17 @@ EYUFSIntent AYUFSEvacuationNPC::GetCurrentIntent() const
 	return BehaviorSM->HasCommittedToEvacuation() ? EYUFSIntent::CommitEvac : EYUFSIntent::Observe;
 }
 
+float AYUFSEvacuationNPC::GetEvacuationTravelSpeedScale() const
+{
+	return BehaviorSM && BehaviorSM->Config && BehaviorSM->GetCurrentState() == EYUFSBehaviorState::Evacuating && !IsCrouched()
+		? FMath::Clamp(BehaviorSM->Config->EvacuationTravelSpeedScale, .5f, 1.6f) : 1.f;
+}
+
 float AYUFSEvacuationNPC::GetDesiredWalkingSpeed() const
 {
 	if (BehaviorSM && BehaviorSM->IsIncapacitated()) return 0.f;
 	float Speed = BaseWalkSpeed * (BehaviorSM ? BehaviorSM->GetSpeedMultiplier() : 1.f)
-		* (SocialComp ? SocialComp->GetGroupSpeedMultiplier() : 1.f);
+		* (SocialComp ? SocialComp->GetGroupSpeedMultiplier() : 1.f) * GetEvacuationTravelSpeedScale();
 	if (BehaviorSM && (BehaviorSM->IsCrawling() || IsCrouched()) && BehaviorSM->Config)
 		Speed = FMath::Min(Speed, BehaviorSM->Config->CrawlSpeed);
 	return Speed;
@@ -2127,9 +2424,10 @@ bool AYUFSEvacuationNPC::IsInteractionHoldingPosition() const
 	return bInteractionHoldingPosition;
 }
 
-void AYUFSEvacuationNPC::UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap, bool bAllowOrigin)
+void AYUFSEvacuationNPC::UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap, bool bAllowOrigin, bool bEvacuationRoute)
 {
 	if (bUseExternalNavigationDriver || !Navigator || !LocalMovement) return;
+	Navigator->SetSmokeCostOnlyForEvacuation(bEvacuationRoute);
 	const int32 Frame = GetCurrentSimFrame();
 	if (SpeedCap > 0.f) GetCharacterMovement()->MaxWalkSpeed = FMath::Min(GetDesiredWalkingSpeed(), SpeedCap);
 	if (LocalMovement->TickRecovery(DeltaTime, Frame)) return;

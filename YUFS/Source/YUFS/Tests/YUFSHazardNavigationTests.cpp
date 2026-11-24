@@ -191,6 +191,39 @@ bool FYUFSHazardPlaybackFrameTest::RunTest(const FString&)
 	return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSRenderSmokeDensityTest, "YUFS.NPC.Navigation.Hazard.RenderDensityKeepsTheOriginalPlaybackTexture",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSRenderSmokeDensityTest::RunTest(const FString&)
+{
+	UWorld* World = UWorld::CreateWorld(EWorldType::Game, false);
+	auto* Volume = World->SpawnActor<AYUFSHeterogeneousVolume>();
+	auto* Component = Volume->FindComponentByClass<UHeterogeneousVolumeComponent>();
+	const FMaterialParameterInfo Density(TEXT("Density Scale")), SparseTexture(TEXT("SparseVolumeTexture"));
+	for (int32 Option = 1; Option <= 3; ++Option)
+	{
+		const FString Asset = FString::Printf(TEXT("/Game/Fires/FinalIT1104/MI_Fire%d.MI_Fire%d"), Option, Option);
+		auto* Source = LoadObject<UMaterialInterface>(nullptr, *Asset);
+		if (!TestNotNull(TEXT("Option material exists"), Source)) continue;
+		float Baseline = -1.f;
+		USparseVolumeTexture* Expected = nullptr;
+		TestTrue(TEXT("Option exposes optical density"), Source->GetScalarParameterValue(Density, Baseline) && Baseline > 0.f);
+		TestTrue(TEXT("Source has a recorded SVT"), Source->GetSparseVolumeTextureParameterValue(SparseTexture, Expected) && Expected);
+		Volume->SetFireMaterial(Source);
+		Volume->SetFireMaterial(Component->GetMaterial(0));
+		auto* Render = Component->GetMaterial(0);
+		float Adjusted = -1.f, Original = -1.f;
+		USparseVolumeTexture* Actual = nullptr;
+		TestTrue(TEXT("Render scale applies once, even after reapplication"), Render->GetScalarParameterValue(Density, Adjusted)
+			&& FMath::IsNearlyEqual(Adjusted, Baseline * 0.8f));
+		TestTrue(TEXT("Original material is not edited"), Source->GetScalarParameterValue(Density, Original)
+			&& FMath::IsNearlyEqual(Baseline, Original));
+		TestTrue(TEXT("The rendered component still resolves the dataset's SVT"),
+			Render->GetSparseVolumeTextureParameterValue(SparseTexture, Actual) && Actual == Expected);
+	}
+	World->DestroyWorld(false);
+	return true;
+}
+
 #if WITH_RECAST
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSHazardDetourTest, "YUFS.NPC.Navigation.Hazard.ActualDetourChoosesOtherCorridor",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
@@ -267,6 +300,7 @@ bool FYUFSHazardDetourTest::RunTest(const FString&)
 	const int32 X = FMath::FloorToInt(Cell.X), Y = FMath::FloorToInt(Cell.Y);
 	for (int32 Z = 0; Z < 3; ++Z) HotGrid->Density[(X * 3 + Y) * 3 + Z] = 255;
 	FYUFSHazardSettings Settings;
+	Settings.bBlockOnSmoke = false; // Evacuation pays the cost, but does not close the smoky corridor.
 	FYUFSHazardRecastFilter HotFilter(Base, HotField, Settings);
 	// Verify the copy used by FNavigationQueryFilter preserves virtual dispatch and the grid.
 	TUniquePtr<INavigationQueryFilterInterface> Copy(HotFilter.CreateCopy());

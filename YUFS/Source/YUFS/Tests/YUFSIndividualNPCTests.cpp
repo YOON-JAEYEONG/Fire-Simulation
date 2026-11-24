@@ -102,6 +102,68 @@ bool FYUFSIndividualEvidenceTest::RunTest(const FString&)
 	TestEqual(TEXT("Existing model input width is preserved"),Features.Num(),FYUFSNPCObservation::FeatureCount);
 	return true;
 }
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSEvacuationDecisionTempoTest,"YUFS.NPC.Individual.EvacuationTempo.CueConfirmationAndPreparation",
+	EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FYUFSEvacuationDecisionTempoTest::RunTest(const FString&)
+{
+	FYUFSNPCObservation O;
+	O.SmokeInFrontNormalized=.65f;
+	auto* Faster=Mind(12); auto* Baseline=Mind(12);
+	Baseline->Config->EvacuationDecisionTimeScale=1.f;
+	Advance(Faster,O,.4f); Advance(Baseline,O,.4f);
+	TestEqual(TEXT("Strong visible smoke is confirmed in about 0.4s"),Faster->GetCurrentState(),EYUFSBehaviorState::Evacuating);
+	TestFalse(TEXT("The same seed at the old pace is still evaluating the cue"),Baseline->HasCommittedToEvacuation());
+	TestEqual(TEXT("Faster appraisal does not create exposure from visible smoke"),Faster->GetSmokeExposure(),0.f);
+	Advance(Baseline,O,.3f);
+	TestTrue(TEXT("Both settings eventually make the same decision"),Baseline->HasCommittedToEvacuation());
+
+	auto MeasureAlarm=[](float Scale)
+	{
+		auto* S=Mind(37);
+		S->Config->EvacuationDecisionTimeScale=Scale;
+		S->Config->EarlyAlarmResponseFraction=1.f;
+		S->InitializePersonality(37);
+		FYUFSNPCObservation Alarm; Alarm.bAlarmSounding=true;
+		int32 CommitTicks=0, PrepareTicks=0;
+		while (!S->HasCommittedToEvacuation() && CommitTicks<100) { Advance(S,Alarm,.1f); ++CommitTicks; }
+		while (S->GetCurrentState()==EYUFSBehaviorState::Preparing && PrepareTicks<100) { Advance(S,Alarm,.1f); ++PrepareTicks; }
+		return FIntPoint(CommitTicks,PrepareTicks);
+	};
+	const FIntPoint New=MeasureAlarm(.65f), Old=MeasureAlarm(1.f);
+	TestTrue(TEXT("An identical trusting NPC commits earlier but not immediately"),New.X>1 && New.X<Old.X && Old.X<100);
+	TestTrue(TEXT("Preparing has the same non-zero duration at either judgment speed"),New.Y>0 && New.Y==Old.Y);
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSEvacuationTravelTempoTest,"YUFS.NPC.Individual.EvacuationTempo.TravelOnly",
+	EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FYUFSEvacuationTravelTempoTest::RunTest(const FString&)
+{
+	UWorld* World=UWorld::CreateWorld(EWorldType::Game,false);
+	auto* Npc=World->SpawnActor<AYUFSEvacuationNPC>();
+	auto* State=Npc->GetBehaviorStateMachine();
+	State->Config=NewObject<UYUFSBehaviorConfig>(State);
+	Npc->SetMovementSpeed(300.f);
+	const float Normal=Npc->GetDesiredWalkingSpeed();
+	FYUFSNPCObservation O; O.NearbyHeat=.9f;
+	State->TickStateMachine(.1f,O);
+	const float Faster=Npc->GetDesiredWalkingSpeed();
+	State->Config->EvacuationTravelSpeedScale=1.f;
+	const float Baseline=Npc->GetDesiredWalkingSpeed();
+	TestTrue(TEXT("Ordinary movement gets no pace boost"),FMath::IsNearlyEqual(Normal,Baseline));
+	TestTrue(TEXT("Unrestricted evacuation movement gets the default 25% boost"),FMath::IsNearlyEqual(Faster,1.25f*Baseline));
+	State->Config->EvacuationTravelSpeedScale=1.25f;
+	O.SmokeDensityAtSelf=1.f;
+	State->TickStateMachine(26.f,O);
+	TestTrue(TEXT("Crawl does not inherit the running boost"),State->IsCrawling());
+	TestEqual(TEXT("Crawl speed stays capped"),Npc->GetDesiredWalkingSpeed(),State->Config->CrawlSpeed);
+	State->TickStateMachine(14.f,O);
+	TestEqual(TEXT("An incapacitated NPC cannot move"),Npc->GetDesiredWalkingSpeed(),0.f);
+	World->DestroyWorld(false);
+	return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSTrafficOrderTest,"YUFS.NPC.Navigation.Traffic.StableYieldAndFloors",
 	EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FYUFSTrafficOrderTest::RunTest(const FString&)

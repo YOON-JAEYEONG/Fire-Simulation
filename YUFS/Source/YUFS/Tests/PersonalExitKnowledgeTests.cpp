@@ -120,6 +120,34 @@ bool FYUFSExitLandmarkSightTest::RunTest(const FString&)
     return true;
 }
 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSStairSignTest,"YUFS.NPC.Navigation.PersonalExits.StairSignTeachesExitOnlyWhenReadable",
+    EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
+bool FYUFSStairSignTest::RunTest(const FString&)
+{
+    FPersonalExitFixture F;
+    F.NPC->SetActorLocation(FVector(1000,100,460));
+    F.Exit->SetActorLocation(FVector(7000,100,0));
+    auto* Sign=F.World->SpawnActor<AActor>();
+    auto* MarkerRoot=NewObject<USceneComponent>(Sign);
+    Sign->SetRootComponent(MarkerRoot);MarkerRoot->RegisterComponent();
+    Sign->SetActorLocationAndRotation(FVector(1350,100,530),FRotator::ZeroRotator);
+    F.Exit->WayfindingMarkers.Add(Sign);
+    auto* Memory=F.NPC->GetExitKnowledge();
+    Memory->ObserveExits(FYUFSHazardSnapshot(),false);
+    TestEqual(TEXT("A back-facing sign does not reveal the exit"),Memory->GetKnownExitCount(),0);
+    Sign->SetActorRotation(FRotator(0,180,0));
+    auto* Wall=F.World->SpawnActor<AActor>();auto* Box=NewObject<UBoxComponent>(Wall);Wall->SetRootComponent(Box);
+    Box->SetBoxExtent(FVector(10,200,150));Box->SetCollisionProfileName(TEXT("BlockAll"));Box->RegisterComponent();
+    Wall->SetActorLocation(FVector(1200,100,500));
+    Memory->ObserveExits(FYUFSHazardSnapshot(),false);
+    TestEqual(TEXT("A wall blocks the sign"),Memory->GetKnownExitCount(),0);
+    Wall->Destroy();
+    Memory->ObserveExits(FYUFSHazardSnapshot(),false);
+    TestTrue(TEXT("Reading the upstairs sign teaches its paired downstairs exit"),Memory->KnowsExitLocation(F.Exit->GetActorLocation()));
+    TestFalse(TEXT("The sign itself is never an evacuation destination"),Memory->KnowsExitLocation(Sign->GetActorLocation()));
+    return true;
+}
+
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSExitOfficialGuidanceTest,"YUFS.NPC.Navigation.PersonalExits.OfficialGuidanceValidatesLocationAndRadius",
     EAutomationTestFlags::EditorContext|EAutomationTestFlags::EngineFilter)
 bool FYUFSExitOfficialGuidanceTest::RunTest(const FString&)
