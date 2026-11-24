@@ -2,14 +2,20 @@
 
 #include "Simulation/YUFSSimHUD.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 #include "Blueprint/WidgetTree.h"
 #include "Components/TextBlock.h"
 #include "GameFramework/PlayerController.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "Rendering/DrawElements.h"
+#include "Styling/CoreStyle.h"
 
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "Simulation/YUFSGameInstance.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
+#include "NPC/YUFSEvacuationNPC.h"
 
 namespace
 {
@@ -22,6 +28,45 @@ void RestoreSimulationInput(APlayerController* PC)
  PC->bShowMouseCursor = true;
  UWidgetBlueprintLibrary::SetFocusToGameViewport();
 }
+}
+
+int32 UYUFSSimHUD::PaintBelongingsMarkers(const FGeometry& Geometry, FSlateWindowElementList& Elements, int32 Layer) const
+{
+	static const bool bEnabled = FParse::Param(FCommandLine::Get(), TEXT("YUFSFireAwarenessAudit"));
+	if (!bEnabled || !IsValid(SimController) || !GetWorld() || SimController->GetCurrentPhase() != ESimPhase::FireActive) return Layer;
+	APlayerController* PC = GetOwningPlayer() ? GetOwningPlayer() : GetWorld()->GetFirstPlayerController();
+	if (!PC) return Layer;
+	const FVector2D Size = Geometry.GetLocalSize();
+	const FSlateBrush* White = FCoreStyle::Get().GetBrush("WhiteBrush");
+	const FSlateFontInfo Font = FCoreStyle::GetDefaultFontStyle("Regular", 12);
+	TArray<FVector2D, TInlineAllocator<8>> Placed;
+	for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
+	{
+		const AYUFSEvacuationNPC& NPC = **It;
+		if (NPC.IsHidden() || !NPC.IsReturningForBelongings()) continue;
+		FVector2D Pos;
+		if (!UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(PC, NPC.GetActorLocation()+FVector(0,0,115), Pos, true)
+			|| Pos.X<125 || Pos.Y<18 || Pos.X>Size.X-145 || Pos.Y>Size.Y-24) continue;
+		if (Placed.ContainsByPredicate([&](const FVector2D& Other) { return FMath::Abs(Other.X-Pos.X)<142 && FMath::Abs(Other.Y-Pos.Y)<20; })) continue;
+		Placed.Add(Pos);
+		const FString Name = NPC.GetName();
+		int32 Separator = INDEX_NONE;
+		Name.FindLastChar(TCHAR('_'), Separator);
+		const FString Id = Separator == INDEX_NONE ? FString::FromInt(NPC.GetStableNPCId()) : Name.Mid(Separator+1);
+		const FString Label = FString::Printf(TEXT("#%s %s"), *Id,
+			NPC.IsPickingUpBelongings() ? TEXT("가방 챙김") : TEXT("가방 찾으러 돌아감"));
+		FSlateDrawElement::MakeBox(Elements, Layer+1, Geometry.ToPaintGeometry(FVector2f(141,20), FSlateLayoutTransform(FVector2f(Pos-FVector2D(4,2)))),
+			White, ESlateDrawEffect::None, FLinearColor(.018f,.035f,.06f,.93f));
+		FSlateDrawElement::MakeText(Elements, Layer+2, Geometry.ToPaintGeometry(FVector2f(1,1), FSlateLayoutTransform(FVector2f(Pos))),
+			Label, Font, ESlateDrawEffect::None, FLinearColor(.96f,.70f,1.f));
+	}
+	return Placed.IsEmpty() ? Layer : Layer+2;
+}
+
+int32 UYUFSSimHUD::NativePaint(const FPaintArgs& Args, const FGeometry& Geometry, const FSlateRect& Culling,
+	FSlateWindowElementList& Elements, int32 Layer, const FWidgetStyle& Style, bool bParentEnabled) const
+{
+	return PaintBelongingsMarkers(Geometry, Elements, Super::NativePaint(Args, Geometry, Culling, Elements, Layer, Style, bParentEnabled));
 }
 
 TMap<FName, FText> UYUFSSimHUD::GetDisplayedTextSnapshot() const

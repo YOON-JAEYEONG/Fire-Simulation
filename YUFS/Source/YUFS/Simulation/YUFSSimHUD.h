@@ -22,6 +22,13 @@ class YUFS_API UYUFSSimHUD : public UUserWidget
 public:
 	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+	virtual int32 NativePaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect,
+		FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
+
+private:
+	int32 PaintBelongingsMarkers(const FGeometry& Geometry, FSlateWindowElementList& Elements, int32 Layer) const;
+
+public:
 
 	// ── UMG 버튼에 바인딩할 함수들 ───────────────────────────────────────
 	UFUNCTION(BlueprintCallable, Category="YUFS|HUD")

@@ -142,6 +142,8 @@ public:
 	// Combine project and authored NPC seeds without overwriting either setting.
 	void InitializeForRun(int32 RunSeed);
 	bool IsInteractionHoldingPosition() const;
+	bool IsReturningForBelongings() const;
+	bool IsPickingUpBelongings() const;
 
 	UYUFSLocalMovementComponent* GetLocalMovement() const { return LocalMovement; }
 	// ── 컴포넌트 접근자 ────────────────────────────────────────────────
@@ -186,7 +188,8 @@ public:
 	const FYUFSNPCObservation& GetLastObservation() const { return LiveObservation; }
 	EYUFSAction GetLastAction() const { return CurrentAction; }
 	EYUFSAction GetDisplayedAction() const { return bTimelinePlaybackMode && bHasTimelinePlaybackSnapshot
-		? TimelinePlaybackSnapshot.DisplayAction : (bActionAnimationPreviewActive ? PreviewAction : CurrentAction); }
+		? TimelinePlaybackSnapshot.DisplayAction : (bActionAnimationPreviewActive ? PreviewAction
+			: IsPickingUpBelongings() ? EYUFSAction::GatherBelongings : CurrentAction); }
 	bool IsActionAnimationPreviewActive() const { return bActionAnimationPreviewActive; }
 	FString GetCurrentActionAnimationName() const;
 	// Read-only, on-demand audit. Path maxima are deliberately separate from cached perception.
@@ -345,6 +348,17 @@ private:
 	bool bInteractionHoldingPosition = false;
 	float PeerGuidanceSecondsRemaining = 0.f;
 	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f, bool bAllowOrigin=false);
+	enum class EBelongingsReturn : uint8 { Done, Candidate, Returning, PickingUp };
+	EBelongingsReturn BelongingsReturn = EBelongingsReturn::Done;
+	FVector BelongingsReturnTarget = FVector::ZeroVector;
+	float BelongingsReturnRemaining = 0.f;
+	float BelongingsPathSafetyCountdown = 0.f;
+	float BelongingsPickupElapsed = 0.f;
+	void EvaluateBelongingsReturn(const FYUFSNPCObservation& Observation, float DeltaTime);
+	bool DriveBelongingsReturn(float DeltaTime);
+	bool IsBelongingsRouteAcceptable(const TArray<FVector>& Path) const;
+	void FinishBelongingsReturn(FName Reason);
+	friend struct FYUFSBelongingsReturnTestAccess;
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
 	EYUFSAction CurrentAction            = EYUFSAction::Idle;
