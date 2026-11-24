@@ -20,6 +20,10 @@ struct FYUFSExitValidationTestAccess
     static EYUFSTerminalReason Terminal(AYUFSEvacuationNPC* NPC) { return NPC->GetCurrentTerminalReason(); }
     static FVector Choose(AYUFSEvacuationNPC* NPC) { return NPC->ChooseKnownExit(); }
     static void AvoidUntil(AYUFSEvacuationNPC* NPC, FVector Exit, float Until) { NPC->FailedExitUntil.Add(Exit, Until); }
+    static void AvoidFrom(AYUFSEvacuationNPC* NPC,FVector Exit,FVector Origin)
+    { NPC->FailedExitUntil.Add(Exit,24.f); NPC->DisconnectedExitOrigins.Add(Exit,Origin); }
+    static bool Deferred(const AYUFSEvacuationNPC* NPC,FVector Exit,float Time)
+    { return NPC->IsExitRetryDeferred(Exit,Time); }
     static void SetController(AYUFSEvacuationNPC* NPC,AYUFSSimulationController* Controller) { NPC->SimulationController=Controller; }
     static void SyncPosture(AYUFSEvacuationNPC* NPC) { NPC->UpdatePhysicalPosture(); }
     static bool PreferNearby(AYUFSEvacuationNPC* NPC, const FYUFSHazardSnapshot& Field, FVector& Goal)
@@ -159,6 +163,27 @@ bool FYUFSExitCrawlGeometryTest::RunTest(const FString&)
     FYUFSExitValidationTestAccess::SyncPosture(F.NPC);
     TestTrue(TEXT("Fixture uses the actual low collision shape"),F.NPC->IsCrouched());
     TestEqual(TEXT("A lowered body can use the supported clear approach"),FYUFSExitValidationTestAccess::Terminal(F.NPC),EYUFSTerminalReason::ReachedExit);
+    return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSExitSpatialRetryTest,
+    "YUFS.NPC.Navigation.ExitValidation.DisconnectedExitRetriesOnProgress",
+    EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSExitSpatialRetryTest::RunTest(const FString&)
+{
+    FExitGeometryFixture Fixture;
+    const FVector Goal(500,0,20), Origin=Fixture.NPC->GetActorLocation();
+    FYUFSExitValidationTestAccess::AvoidFrom(Fixture.NPC,Goal,Origin);
+    TestTrue(TEXT("An unchanged location does not resubmit a partial exit route"),
+        FYUFSExitValidationTestAccess::Deferred(Fixture.NPC,Goal,12.f));
+    Fixture.NPC->SetActorLocation(Origin+FVector(0,0,-200));
+    TestTrue(TEXT("Short initial cooldown still prevents resubmission churn"),
+        FYUFSExitValidationTestAccess::Deferred(Fixture.NPC,Goal,1.f));
+    TestFalse(TEXT("Moving down to a new floor allows early route reconsideration"),
+        FYUFSExitValidationTestAccess::Deferred(Fixture.NPC,Goal,3.f));
+    Fixture.NPC->SetActorLocation(Origin);
+    TestFalse(TEXT("Even without movement, a retry remains possible after bounded cooldown"),
+        FYUFSExitValidationTestAccess::Deferred(Fixture.NPC,Goal,25.f));
     return true;
 }
 

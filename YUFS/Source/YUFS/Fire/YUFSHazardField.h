@@ -33,6 +33,8 @@ struct FYUFSHazardSettings
 	float BodyHeatHeightCm = 0.f; // Optional extra heat probe at the top of a lowered collision body.
 	float BlockSmoke = 0.7f;
 	float BlockHeat = 0.7f;
+	bool bBlockOnSmoke = true;
+	bool IsBlocking(float Smoke,float Heat) const { return (bBlockOnSmoke && Smoke>=BlockSmoke) || Heat>=BlockHeat; }
 
 	// Shared by scoring and rejected-route witnesses; upper body probes contribute heat only.
 	template<typename F> void ForEachBodyProbe(F&& Probe) const

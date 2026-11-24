@@ -219,6 +219,7 @@ void AYUFSSimulationController::StartSimulation()
 	ElapsedSimTime = 0.f;
 	FirePhaseTimer = 0.f;
 	bAlarmFired = false;
+	if (IsValid(CommSystem)) CommSystem->DeactivateAlarm();
 	bPreRecordedMsgFired = false;
 	bLiveAnnouncementFired = false;
 	bStaffGuidanceFired = false;
@@ -338,6 +339,7 @@ void AYUFSSimulationController::StopAndResetSimulation()
 {
 	UE_LOG(LogTemp, Log, TEXT("[YUFS] Simulation STOPPED. Reloading level..."));
 	StopNPCActionAnimationShowcase();
+	if (IsValid(CommSystem)) CommSystem->DeactivateAlarm();
 
 	// 회차가 실제로 진행 중일 때(화재 대기/진행)만 중단 시점 기준으로 결과를 저장합니다.
 	// Completed/TimelineReview는 FinalizeRun()/EnterTimelineReviewMode()에서 이미 저장했으므로
@@ -605,6 +607,10 @@ void AYUFSSimulationController::ApplyHazardGridAnchor()
 
 void AYUFSSimulationController::SetPhase(ESimPhase NewPhase)
 {
+	if (NewPhase != ESimPhase::FireActive && IsValid(CommSystem))
+	{
+		CommSystem->DeactivateAlarm();
+	}
 	if (CurrentPhase == NewPhase) return;
 	CurrentPhase = NewPhase;
 	OnPhaseChanged.Broadcast(NewPhase);

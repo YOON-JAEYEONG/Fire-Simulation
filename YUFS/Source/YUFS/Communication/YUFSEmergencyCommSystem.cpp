@@ -11,8 +11,21 @@ AYUFSEmergencyCommSystem::AYUFSEmergencyCommSystem()
 
 void AYUFSEmergencyCommSystem::ActivateAlarm()
 {
+	if (bAlarmActive) return;
+	bAlarmActive = true;
 	// 논문: 알람은 대피를 지연시키고 촬영 행동을 유발할 수 있음 [cite: 1550, 1761]
 	OnEmergencyComm.Broadcast(EYUFSCommType::AlarmOnly, GetActorLocation(), AlarmRadius, FVector::ZeroVector);
+}
+
+void AYUFSEmergencyCommSystem::DeactivateAlarm()
+{
+	bAlarmActive = false;
+}
+
+bool AYUFSEmergencyCommSystem::IsAlarmAudibleAt(const FVector& ListenerLocation) const
+{
+	return bAlarmActive && AlarmRadius > 0.f
+		&& FVector::DistSquared(ListenerLocation, GetActorLocation()) <= FMath::Square(AlarmRadius);
 }
 
 void AYUFSEmergencyCommSystem::BroadcastPreRecordedMessage()

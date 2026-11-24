@@ -26,4 +26,8 @@ public:
 	UPROPERTY(EditAnywhere, Category="Exit")
 	bool bIsFamiliarEntry = false; // NPC 진입 시 사용한 출구인지
 
+	// Direction signs teach this exit only when seen. They are never evacuation finish lines.
+	UPROPERTY(EditInstanceOnly, Category="Exit|Wayfinding")
+	TArray<TObjectPtr<AActor>> WayfindingMarkers;
+
 };

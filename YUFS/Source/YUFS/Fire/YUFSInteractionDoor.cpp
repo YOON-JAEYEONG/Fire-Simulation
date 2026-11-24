@@ -55,6 +55,8 @@ AYUFSInteractionDoor::AYUFSInteractionDoor()
  FrameMeshes.Add(AddTrim(TEXT("HingeJamb"), RootComponent, FVector(0,-3,110), FVector(.12,.06,2.2)));
  FrameMeshes.Add(AddTrim(TEXT("LatchJamb"), RootComponent, FVector(0,103,110), FVector(.12,.06,2.2)));
  FrameMeshes.Add(AddTrim(TEXT("Lintel"), RootComponent, FVector(0,50,223), FVector(.12,1.12,.06)));
+ SlidingRail=AddTrim(TEXT("SlidingRail"),RootComponent,FVector(0,50,231),FVector(.14,2.16,.065));
+ SlidingRail->SetVisibility(false);
  // Both faces have a backplate, spindle and lever, so either approach reads as
  // a usable door. The hardware is attached to the unscaled hinge, not the panel.
  for (int32 Side : {-1, 1})
@@ -74,6 +76,7 @@ AYUFSInteractionDoor::AYUFSInteractionDoor()
 void AYUFSInteractionDoor::OnConstruction(const FTransform& Transform)
 {
  Super::OnConstruction(Transform);
+ ApplyLeafPose();
  // Reuse engine-owned primitive material. No external textures or mesh assets.
  auto* Base = LoadObject<UMaterialInterface>(nullptr,TEXT("/Engine/BasicShapes/BasicShapeMaterial.BasicShapeMaterial"));
  if (!Base) return;
@@ -87,13 +90,86 @@ void AYUFSInteractionDoor::OnConstruction(const FTransform& Transform)
  Panel->SetMaterial(0,MakeFinish(FLinearColor(.035f,.20f,.34f),.48f));
  auto* FrameFinish = MakeFinish(FLinearColor(.085f,.10f,.12f),.6f);
  for (const auto& Mesh : FrameMeshes) Mesh->SetMaterial(0,FrameFinish);
+ SlidingRail->SetMaterial(0,FrameFinish);
  auto* HardwareFinish = MakeFinish(FLinearColor(.65f,.69f,.73f),.15f);
  for (const auto& Mesh : HardwareMeshes) Mesh->SetMaterial(0,HardwareFinish);
+}
+void AYUFSInteractionDoor::BeginPlay()
+{
+ Super::BeginPlay();
+ if (UsesSlidingMotion()) ResolveSlidingTrack();
+ ApplyLeafPose();
+}
+bool AYUFSInteractionDoor::UsesSlidingMotion() const
+{
+ return bSlidingDoor || ActorHasTag(TEXT("MergeFinalDoor"));
+}
+float AYUFSInteractionDoor::GetSlideMount() const
+{
+ if (bSlideTrackResolved) return ResolvedSlideMount;
+ if (ActorHasTag(TEXT("MergeFinalDoor")) && ActorHasTag(TEXT("WallSectionDerived")))
+ {
+  // The tagged IT layout's doors all have the +X axis pointing north.
+  // Install on the room face, not inside the shared escape corridor.
+  return GetActorLocation().Y < -8673.75 ? FMath::Abs(SlideMountLocalX) : -FMath::Abs(SlideMountLocalX);
+ }
+ return SlideMountLocalX;
+}
+FTransform AYUFSInteractionDoor::GetLeafTransform(float Fraction) const
+{
+ const float Eased=Fraction*Fraction*(3.f-2.f*Fraction);
+ if (UsesSlidingMotion())
+  return FTransform(FVector(GetSlideMount(),108.f*SwingDirection*Eased,0)) * GetActorTransform();
+ return GetSwingTransform(FMath::Abs(OpenAngle)*SwingDirection*Eased);
+}
+void AYUFSInteractionDoor::ApplyLeafPose()
+{
+ const bool bSlide=UsesSlidingMotion();
+ const float Eased=OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
+ LeafPivot->SetRelativeLocation(bSlide ? FVector(GetSlideMount(),108.f*SwingDirection*Eased,0) : FVector::ZeroVector);
+ LeafPivot->SetRelativeRotation(bSlide ? FRotator::ZeroRotator : FRotator(0,FMath::Abs(OpenAngle)*SwingDirection*Eased,0));
+ SlidingRail->SetRelativeLocation(FVector(GetSlideMount(),50+54*SwingDirection,231));
+ SlidingRail->SetVisibility(bSlide);
+ for (const auto& Mesh:HardwareMeshes)
+  if (Mesh->GetFName().ToString().StartsWith(TEXT("VisibleHinge"))) Mesh->SetVisibility(!bSlide);
+}
+void AYUFSInteractionDoor::ResolveSlidingTrack()
+{
+ const float BaseMount=GetSlideMount();
+ const float MountSide=BaseMount<0.f ? -1.f : 1.f;
+ bSlideTrackResolved=true;
+ for (const float Extra : {0.f,12.f,24.f})
+ {
+  ResolvedSlideMount=BaseMount+MountSide*Extra;
+  for (const float Direction : {-1.f,1.f})
+  {
+   SwingDirection=Direction;
+   if (CanSweepLeaf(0.f,1.f,false,true)) return;
+  }
+ }
+ if (ActorHasTag(TEXT("MergeFinalDoor")) && ActorHasTag(TEXT("WallSectionDerived")))
+ {
+  // Some room returns are flush with the opening. Try a shallow track on
+  // the other face of the wall (still translating parallel to the wall).
+  for (const float Extra : {0.f,12.f})
+  {
+   ResolvedSlideMount=-BaseMount-MountSide*Extra;
+   for (const float Direction : {-1.f,1.f})
+   {
+    SwingDirection=Direction;
+    if (!CanSweepLeaf(0.f,1.f,false,true)) continue;
+    UE_LOG(LogTemp,Display,TEXT("[YUFS][SlidingDoor] %s uses the alternate wall face for a clear rail."),*GetName());
+    return;
+   }
+  }
+ }
+ ResolvedSlideMount=BaseMount; SwingDirection=-1.f;
+ UE_LOG(LogTemp,Warning,TEXT("[YUFS][SlidingDoor] %s has no fully clear static rail; live collision stays enabled."),*GetName());
 }
 FVector AYUFSInteractionDoor::GetHandleLocation() const
 {
  // Fixed closed-handle reference: discovery/reach does not jump as the leaf rotates.
- return GetActorTransform().TransformPosition(FVector(0.f,82.f,105.f));
+ return GetActorTransform().TransformPosition(FVector(UsesSlidingMotion()?GetSlideMount():0.f,82.f,105.f));
 }
 bool AYUFSInteractionDoor::IsUserInReach(AActor* User) const
 {
@@ -107,8 +183,29 @@ bool AYUFSInteractionDoor::IsLocationInReach(FVector Location) const
 }
 bool AYUFSInteractionDoor::IsPassageClear() const
 {
- return IsOpen() && FMath::Abs(OpenAngle)>=75.f && PassageBlocker
+ return IsOpen() && (UsesSlidingMotion() || FMath::Abs(OpenAngle)>=75.f) && PassageBlocker
      && PassageBlocker->GetCollisionEnabled()==ECollisionEnabled::NoCollision;
+}
+bool AYUFSInteractionDoor::IntersectPortal(const FVector& From, const FVector& To, FVector& Crossing) const
+{
+ const auto& Transform=GetActorTransform();
+ const FVector A=Transform.InverseTransformPosition(From), B=Transform.InverseTransformPosition(To);
+ if ((A.X>0.0 && B.X>0.0) || (A.X<0.0 && B.X<0.0) || FMath::IsNearlyEqual(A.X,B.X)) return false;
+ const FVector Local=FMath::Lerp(A,B,-A.X/(B.X-A.X));
+ if (Local.Y < 0.0 || Local.Y > 100.0 || FMath::Abs(Local.Z*Transform.GetScale3D().Z)>80.0) return false;
+ Crossing=Transform.TransformPosition(Local);
+ return true;
+}
+FVector AYUFSInteractionDoor::GetPortalLandingOpposite(const FVector& From) const
+{
+ const auto& Transform=GetActorTransform();
+ const double Side=Transform.InverseTransformPosition(From).X < 0.0 ? 1.0 : -1.0;
+ return GetPortalFloorPoint(Side*130.0);
+}
+FVector AYUFSInteractionDoor::GetPortalFloorPoint(double SideOffsetCm, double WidthFraction) const
+{
+ return GetActorTransform().TransformPosition(FVector(0,100.0*WidthFraction,0))
+     + GetActorForwardVector()*SideOffsetCm;
 }
 FTransform AYUFSInteractionDoor::GetSwingTransform(float Yaw) const
 {
@@ -123,6 +220,15 @@ double AYUFSInteractionDoor::GetMaximumSwingRadius() const
 bool AYUFSInteractionDoor::IsInsidePropClearance(FVector FloorLocation,float ExtraClearanceCm) const
 {
  const FVector Hinge=GetActorLocation();
+ if (UsesSlidingMotion())
+ {
+  if (FMath::Abs(FloorLocation.Z-Hinge.Z)>80.0) return false;
+  const bool bNegative=SwingDirection<0;
+  const FVector A=GetLeafTransform(bNegative?1.f:0.f).TransformPosition(FVector(0,0,0));
+  const FVector B=GetLeafTransform(bNegative?0.f:1.f).TransformPosition(FVector(0,100,0));
+  return FVector::DistSquared2D(FloorLocation,FMath::ClosestPointOnSegment(FloorLocation,A,B))
+      <=FMath::Square(FMath::Max(0.f,ExtraClearanceCm)+12.f);
+ }
  // Before a user reserves the door it can swing toward either side.
  return FMath::Abs(FloorLocation.Z-Hinge.Z)<=80.0
      && FVector::DistSquared2D(Hinge,FloorLocation)<=FMath::Square(GetMaximumSwingRadius()+FMath::Max(0.f,ExtraClearanceCm));
@@ -145,6 +251,16 @@ bool AYUFSInteractionDoor::IntersectsRemainingSwing(const ACharacter& Character,
  if (FMath::Min(From.Z,To.Z)-HalfHeight>Hinge.Z+220.f*Scale.Z
      || FMath::Max(From.Z,To.Z)+HalfHeight<Hinge.Z) return false;
  const double Clearance=Capsule->GetScaledCapsuleRadius()+3.f*Scale.X+8.f;
+ if (UsesSlidingMotion())
+ {
+  const bool bNegative=SwingDirection<0;
+  FVector A=GetLeafTransform(bNegative?1.f:OpenFraction).TransformPosition(FVector(0,0,0));
+  FVector B=GetLeafTransform(bNegative?OpenFraction:1.f).TransformPosition(FVector(0,100,0));
+  A.Z=B.Z=From.Z=To.Z=0;
+  FVector OnRoute,OnRail;
+  FMath::SegmentDistToSegmentSafe(From,To,A,B,OnRoute,OnRail);
+  return FVector::DistSquared(OnRoute,OnRail)<=FMath::Square(Clearance);
+ }
  if (FVector::Dist2D(Hinge,From)>GetMaximumSwingRadius()+Clearance+FVector::Dist2D(From,To)) return false;
 
  From.Z=To.Z=0.f;
@@ -169,7 +285,7 @@ bool AYUFSInteractionDoor::TryReserve(AActor* User)
  if (bTimelinePresentation || !IsUserInReach(User) || !CanOperate() || (Operator.IsValid() && Operator.Get()!=User)) return false;
  // A +Y leaf rotated by positive yaw swings toward -X.
  // Retain the chosen direction when resuming a partial opening.
- if (OpenFraction <= 0.f)
+ if (!UsesSlidingMotion() && OpenFraction <= 0.f)
  {
   switch (SwingSide)
   {
@@ -193,7 +309,7 @@ void AYUFSInteractionDoor::Release(AActor* User)
  if (Operator.Get()!=User) return;
  Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false;
 }
-bool AYUFSInteractionDoor::CanSweepLeaf(float FromFraction,float ToFraction,bool bReportBlocker) const
+bool AYUFSInteractionDoor::CanSweepLeaf(float FromFraction,float ToFraction,bool bReportBlocker,bool bOnlyTrackGeometry) const
 {
  if (!GetWorld()) return false;
  auto YawAt=[this](float Fraction)
@@ -203,16 +319,30 @@ bool AYUFSInteractionDoor::CanSweepLeaf(float FromFraction,float ToFraction,bool
  const float FromYaw=YawAt(FromFraction), ToYaw=YawAt(ToFraction);
  // Rotation-only sweeps do not sweep the arc in UE. Sample the entire arc in
  // <=2 degree steps with a small XY guard, including long/low-frame-rate ticks.
- const int32 Steps=FMath::Max(1,FMath::CeilToInt(FMath::Abs(ToYaw-FromYaw)/2.f));
+ const bool bSlide=UsesSlidingMotion();
+ const double Distance=bSlide ? 108.f*GetActorScale3D().GetAbs().Y*FMath::Abs(ToFraction-FromFraction)*1.5
+     : FMath::Abs(ToYaw-FromYaw);
+ const int32 Steps=FMath::Max(1,FMath::CeilToInt(Distance/(bSlide?4.0:2.0)));
  FCollisionQueryParams Params(SCENE_QUERY_STAT(DoorLeafSwing),false,this);
- for (int32 Step=1;Step<=Steps;++Step)
+ for (int32 Step=bOnlyTrackGeometry?0:1;Step<=Steps;++Step)
  {
-  const FTransform Swing=GetSwingTransform(FMath::Lerp(FromYaw,ToYaw,float(Step)/Steps));
+  const float Alpha=float(Step)/Steps;
+  const FTransform Swing=bSlide ? GetLeafTransform(FMath::Lerp(FromFraction,ToFraction,Alpha))
+      : GetSwingTransform(FMath::Lerp(FromYaw,ToYaw,Alpha));
   const FVector Centre=Swing.TransformPosition(FVector(0.f,50.f,110.f));
   // A 2cm end/floor tolerance avoids treating authored hinge/trim contact as a
   // person in the swing arc; the actual complete leaf collision remains.
   const FVector Extent=FVector(5.f,48.f,108.f)*Swing.GetScale3D().GetAbs();
   const FCollisionShape Leaf=FCollisionShape::MakeBox(Extent);
+  if (bOnlyTrackGeometry)
+  {
+   TArray<FOverlapResult> Hits;
+   const FCollisionObjectQueryParams Solid(ECC_WorldStatic);
+   GetWorld()->OverlapMultiByObjectType(Hits,Centre,Swing.GetRotation(),Solid,Leaf,Params);
+   for (const FOverlapResult& Hit:Hits)
+    if (const auto* Comp=Hit.GetComponent(); Comp && Comp->GetCollisionResponseToChannel(ECC_Pawn)==ECR_Block) return false;
+   continue;
+  }
   if (!GetWorld()->OverlapBlockingTestByChannel(Centre,Swing.GetRotation(),ECC_Pawn,Leaf,Params)) continue;
   if (bReportBlocker)
   {
@@ -243,10 +373,8 @@ void AYUFSInteractionDoor::Tick(float Dt)
  bOpeningBlocked=!CanSweepLeaf(OpenFraction,NextFraction,!bOpeningBlocked);
  if (bOpeningBlocked) return;
  OpenFraction=NextFraction;
- // The actor transform stays fixed for discovery, authored placement and route
- // references; only the leaf and its hardware rotate around the hinge pivot.
- const float Eased = OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
- LeafPivot->SetRelativeRotation(FRotator(0,FMath::Abs(OpenAngle)*SwingDirection*Eased,0));
+ // Doorway coordinates stay fixed while the leaf and hardware move together.
+ ApplyLeafPose();
  if (IsOpen())
  {
   // Only the passage guard disappears. An open solid leaf is still a physical
@@ -267,8 +395,7 @@ void AYUFSInteractionDoor::ApplyTimelineSnapshot(const FYUFSTimelineDoorSnapshot
  // Observation only: never TryUse, sweep the live leaf, or create a new reservation.
  bTimelinePresentation=true; Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false;
  OpenFraction=FMath::Clamp(Snapshot.OpenFraction,0.f,1.f); SwingDirection=Snapshot.SwingDirection<0.f?-1.f:1.f;
- const float Eased=OpenFraction*OpenFraction*(3.f-2.f*OpenFraction);
- LeafPivot->SetRelativeRotation(FRotator(0,FMath::Abs(OpenAngle)*SwingDirection*Eased,0));
+ ApplyLeafPose();
  PassageBlocker->SetCollisionEnabled(IsOpen()?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);
  SetActorHiddenInGame(!Snapshot.bVisible);
  SetActorEnableCollision(Snapshot.bVisible);

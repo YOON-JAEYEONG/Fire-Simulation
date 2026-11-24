@@ -56,6 +56,10 @@ struct FYUFSNavigationTestAccess
 	void AdvanceRetryClock() { Navigator->TimeSinceRequest = Navigator->FailedPathRetryInterval; }
 	void SetQueryHazards(const FYUFSHazardSnapshot& Field) { Navigator->QueryHazardSnapshot = Field; }
 	void Reassess(const FYUFSHazardSnapshot& Field) { Navigator->RefreshUnsafeRetryGate(Field); }
+	bool TryOptionalSmokeReroute(const FYUFSHazardSnapshot& Field)
+	{
+		return Navigator->TryPreferLessSmokeRoute(Field,Navigator->GetEvacuationHazardSettings());
+	}
 	FYUFSHazardSnapshot ObserveWitnesses(FYUFSHazardSnapshot Field)
 	{
 		auto Observed = MakeShared<TSet<int32>, ESPMode::ThreadSafe>();
@@ -101,6 +105,42 @@ bool FYUFSUnsafeRetryChangeTest::RunTest(const FString&)
 	TestTrue(TEXT("Observed clearance reopens the request without an infinite frame-change bypass"), F.Navigator->ShouldRetryPath());
 	Field.Status = EYUFSHazardDataStatus::Loading; F.Reassess(Field);
 	TestFalse(TEXT("A loading field cannot authorize a dangerous route"), F.Navigator->ShouldRetryPath());
+	return true;
+}
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FYUFSEvacuationSmokeCostTest,
+	"YUFS.NPC.Navigation.Evacuation.SmokeOnlyKeepsPathButHeatStillBlocks",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter)
+bool FYUFSEvacuationSmokeCostTest::RunTest(const FString&)
+{
+	FYUFSNavigationTestAccess F;
+	const FVector Start(50,50,0), Goal(550,50,0);
+	F.Character->SetActorLocation(Start+FVector(0,0,F.Character->GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+	auto Grid=MakeShared<FYUFSHazardGrid, ESPMode::ThreadSafe>();
+	Grid->Dimensions=FIntVector(6,3,4); Grid->Density.Init(0,72); Grid->Temperature.Init(0,72);
+	for (int32 Z=0;Z<4;++Z) Grid->Density[(2*3+1)*4+Z]=255;
+	FYUFSHazardSnapshot Field;
+	Field.Grid=Grid; Field.Status=EYUFSHazardDataStatus::Ready;
+	Field.GridToWorld=FTransform(FQuat::Identity,FVector(0,-100,-100),FVector(100));
+	F.Navigator->SetSmokeCostOnlyForEvacuation(true);
+	uint32 Generation=F.BeginRequest(21,Goal);
+	F.SetQueryHazards(Field);
+	F.Deliver(21,Generation,F.MakePath({Start,Goal}));
+	TestTrue(TEXT("A complete smoky evacuation path is followed"),F.Navigator->IsFollowingPath());
+	TestEqual(TEXT("Known dense smoke remains accounted for"),F.Navigator->GetPathSmoke(),1.f);
+	TestTrue(TEXT("Smoke still increases the path cost"),Field.ScorePath({Start,Goal},F.Navigator->GetEvacuationHazardSettings()).AddedCost>0.f);
+	F.Character->GetCharacterMovement()->Velocity=FVector(200,0,0);
+	TestFalse(TEXT("No alternate navmesh route exists for this callback fixture"),F.TryOptionalSmokeReroute(Field));
+	TestTrue(TEXT("An unsuccessful optional reroute keeps the active path and motion"),F.Navigator->IsFollowingPath() && !F.Character->GetVelocity().IsNearlyZero());
+	TestTrue(TEXT("The same smoke remains unsafe for interaction planning"),Field.ScorePath({Start,Goal},F.Navigator->GetHazardSettings()).bUnsafeAhead);
+
+	auto Heated=MakeShared<FYUFSHazardGrid, ESPMode::ThreadSafe>(*Grid);
+	for (int32 Z=0;Z<4;++Z) Heated->Temperature[(2*3+1)*4+Z]=255;
+	Field.Grid=Heated;
+	Generation=F.BeginRequest(22,Goal);
+	F.SetQueryHazards(Field);
+	F.Deliver(22,Generation,F.MakePath({Start,Goal}));
+	TestEqual(TEXT("High heat still rejects the route"),F.Navigator->GetLastFailure(),EYUFSNavigationFailure::UnsafePath);
 	return true;
 }
 

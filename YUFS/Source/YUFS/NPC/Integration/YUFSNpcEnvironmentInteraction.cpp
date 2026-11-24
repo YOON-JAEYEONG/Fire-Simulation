@@ -8,6 +8,7 @@
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
 #include "NPC/Animation/YUFSActionAnimationComponent.h"
 #include "NPC/Navigation/YUFSLocalMovementComponent.h"
+#include "NPC/Navigation/YUFSExitKnowledgeComponent.h"
 #include "NPC/Navigation/YUFSSmokeAwareNavigator.h"
 #include "Fire/YUFSInteractionDoor.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -68,7 +69,8 @@ FVector UYUFSNpcEnvironmentInteraction::GetTarget() const { return Person.IsVali
 bool UYUFSNpcEnvironmentInteraction::ClearDoorSwing(int32 Frame, float Dt)
 {
  const FVector Location=Npc->GetActorLocation();
- if (Door->SwingSide==EYUFSDoorSwingSide::AwayFromOperator || !Door->IsInOpeningSwing(*Npc.Get(),Location))
+ if ((!Door->UsesSlidingMotion() && Door->SwingSide==EYUFSDoorSwingSide::AwayFromOperator)
+     || !Door->IsInOpeningSwing(*Npc.Get(),Location))
  {
   DoorClearanceTarget.Reset();
   return true;
@@ -137,7 +139,18 @@ void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
   if (!Direction.IsNearlyZero() && GetWorld()->SweepSingleByChannel(Hit,Start,End,FQuat::Identity,ECC_Visibility,
       FCollisionShape::MakeSphere(Radius),Params)) Door=Cast<AYUFSInteractionDoor>(Hit.GetActor());
   if (Door.IsValid() && (!Door->IsUserInReach(Npc.Get()) || !Visible(Door.Get()))) Door.Reset();
+   if (auto* Knowledge=Npc->GetExitKnowledge())
+   {
+    if (Door.IsValid()) Knowledge->RememberLocalDoor(Door.Get());
+    else if (auto* Portal=Knowledge->FindKnownDoorAlongPath(Nav->GetCurrentPathPoints(), Nav->GetCurrentWaypointIndex());
+      IsValid(Portal) && Visible(Portal)) Door=Portal;
+   }
  }
+  if ((!Door.IsValid() || Door->IsPassageClear()) && Npc->GetExitKnowledge())
+  {
+   auto* Portal=Npc->GetExitKnowledge()->GetPlannedSearchDoor();
+   if (IsValid(Portal) && Portal->CanOperate() && Portal->IsUserInReach(Npc.Get()) && Visible(Portal)) Door=Portal;
+  }
  float Best=FLT_MAX;
  for (TActorIterator<AYUFSEvacuationNPC> It(GetWorld()); It; ++It)
  {

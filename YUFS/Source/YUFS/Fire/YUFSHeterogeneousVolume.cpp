@@ -4,6 +4,7 @@
 #include "Misc/ConfigCacheIni.h"
 #include "Misc/Paths.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 
 AYUFSHeterogeneousVolume::AYUFSHeterogeneousVolume()
 {
@@ -30,6 +31,7 @@ void AYUFSHeterogeneousVolume::BeginPlay()
 		*GetName(), bMetadataLoaded, *MetadataDiagnostic);
 	if (HeterogeneousVolumeComponent)
 	{
+		SetFireMaterial(HeterogeneousVolumeComponent->GetMaterial(0));
 		HeterogeneousVolumeComponent->Frame = 0.f;
 		HeterogeneousVolumeComponent->FrameRate = PlaybackFrameRate;
 		HeterogeneousVolumeComponent->EndFrame = TotalFrameCount;
@@ -63,6 +65,20 @@ void AYUFSHeterogeneousVolume::ResetFire()
 void AYUFSHeterogeneousVolume::SetFireMaterial(UMaterialInterface* NewMaterial)
 {
 	if (!HeterogeneousVolumeComponent || !NewMaterial) return;
+	// Use the source instance so reapplying the same option cannot compound the multiplier.
+	if (const auto* Current = Cast<UMaterialInstanceDynamic>(NewMaterial); Current && Current->GetOuter() == this)
+		NewMaterial = Current->Parent;
+	static const FName DensityScale(TEXT("Density Scale"));
+	float SourceDensity = 0.f;
+	if (NewMaterial->GetScalarParameterValue(FMaterialParameterInfo(DensityScale), SourceDensity))
+	{
+		if (auto* RenderMaterial = UMaterialInstanceDynamic::Create(NewMaterial, this))
+		{
+			RenderMaterial->SetScalarParameterValue(DensityScale, SourceDensity * FMath::Clamp(RenderSmokeDensityMultiplier, 0.f, 1.f));
+			HeterogeneousVolumeComponent->SetMaterial(0, RenderMaterial);
+			return;
+		}
+	}
 	HeterogeneousVolumeComponent->SetMaterial(0, NewMaterial);
 }
 

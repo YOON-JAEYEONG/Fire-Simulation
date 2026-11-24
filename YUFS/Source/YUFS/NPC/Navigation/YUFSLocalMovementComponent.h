@@ -2,6 +2,7 @@
 #include "Components/ActorComponent.h"
 #include "YUFSLocalMovementComponent.generated.h"
 class AYUFSEvacuationNPC;
+class AYUFSInteractionDoor;
 UENUM(BlueprintType)
 enum class EYUFSLocalMovementState : uint8 { Following, Yielding, Recovering, Blocked };
 
@@ -16,6 +17,7 @@ public:
 	void Reset();
 	FVector ResolveDirection(FVector DesiredDirection, float Dt, int32 Frame);
 	bool TryRecovery(FVector DesiredDirection,int32 Frame,bool bSeekCleanerAir=false);
+	bool TryDoorwayPassage(const AYUFSInteractionDoor& Door,int32 Frame);
 	bool TickRecovery(float Dt,int32 Frame);
 	bool IsRecovering() const { return State==EYUFSLocalMovementState::Recovering; }
 	bool IsDeliberatelyWaiting() const { return State==EYUFSLocalMovementState::Yielding || IsRecovering() || (State==EYUFSLocalMovementState::Blocked && YieldingTo.IsValid()); }
@@ -42,6 +44,11 @@ private:
 	int32 SelectRecoverySpace(const TArray<FVector>& ReachableCandidates,FVector Desired) const;
 	static uint32 GetTrafficPriorityId(const AYUFSEvacuationNPC* NPC);
 	void SetState(EYUFSLocalMovementState NewState);
+	void BeginRecovery(AYUFSEvacuationNPC& NPC,const FVector& Target);
+	bool TryAroundOpenLeaf(const AYUFSInteractionDoor& Door,const FVector& Desired,int32 Frame);
+	TOptional<FVector> DoorwayFollowThrough;
+	TWeakObjectPtr<const AYUFSInteractionDoor> DoorwayRecoveryDoor;
+	bool bDoorwayRecovery=false;
 	TWeakObjectPtr<AYUFSEvacuationNPC> YieldingTo;
 	EYUFSLocalMovementState State=EYUFSLocalMovementState::Following;
 	FVector RecoveryTarget=FVector::ZeroVector;

@@ -27,6 +27,10 @@ public:
 	// 4가지 통신 수단 (논문 van der Wal et al. 기반)
 	UFUNCTION(BlueprintCallable)
 	void ActivateAlarm();
+	UFUNCTION(BlueprintCallable)
+	void DeactivateAlarm();
+	bool IsAlarmActive() const { return bAlarmActive; }
+	bool IsAlarmAudibleAt(const FVector& ListenerLocation) const;
 	void BroadcastPreRecordedMessage();
 	void BroadcastLiveAnnouncement();
 	void DispatchStaffGuidance(FVector TargetExit);
@@ -42,4 +46,7 @@ public:
 	float AnnouncementRadius = 5000.f;
 	UPROPERTY(EditAnywhere)
 	float StaffGuidanceRadius = 800.f;
+
+private:
+	bool bAlarmActive = false;
 };

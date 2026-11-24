@@ -91,6 +91,9 @@ public:
 	// One authoritative memory store, in JJW perception (no parallel hazard-patch model).
 	void ResetObservedHazards();
 	FYUFSHazardSettings GetHazardSettings() const;
+	FYUFSHazardSettings GetEvacuationHazardSettings() const;
+	bool IsKnownEvacuationLocationBlocked(const FVector& WorldLocation) const;
+	void SetSmokeCostOnlyForEvacuation(bool bEnabled);
 
 	UPROPERTY(BlueprintAssignable, Category="YUFS|Navigation")
 	FYUFSNavigationStateChanged OnNavigationStateChanged;
@@ -137,6 +140,8 @@ private:
 	TArray<FVector> BuildRemainingPath() const;
 	FVector GetOwnerFeetLocation() const;
 	bool TrySafeHazardDetour(const FYUFSHazardSnapshot& Snapshot);
+	bool TryPreferLessSmokeRoute(const FYUFSHazardSnapshot& Snapshot,const FYUFSHazardSettings& Settings);
+	FYUFSHazardSettings GetRouteHazardSettings() const;
 	void RefreshUnsafeRetryGate(const FYUFSHazardSnapshot& Snapshot);
 
 	UPROPERTY()
@@ -159,6 +164,7 @@ private:
 	FVector UnsafeRejectionFeet = FVector::ZeroVector;
 	float UnsafeRecheckTimer = 0.f;
 	bool bUnsafeRetryReady = false;
+	bool bSmokeCostOnlyForEvacuation = false;
 	EYUFSHazardDataStatus HazardDataStatus = EYUFSHazardDataStatus::MissingData;
 	EYUFSNavigationStatus NavigationStatus = EYUFSNavigationStatus::Idle;
 	EYUFSNavigationFailure LastFailure = EYUFSNavigationFailure::None;

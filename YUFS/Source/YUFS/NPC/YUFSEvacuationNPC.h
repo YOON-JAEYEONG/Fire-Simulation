@@ -32,7 +32,17 @@ class UYUFSNpcSuppressionComponent;
 class UYUFSNPCPerceptionComponent;
 class UYUFSExitKnowledgeComponent;
 class AYUFSSimulationController;
+class AYUFSEmergencyCommSystem;
 struct FYUFSHazardSnapshot;
+
+struct FYUFSFireAwarenessAudit
+{
+	FName FirstCue;
+	float FirstCueAt = -1.f;
+	float FirstCorroborationAt = -1.f;
+	float CommittedAt = -1.f;
+	float FirstEvacMovementAt = -1.f;
+};
 
 UCLASS()
 class YUFS_API AYUFSEvacuationNPC : public ACharacter
@@ -179,6 +189,7 @@ public:
 
 	// ── 통신 상태 접근자 ──────────────────────────────────────────────
 	bool    IsAlarmSounding()           const { return bAlarmSounding; }
+	const FYUFSFireAwarenessAudit& GetFireAwarenessAudit() const { return FireAwarenessAudit; }
 	bool    HasReceivedStaffGuidance()  const { return bReceivedStaffGuidance; }
 	bool    HasReceivedPreRecordedMsg() const { return bReceivedPreRecordedMsg; }
 	bool    HasReceivedLiveAnnouncement()const{ return bReceivedLiveAnnouncement; }
@@ -255,6 +266,12 @@ private:
 	// ── 통신 상태 ─────────────────────────────────────────────────────
 	UPROPERTY(VisibleAnywhere)
 	bool bAlarmSounding = false;
+	TWeakObjectPtr<AYUFSEmergencyCommSystem> EmergencyCommSource;
+	bool bObservedPersistentAlarm = false;
+	FYUFSFireAwarenessAudit FireAwarenessAudit;
+	void RefreshAlarmAudibility();
+	void UpdateFireAwarenessAudit();
+	friend struct FYUFSAlarmAwarenessTestAccess;
 	UPROPERTY()
 	bool bReceivedPreRecordedMsg = false;
 	UPROPERTY()
@@ -331,6 +348,8 @@ private:
 	mutable TArray<FVector> PreferredRetreatPath;
 	mutable float PreferredRetreatExpiresAt = 0.f;
 	mutable TMap<FVector, float> FailedExitUntil;
+	mutable TMap<FVector, FVector> DisconnectedExitOrigins;
+	bool IsExitRetryDeferred(FVector Exit, float Now) const;
 	mutable uint32 LastRecordedNavigationFailure = MAX_uint32;
 	bool TryGetPreferredRetreat(FVector& OutExit) const;
 	void RememberFailedExit() const;
@@ -347,7 +366,6 @@ private:
 	bool bOptionalInteractionSelected = false;
 	bool bInteractionHoldingPosition = false;
 	float PeerGuidanceSecondsRemaining = 0.f;
-	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f, bool bAllowOrigin=false);
 	enum class EBelongingsReturn : uint8 { Done, Candidate, Returning, PickingUp };
 	EBelongingsReturn BelongingsReturn = EBelongingsReturn::Done;
 	FVector BelongingsReturnTarget = FVector::ZeroVector;
@@ -359,6 +377,7 @@ private:
 	bool IsBelongingsRouteAcceptable(const TArray<FVector>& Path) const;
 	void FinishBelongingsReturn(FName Reason);
 	friend struct FYUFSBelongingsReturnTestAccess;
+	void UpdateNavigationMovement(const FVector& Target, float DeltaTime, float SpeedCap = 0.f, bool bAllowOrigin=false, bool bEvacuationRoute=false);
 
 	// ── 액션 실행 상태 (구 BT 노드 메모리 대체) ───────────────────────
 	EYUFSAction CurrentAction            = EYUFSAction::Idle;
@@ -416,6 +435,7 @@ private:
 	void ExecuteCurrentAction(float DeltaTime);
 	FVector ChooseKnownExit() const;
 	bool TryChooseKnownExit(FVector& Out) const;
+	float GetEvacuationTravelSpeedScale() const;
 	bool TryResolveNavigationTarget(EYUFSAction Action,FVector& Out) const;
 	bool TryPreferNearbyExit(const FYUFSHazardSnapshot& Snapshot, bool bHasTarget, FVector& InOutTarget) const;
 	FVector ResolveNavigationTarget(EYUFSAction Action) const;
