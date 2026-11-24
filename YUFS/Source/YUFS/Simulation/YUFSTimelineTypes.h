@@ -84,6 +84,14 @@ struct FYUFSTimelineNPCSnapshot
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	bool bEvacuated = false;
 
+	// Optional cosmetic state; older timeline files default to no physical bag.
+	UPROPERTY()
+	bool bHasPersonalBag = false;
+	UPROPERTY()
+	bool bCarryingPersonalBag = false;
+	UPROPERTY()
+	FVector PersonalBagFloor = FVector::ZeroVector;
+
 	UPROPERTY(BlueprintReadOnly, Category="YUFS|Timeline")
 	bool bIncapacitated = false;
 

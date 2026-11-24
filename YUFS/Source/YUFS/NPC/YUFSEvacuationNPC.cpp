@@ -33,6 +33,7 @@
 #include "NPC/Decision/YUFSIntentComponent.h"
 #include "NPC/Cognition/YUFSHumanCognitionComponent.h"
 #include "NPC/Integration/YUFSTeamIntegrationComponent.h"
+#include "NPC/Integration/YUFSBelongingsProp.h"
 #include "NPC/Integration/YUFSNpcSuppressionComponent.h"
 #include "NPC/Integration/YUFSNpcEnvironmentInteraction.h"
 #include "NPC/Tasks/YUFSActionTaskComponent.h"
@@ -528,6 +529,7 @@ void AYUFSEvacuationNPC::InitializeForRun(int32 RunSeed)
 	BelongingsReturn = BelongingsRandom.FRand() < FMath::Clamp(ReturnChance, 0.f, 1.f) ? EBelongingsReturn::Candidate : EBelongingsReturn::Done;
 	BelongingsReturnTarget = FVector::ZeroVector;
 	BelongingsReturnRemaining = BelongingsPathSafetyCountdown = BelongingsPickupElapsed = 0.f;
+	ResetPersonalBag(BelongingsReturn==EBelongingsReturn::Candidate);
 	if (SocialComp) SocialComp->ResetForRun();
 	MLPolicy.SetFallbackRandomSource(&DeterministicRng);
 	if (!bSeedDefaultsCaptured)
@@ -1103,6 +1105,9 @@ FYUFSTimelineNPCSnapshot AYUFSEvacuationNPC::BuildTimelineSnapshot() const
 	Snapshot.PreActionCompletedCount = IntentComp ? IntentComp->GetPreActionCompletedCount() : 0;
 	Snapshot.PreActionTargetCount = IntentComp ? IntentComp->GetPreActionTargetCount() : 0;
 	Snapshot.bVisible = !IsHidden();
+	Snapshot.bHasPersonalBag = PersonalBag.IsValid() && (!PersonalBag->IsHidden() || bCarryingPersonalBag);
+	Snapshot.bCarryingPersonalBag = Snapshot.bHasPersonalBag && bCarryingPersonalBag;
+	Snapshot.PersonalBagFloor = PersonalBagFloor;
 	Snapshot.bEvacuated = false;
 	Snapshot.bIncapacitated = false;
 	Snapshot.bLowPosture = IsCrouched();
@@ -1163,6 +1168,8 @@ void AYUFSEvacuationNPC::ApplyTimelineSnapshot(const FYUFSTimelineNPCSnapshot& S
 	{
 		SetActorHiddenInGame(bShouldBeHidden);
 	}
+	ApplyPersonalBagVisual(Snapshot.bHasPersonalBag,Snapshot.bCarryingPersonalBag,Snapshot.PersonalBagFloor,
+		!Snapshot.bCarryingPersonalBag || Snapshot.bVisible);
 
 	// A terminal body stays visible without becoming a live obstacle when seeking.
 	const bool bShouldCollide = Snapshot.bVisible && !Snapshot.bIncapacitated && !Snapshot.bEvacuated;
@@ -1327,6 +1334,8 @@ void AYUFSEvacuationNPC::SetTimelinePlaybackMode(bool bEnabled)
 void AYUFSEvacuationNPC::NotifyEpisodeFinished(EYUFSTerminalReason TerminalReason)
 {
 	FinishBelongingsReturn(TEXT("EpisodeFinished"));
+	if (TerminalReason==EYUFSTerminalReason::ReachedExit && bCarryingPersonalBag && PersonalBag.IsValid())
+		PersonalBag->SetActorHiddenInGame(true);
 	if (ExitKnowledge) ExitKnowledge->StopSearching();
 	if (SuppressionComp) SuppressionComp->ResetForEpisode();
 	ResetRetreatKnowledge();
@@ -2103,6 +2112,62 @@ void AYUFSEvacuationNPC::PublishTeamDirectives(const FYUFSNPCObservation& Observ
 		Cognition,bHasDestination,ExitKnowledge && ExitKnowledge->IsSearchingForExit());
 }
 
+void AYUFSEvacuationNPC::ApplyPersonalBagVisual(bool bExists,bool bCarried,FVector Floor,bool bVisible)
+{
+	if (!bExists)
+	{
+		bCarryingPersonalBag=false;
+		if (PersonalBag.IsValid() && !PersonalBag->IsHidden()) PersonalBag->SetActorHiddenInGame(true);
+		return;
+	}
+	const float Yaw=float(static_cast<uint32>(StableNPCId)%360);
+	if (!PersonalBag.IsValid())
+	{
+		if (!GetWorld()) return;
+		FActorSpawnParameters Params;
+		Params.Owner=this;
+		Params.ObjectFlags|=RF_Transient;
+		Params.SpawnCollisionHandlingOverride=ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		PersonalBag=GetWorld()->SpawnActor<AYUFSBelongingsProp>(Floor,FRotator(0,Yaw,0),Params);
+	}
+	if (auto* Bag=PersonalBag.Get())
+	{
+		if (bCarried)
+		{
+			if (Bag->GetAttachParentActor()!=this)
+				Bag->CarryOn(*GetCapsuleComponent(),GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		}
+		else if (Bag->GetAttachParentActor() || !Bag->GetActorLocation().Equals(Floor,.1))
+			Bag->PlaceOnFloor(Floor,Yaw);
+		PersonalBagFloor=Floor;
+		bCarryingPersonalBag=bCarried;
+		if (Bag->IsHidden()==bVisible) Bag->SetActorHiddenInGame(!bVisible);
+	}
+}
+
+void AYUFSEvacuationNPC::ResetPersonalBag(bool bCandidate)
+{
+	if (bCandidate && GetWorld())
+	{
+		const FVector Feet=SpawnLocation-FVector(0,0,GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		const FCollisionObjectQueryParams Geometry(ECC_WorldStatic);
+		FCollisionQueryParams Query(SCENE_QUERY_STAT(PersonalBagPlacement),true,this);
+		for (const FVector& Offset : {GetActorRightVector()*46.,GetActorRightVector()*-46.,FVector::ZeroVector})
+		{
+			const FVector Candidate=Feet+Offset;
+			FHitResult Ground,Wall;
+			if (!GetWorld()->LineTraceSingleByObjectType(Ground,Candidate+FVector(0,0,38),
+				Candidate-FVector(0,0,52),Geometry,Query) || Ground.ImpactNormal.Z<.7f
+				|| FMath::Abs(Ground.ImpactPoint.Z-Feet.Z)>24.) continue;
+			if (!Offset.IsNearlyZero() && GetWorld()->LineTraceSingleByObjectType(Wall,Feet+FVector(0,0,21),
+				Ground.ImpactPoint+FVector(0,0,21),Geometry,Query)) continue;
+			ApplyPersonalBagVisual(true,false,Ground.ImpactPoint+FVector(0,0,.6),true);
+			return;
+		}
+	}
+	ApplyPersonalBagVisual(false,false,FVector::ZeroVector,false);
+}
+
 bool AYUFSEvacuationNPC::IsReturningForBelongings() const
 {
 	return BelongingsReturn == EBelongingsReturn::Returning || IsPickingUpBelongings();
@@ -2166,7 +2231,8 @@ void AYUFSEvacuationNPC::EvaluateBelongingsReturn(const FYUFSNPCObservation& Obs
 		|| (SuppressionComp && SuppressionComp->IsActive()) || GetCurrentTerminalReason() != EYUFSTerminalReason::None) return;
 	const float Half = GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	const FVector Feet = GetActorLocation() - FVector(0,0,Half);
-	const FVector HomeFeet = SpawnLocation - FVector(0,0,Half);
+	const FVector HomeFeet = PersonalBag.IsValid() && !PersonalBag->IsHidden() && !bCarryingPersonalBag
+		? PersonalBagFloor : SpawnLocation - FVector(0,0,Half);
 	auto* System = UNavigationSystemV1::GetCurrent(GetWorld());
 	FNavLocation Home;
 	if (!System || !System->ProjectPointToNavigation(HomeFeet,Home,FVector(55,55,75),&GetNavAgentPropertiesRef())
@@ -2215,6 +2281,8 @@ bool AYUFSEvacuationNPC::DriveBelongingsReturn(float DeltaTime)
 	BelongingsPickupElapsed += DeltaTime;
 	if (BelongingsPickupElapsed >= .85f)
 	{
+		if (PersonalBag.IsValid() && !PersonalBag->IsHidden())
+			ApplyPersonalBagVisual(true,true,PersonalBagFloor,true);
 		FinishBelongingsReturn(TEXT("BelongingsCollected"));
 		return false;
 	}
@@ -2440,6 +2508,8 @@ void AYUFSEvacuationNPC::UpdateEvidenceDecisionModel(float DeltaTime, FYUFSNPCOb
 
 void AYUFSEvacuationNPC::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+	if (auto* Bag=PersonalBag.Get()) Bag->Destroy();
+	PersonalBag.Reset();
 	if (SuppressionComp) SuppressionComp->Cancel(false);
 	if (EnvironmentInteraction) EnvironmentInteraction->Cancel();
 	if (Navigator) Navigator->ClearPath();

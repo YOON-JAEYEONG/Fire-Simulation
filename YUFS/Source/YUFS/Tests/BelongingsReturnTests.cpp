@@ -2,10 +2,12 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Core/YUFSObservation.h"
 #include "Engine/World.h"
 #include "Misc/AutomationTest.h"
 #include "NPC/Behavior/YUFSBehaviorStateMachine.h"
+#include "NPC/Integration/YUFSBelongingsProp.h"
 #include "NPC/Integration/YUFSTeamIntegrationComponent.h"
 #include "NPC/YUFSEvacuationNPC.h"
 
@@ -24,6 +26,9 @@ struct FYUFSBelongingsReturnTestAccess
 	static void Evaluate(AYUFSEvacuationNPC& Npc,const FYUFSNPCObservation& O,float Dt) { Npc.EvaluateBelongingsReturn(O,Dt); }
 	static bool Drive(AYUFSEvacuationNPC& Npc,float Dt) { return Npc.DriveBelongingsReturn(Dt); }
 	static void Publish(AYUFSEvacuationNPC& Npc,const FYUFSNPCObservation& O) { Npc.PublishTeamDirectives(O); }
+	static void ShowBag(AYUFSEvacuationNPC& Npc,FVector Floor)
+	{ Npc.ApplyPersonalBagVisual(true,false,Floor,true); }
+	static const AYUFSBelongingsProp* GetBag(const AYUFSEvacuationNPC& Npc) { return Npc.PersonalBag.Get(); }
 };
 
 namespace
@@ -54,6 +59,17 @@ bool FYUFSBagPickupTest::RunTest(const FString&)
 {
 	FBagTestRoom F;
 	using Access=FYUFSBelongingsReturnTestAccess;
+	const FVector BagFloor(65,0,0);
+	Access::ShowBag(*F.Npc,BagFloor);
+	const auto* Bag=Access::GetBag(*F.Npc);
+	if (!TestNotNull(TEXT("The remembered bag has an actual floor actor"),Bag)) return false;
+	TestEqual(TEXT("Bag sits at the remembered pickup position"),Bag->GetActorLocation(),BagFloor);
+	TArray<UStaticMeshComponent*> Parts;
+	Bag->GetComponents<UStaticMeshComponent>(Parts);
+	TestTrue(TEXT("Bag model has multiple visible details"),Parts.Num()>=5);
+	for (const auto* Part:Parts)
+		TestFalse(TEXT("No visual piece blocks the walking capsule"),Part->GetCollisionEnabled()!=ECollisionEnabled::NoCollision);
+	const auto BeforePickup=F.Npc->BuildTimelineSnapshot();
 	Access::SetReturning(*F.Npc,FVector(65,0,0));
 	Access::Publish(*F.Npc,F.O);
 	TestEqual(TEXT("The return destination is the remembered location, not an exit"),F.Npc->GetTeamIntegrationComponent()->GetNavigationDirective().DestinationHint,FVector(65,0,0));
@@ -72,6 +88,7 @@ bool FYUFSBagPickupTest::RunTest(const FString&)
 	Team->SubmitInteractionOpportunities(Opportunities);
 	TestTrue(TEXT("Pickup is a stationary sub-action at the reachable location"),Access::Drive(*F.Npc,.3f));
 	TestTrue(TEXT("Physical approach enters pickup"),F.Npc->IsPickingUpBelongings());
+	TestNull(TEXT("The bag waits on the floor until the gesture finishes"),Bag->GetAttachParentActor());
 	TestEqual(TEXT("Show the existing gathering gesture"),F.Npc->GetDisplayedAction(),EYUFSAction::GatherBelongings);
 	Access::Publish(*F.Npc,F.O);
 	TestFalse(TEXT("Pickup does not publish another movement target"),F.Npc->GetTeamIntegrationComponent()->GetNavigationDirective().bHasDestination);
@@ -79,6 +96,13 @@ bool FYUFSBagPickupTest::RunTest(const FString&)
 	TestEqual(TEXT("Return never overwrites the committed evacuation intent"),F.Npc->GetCurrentIntent(),EYUFSIntent::CommitEvac);
 	TestEqual(TEXT("The former evacuation behavior remains active"),F.Npc->GetLastAction(),EYUFSAction::EvacuateToNearestExit);
 	TestFalse(TEXT("The personal destination is cleared"),F.Npc->GetTeamIntegrationComponent()->GetInteractionOpportunities().bBelongingsKnown);
+	TestTrue(TEXT("Successful pickup attaches the same actor instead of spawning another prop"),Bag->GetAttachParentActor()==F.Npc);
+	const auto AfterPickup=F.Npc->BuildTimelineSnapshot();
+	TestTrue(TEXT("The timeline captures a carried bag"),AfterPickup.bHasPersonalBag && AfterPickup.bCarryingPersonalBag);
+	F.Npc->ApplyTimelineSnapshot(BeforePickup);
+	TestTrue(TEXT("Rewinding places the bag back on the same floor"),!Bag->GetAttachParentActor() && Bag->GetActorLocation().Equals(BagFloor));
+	F.Npc->ApplyTimelineSnapshot(AfterPickup);
+	TestTrue(TEXT("Seeking after the pickup reattaches the same bag"),Bag->GetAttachParentActor()==F.Npc);
 	return true;
 }
 
@@ -88,9 +112,13 @@ bool FYUFSBagReturnSafetyTest::RunTest(const FString&)
 {
 	FBagTestRoom F;
 	using Access=FYUFSBelongingsReturnTestAccess;
+	Access::ShowBag(*F.Npc,FVector(400,0,0));
 	Access::SetReturning(*F.Npc,FVector(400,0,0));
 	F.O.SmokeDensityAtSelf=.31f; Access::Evaluate(*F.Npc,F.O,.1f);
 	TestFalse(TEXT("Smoke cancels this optional return, not evacuation"),F.Npc->IsReturningForBelongings());
+	const auto* Bag=Access::GetBag(*F.Npc);
+	if (TestNotNull(TEXT("Cancellation leaves the same bag in the world"),Bag))
+		TestTrue(TEXT("The abandoned bag remains visible on the floor"),!Bag->IsHidden() && !Bag->GetAttachParentActor());
 	F.O.SmokeDensityAtSelf=0.f; Access::Evaluate(*F.Npc,F.O,1.f);
 	TestFalse(TEXT("The NPC cannot retry the return after cancellation"),F.Npc->IsReturningForBelongings() || Access::IsCandidate(*F.Npc));
 	Access::SetReturning(*F.Npc,FVector(400,0,0));
