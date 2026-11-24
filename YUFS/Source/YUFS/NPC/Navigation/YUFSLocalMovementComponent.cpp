@@ -170,32 +170,46 @@ FVector UYUFSLocalMovementComponent::ResolveDirection(FVector Desired,float Dt,i
 	SetState(EYUFSLocalMovementState::Following);
 	return Desired;
 }
-bool UYUFSLocalMovementComponent::IsCandidateReachable(FVector CandidateFeet,int32 Frame,FVector& ProjectedFeet) const
+bool UYUFSLocalMovementComponent::IsCandidateReachable(FVector CandidateFeet,int32 Frame,FVector& ProjectedFeet,
+	const AYUFSInteractionDoor* ClearanceDoor) const
 {
 	const auto* NPC=Cast<AYUFSEvacuationNPC>(GetOwner()); if (!NPC || !GetWorld()) return false;
 	const auto* Cap=NPC->GetCapsuleComponent(); const float Half=Cap->GetScaledCapsuleHalfHeight();
 	const FVector StartFeet=NPC->GetActorLocation()-FVector(0,0,Half);
 	auto* NavSys=UNavigationSystemV1::GetCurrent(GetWorld()); if (!NavSys) return false;
-	const auto* NavData=NavSys->GetNavDataForProps(NPC->GetNavAgentPropertiesRef(),StartFeet); if (!NavData) return false;
+	const auto* NavData=NavSys->GetNavDataForProps(NPC->GetNavAgentPropertiesRef(),StartFeet);
 	FNavLocation Projected;
 	const auto* Movement=NPC->GetCharacterMovement();
 	const float ReachableRise=Movement->MaxStepHeight+FVector::Dist2D(StartFeet,CandidateFeet)*FMath::Tan(FMath::DegreesToRadians(Movement->GetWalkableFloorAngle()));
 	// Search the stair's actual surface height; the continuous physical test below rejects floor shortcuts.
-	if (!NavSys->ProjectPointToNavigation(CandidateFeet,Projected,FVector(45,45,FMath::Max(45.f,ReachableRise)),NavData)) return false;
-	ProjectedFeet=Projected.Location;
-	if (FVector::DistSquared2D(CandidateFeet,ProjectedFeet)>FMath::Square(45.f)) return false;
-	const FVector Start=NPC->GetActorLocation();
-	const FVector Destination=ProjectedFeet+FVector(0,0,Half);
-	for (TActorIterator<AYUFSInteractionDoor> Door(GetWorld()); Door; ++Door)
+	auto CheckStep=[&](FVector EndFeet)
 	{
-		if (!Door->ConflictsWithOpening(*NPC,Start,Destination)) continue;
-		// A person already inside the swing can still step out if the physical
-		// sweep below confirms clearance. A new swing can also stop a step in progress.
-		if (!Door->ConflictsWithOpening(*NPC,Start,Start)
-			|| Door->ConflictsWithOpening(*NPC,Destination,Destination)) return false;
-	}
-	return IsPhysicalCorridorClear(ProjectedFeet) && NPC->GetNavigator() &&
-		NPC->GetNavigator()->IsLocalRecoverySafe(StartFeet,ProjectedFeet,Frame);
+		const FVector Start=NPC->GetActorLocation(), Destination=EndFeet+FVector(0,0,Half);
+		for (TActorIterator<AYUFSInteractionDoor> Door(GetWorld()); Door; ++Door)
+		{
+			if (*Door==ClearanceDoor || !Door->ConflictsWithOpening(*NPC,Start,Destination)) continue;
+			if (!Door->ConflictsWithOpening(*NPC,Start,Start)
+				|| Door->ConflictsWithOpening(*NPC,Destination,Destination)) return false;
+		}
+		if (!NPC->GetNavigator()) return false;
+		FVector Supported;
+		if (!IsPhysicalCorridorClearFrom(StartFeet,EndFeet,false,&Supported)) return false;
+		if (ClearanceDoor)
+		{
+			if (FMath::Abs(Supported.Z-StartFeet.Z)>Movement->MaxStepHeight
+				|| !NPC->GetNavigator()->IsDoorClearanceSafe(StartFeet,Supported,Frame)) return false;
+			ProjectedFeet=Supported;
+			return true;
+		}
+		if (!NPC->GetNavigator()->IsLocalRecoverySafe(StartFeet,EndFeet,Frame)) return false;
+		ProjectedFeet=EndFeet;
+		return true;
+	};
+	if (NavData && NavSys->ProjectPointToNavigation(CandidateFeet,Projected,FVector(45,45,FMath::Max(45.f,ReachableRise)),NavData)
+		&& FVector::DistSquared2D(CandidateFeet,Projected.Location)<=FMath::Square(45.f) && CheckStep(Projected.Location)) return true;
+	// NavMesh erodes small standing spaces beside walls. A local courtesy step can use that
+	// real floor only if the complete capsule sweep, support, and heat check all pass.
+	return ClearanceDoor && CheckStep(CandidateFeet);
 }
 bool UYUFSLocalMovementComponent::IsPhysicalCorridorClear(FVector TargetFeet,bool bIgnorePeerNPCs,FVector* OutSupportedFloor) const
 {

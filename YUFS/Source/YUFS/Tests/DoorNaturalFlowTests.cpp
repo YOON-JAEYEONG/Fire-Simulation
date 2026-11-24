@@ -131,6 +131,32 @@ bool FYUFSDoorNaturalFlowTest::RunTest(const FString& Parameters)
     TestTrue(TEXT("fixed swing opens to local negative X from the same side"),
         InwardDoor->IsPassageClear() && InwardDoor->Panel->GetComponentLocation().X<4000.0);
 
+    auto* Slide=World->SpawnActor<AYUFSInteractionDoor>(FVector(5000,0,0),FRotator::ZeroRotator,Spawn);
+    auto* Slider=SpawnNpc(FVector(5140,80,90));
+    auto* Waiting=SpawnNpc(FVector(5030,150,90));
+    if (!Slide || !Slider || !Waiting) { AddError(TEXT("sliding crowd fixture missing")); World->DestroyWorld(false); return false; }
+    Slide->bSlidingDoor=true;
+    TestFalse(TEXT("a closed but unreserved door does not interrupt a nearby resident"),
+        Slide->ShouldYieldOpeningSpace(*Waiting));
+    TestTrue(TEXT("operator reserves from outside the sliding rail"),Slide->TryReserve(Slider));
+    TestTrue(TEXT("courtesy signals an NPC standing in the future rail before the leaf moves"),
+        Slide->ShouldYieldOpeningSpace(*Waiting));
+    TestFalse(TEXT("rail courtesy does not treat the operator as a peer"),Slide->ShouldYieldOpeningSpace(*Slider));
+    TestTrue(TEXT("the close approach pocket is reserved for the operator"),
+        Slide->IsInOperatorApproach(*Waiting,FVector(5100,80,90)));
+    TestFalse(TEXT("a queue pocket on the next floor is not affected"),
+        Slide->IsInOperatorApproach(*Waiting,FVector(5100,80,440)));
+    TestTrue(TEXT("operator requests the sliding motion"),Slide->TryUse(Slider));
+    Slide->Tick(1.f);
+    TestTrue(TEXT("a physical peer still blocks the leaf"),Slide->IsOpeningBlocked());
+    TestFalse(TEXT("no passage while a body occupies the rail"),Slide->IsPassageClear());
+    Waiting->SetActorLocation(FVector(5220,150,90));
+    TestFalse(TEXT("a peer who steps back is no longer in the rail"),Slide->ShouldYieldOpeningSpace(*Waiting));
+    Slide->Tick(2.f);
+    TestTrue(TEXT("the same reservation completes as soon as the rail is free"),Slide->IsPassageClear());
+    TestFalse(TEXT("an already open door does not continue queue control"),
+        Slide->IsInOperatorApproach(*Waiting,FVector(5100,80,90)));
+
     auto* PausedDoor=World->SpawnActor<AYUFSInteractionDoor>(FVector(2000,0,0),FRotator::ZeroRotator,Spawn);
     auto* PausedUser=SpawnNpc(FVector(2140,50,90));
     auto* Controller=World->SpawnActor<AYUFSSimulationController>();

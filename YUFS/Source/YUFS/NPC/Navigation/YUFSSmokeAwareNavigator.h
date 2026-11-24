@@ -78,6 +78,7 @@ public:
 	float GetPathHeat() const { return LastPathScore.MaxHeat; }
 	FYUFSHazardSnapshot GetPerceivedHazardSnapshot(int32 Frame) const;
 	bool IsLocalRecoverySafe(const FVector& FromFeet, const FVector& ToFeet, int32 Frame) const;
+	bool IsDoorClearanceSafe(const FVector& FromFeet, const FVector& ToFeet, int32 Frame) const;
 	const TArray<FVector>& GetCurrentPathPoints() const { return CurrentPath; }
 	int32 GetCurrentWaypointIndex() const { return CurrentWaypointIndex; }
 

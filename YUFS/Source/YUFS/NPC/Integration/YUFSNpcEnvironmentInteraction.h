@@ -13,10 +13,13 @@ class YUFS_API UYUFSNpcEnvironmentInteraction : public UActorComponent
 public:
  UYUFSNpcEnvironmentInteraction();
  void Observe(float Dt);
+ /** Clear a reserved door's physical travel even if this NPC is not itself evacuating yet. */
+ bool YieldDoorwaySpace(float Dt, int32 SimFrame);
  bool Execute(float Dt, int32 SimFrame);
  void Cancel();
  bool IsActive() const { return bActive; }
  bool IsOperatingDoor() const { return bActive && ActiveGoal==EYUFSInteractionGoal::OpenDoor; }
+ bool IsYieldingDoorSpace() const { return bYieldingDoorSpace; }
  bool NeedsMovement() const { return bActive && bApproaching; }
  FVector GetTarget() const;
  /** A reservation may exist while the helper is still approaching. */
@@ -40,15 +43,22 @@ private:
  bool Visible(AActor* Target) const;
  bool NeedsHelp() const;
  bool ClearDoorSwing(int32 Frame, float Dt);
+ enum class EDoorStep : uint8 { Operator, ClearLeaf, MakeRoom };
+ bool StepAside(const AYUFSInteractionDoor& AtDoor, EDoorStep Step, int32 Frame, float Dt,
+     TOptional<FVector>& Target, float& NextSearch);
  void Finish(bool Success, FName Reason);
  void UpdateLocalPose(const FVector& FacingTarget, EYUFSAction Action, float Dt);
  TWeakObjectPtr<AYUFSEvacuationNPC> Npc, Person, Helper;
  TWeakObjectPtr<AYUFSInteractionDoor> Door;
  TOptional<FVector> DoorClearanceTarget;
+ TOptional<FVector> YieldClearanceTarget;
+ TWeakObjectPtr<AYUFSInteractionDoor> YieldDoor;
  float NextDoorClearanceSearch=0.f;
+ float NextYieldSearch=0.f, NextYieldScan=0.f, DoorNoProgress=0.f, LastDoorFraction=0.f;
+ FVector LastDoorProgressPosition=FVector::ZeroVector;
  float Scan=0.f, Elapsed=0.f, Contact=0.f, RetryAt=0.f;
  int64 RequestRevision=0;
  EYUFSInteractionGoal ActiveGoal=EYUFSInteractionGoal::None;
  FName ActiveTargetId=NAME_None;
- bool bActive=false, bApproaching=false;
+ bool bActive=false, bApproaching=false, bYieldingDoorSpace=false;
 };

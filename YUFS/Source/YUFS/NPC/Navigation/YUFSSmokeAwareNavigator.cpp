@@ -552,6 +552,14 @@ bool UYUFSSmokeAwareNavigator::IsLocalRecoverySafe(const FVector& FromFeet,const
 	const auto Snapshot=GetPerceivedHazardSnapshot(Frame);
 	return Snapshot.Status==EYUFSHazardDataStatus::Ready && !Snapshot.ScorePath({FromFeet,ToFeet},GetRouteHazardSettings()).bUnsafeAhead;
 }
+bool UYUFSSmokeAwareNavigator::IsDoorClearanceSafe(const FVector& FromFeet,const FVector& ToFeet,int32 Frame) const
+{
+	// A short, physically validated step out of a moving leaf is part of escape.
+	// It may start in smoke; keep known dangerous heat as a hard boundary.
+	const auto Snapshot=GetPerceivedHazardSnapshot(Frame);
+	return Snapshot.Status==EYUFSHazardDataStatus::Ready
+		&& !Snapshot.ScorePath({FromFeet,ToFeet},GetEvacuationHazardSettings()).bUnsafeAhead;
+}
 
 bool UYUFSSmokeAwareNavigator::IsKnownPathDangerous(const TArray<FVector>& FloorPoints) const
 {

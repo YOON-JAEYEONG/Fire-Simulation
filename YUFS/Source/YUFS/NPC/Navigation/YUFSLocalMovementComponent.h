@@ -36,7 +36,8 @@ public:
 	// A reserved route is not a moving trajectory while the person operates a door or gives assistance.
 	static bool IsMovingPeer(bool bFollowingPath, bool bInteractionHoldingPosition, bool bTrafficWaiting=false)
 	{ return bFollowingPath && !bInteractionHoldingPosition && !bTrafficWaiting; }
-	bool IsCandidateReachable(FVector CandidateFeet,int32 Frame,FVector& ProjectedFeet) const;
+	bool IsCandidateReachable(FVector CandidateFeet,int32 Frame,FVector& ProjectedFeet,
+		const AYUFSInteractionDoor* ClearanceDoor=nullptr) const;
 	// Ignore peers only for exit-area classification; actual recovery always includes body collisions.
 	bool IsPhysicalCorridorClear(FVector TargetFeet, bool bIgnorePeerNPCs=false, FVector* OutSupportedFloor=nullptr) const;
 private:

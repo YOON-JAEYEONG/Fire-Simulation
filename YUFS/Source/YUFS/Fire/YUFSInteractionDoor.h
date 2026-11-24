@@ -47,6 +47,12 @@ public:
  FVector GetPortalFloorPoint(double SideOffsetCm, double WidthFraction=0.5) const;
  bool ConflictsWithOpening(const ACharacter& Walker, FVector From, FVector To) const;
  bool IsInOpeningSwing(const ACharacter& Character, FVector Location) const;
+ bool HasOpeningOperator() const { return !bTimelinePresentation && CanOperate() && Operator.IsValid(); }
+ /** A nearby non-operator is already in the leaf's remaining travel, rather than just approaching it. */
+ bool ShouldYieldOpeningSpace(const ACharacter& Walker) const;
+ bool IsInOperatorApproach(const ACharacter& Walker, FVector Location, bool bBackOfQueue=false) const;
+ void RequestRoom(const AActor& User);
+ bool IsRequestingRoom() const;
  bool IsInsidePropClearance(FVector FloorLocation, float ExtraClearanceCm) const;
  FYUFSTimelineDoorSnapshot BuildTimelineSnapshot() const;
  void ApplyTimelineSnapshot(const FYUFSTimelineDoorSnapshot& Snapshot);
@@ -70,6 +76,7 @@ private:
  float OpenFraction = 0.f;
  float SwingDirection = 1.f;
  float ResolvedSlideMount = 0.f;
+ float RequestedRoomUntil = -1.f;
  bool bSlideTrackResolved = false;
  bool bOpeningRequested = false;
  bool bOpeningBlocked = false;

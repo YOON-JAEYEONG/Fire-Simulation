@@ -235,6 +235,11 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	{
 		StopEverydayBehavior();
 		EnvironmentInteraction->Observe(DeltaTime);
+		if (EnvironmentInteraction->YieldDoorwaySpace(DeltaTime, GetCurrentSimFrame()))
+		{
+			bInteractionHoldingPosition = true;
+			return;
+		}
 		FYUFSBehaviorDecision Preview;
 		Preview.Behavior = InteractionPreviewBehavior;
 		Preview.LegacyAction = InteractionPreviewBehavior == EYUFSHighLevelBehavior::AssistOther ? EYUFSAction::HelpOther
@@ -337,10 +342,20 @@ void AYUFSEvacuationNPC::Tick(float DeltaTime)
 	if (EnvironmentInteraction) EnvironmentInteraction->Observe(DeltaTime);
 	LiveObservation = CurrentObs;
 
+	// Clearing a moving door is a short reflex before locomotion/queue logic, not a policy action.
+	// All residents can make room; perception, risk and recording still run this tick.
+	const bool bMakingRoomForDoor = EnvironmentInteraction && EnvironmentInteraction->YieldDoorwaySpace(DeltaTime, CurrentFrame);
+	if (bMakingRoomForDoor)
+	{
+		StopEverydayBehavior();
+		bInteractionHoldingPosition = true;
+		if (LocalMovement) LocalMovement->Reset();
+	}
 	// 단서를 아직 인식하지 못했다면 평상시 산책을 유지한다.
-	if (BehaviorSM && BehaviorSM->GetCurrentState() == EYUFSBehaviorState::Normal
+	else if (BehaviorSM && BehaviorSM->GetCurrentState() == EYUFSBehaviorState::Normal
 		&& (!EnvironmentInteraction || !EnvironmentInteraction->IsReceivingContactAssistance()))
 	{
+		bInteractionHoldingPosition = false;
 		if (!SimulationController) TickEverydayBehavior(DeltaTime);
 	}
 	else
@@ -1517,7 +1532,8 @@ void AYUFSEvacuationNPC::UpdateActionAnimation(bool bForce)
 	const bool bLiveInteraction = !bTimelinePlaybackMode
 		&& (!SimulationController || SimulationController->IsNPCSimulationEnabled());
 	if (bLiveInteraction && EnvironmentInteraction
-		&& (EnvironmentInteraction->IsActive() || EnvironmentInteraction->IsReceivingContactAssistance())) return;
+		&& (EnvironmentInteraction->IsActive() || EnvironmentInteraction->IsReceivingContactAssistance()
+			|| EnvironmentInteraction->IsYieldingDoorSpace())) return;
 	if (SuppressionComp && (SuppressionComp->IsActive() || SuppressionComp->IsVisualPresentationActive())) return;
 	if (bUseExternalMotionDriver || !ActionAnimationComp)
 	{

@@ -242,6 +242,34 @@ bool AYUFSInteractionDoor::IsInOpeningSwing(const ACharacter& Character, FVector
 {
  return CanOperate() && IntersectsRemainingSwing(Character,Location,Location);
 }
+bool AYUFSInteractionDoor::ShouldYieldOpeningSpace(const ACharacter& Walker) const
+{
+ const FVector Location=Walker.GetActorLocation();
+ return ConflictsWithOpening(Walker,Location,Location);
+}
+bool AYUFSInteractionDoor::IsInOperatorApproach(const ACharacter& Walker, FVector Location, bool bBackOfQueue) const
+{
+ if (bTimelinePresentation || !CanOperate() || !Operator.IsValid() || Operator.Get()==&Walker) return false;
+ const auto* Capsule=Walker.GetCapsuleComponent();
+ const double FootZ=Location.Z-Capsule->GetScaledCapsuleHalfHeight();
+ if (FMath::Abs(FootZ-GetActorLocation().Z)>80.f) return false;
+ const FVector Handle=GetHandleLocation();
+ const FVector Side=GetActorForwardVector().GetSafeNormal2D(), Along=GetActorRightVector().GetSafeNormal2D();
+ const FVector Offset=Location-Handle;
+ const double PeerRadius=Capsule->GetScaledCapsuleRadius();
+ // Keep a small pocket on the approach to the handle, not the entire hallway.
+ return FMath::Abs(FVector::DotProduct(Offset,Side))<(bBackOfQueue?205.f:87.f)+PeerRadius
+     && FMath::Abs(FVector::DotProduct(Offset,Along))<(bBackOfQueue?133.f:60.f)+PeerRadius;
+}
+void AYUFSInteractionDoor::RequestRoom(const AActor& User)
+{
+ if (HasOpeningOperator() && Operator.Get()==&User)
+  RequestedRoomUntil=GetWorld()->GetTimeSeconds()+.45f;
+}
+bool AYUFSInteractionDoor::IsRequestingRoom() const
+{
+ return HasOpeningOperator() && (bOpeningBlocked || GetWorld()->GetTimeSeconds()<RequestedRoomUntil);
+}
 bool AYUFSInteractionDoor::IntersectsRemainingSwing(const ACharacter& Character, FVector From, FVector To) const
 {
  const auto* Capsule=Character.GetCapsuleComponent();
@@ -307,7 +335,7 @@ bool AYUFSInteractionDoor::TryUse(AActor* User)
 void AYUFSInteractionDoor::Release(AActor* User)
 {
  if (Operator.Get()!=User) return;
- Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false;
+ Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false; RequestedRoomUntil=-1.f;
 }
 bool AYUFSInteractionDoor::CanSweepLeaf(float FromFraction,float ToFraction,bool bReportBlocker,bool bOnlyTrackGeometry) const
 {
@@ -393,7 +421,7 @@ FYUFSTimelineDoorSnapshot AYUFSInteractionDoor::BuildTimelineSnapshot() const
 void AYUFSInteractionDoor::ApplyTimelineSnapshot(const FYUFSTimelineDoorSnapshot& Snapshot)
 {
  // Observation only: never TryUse, sweep the live leaf, or create a new reservation.
- bTimelinePresentation=true; Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false;
+ bTimelinePresentation=true; Operator.Reset(); bOpeningRequested=false; bOpeningBlocked=false; RequestedRoomUntil=-1.f;
  OpenFraction=FMath::Clamp(Snapshot.OpenFraction,0.f,1.f); SwingDirection=Snapshot.SwingDirection<0.f?-1.f:1.f;
  ApplyLeafPose();
  PassageBlocker->SetCollisionEnabled(IsOpen()?ECollisionEnabled::NoCollision:ECollisionEnabled::QueryAndPhysics);

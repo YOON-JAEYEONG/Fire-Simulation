@@ -77,48 +77,128 @@ bool UYUFSNpcEnvironmentInteraction::ClearDoorSwing(int32 Frame, float Dt)
  }
 
  Contact=0.f;
- const FVector Handle=Door->GetHandleLocation();
- const double HalfHeight=Npc->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
- const FVector FootOffset(0,0,HalfHeight);
- auto* Local=Npc->GetLocalMovement();
- if (!Npc->bUseExternalNavigationDriver && Local)
+ if (!StepAside(*Door.Get(),EDoorStep::Operator,Frame,Dt,DoorClearanceTarget,NextDoorClearanceSearch))
  {
-  const FVector Feet=Location-FootOffset;
-  auto CanStepTo=[&](FVector Candidate, FVector& Projected)
+  if (DoorNoProgress>.3f) Door->RequestRoom(*Npc.Get());
+  Npc->GetCharacterMovement()->StopMovementImmediately();
+  UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
+ }
+ return false;
+}
+
+bool UYUFSNpcEnvironmentInteraction::StepAside(const AYUFSInteractionDoor& AtDoor, EDoorStep Step, int32 Frame,
+    float Dt, TOptional<FVector>& Target, float& NextSearch)
+{
+ auto* Local=Npc->GetLocalMovement();
+ if (Npc->bUseExternalNavigationDriver || !Local) return false;
+ const FVector Location=Npc->GetActorLocation();
+ const FVector FootOffset(0,0,Npc->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+ const FVector Feet=Location-FootOffset;
+ const FVector Outward=AtDoor.GetActorForwardVector().GetSafeNormal2D()
+     *(AtDoor.GetActorTransform().InverseTransformPosition(Location).X>=0.f ? 1.f : -1.f);
+ const FVector Along=AtDoor.GetActorRightVector().GetSafeNormal2D();
+ const float Now=GetWorld()->GetTimeSeconds();
+ auto GoodStep=[&](FVector Candidate,FVector& Projected)
+ {
+  auto GoodEndpoint=[&](FVector End)
   {
-   return Door->IsLocationInReach(Candidate+FootOffset) && Local->IsCandidateReachable(Candidate,Frame,Projected)
-       && Door->IsLocationInReach(Projected+FootOffset) && !Door->IsInOpeningSwing(*Npc.Get(),Projected+FootOffset);
+   return !AtDoor.IsInOpeningSwing(*Npc.Get(),End)
+       && (Step!=EDoorStep::Operator || AtDoor.IsLocationInReach(End))
+       && (Step!=EDoorStep::MakeRoom || !AtDoor.IsInOperatorApproach(*Npc.Get(),End));
   };
+  return GoodEndpoint(Candidate+FootOffset)
+      && Local->IsCandidateReachable(Candidate,Frame,Projected,&AtDoor)
+      && FVector::DistSquared2D(Feet,Projected)>FMath::Square(12.f)
+      && GoodEndpoint(Projected+FootOffset);
+ };
+ if (Target.IsSet() && FVector::DistSquared2D(Feet,Target.GetValue())<=FMath::Square(13.f)) Target.Reset();
+ if (Now>=NextSearch)
+ {
+  NextSearch=Now+.24f;
   FVector Projected;
-  if (DoorClearanceTarget.IsSet() && !CanStepTo(DoorClearanceTarget.GetValue(),Projected))
-   DoorClearanceTarget.Reset();
-  if (!DoorClearanceTarget.IsSet() && Elapsed>=NextDoorClearanceSearch)
+  if (Target.IsSet() && !GoodStep(Target.GetValue(),Projected)) Target.Reset();
+  if (!Target.IsSet())
   {
-   NextDoorClearanceSearch=Elapsed+.35f;
-   const FVector TowardLatch=(Handle-Door->GetActorLocation()).GetSafeNormal2D();
-   const FVector Away=(Location-Handle).GetSafeNormal2D();
-   for (const FVector& Direction : {TowardLatch,(TowardLatch+Away).GetSafeNormal2D(),Away,-TowardLatch})
+   // Try the short step back first; diagonals and wall-parallel steps cover narrow rooms.
+   for (const float Distance : {45.f,70.f,105.f,145.f})
    {
-    for (float Distance : {80.f,120.f,160.f})
+    for (const FVector& Direction : {Outward,Outward+.65f*Along,Outward-.65f*Along,
+         .45f*Outward+Along,.45f*Outward-Along,Along,-Along,-Outward})
     {
-     if (!CanStepTo(Feet+Direction*Distance,Projected)) continue;
-     DoorClearanceTarget=Projected;
+     if (!GoodStep(Feet+Direction.GetSafeNormal2D()*Distance,Projected)) continue;
+     Target=Projected;
      break;
     }
-    if (DoorClearanceTarget.IsSet()) break;
+    if (Target.IsSet()) break;
    }
   }
-  if (DoorClearanceTarget.IsSet())
+ }
+ if (!Target.IsSet()) return false;
+ Npc->GetCharacterMovement()->MaxWalkSpeed=FMath::Min(150.f,Npc->GetDesiredWalkingSpeed());
+ Npc->ConsumeMovementInputVector();
+ Npc->AddMovementInput((Target.GetValue()-Feet).GetSafeNormal2D(),1.f);
+ UpdateLocalPose(Target.GetValue(),EYUFSAction::HelpOther,Dt);
+ return true;
+}
+
+bool UYUFSNpcEnvironmentInteraction::YieldDoorwaySpace(float Dt,int32 Frame)
+{
+ bYieldingDoorSpace=false;
+ Npc=Cast<AYUFSEvacuationNPC>(GetOwner());
+ if (!Npc.IsValid() || bUseExternalExecutor || Npc->bUseExternalNavigationDriver
+     || Npc->GetBehaviorStateMachine()->IsIncapacitated())
+ {
+  YieldDoor.Reset(); YieldClearanceTarget.Reset(); return false;
+ }
+ const FVector Location=Npc->GetActorLocation();
+ auto CanMakeRoom=[&](const AYUFSInteractionDoor& AtDoor)
+ {
+  return AtDoor.IsRequestingRoom() && AtDoor.IsInOperatorApproach(*Npc.Get(),Location,true);
+ };
+ auto* Selected=YieldDoor.Get();
+ if (Selected && (!Selected->HasOpeningOperator() || Selected->IsReservedBy(Npc.Get())))
+ {
+  YieldDoor.Reset(); YieldClearanceTarget.Reset(); Selected=nullptr;
+ }
+ if (!Selected && GetWorld()->GetTimeSeconds()>=NextYieldScan)
+ {
+  NextYieldScan=GetWorld()->GetTimeSeconds()+.2f;
+  double Best=FMath::Square(440.0);
+  bool bBestBlocksLeaf=false;
+  for (TActorIterator<AYUFSInteractionDoor> It(GetWorld());It;++It)
   {
-   const FVector Target=DoorClearanceTarget.GetValue();
-   Npc->AddMovementInput((Target-Location).GetSafeNormal2D(),.35f);
-   UpdateLocalPose(Target,EYUFSAction::HelpOther,Dt); // Reuse the walking animation for the side step.
-   return false;
+   const double Distance=FVector::DistSquared(Location,It->GetHandleLocation());
+   if (Distance>=FMath::Square(440.0)) continue;
+   const bool bBlocksLeaf=It->ShouldYieldOpeningSpace(*Npc.Get());
+   if (!bBlocksLeaf && (bBestBlocksLeaf || !CanMakeRoom(**It))) continue;
+   if (bBlocksLeaf==bBestBlocksLeaf && Distance>=Best) continue;
+   Selected=*It; Best=Distance; bBestBlocksLeaf=bBlocksLeaf;
+  }
+  if (Selected)
+  {
+   YieldDoor=Selected; NextYieldSearch=0.f;
   }
  }
- Npc->GetCharacterMovement()->StopMovementImmediately();
- UpdateLocalPose(Handle,EYUFSAction::Idle,Dt);
- return false;
+ if (!Selected) return false;
+ const bool bBlocksLeaf=Selected->ShouldYieldOpeningSpace(*Npc.Get());
+ if (!bBlocksLeaf && !CanMakeRoom(*Selected)
+     && (!YieldClearanceTarget.IsSet() || FVector::DistSquared2D(Location,YieldClearanceTarget.GetValue())<=FMath::Square(13.f)))
+ {
+  YieldDoor.Reset(); YieldClearanceTarget.Reset(); return false;
+ }
+ // Never hold a second door reservation while physically blocking the first.
+ if (IsOperatingDoor() && Door.IsValid() && Door.Get()!=Selected && Door->IsReservedBy(Npc.Get()))
+ {
+  if (!bBlocksLeaf) return false;
+  Finish(false,TEXT("YieldingToOtherDoor"));
+ }
+ const bool bHadTarget=YieldClearanceTarget.IsSet();
+ bYieldingDoorSpace=StepAside(*Selected,bBlocksLeaf?EDoorStep::ClearLeaf:EDoorStep::MakeRoom,
+     Frame,Dt,YieldClearanceTarget,NextYieldSearch);
+ if (!bHadTarget && bYieldingDoorSpace)
+  UE_LOG(LogTemp,Log,TEXT("[YUFS][DoorCourtesy] npc=%s %s %s"),*Npc->GetName(),
+      bBlocksLeaf?TEXT("clears rail at"):TEXT("makes room at"),*Selected->GetName());
+ return bYieldingDoorSpace;
 }
 void UYUFSNpcEnvironmentInteraction::Observe(float Dt)
 {
@@ -209,6 +289,7 @@ void UYUFSNpcEnvironmentInteraction::Finish(bool Success,FName Reason)
  bActive=false; bApproaching=false; ActiveGoal=EYUFSInteractionGoal::None; ActiveTargetId=NAME_None;
  Door.Reset(); Person.Reset();
  DoorClearanceTarget.Reset(); NextDoorClearanceSearch=0.f;
+ DoorNoProgress=LastDoorFraction=0.f;
  Elapsed=Contact=0; RetryAt=GetWorld()->GetTimeSeconds()+2.f; Scan=0;
 }
 bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
@@ -260,18 +341,35 @@ bool UYUFSNpcEnvironmentInteraction::Execute(float Dt, int32 SimFrame)
   { Npc->GetCharacterMovement()->StopMovementImmediately(); Finish(true,TEXT("DoorOpened")); return true; }
   if (!Door->CanOperate() || !Door->IsUserInReach(Npc.Get()))
   { Npc->GetCharacterMovement()->StopMovementImmediately(); Finish(false,TEXT("DoorLockedHotOrOutOfReach")); return true; }
+  const bool bAlreadyOperator=Door->IsReservedBy(Npc.Get());
   if (!Door->TryReserve(Npc.Get()))
   {
    Contact=0.f;
+   if ((DoorClearanceTarget.IsSet() || Door->IsInOperatorApproach(*Npc.Get(),Npc->GetActorLocation()))
+       && StepAside(*Door.Get(),EDoorStep::MakeRoom,SimFrame,Dt,DoorClearanceTarget,NextDoorClearanceSearch))
+    return true;
    Npc->GetCharacterMovement()->StopMovementImmediately();
    UpdateLocalPose(Door->GetHandleLocation(),EYUFSAction::Idle,Dt);
    return true; // Do not crowd/push the NPC currently operating this same door.
+  }
+  const FVector Position=Npc->GetActorLocation();
+  const float Fraction=Door->GetOpenFraction();
+  if (!bAlreadyOperator || Fraction>LastDoorFraction+.015f
+      || FVector::DistSquared2D(Position,LastDoorProgressPosition)>FMath::Square(15.f))
+  {
+   DoorNoProgress=0.f; LastDoorFraction=Fraction; LastDoorProgressPosition=Position;
+   if (!bAlreadyOperator) { DoorClearanceTarget.Reset(); NextDoorClearanceSearch=0.f; }
+  }
+  else DoorNoProgress+=Dt;
+  if (DoorNoProgress>4.f)
+  {
+   Finish(false,TEXT("DoorNoProgress")); return true;
   }
   if (!ClearDoorSwing(SimFrame,Dt)) return true;
   Npc->GetCharacterMovement()->StopMovementImmediately();
   const FVector Handle=Door->GetHandleLocation();
   const FVector Facing=(Handle-Npc->GetActorLocation()).GetSafeNormal2D();
-  const bool Aligned=FVector::DotProduct(Npc->GetActorForwardVector().GetSafeNormal2D(),Facing)
+  const bool Aligned=Facing.IsNearlyZero() || FVector::DotProduct(Npc->GetActorForwardVector().GetSafeNormal2D(),Facing)
       >=FMath::Cos(FMath::DegreesToRadians(DoorFacingToleranceDegrees));
   // Align first, then play the compatible reach gesture. No hand IK is claimed.
   UpdateLocalPose(Handle,Aligned?EYUFSAction::GatherBelongings:EYUFSAction::Idle,Dt);
