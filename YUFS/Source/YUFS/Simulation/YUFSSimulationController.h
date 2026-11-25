@@ -206,6 +206,8 @@ public:
 	UFUNCTION(BlueprintPure, Category="Simulation|Fire")
 	FString GetFireOptionName(int32 OptionIndex) const;
 
+	void ShowSimulationCamera(APlayerController* Player, bool bFireZone) const;
+
 	// Deprecated: SelectFireOption(int32)을 쓰세요. 기존 Fire_A/Fire_B 버튼 블루프린트와의
 	// 호환을 위해서만 남겨둡니다 (ScenarioA→인덱스 0, ScenarioB→인덱스 1).
 	UFUNCTION(BlueprintCallable, Category="Simulation|Fire", meta=(DeprecatedFunction, DeprecationMessage="Use SelectFireOption(int32) with the FireOptions combo box instead."))

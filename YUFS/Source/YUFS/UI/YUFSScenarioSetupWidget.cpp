@@ -1,5 +1,6 @@
 #include "UI/YUFSScenarioSetupWidget.h"
 
+#include "Components/CheckBox.h"
 #include "Components/ComboBoxString.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
@@ -241,6 +242,12 @@ bool UYUFSScenarioSetupWidget::ValidateConfig(FText& OutError) const
 
 void UYUFSScenarioSetupWidget::ConfirmAndLaunch()
 {
+	// Read the checkbox at launch so Blueprint defaults cannot override the selected policy.
+	if (const UCheckBox* PolicyCheck = Cast<UCheckBox>(GetWidgetFromName(TEXT("MlPolicyCheck"))))
+	{
+		SetPolicyType(PolicyCheck->IsChecked() ? EYUFSScenarioPolicy::ML : EYUFSScenarioPolicy::RuleBased);
+	}
+
 	FText Error;
 	if (!WorkingConfig.IsValid(Error))
 	{

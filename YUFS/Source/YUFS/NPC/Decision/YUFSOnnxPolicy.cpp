@@ -54,8 +54,14 @@ FYUFSOnnxPolicy::FYUFSOnnxPolicy(const FString& InModelPath, const FString& InRu
 
 EYUFSAction FYUFSOnnxPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 {
-	if (bDataCollectionMode || bForceRuleBased || !EnsureModelLoaded())
+	if (bDataCollectionMode || bForceRuleBased)
 	{
+		ReportActionSource(EActionSource::RuleBased);
+		return FallbackPolicy.SelectAction(Obs);
+	}
+	if (!EnsureModelLoaded())
+	{
+		ReportActionSource(EActionSource::OnnxFallback);
 		return FallbackPolicy.SelectAction(Obs);
 	}
 
@@ -66,10 +72,30 @@ EYUFSAction FYUFSOnnxPolicy::SelectAction(const FYUFSNPCObservation& Obs)
 
 	if (!bInferenceSucceeded)
 	{
+		ReportActionSource(EActionSource::OnnxFallback);
 		return FallbackPolicy.SelectAction(Obs);
 	}
 
+	ReportActionSource(EActionSource::ONNX);
 	return SelectActionFromLogits(SharedModelState->OutputBuffer);
+}
+
+void FYUFSOnnxPolicy::ReportActionSource(EActionSource Source)
+{
+	if (LastActionSource == Source) return;
+	LastActionSource = Source;
+	if (Source == EActionSource::ONNX)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[YUFS][NPCPolicy] source=ONNX model=%s"), *ResolvedModelPath);
+	}
+	else if (Source == EActionSource::OnnxFallback)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS][NPCPolicy] source=RuleBasedFallback model=%s"), *ModelPath);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("[YUFS][NPCPolicy] source=RuleBased collection=%d"), bDataCollectionMode);
+	}
 }
 
 void FYUFSOnnxPolicy::LoadModel(const FString& Path)

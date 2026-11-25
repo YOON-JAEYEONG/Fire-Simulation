@@ -32,6 +32,10 @@ public:
 	}
 
 private:
+	enum class EActionSource : uint8 { Unreported, RuleBased, ONNX, OnnxFallback };
+	void ReportActionSource(EActionSource Source);
+	EActionSource LastActionSource = EActionSource::Unreported;
+
 	bool EnsureModelLoaded();
 	bool LoadCpuModel(FYUFSSharedOnnxModelState& State, const FString& ResolvedPath, const TArray64<uint8>& ModelBytes);
 	bool LoadGpuModel(FYUFSSharedOnnxModelState& State, const FString& ResolvedPath, const TArray64<uint8>& ModelBytes);

@@ -116,70 +116,14 @@ void USimulationUIWidget::OnResetClicked()
 
 void USimulationUIWidget::OnCameraOverviewClicked()
 {
-    UE_LOG(LogTemp, Warning, TEXT("Overview button clicked"));
-
-    UWorld* World = GetWorld();
-    if (!World)
-    {
-        UE_LOG(LogTemp, Error, TEXT("World is null"));
-        return;
-    }
-
-    APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
-    if (!PC)
-    {
-        UE_LOG(LogTemp, Error, TEXT("PlayerController is null"));
-        return;
-    }
-
-    TArray<AActor*> Cameras;
-    UGameplayStatics::GetAllActorsWithTag(World, FName("OverviewCamera"), Cameras);
-
-    UE_LOG(LogTemp, Warning, TEXT("OverviewCamera count: %d"), Cameras.Num());
-
-    if (Cameras.Num() > 0 && Cameras[0])
-    {
-        PC->SetViewTargetWithBlend(Cameras[0], 0.5f);
-        UE_LOG(LogTemp, Warning, TEXT("Switched to OverviewCamera"));
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("OverviewCamera not found"));
-    }
+    if (const AYUFSSimulationController* Controller = FindSimulationController(this))
+        Controller->ShowSimulationCamera(GetOwningPlayer(), false);
 }
 
 void USimulationUIWidget::OnCameraFireZoneClicked()
 {
-    UE_LOG(LogTemp, Warning, TEXT("Fire Zone button clicked"));
-
-    UWorld* World = GetWorld();
-    if (!World)
-    {
-        UE_LOG(LogTemp, Error, TEXT("World is null"));
-        return;
-    }
-
-    APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
-    if (!PC)
-    {
-        UE_LOG(LogTemp, Error, TEXT("PlayerController is null"));
-        return;
-    }
-
-    TArray<AActor*> Cameras;
-    UGameplayStatics::GetAllActorsWithTag(World, FName("FireZoneCamera"), Cameras);
-
-    UE_LOG(LogTemp, Warning, TEXT("FireZoneCamera count: %d"), Cameras.Num());
-
-    if (Cameras.Num() > 0 && Cameras[0])
-    {
-        PC->SetViewTargetWithBlend(Cameras[0], 0.5f);
-        UE_LOG(LogTemp, Warning, TEXT("Switched to FireZoneCamera"));
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("FireZoneCamera not found"));
-    }
+    if (const AYUFSSimulationController* Controller = FindSimulationController(this))
+        Controller->ShowSimulationCamera(GetOwningPlayer(), true);
 }
 
 void USimulationUIWidget::UpdateSimulationStats()

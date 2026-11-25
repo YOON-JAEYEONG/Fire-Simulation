@@ -2,6 +2,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "Blueprint/UserWidget.h"
+#include "Camera/CameraActor.h"
 #include "Simulation/YUFSGameInstance.h"
 #include "Debug/YUFSInteractionPreview.h"
 #include "Simulation/YUFSTimelineRecorder.h"
@@ -11,6 +12,7 @@
 #include "Fire/YUFSBinaryManager.h"
 #include "Fire/YUFSHeterogeneousVolume.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Level/YUFSLevelDataManager.h"
 #include "NPC/YUFSEvacuationNPC.h"
@@ -20,6 +22,14 @@
 #include "Misc/PackageName.h"
 #include "Materials/MaterialInterface.h"
 #include "SparseVolumeTexture/SparseVolumeTexture.h"
+
+namespace
+{
+FName FireCameraTag(int32 OptionIndex)
+{
+	return FName(*FString::Printf(TEXT("FireZoneCamera_%d"), OptionIndex + 1));
+}
+}
 
 AYUFSSimulationController::AYUFSSimulationController()
 {
@@ -377,7 +387,11 @@ void AYUFSSimulationController::SelectFireOption(int32 OptionIndex)
 		return;
 	}
 
+	APlayerController* Player = GetWorld()->GetFirstPlayerController();
+	const AActor* PreviousView = Player ? Player->GetViewTarget() : nullptr;
+	const bool bWasViewingFire = PreviousView && PreviousView->ActorHasTag(FireCameraTag(CurrentFireOptionIndex));
 	ApplyFireOption(OptionIndex);
+	if (bWasViewingFire) ShowSimulationCamera(Player, true);
 
 	UE_LOG(LogTemp, Warning, TEXT("[YUFS] 화재 전환 → [%d] %s"), OptionIndex, *FireOptions[OptionIndex].DisplayName);
 }
@@ -385,6 +399,34 @@ void AYUFSSimulationController::SelectFireOption(int32 OptionIndex)
 void AYUFSSimulationController::SelectFireScenario(EFireScenario NewScenario)
 {
 	SelectFireOption(NewScenario == EFireScenario::ScenarioA ? 0 : 1);
+}
+
+void AYUFSSimulationController::ShowSimulationCamera(APlayerController* Player, bool bFireZone) const
+{
+	if (!GetWorld()) return;
+	if (!Player) Player = GetWorld()->GetFirstPlayerController();
+	if (!Player) return;
+
+	const FName LegacyTag = bFireZone ? FName(TEXT("FireZoneCamera")) : FName(TEXT("OverviewCamera"));
+	const FName TargetTag = bFireZone ? FireCameraTag(CurrentFireOptionIndex) : LegacyTag;
+	ACameraActor* LegacyCamera = nullptr;
+	for (TActorIterator<ACameraActor> It(GetWorld()); It; ++It)
+	{
+		if (It->ActorHasTag(TargetTag))
+		{
+			Player->SetViewTargetWithBlend(*It, 0.5f);
+			return;
+		}
+		if (bFireZone && It->ActorHasTag(LegacyTag)) LegacyCamera = *It;
+	}
+	if (LegacyCamera)
+	{
+		Player->SetViewTargetWithBlend(LegacyCamera, 0.5f);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS] Camera tag %s not found."), *TargetTag.ToString());
+	}
 }
 
 TArray<FString> AYUFSSimulationController::GetFireOptionNames() const
