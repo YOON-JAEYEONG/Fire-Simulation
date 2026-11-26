@@ -44,6 +44,9 @@ public:
 	FVector GetNearestSafeExit(FVector From, bool bSmokeFreeOnly, int32 Frame) const;
 	// Exit anchors sit on the exit floor. Success requires the actual body and a supported clear approach.
 	bool IsAtValidExit(const ACharacter* Character, float RadiusCm) const;
+	// Placement guard: a locally walkable NavMesh island is not an evacuation route.
+	UFUNCTION(BlueprintCallable, Category="YUFS|Navigation")
+	bool HasConnectedExitFrom(FVector NavFloor, TSubclassOf<ACharacter> CharacterClass) const;
 	TArray<FVector> GetExitLocations() const;
 	const TArray<AYUFSExitPoint*>& GetExitActors() const { return CachedExits; }
 	// Map geometry alias only; interaction callers evaluate personal knowledge separately.

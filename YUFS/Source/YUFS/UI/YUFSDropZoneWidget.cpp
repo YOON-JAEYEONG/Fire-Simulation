@@ -5,6 +5,7 @@
 #include "Engine/GameViewportClient.h"
 #include "EngineUtils.h"
 #include "Framework/Application/SlateApplication.h"
+#include "Level/YUFSLevelDataManager.h"
 #include "NavigationData.h"
 #include "NavigationSystem.h"
 #include "NPC/YUFSEvacuationNPC.h"
@@ -276,6 +277,15 @@ bool UYUFSDropZoneWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragD
 		if (UYUFSNPCPaletteWidget* Palette = DragOp->SourcePalette.Get())
 			Palette->SetPlacementStatus(NSLOCTEXT("YUFS", "NPCInvalidPlacement", "이동 가능한 빈 바닥에 놓아주세요."));
 		UE_LOG(LogTemp, Warning, TEXT("[YUFS|DropZone] Placement rejected: point at a visible, walkable floor with room for the NPC."));
+		return false;
+	}
+	if (const auto* Level = Cast<AYUFSLevelDataManager>(
+		UGameplayStatics::GetActorOfClass(GetWorld(), AYUFSLevelDataManager::StaticClass()));
+		Level && !Level->GetExitActors().IsEmpty() && !Level->HasConnectedExitFrom(FloorPos, DragOp->NPCClass))
+	{
+		if (UYUFSNPCPaletteWidget* Palette = DragOp->SourcePalette.Get())
+			Palette->SetPlacementStatus(NSLOCTEXT("YUFS", "NPCPlacementNoExit", "이 위치는 출구로 이어지는 경로가 없어 NPC를 배치할 수 없습니다."));
+		UE_LOG(LogTemp, Warning, TEXT("[YUFS|DropZone] Placement rejected: no complete route to a level exit from %s"), *FloorPos.ToString());
 		return false;
 	}
 

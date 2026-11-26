@@ -27,7 +27,7 @@ public:
 	float EvacuationDecisionTimeScale = 0.65f;
 	// Open travel and safe search only; physical interactions keep their own speed limits.
 	UPROPERTY(EditAnywhere, Category="Evacuation Tempo", meta=(ClampMin="0.5", ClampMax="1.6"))
-	float EvacuationTravelSpeedScale = 1.25f;
+	float EvacuationTravelSpeedScale = 1.05f;
 	// Probability of considering a one-off return, not an observed population statistic.
 	UPROPERTY(EditAnywhere, Category="Belongings", meta=(ClampMin="0.0", ClampMax="1.0"))
 	float BelongingsReturnCandidateFraction = 0.20f;
@@ -79,8 +79,8 @@ public:
 	// Normalized exposure per second at smoke=1; not a physiological dose model.
 	UPROPERTY(EditAnywhere, Category="Incapacitation")
 	float SmokeExposureAccumRate = 0.008f;
-	// Short demonstration runs: 3x gives crawl ~25s / incapacitation ~37.5s at constant smoke=1.
-	// Set to 1 to restore the earlier 75s / 112.5s timing. Shared assets are never mutated at runtime.
+	// At constant normalized smoke=1, 3x gives crawl ~25s / incapacitation ~31.25s.
+	// At 1x, the same thresholds are reached at ~75s / ~93.75s.
 	UPROPERTY(EditAnywhere, Category="Incapacitation|Simulation Timing", meta=(ClampMin="0.1", ClampMax="10.0"))
 	float SmokeExposureTimeScale = 3.f;
 
@@ -93,7 +93,7 @@ public:
 
 	// 완전 행동불능(쓰러짐) 임계값 [0,1]
 	UPROPERTY(EditAnywhere, Category="Incapacitation")
-	float IncapacitationThreshold = 0.90f;
+	float IncapacitationThreshold = 0.75f;
 
 	// 기어갈 때 이동 속도 (cm/s)
 	UPROPERTY(EditAnywhere, Category="Incapacitation")

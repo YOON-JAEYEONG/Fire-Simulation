@@ -9,6 +9,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "NavigationData.h"
+#include "NavigationSystem.h"
 #include "NPC/Navigation/YUFSLocalMovementComponent.h"
 
 // Sets default values
@@ -116,6 +118,30 @@ FVector AYUFSLevelDataManager::GetNearestSafeExit(FVector From, bool bSmokeFreeO
 	}
 
 	return MinAnyDist < MAX_flt ? NearestAny : From;
+}
+
+bool AYUFSLevelDataManager::HasConnectedExitFrom(FVector NavFloor, TSubclassOf<ACharacter> CharacterClass) const
+{
+	const auto* Template = CharacterClass ? CharacterClass->GetDefaultObject<ACharacter>() : nullptr;
+	const auto* Movement = Template ? Template->GetCharacterMovement() : nullptr;
+	auto* Nav = UNavigationSystemV1::GetCurrent(GetWorld());
+	if (!Movement || !Nav || NavFloor.ContainsNaN()) return false;
+	const auto& Agent = Movement->GetNavAgentPropertiesRef();
+	const ANavigationData* NavData = Nav->GetNavDataForProps(Agent, NavFloor);
+	if (!NavData) return false;
+	for (const AYUFSExitPoint* Exit : CachedExits)
+	{
+		if (!IsValid(Exit)) continue;
+		const FVector ExitFloor = Exit->GetActorLocation();
+		FNavLocation ExitNav;
+		if (!Nav->ProjectPointToNavigation(ExitFloor, ExitNav, FVector(45.f, 45.f, 40.f), NavData)
+			|| FMath::Abs(ExitFloor.Z - ExitNav.Location.Z) > 30.f) continue;
+		FPathFindingQuery Query(this, *NavData, NavFloor, ExitNav.Location);
+		Query.SetAllowPartialPaths(false);
+		const FPathFindingResult Result = Nav->FindPathSync(Agent, Query);
+		if (Result.IsSuccessful() && Result.Path.IsValid() && !Result.Path->IsPartial()) return true;
+	}
+	return false;
 }
 
 bool AYUFSLevelDataManager::IsAtValidExit(const ACharacter* Character, float RadiusCm) const
